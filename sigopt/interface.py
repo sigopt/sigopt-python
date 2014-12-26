@@ -44,13 +44,17 @@ class Connection(object):
       )
 
   def _handle_response(self, response):
-    response_json = response.json()
-    if 200 <= response.status_code <= 299:
-      response = response_json.get('response')
-      warnings = response.get('warnings', [])
-      for warning in warnings:
-        self._logger.warn(warning)
-      return response
-    else:
-      error_message = response_json.get('error', {}).get('message', None)
-      raise ApiException(error_message, response.status_code)
+    try:
+      response_json = response.json()
+      if 200 <= response.status_code <= 299:
+        response = response_json.get('response')
+        warnings = response.get('warnings', [])
+        for warning in warnings:
+          self._logger.warn(warning)
+        return response
+      else:
+        error_message = response_json.get('error', {}).get('message', None)
+        raise ApiException(error_message, response.status_code)
+    except Exception as e:
+      print response.text
+      raise e

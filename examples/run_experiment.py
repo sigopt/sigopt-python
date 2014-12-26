@@ -34,7 +34,8 @@ class ExampleRunner(threading.Thread):
     return parameters['param1'] - parameters['param2']
 
 if __name__ == '__main__':
-  runners = [ExampleRunner('worker-1'), ExampleRunner('worker-2'), ExampleRunner('worker-3')]
+  RUNNER_COUNT = 3
+  runners = [ExampleRunner('worker-' + str(i+1)) for i in xrange(RUNNER_COUNT)]
 
   for runner in runners:
     runner.daemon = True
