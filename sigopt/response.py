@@ -1,13 +1,18 @@
-class ReportResponse(object):
-  def __init__(self, api_response):
-    self.api_response = api_response
+from sigopt.objects import ApiObject, Experiment, Suggestion
 
-  def get_parameters(self):
-    return self.api_response['suggestion']['allocations']
+class ApiResponse(ApiObject):
+  pass
 
-class SuggestResponse(object):
-  def __init__(self, api_response):
-    self.api_response = api_response
 
-  def get_parameters(self):
-    return self.api_response['suggestion']['allocations']
+class ExperimentsSuggestResponse(ApiResponse):
+  @property
+  def suggestion(self):
+    _suggestion = self.body.get('suggestion')
+    return Suggestion(_suggestion) if _suggestion is not None else None
+
+
+class ExperimentsCreateResponse(ApiResponse):
+  @property
+  def experiment(self):
+    _experiment = self.body.get('experiment')
+    return Experiment(_experiment) if _experiment is not None else None
