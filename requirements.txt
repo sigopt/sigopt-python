@@ -1,0 +1,2 @@
+# Keep this in sync with setup.py
+requests>=2.0.1
