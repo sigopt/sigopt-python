@@ -91,4 +91,4 @@ class Experiment(ApiObject):
   @property
   def metric(self):
     _metric = self.body.get('metric')
-    return Metric(_metric) if _metric is not None else None
+    return ExperimentMetric(_metric) if _metric is not None else None

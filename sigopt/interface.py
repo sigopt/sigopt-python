@@ -1,6 +1,4 @@
-import copy
 import json
-import logging
 import requests
 
 from sigopt.exception import ApiException
@@ -58,9 +56,6 @@ class Connection(object):
     response_json = response.json()
     if 200 <= response.status_code <= 299:
       response = response_json.get('response')
-      warnings = response.get('warnings', [])
-      for warning in warnings:
-        self._logger.warn(warning)
       return response
     else:
       error_message = response_json.get('error', {}).get('message', None)
