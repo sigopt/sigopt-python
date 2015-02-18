@@ -36,7 +36,7 @@ class ExampleRunner(threading.Thread):
 
 if __name__ == '__main__':
 
-  RUNNER_COUNT = 3
+  RUNNER_COUNT = 2
   runners = [ExampleRunner('worker-' + str(i+1)) for i in xrange(RUNNER_COUNT)]
 
   for runner in runners:
