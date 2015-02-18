@@ -27,8 +27,10 @@ class ExampleRunner(threading.Thread):
       })
 
   def evaluate(self, assignments):
-    # Substitute this for your metric function
-    # This fictitious example has only two parameters, named param1 and param2
+    """
+    Replace this with the function you want to optimize
+    This fictitious example has only two parameters, named param1 and param2
+    """
     sleep_seconds = 10
     print '{0} - Sleeping for {1} seconds to simulate expensive computation...'.format(self.worker_id, sleep_seconds)
     time.sleep(sleep_seconds)
