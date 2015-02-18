@@ -1,3 +1,5 @@
+from setuptools import setup
+
 # keep this in sync with requirements.txt
 install_requires=['requests>=2.0.1']
 
