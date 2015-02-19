@@ -4,7 +4,7 @@ from setuptools import setup
 install_requires=['requests>=2.0.1']
 
 setup(
-  name='pysigopt',
+  name='sigopt-python',
   version='0.0.1',
   description='SigOpt Python API Client',
   author='SigOpt',
