@@ -9,6 +9,8 @@ Take a look in `examples` for example usage.
 
 ## Getting Started
 
+Install the sigopt python modules with `pip install git+git://github.com/sigopt/sigopt-python.git`.
+
 Sign up for an account at [https://sigopt.com](https://sigopt.com).
 In order to use the API, you'll need your `user_token`, `client_token`, and `client_id` from [https://sigopt.com/user/profile](https://sigopt.com/user/profile).
 
