@@ -16,20 +16,22 @@ In order to use the API, you'll need your `user_token`, `client_token`, and `cli
 
 To call the API, instantiate a connection with your tokens.
 
-    import sigopt.interface
-
-    conn = sigopt.interface.Connection(user_token=user_token, client_token=client_token)
-
+```python
+import sigopt.interface
+conn = sigopt.interface.Connection(user_token=user_token, client_token=client_token)
+```
 Then, you can use the connection to issue API requests. Some example requests:
 
-    experiment = conn.experiment_create(client_id, data={
-      'name': 'New Experiment',
-      'parameters': [{ 'name': 'param1', 'type': 'double', 'bounds': { 'min': 0, 'max': 1.0 }}],
-    }).experiment
+```python
+experiment = conn.experiment_create(client_id, data={
+  'name': 'New Experiment',
+  'parameters': [{ 'name': 'param1', 'type': 'double', 'bounds': { 'min': 0, 'max': 1.0 }}],
+}).experiment
 
-    suggestion = conn.experiment_suggest(experiment.id).suggestion
+suggestion = conn.experiment_suggest(experiment.id).suggestion
 
-    conn.experiment_report(experiment.id, {
-      'assignments': suggestion.assignments,
-      'value': 1.0,
-    })
+conn.experiment_report(experiment.id, {
+  'assignments': suggestion.assignments,
+  'value': 1.0,
+})
+```
