@@ -3,7 +3,9 @@ import requests
 
 from sigopt.exception import ApiException
 from sigopt.objects import ApiObject
-from sigopt.response import ExperimentsCreateResponse, ExperimentsSuggestResponse
+from sigopt.response import (
+  ClientsExperimentsResponse, ExperimentsCreateResponse, ExperimentsSuggestResponse, ExperimentResponse,
+)
 
 class Connection(object):
   def __init__(self, client_token=None, user_token=None, worker_id=None):
@@ -16,9 +18,17 @@ class Connection(object):
     self.user_token = user_token
     self.worker_id = worker_id
 
+  def experiment(self, experiment_id):
+    self._ensure_user_token()
+    url = self._experiment_base_url(experiment_id)
+    response = self._handle_response(requests.get(url, params={
+      'user_token': self.user_token,
+    }))
+    return ExperimentResponse(response)
+
   def experiment_create(self, client_id, data):
     self._ensure_user_token()
-    url = self._base_url('create')
+    url = self._experiment_base_url('create')
     response = self._handle_response(requests.post(url, data={
       'user_token': self.user_token,
       'data': json.dumps(self._to_api_json(data)),
@@ -26,9 +36,17 @@ class Connection(object):
     }))
     return ExperimentsCreateResponse(response)
 
+  def experiment_delete(self, experiment_id):
+    self._ensure_user_token()
+    url = self._experiment_base_url(experiment_id) + '/delete'
+    self._handle_response(requests.post(url, data={
+      'user_token': self.user_token,
+    }))
+    return None
+
   def experiment_report(self, experiment_id, data):
     self._ensure_client_token()
-    url = self._base_url(experiment_id) + '/report'
+    url = self._experiment_base_url(experiment_id) + '/report'
     self._handle_response(requests.post(url, data={
       'client_token': self.client_token,
       'data': json.dumps(self._to_api_json(data)),
@@ -36,20 +54,35 @@ class Connection(object):
     }))
     return None
 
+  def client_experiments(self, client_id):
+    self._ensure_user_token()
+    url = self._client_base_url(client_id) + '/experiments'
+    response = self._handle_response(requests.get(url, params={
+      'user_token': self.user_token,
+    }))
+    return ClientsExperimentsResponse(response)
+
   def experiment_suggest(self, experiment_id):
     self._ensure_client_token()
-    url = self._base_url(experiment_id) + '/suggest'
+    url = self._experiment_base_url(experiment_id) + '/suggest'
     response = self._handle_response(requests.post(url, data={
       'client_token': self.client_token,
       'worker_id': self.worker_id,
     }))
     return ExperimentsSuggestResponse(response)
 
-  def _base_url(self, experiment_id):
+  def _experiment_base_url(self, experiment_id):
     return '{api_url}/{api_version}/experiments/{experiment_id}'.format(
       api_url=self.api_url,
       api_version=self.api_version,
       experiment_id=experiment_id,
+      )
+
+  def _client_base_url(self, client_id):
+    return '{api_url}/{api_version}/clients/{client_id}'.format(
+      api_url=self.api_url,
+      api_version=self.api_version,
+      client_id=client_id,
       )
 
   def _handle_response(self, response):
