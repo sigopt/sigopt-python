@@ -23,14 +23,14 @@ conn = sigopt.interface.Connection(user_token=user_token, client_token=client_to
 Then, you can use the connection to issue API requests. Some example requests:
 
 ```python
-experiment = conn.experiment_create(client_id, data={
-  'name': 'New Experiment',
+experiment = conn.experiments.create(client_id=client_id, data={
+    'name': 'New Experiment',
   'parameters': [{ 'name': 'param1', 'type': 'double', 'bounds': { 'min': 0, 'max': 1.0 }}],
 }).experiment
 
-suggestion = conn.experiment_suggest(experiment.id).suggestion
+suggestion = conn.experiments(experiment.id).suggest().suggestion
 
-conn.experiment_report(experiment.id, {
+conn.experiments(experiment.id).report(data={
   'assignments': suggestion.assignments,
   'value': 1.0,
 })
