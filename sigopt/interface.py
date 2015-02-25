@@ -8,7 +8,8 @@ from sigopt.objects import ApiObject
 from sigopt.resource import ApiResource
 from sigopt.response import (
   ExperimentResponse, ClientResponse,
-  ExperimentsSuggestResponse, ClientsExperimentsResponse,
+  ExperimentsBestObservationResponse, ExperimentsSuggestResponse, ExperimentsWorkersResponse,
+  ClientsExperimentsResponse,
 )
 
 class Connection(object):
@@ -26,9 +27,14 @@ class Connection(object):
       'experiments',
       response_cls=ExperimentResponse,
       endpoints=[
-        ApiEndpoint('suggest', ExperimentsSuggestResponse, 'POST'),
-        ApiEndpoint('report', None, 'POST'),
+        ApiEndpoint('bestobservation', ExperimentsBestObservationResponse, 'GET'),
         ApiEndpoint('delete', None, 'POST'),
+        ApiEndpoint('multireport', None, 'POST'),
+        ApiEndpoint('releaseworker', None, 'POST'),
+        ApiEndpoint('report', None, 'POST'),
+        ApiEndpoint('suggest', ExperimentsSuggestResponse, 'POST'),
+        ApiEndpoint('update', ExperimentResponse, 'POST'),
+        ApiEndpoint('workers', ExperimentsWorkersResponse, 'GET'),
       ],
     )
     self._clients = ApiResource(
