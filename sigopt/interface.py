@@ -122,7 +122,12 @@ class Connection(object):
         return json.dumps(value)
       return str(value)
 
-    return dict(((key, serialize(self._to_api_value(value))) for key, value in ret.iteritems()))
+    return dict((
+      (key, serialize(self._to_api_value(value)))
+      for key, value
+      in ret.iteritems()
+      if value is not None
+    ))
 
   def _to_api_value(self, obj):
     if isinstance(obj, ApiObject):
