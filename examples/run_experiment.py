@@ -5,8 +5,6 @@ from sigopt.interface import Connection
 
 # Just fill these in with your credentials
 CLIENT_TOKEN = 'XXXXXXXXXX'
-USER_TOKEN = 'YYYYYYYYY'
-CLIENT_ID = 0
 EXPERIMENT_ID = 0
 
 class ExampleRunner(threading.Thread):
@@ -17,11 +15,11 @@ class ExampleRunner(threading.Thread):
 
   def run(self):
     while True:
-      assignments = self.connection.experiment_suggest(EXPERIMENT_ID).suggestion.assignments
+      assignments = self.connection.experiments(EXPERIMENT_ID).suggest().suggestion.assignments
       print '{0} - Evaluating at parameters: {1}'.format(self.worker_id, assignments)
       metric_value = self.evaluate(assignments)
       print '{0} - Observed value: {1}'.format(self.worker_id, metric_value)
-      self.connection.experiment_report(EXPERIMENT_ID, {
+      self.connection.experiments(EXPERIMENT_ID).report(data={
         'assignments': assignments,
         'value': metric_value,
       })
