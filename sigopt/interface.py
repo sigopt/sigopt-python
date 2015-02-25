@@ -1,10 +1,14 @@
 import json
 import requests
+import warnings
 
+from sigopt.endpoint import ApiEndpoint
 from sigopt.exception import ApiException
 from sigopt.objects import ApiObject
+from sigopt.resource import ApiResource
 from sigopt.response import (
-  ClientsExperimentsResponse, ExperimentsCreateResponse, ExperimentsSuggestResponse, ExperimentResponse,
+  ExperimentResponse, ClientResponse,
+  ExperimentsSuggestResponse, ClientsExperimentsResponse,
 )
 
 class Connection(object):
@@ -18,72 +22,64 @@ class Connection(object):
     self.user_token = user_token
     self.worker_id = worker_id
 
+    self.experiments = ApiResource(
+      self,
+      'experiments',
+      response_cls=ExperimentResponse,
+      endpoints=[
+        ApiEndpoint('suggest', ExperimentsSuggestResponse, 'POST'),
+        ApiEndpoint('report', None, 'POST'),
+        ApiEndpoint('delete', None, 'POST'),
+      ],
+    )
+    self.clients = ApiResource(
+      self,
+      'clients',
+      response_cls=ClientResponse,
+      endpoints=[
+        ApiEndpoint('experiments', ClientsExperimentsResponse, 'GET'),
+      ],
+    )
+
   def experiment(self, experiment_id):
+    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
     self._ensure_user_token()
-    url = self._experiment_base_url(experiment_id)
-    response = self._handle_response(requests.get(url, params={
-      'user_token': self.user_token,
-    }))
-    return ExperimentResponse(response)
+    return self.experiments(experiment_id)
 
   def experiment_create(self, client_id, data):
+    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
     self._ensure_user_token()
-    url = self._experiment_base_url('create')
-    response = self._handle_response(requests.post(url, data={
-      'user_token': self.user_token,
-      'data': json.dumps(self._to_api_json(data)),
-      'client_id': client_id,
-    }))
-    return ExperimentsCreateResponse(response)
+    return self.experiments.create(client_id=client_id, data=data)
 
   def experiment_delete(self, experiment_id):
+    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
     self._ensure_user_token()
-    url = self._experiment_base_url(experiment_id) + '/delete'
-    self._handle_response(requests.post(url, data={
-      'user_token': self.user_token,
-    }))
-    return None
+    return self.experiments(experiment_id).delete()
 
   def experiment_report(self, experiment_id, data):
+    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
     self._ensure_client_token()
-    url = self._experiment_base_url(experiment_id) + '/report'
-    self._handle_response(requests.post(url, data={
-      'client_token': self.client_token,
-      'data': json.dumps(self._to_api_json(data)),
-      'worker_id': self.worker_id,
-    }))
-    return None
+    return self.experiments(experiment_id).report({
+      'data': data,
+    })
 
   def client_experiments(self, client_id):
+    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
     self._ensure_user_token()
-    url = self._client_base_url(client_id) + '/experiments'
-    response = self._handle_response(requests.get(url, params={
-      'user_token': self.user_token,
-    }))
-    return ClientsExperimentsResponse(response)
+    return self.clients(client_id).experiments()
 
   def experiment_suggest(self, experiment_id):
+    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
     self._ensure_client_token()
-    url = self._experiment_base_url(experiment_id) + '/suggest'
-    response = self._handle_response(requests.post(url, data={
-      'client_token': self.client_token,
-      'worker_id': self.worker_id,
-    }))
-    return ExperimentsSuggestResponse(response)
+    return self.experiments(experiment_id).suggest()
 
-  def _experiment_base_url(self, experiment_id):
-    return '{api_url}/{api_version}/experiments/{experiment_id}'.format(
-      api_url=self.api_url,
-      api_version=self.api_version,
-      experiment_id=experiment_id,
-      )
+  def _get(self, url, params=None):
+    request_params = self._request_params(params)
+    return self._handle_response(requests.get(url, params=request_params))
 
-  def _client_base_url(self, client_id):
-    return '{api_url}/{api_version}/clients/{client_id}'.format(
-      api_url=self.api_url,
-      api_version=self.api_version,
-      client_id=client_id,
-      )
+  def _post(self, url, params=None):
+    request_params = self._request_params(params)
+    return self._handle_response(requests.post(url, data=request_params))
 
   def _handle_response(self, response):
     response_json = response.json()
@@ -102,15 +98,30 @@ class Connection(object):
     if self.user_token is None:
       raise ValueError('user_token is required for this call')
 
-  def _to_api_json(self, obj):
+  def _request_params(self, params):
+    ret = {
+      'user_token': self.user_token,
+      'client_token': self.client_token,
+      'worker_id': self.worker_id,
+    }
+    ret.update(params or {})
+
+    def serialize(value):
+      if isinstance(value, dict):
+        return json.dumps(value)
+      return str(value)
+
+    return dict(((key, serialize(self._to_api_value(value))) for key, value in ret.iteritems()))
+
+  def _to_api_value(self, obj):
     if isinstance(obj, ApiObject):
       return obj.to_json()
     elif isinstance(obj, dict):
       c = {}
       for key in obj:
-        c[key] = self._to_api_json(obj[key])
+        c[key] = self._to_api_value(obj[key])
       return c
     elif isinstance(obj, list):
-      return [self._to_api_json(c) for c in obj]
+      return [self._to_api_value(c) for c in obj]
     else:
       return obj

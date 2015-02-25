@@ -1,7 +1,14 @@
-from sigopt.objects import ApiObject, Experiment, Suggestion
+from sigopt.objects import ApiObject, Client, Experiment, Suggestion
 
 class ApiResponse(ApiObject):
   pass
+
+
+class ClientResponse(ApiResponse):
+  @property
+  def client(self):
+    _client = self.body.get('client')
+    return Client(_client) if _client is not None else None
 
 
 class ExperimentResponse(ApiResponse):

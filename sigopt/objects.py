@@ -74,6 +74,16 @@ class ExperimentMetric(ApiObject):
     return self.body.get('name')
 
 
+class Client(ApiObject):
+  @property
+  def id(self):
+    return self.body.get('id')
+
+  @property
+  def name(self):
+    return self.body.get('name')
+
+
 class Experiment(ApiObject):
   @property
   def id(self):
