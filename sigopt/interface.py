@@ -14,7 +14,6 @@ from sigopt.response import (
 class Connection(object):
   def __init__(self, client_token=None, user_token=None, worker_id=None):
     self.api_url = 'https://api.sigopt.com'
-    self.api_version = 'v0'
     if client_token is None and user_token is None:
       raise ValueError('Must provide either user_token or client_token (or both)')
 
@@ -22,7 +21,7 @@ class Connection(object):
     self.user_token = user_token
     self.worker_id = worker_id
 
-    self.experiments = ApiResource(
+    self._experiments = ApiResource(
       self,
       'experiments',
       response_cls=ExperimentResponse,
@@ -32,7 +31,7 @@ class Connection(object):
         ApiEndpoint('delete', None, 'POST'),
       ],
     )
-    self.clients = ApiResource(
+    self._clients = ApiResource(
       self,
       'clients',
       response_cls=ClientResponse,
@@ -40,6 +39,14 @@ class Connection(object):
         ApiEndpoint('experiments', ClientsExperimentsResponse, 'GET'),
       ],
     )
+
+  @property
+  def experiments(self):
+    return self._experiments
+
+  @property
+  def clients(self):
+    return self._clients
 
   def experiment(self, experiment_id):
     warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
