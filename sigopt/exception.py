@@ -1,4 +1,8 @@
-class ApiException(Exception):
+class SigOptException(Exception):
+  pass
+
+
+class ApiException(SigOptException):
   def __init__(self, message, status_code):
     if message is not None:
       super(ApiException, self).__init__(message)
