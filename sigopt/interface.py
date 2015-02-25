@@ -66,9 +66,7 @@ class Connection(object):
   def experiment_report(self, experiment_id, data):
     warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
     self._ensure_client_token()
-    return self.experiments(experiment_id).report({
-      'data': data,
-    })
+    return self.experiments(experiment_id).report(data=data)
 
   def client_experiments(self, client_id):
     warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
