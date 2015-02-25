@@ -29,9 +29,9 @@ class Connection(object):
       endpoints=[
         ApiEndpoint('bestobservation', ExperimentsBestObservationResponse, 'GET'),
         ApiEndpoint('delete', None, 'POST'),
-        ApiEndpoint('multireport', None, 'POST'),
         ApiEndpoint('releaseworker', None, 'POST'),
         ApiEndpoint('report', None, 'POST'),
+        ApiEndpoint('reportmulti', None, 'POST'),
         ApiEndpoint('suggest', ExperimentsSuggestResponse, 'POST'),
         ApiEndpoint('update', ExperimentResponse, 'POST'),
         ApiEndpoint('workers', ExperimentsWorkersResponse, 'GET'),
