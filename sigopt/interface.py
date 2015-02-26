@@ -1,3 +1,4 @@
+import copy
 import json
 import requests
 import warnings
@@ -18,6 +19,11 @@ class Connection(object):
     if client_token is None and user_token is None:
       raise ValueError('Must provide either user_token or client_token (or both)')
 
+    self.default_params = {
+      'user_token': user_token,
+      'client_token': client_token,
+      'worker_id': worker_id,
+    }
     self.client_token = client_token
     self.user_token = user_token
     self.worker_id = worker_id
@@ -110,12 +116,8 @@ class Connection(object):
       raise ValueError('user_token is required for this call')
 
   def _request_params(self, params):
-    ret = {
-      'user_token': self.user_token,
-      'client_token': self.client_token,
-      'worker_id': self.worker_id,
-    }
-    ret.update(params or {})
+    req_params = copy.copy(self.default_params)
+    req_params.update(params or {})
 
     def serialize(value):
       if isinstance(value, dict):
@@ -125,7 +127,7 @@ class Connection(object):
     return dict((
       (key, serialize(self._to_api_value(value)))
       for key, value
-      in ret.iteritems()
+      in req_params.iteritems()
       if value is not None
     ))
 
