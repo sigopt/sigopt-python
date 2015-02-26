@@ -3,11 +3,11 @@ import json
 import requests
 import warnings
 
-from sigopt.endpoint import ApiEndpoint
-from sigopt.exception import ApiException
-from sigopt.objects import ApiObject
-from sigopt.resource import ApiResource
-from sigopt.response import (
+from .endpoint import ApiEndpoint
+from .exception import ApiException
+from .objects import ApiObject
+from .resource import ApiResource
+from .response import (
   ExperimentResponse, ClientResponse,
   ExperimentsBestObservationResponse, ExperimentsSuggestResponse, ExperimentsWorkersResponse,
   ClientsExperimentsResponse,

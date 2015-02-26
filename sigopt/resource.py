@@ -1,4 +1,4 @@
-from sigopt.endpoint import ApiEndpoint, BoundApiEndpoint
+from .endpoint import ApiEndpoint, BoundApiEndpoint
 
 class BoundApiResource(object):
   def __init__(self, resource, id):

@@ -1,4 +1,4 @@
-from sigopt.objects import ApiObject, Client, Experiment, Suggestion, Observation, Worker
+from .objects import ApiObject, Client, Experiment, Suggestion, Observation, Worker
 
 class ApiResponse(ApiObject):
   pass
