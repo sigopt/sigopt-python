@@ -128,3 +128,7 @@ class Worker(ApiObject):
   def suggestion(self):
     _suggestion = self._body.get('suggestion')
     return Suggestion(_suggestion) if _suggestion else None
+
+  @property
+  def claimed_time(self):
+    return self._body.get('claimed_time')
