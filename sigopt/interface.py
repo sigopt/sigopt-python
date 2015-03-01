@@ -104,8 +104,8 @@ class Connection(object):
       response = response_json.get('response')
       return response
     else:
-      error_message = response_json.get('error', {}).get('message', None)
-      raise ApiException(error_message, response.status_code)
+      error_json = response_json.get('error', {})
+      raise ApiException(error_json, response.status_code)
 
   def _ensure_client_token(self):
     if self.client_token is None:
