@@ -1,7 +1,14 @@
-from .objects import ApiObject, Client, Experiment, Suggestion, Observation, Worker
+from .objects import ApiObject, Cohort, Client, Experiment, Suggestion, Observation, Worker
 
 class ApiResponse(ApiObject):
   pass
+
+
+class ExperimentsAllocateResponse(ApiResponse):
+  @property
+  def cohorts(self):
+    _cohorts = self._body.get('cohorts')
+    return [Cohort(c) for c in _cohorts]
 
 
 class ExperimentsBestObservationResponse(ApiResponse):
@@ -16,6 +23,20 @@ class ExperimentsCreateResponse(ApiResponse):
   def experiment(self):
     _experiment = self._body.get('experiment')
     return Experiment(_experiment) if _experiment is not None else None
+
+
+class ExperimentsCreateCohortResponse(ApiResponse):
+  @property
+  def cohort(self):
+    _cohort = self._body.get('cohort')
+    return Cohort(_cohort) if _cohort is not None else None
+
+
+class ExperimentsUpdateCohortResponse(ApiResponse):
+  @property
+  def cohort(self):
+    _cohort = self._body.get('cohort')
+    return Cohort(_cohort) if _cohort is not None else None
 
 
 class ExperimentResponse(ApiResponse):

@@ -43,6 +43,37 @@ class Client(ApiObject):
     return self._body.get('name')
 
 
+class Cohort(ApiObject):
+  @property
+  def id(self):
+    return self._body.get('id')
+
+  @property
+  def name(self):
+    return self._body.get('name')
+
+  @property
+  def allocation(self):
+    return self._body.get('allocation')
+
+  @property
+  def successes(self):
+    return self._body.get('successes')
+
+  @property
+  def attempts(self):
+    return self._body.get('attempts')
+
+  @property
+  def state(self):
+    return self._body.get('state')
+
+  @property
+  def suggestion(self):
+    _suggestion = self._body.get('suggestion')
+    return Suggestion(_suggestion) if _suggestion else None
+
+
 class Experiment(ApiObject):
   @property
   def id(self):

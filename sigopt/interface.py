@@ -10,6 +10,7 @@ from .resource import ApiResource
 from .response import (
   ExperimentResponse, ClientResponse,
   ExperimentsBestObservationResponse, ExperimentsSuggestResponse, ExperimentsWorkersResponse,
+  ExperimentsAllocateResponse, ExperimentsCreateCohortResponse, ExperimentsUpdateCohortResponse,
   ClientsExperimentsResponse,
 )
 
@@ -33,13 +34,16 @@ class Connection(object):
       'experiments',
       response_cls=ExperimentResponse,
       endpoints=[
+        ApiEndpoint('allocate', ExperimentsAllocateResponse, 'GET'),
         ApiEndpoint('bestobservation', ExperimentsBestObservationResponse, 'GET'),
+        ApiEndpoint('createcohort', ExperimentsCreateCohortResponse, 'POST'),
         ApiEndpoint('delete', None, 'POST'),
         ApiEndpoint('releaseworker', None, 'POST'),
         ApiEndpoint('report', None, 'POST'),
         ApiEndpoint('reportmulti', None, 'POST'),
         ApiEndpoint('suggest', ExperimentsSuggestResponse, 'POST'),
         ApiEndpoint('update', ExperimentResponse, 'POST'),
+        ApiEndpoint('updatecohort', ExperimentsUpdateCohortResponse, 'POST'),
         ApiEndpoint('workers', ExperimentsWorkersResponse, 'GET'),
       ],
     )
