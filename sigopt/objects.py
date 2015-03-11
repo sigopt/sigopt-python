@@ -1,3 +1,5 @@
+import copy
+
 class ApiObject(object):
   def __init__(self, body):
     self._body = body
@@ -6,7 +8,7 @@ class ApiObject(object):
     return repr(self._body)
 
   def to_json(self):
-    return self._body
+    return copy.deepcopy(self._body)
 
 
 class Assignments(ApiObject):

@@ -1,3 +1,6 @@
+import copy
+
+
 class SigOptException(Exception):
   pass
 
@@ -13,4 +16,4 @@ class ApiException(SigOptException):
     self.status_code = status_code
 
   def to_json(self):
-    return self._body
+    return copy.deepcopy(self._body)
