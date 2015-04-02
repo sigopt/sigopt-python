@@ -41,6 +41,7 @@ class Connection(object):
         ApiEndpoint('releaseworker', None, 'POST'),
         ApiEndpoint('report', None, 'POST'),
         ApiEndpoint('reportmulti', None, 'POST'),
+        ApiEndpoint('reset', None, 'POST'),
         ApiEndpoint('suggest', ExperimentsSuggestResponse, 'POST'),
         ApiEndpoint('update', ExperimentResponse, 'POST'),
         ApiEndpoint('updatecohort', ExperimentsUpdateCohortResponse, 'POST'),
