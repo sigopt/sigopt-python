@@ -53,6 +53,13 @@ class ExperimentsSuggestResponse(ApiResponse):
     return Suggestion(_suggestion) if _suggestion is not None else None
 
 
+class ExperimentsSuggestMultiResponse(ApiResponse):
+  @property
+  def suggestions(self):
+    _suggestions = self._body.get('suggestions')
+    return [Suggestion(s) for s in _suggestions]
+
+
 class ExperimentsWorkersResponse(ApiResponse):
   @property
   def workers(self):
