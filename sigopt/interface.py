@@ -9,7 +9,8 @@ from .objects import ApiObject
 from .resource import ApiResource
 from .response import (
   ExperimentResponse, ClientResponse,
-  ExperimentsBestObservationResponse, ExperimentsSuggestResponse, ExperimentsWorkersResponse,
+  ExperimentsBestObservationResponse, ExperimentsSuggestResponse, ExperimentsSuggestMultiResponse,
+  ExperimentsWorkersResponse,
   ExperimentsAllocateResponse, ExperimentsCreateCohortResponse, ExperimentsUpdateCohortResponse,
   ClientsExperimentsResponse,
 )
