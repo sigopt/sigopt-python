@@ -106,7 +106,11 @@ class Connection(object):
     return self._handle_response(requests.post(url, data=request_params))
 
   def _handle_response(self, response):
-    response_json = response.json()
+    try:
+      response_json = response.json()
+    except simplejson.decoder.JSONDecodeError:
+      raise ApiException(None, response.status_code)
+
     if 200 <= response.status_code <= 299:
       response = response_json.get('response')
       return response
