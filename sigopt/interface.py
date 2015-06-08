@@ -1,5 +1,5 @@
 import copy
-import json
+import simplejson
 import requests
 import warnings
 
@@ -128,7 +128,7 @@ class Connection(object):
 
     def serialize(value):
       if isinstance(value, dict):
-        return json.dumps(value)
+        return simplejson.dumps(value)
       return str(value)
 
     return dict((
