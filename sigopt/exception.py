@@ -7,7 +7,7 @@ class SigOptException(Exception):
 
 class ApiException(SigOptException):
   def __init__(self, body, status_code):
-    self.message = body.get('message', None)
+    self.message = body.get('message', None) if body is not None else None
     self._body = body
     if self.message is not None:
       super(ApiException, self).__init__(self.message)
