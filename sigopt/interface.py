@@ -109,7 +109,7 @@ class Connection(object):
     try:
       response_json = response.json()
     except simplejson.decoder.JSONDecodeError:
-      raise ApiException(response.text, response.status_code)
+      raise ApiException({'message': response.text}, response.status_code)
 
     if 200 <= response.status_code <= 299:
       response = response_json.get('response')
