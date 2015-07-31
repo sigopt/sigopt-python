@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import threading
 import time
 
@@ -16,9 +18,9 @@ class ExampleRunner(threading.Thread):
   def run(self):
     while True:
       assignments = self.connection.experiments(EXPERIMENT_ID).suggest().suggestion.assignments
-      print '{0} - Evaluating at parameters: {1}'.format(self.worker_id, assignments)
+      print('{0} - Evaluating at parameters: {1}'.format(self.worker_id, assignments))
       metric_value = self.evaluate(assignments)
-      print '{0} - Observed value: {1}'.format(self.worker_id, metric_value)
+      print('{0} - Observed value: {1}'.format(self.worker_id, metric_value))
       self.connection.experiments(EXPERIMENT_ID).report(data={
         'assignments': assignments,
         'value': metric_value,
@@ -30,14 +32,14 @@ class ExampleRunner(threading.Thread):
     This fictitious example has only two parameters, named param1 and param2
     """
     sleep_seconds = 10
-    print '{0} - Sleeping for {1} seconds to simulate expensive computation...'.format(self.worker_id, sleep_seconds)
+    print('{0} - Sleeping for {1} seconds to simulate expensive computation...'.format(self.worker_id, sleep_seconds))
     time.sleep(sleep_seconds)
     return assignments['param1'] - assignments['param2']
 
 if __name__ == '__main__':
 
   RUNNER_COUNT = 2
-  runners = [ExampleRunner('worker-' + str(i+1)) for i in xrange(RUNNER_COUNT)]
+  runners = [ExampleRunner('worker-' + str(i+1)) for i in range(RUNNER_COUNT)]
 
   for runner in runners:
     runner.daemon = True

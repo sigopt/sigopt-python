@@ -138,7 +138,7 @@ class Connection(object):
     return dict((
       (key, serialize(self._to_api_value(value)))
       for key, value
-      in req_params.iteritems()
+      in req_params.items()
       if value is not None
     ))
 
