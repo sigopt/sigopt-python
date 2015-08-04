@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+export PYTHONPATH='sigopt'
+
+pylint sigopt \
+  -d bad-continuation \
+  -d bad-whitespace \
+  -d invalid-name \
+  -d missing-docstring \
+  -d no-init \
+  -d no-self-use \
+  -d no-value-for-parameter \
+  -d redefined-builtin \
+  -d star-args \
+  -d too-few-instance-attributes \
+  -d too-few-public-methods \
+  -d too-many-arguments \
+  -d unidiomatic-typecheck \
+  -d too-many-instance-attributes \
+  -d too-many-public-methods \
+  -d duplicate-code \
+  -d abstract-class-little-used \
+  -d abstract-class-not-used \
+  -d too-many-branches \
+  -d too-many-locals \
+  -d superfluous-parens \
+  -d unused-wildcard-import \
+  -d wildcard-import \
+  -d broad-except \
+  -d global-statement \
+  -d abstract-method \
+  -d too-many-statements \
+  -d cell-var-from-loop \
+  -d anomalous-unicode-escape-in-string \
+  -d interface-not-implemented \
+  -d locally-disabled \
+  -d locally-enabled \
+  -d abstract-class-instantiated \
+  -d too-many-ancestors \
+  -d too-many-lines \
+  -d too-many-return-statements \
+  -r n \
+  --rcfile=.pylintrc
