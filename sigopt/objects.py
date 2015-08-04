@@ -141,6 +141,22 @@ class Parameter(ApiObject):
     return self._body.get('transformation')
 
 
+class Role(ApiObject):
+  @property
+  def role(self):
+    return self._body.get('role')
+
+  @property
+  def client(self):
+    _client = self._body.get('client')
+    return Client(_client) if _client is not None else None
+
+  @property
+  def user(self):
+    _user = self._body.get('user')
+    return User(_user) if _user is not None else None
+
+
 class Suggestion(ApiObject):
   @property
   def assignments(self):
@@ -150,6 +166,20 @@ class Suggestion(ApiObject):
   @property
   def expected_improvement(self):
     return self._body.get('expected_improvement')
+
+
+class User(ApiObject):
+  @property
+  def id(self):
+    return self._body.get('id')
+
+  @property
+  def name(self):
+    return self._body.get('name')
+
+  @property
+  def email(self):
+    return self._body.get('email')
 
 
 class Worker(ApiObject):

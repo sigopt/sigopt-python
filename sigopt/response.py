@@ -1,4 +1,4 @@
-from .objects import ApiObject, Cohort, Client, Experiment, Suggestion, Observation, Worker
+from .objects import ApiObject, Cohort, Client, Experiment, Observation, Role, Suggestion, User, Worker
 
 class ApiResponse(ApiObject):
   pass
@@ -73,9 +73,27 @@ class ClientResponse(ApiResponse):
     _client = self._body.get('client')
     return Client(_client) if _client is not None else None
 
+  @property
+  def client_token(self):
+    return self._body.get('client_token')
+
 
 class ClientsExperimentsResponse(ApiResponse):
   @property
   def experiments(self):
     _experiments = self._body.get('experiments', [])
     return [Experiment(e) for e in _experiments]
+
+
+class UserResponse(ApiResponse):
+  @property
+  def user(self):
+    _user = self._body.get('user')
+    return User(_user) if _user is not None else None
+
+
+class UsersRolesResponse(ApiResponse):
+  @property
+  def roles(self):
+    _roles = self._body.get('roles', [])
+    return [Role(r) for r in _roles]

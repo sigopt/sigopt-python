@@ -8,11 +8,12 @@ from .exception import ApiException
 from .objects import ApiObject
 from .resource import ApiResource
 from .response import (
-  ExperimentResponse, ClientResponse,
+  ExperimentResponse, ClientResponse, UserResponse,
   ExperimentsBestObservationResponse, ExperimentsSuggestResponse, ExperimentsSuggestMultiResponse,
   ExperimentsWorkersResponse,
   ExperimentsAllocateResponse, ExperimentsCreateCohortResponse, ExperimentsUpdateCohortResponse,
   ClientsExperimentsResponse,
+  UsersRolesResponse,
 )
 
 class Connection(object):
@@ -58,6 +59,14 @@ class Connection(object):
         ApiEndpoint('experiments', ClientsExperimentsResponse, 'GET'),
       ],
     )
+    self._users = ApiResource(
+      self,
+      'users',
+      response_cls=UserResponse,
+      endpoints=[
+        ApiEndpoint('roles', UsersRolesResponse, 'GET'),
+      ],
+    )
 
   @property
   def experiments(self):
@@ -66,6 +75,10 @@ class Connection(object):
   @property
   def clients(self):
     return self._clients
+
+  @property
+  def users(self):
+    return self._users
 
   def experiment(self, experiment_id):
     warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
