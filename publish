@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+VERSION=$1
+if [ "x" = "x$VERSION" ]; then
+  echo 'Must provide version to deploy.'
+  exit 1
+fi
+
+python setup.py sdist
+python setup.py bdist_wheel --universal
+
+echo
+echo
+
+echo 'Publishing the following files:'
+for FILE in `ls dist/*$VERSION*`; do
+  echo "  $FILE"
+done
+
+twine upload "dist/*$VERSION*"
