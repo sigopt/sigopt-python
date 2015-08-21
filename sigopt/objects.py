@@ -117,6 +117,36 @@ class Observation(ApiObject):
     return self._body.get('value_stddev')
 
 
+class Paging(ApiObject):
+  @property
+  def before(self):
+    return self._body.get('before')
+
+  @property
+  def after(self):
+    return self._body.get('after')
+
+
+class Pagination(ApiObject):
+  def __init__(self, data_cls, body):
+    super(Pagination, self).__init__(body)
+    self.data_cls = data_cls
+
+  @property
+  def count(self):
+    return self._body.get('count')
+
+  @property
+  def data(self):
+    _data = self._body.get('data')
+    return [self.data_cls(d) for d in _data]
+
+  @property
+  def paging(self):
+    _paging = self._body.get('paging')
+    return Paging(_paging) if _paging is not None else None
+
+
 class Parameter(ApiObject):
   @property
   def name(self):

@@ -1,4 +1,4 @@
-from .objects import ApiObject, Cohort, Client, Experiment, Observation, Role, Suggestion, User, Worker
+from .objects import ApiObject, Cohort, Client, Experiment, Observation, Role, Suggestion, User, Worker, Pagination
 
 class ApiResponse(ApiObject):
   pass
@@ -30,6 +30,13 @@ class ExperimentsCreateCohortResponse(ApiResponse):
   def cohort(self):
     _cohort = self._body.get('cohort')
     return Cohort(_cohort) if _cohort is not None else None
+
+
+class ExperimentsHistoryResponse(ApiResponse):
+  @property
+  def observations(self):
+    _observations = self._body.get('observations')
+    return Pagination(Observation, _observations)
 
 
 class ExperimentsUpdateCohortResponse(ApiResponse):
