@@ -36,7 +36,7 @@ class PartiallyBoundApiResource(object):
     return BoundApiResource(self._resource, id, api_url)
 
 class BaseApiResource(object):
-  def __init__(self, conn, name, response_cls, version, endpoints=[], resources=[]):
+  def __init__(self, conn, name, response_cls, version, endpoints=None, resources=None):
     self._conn = conn
     self._name = name
     self._response_cls = response_cls
@@ -46,13 +46,13 @@ class BaseApiResource(object):
       (endpoint._attribute_name, endpoint)
       for endpoint
       in endpoints
-    ))
+    )) if endpoints else {}
 
     self._sub_resources = dict((
       (resource._name, resource)
       for resource
       in resources
-    ))
+    )) if resources else {}
 
   def __call__(self, id=None):
     api_url = '{api_url}/{version}/{name}'.format(
