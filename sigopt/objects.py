@@ -215,6 +215,9 @@ class Suggestion(ApiObject):
   def id(self):
     return self._body.get('id')
 
+  @property
+  def experiment_id(self):
+    return self._body.get('experiment_id')
 
 class User(ApiObject):
   @property
