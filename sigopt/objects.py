@@ -18,6 +18,11 @@ class Assignments(ApiObject):
   def __getitem__(self, key):
     return self._body[key]
 
+  def __eq__(self, other):
+    if isinstance(other, self.__class__):
+      return self._body == other._body
+    else:
+      return False
 
 class Bounds(ApiObject):
   @property
@@ -116,6 +121,11 @@ class Observation(ApiObject):
   def value_stddev(self):
     return self._body.get('value_stddev')
 
+  @property
+  def suggestion_id(self):
+      return self._body.get('suggestion_id')
+
+
 
 class Paging(ApiObject):
   @property
@@ -196,6 +206,14 @@ class Suggestion(ApiObject):
   @property
   def expected_improvement(self):
     return self._body.get('expected_improvement')
+
+  @property
+  def state(self):
+    return self._body.get('state')
+
+  @property
+  def id(self):
+    return self._body.get('id')
 
 
 class User(ApiObject):
