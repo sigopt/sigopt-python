@@ -100,9 +100,11 @@ class Connection(BaseConnection):
       headers=self.default_headers,
     ))
 
-  def _delete(self, url):
+  def _delete(self, url, params=None):
+    request_params = self._to_api_value(params)
     return self._handle_response(requests.delete(
       url,
+      json=request_params,
       auth=self.client_auth,
       headers=self.default_headers,
     ))

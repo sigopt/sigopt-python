@@ -9,19 +9,17 @@ class BoundApiEndpoint(object):
     conn = self._bound_resource._resource._conn
     raw_response = None
 
-    # Delete doesn't take params
-    if self._endpoint._method == 'DELETE':
+    call = None
+    if self._endpoint._method == 'GET':
+      call = conn._get
+    elif self._endpoint._method == 'POST':
+      call = conn._post
+    elif self._endpoint._method == 'PUT':
+      call = conn._put
+    elif self._endpoint._method == 'DELETE':
       call = conn._delete
-      raw_response = call(url)
-    else:
-      call = None
-      if self._endpoint._method == 'GET':
-        call = conn._get
-      elif self._endpoint._method == 'POST':
-        call = conn._post
-      elif self._endpoint._method == 'PUT':
-        call = conn._put
-      raw_response = call(url, kwargs)
+
+    raw_response = call(url, kwargs)
 
     if self._endpoint._response_cls:
       return self._endpoint._response_cls(raw_response)
