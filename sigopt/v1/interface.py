@@ -83,15 +83,16 @@ class Connection(BaseConnection):
     ))
 
   def _post(self, url, params=None):
+    request_params = self._to_api_value(params)
     return self._handle_response(requests.post(
       url,
-      json=params,
+      json=request_params,
       auth=self.client_auth,
       headers=self.default_headers,
     ))
 
   def _put(self, url, params=None):
-    request_params = self._request_params(params)
+    request_params = self._to_api_value(params)
     return self._handle_response(requests.put(
       url,
       json=request_params,
