@@ -3,12 +3,12 @@ import simplejson
 import requests
 import warnings
 
-from .endpoint import ApiEndpoint
-from .exception import ApiException
-from .interface import BaseConnection
-from .objects import ApiObject
+from ..endpoint import ApiEndpoint
+from ..exception import ApiException
+from ..interface import BaseConnection
+from ..objects import ApiObject
 from .resource import ApiResource
-from .response import (
+from ..response import (
   ExperimentResponse, ClientResponse, UserResponse,
   ExperimentsBestObservationResponse, ExperimentsSuggestResponse, ExperimentsSuggestMultiResponse,
   ExperimentsWorkersResponse, ExperimentsHistoryResponse,

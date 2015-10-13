@@ -4,11 +4,11 @@ import requests
 from requests.auth import HTTPBasicAuth
 import warnings
 
-from sigopt_client.endpoint import ApiEndpoint
-from sigopt_client.exception import ApiException
-from sigopt_client.interface import BaseConnection
-from sigopt_client.objects import ApiObject, Observation, Experiment, Suggestion
-from sigopt_client.v1.resource import ApiResource
+from ..endpoint import ApiEndpoint
+from ..exception import ApiException
+from ..interface import BaseConnection
+from ..objects import ApiObject, Observation, Experiment, Suggestion
+from .resource import ApiResource
 
 def ClassOrPaginatedClass(some_class):
   def decorator(body):

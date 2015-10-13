@@ -1,5 +1,5 @@
-from sigopt_client.resource import BaseApiResource
-from sigopt_client.endpoint import ApiEndpoint
+from ..resource import BaseApiResource
+from ..endpoint import ApiEndpoint
 
 class ApiResource(BaseApiResource):
   def __init__(self, conn, name, response_cls, endpoints=[], resources=[]):
