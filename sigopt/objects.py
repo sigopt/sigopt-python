@@ -109,6 +109,10 @@ class Metric(ApiObject):
 
 class Observation(ApiObject):
   @property
+  def id(self):
+    return self._body.get('id')
+
+  @property
   def assignments(self):
     _assignments = self._body.get('assignments')
     return Assignments(_assignments) if _assignments is not None else None
