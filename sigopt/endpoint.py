@@ -19,7 +19,10 @@ class BoundApiEndpoint(object):
     elif self._endpoint._method == 'DELETE':
       call = conn._delete
 
-    raw_response = call(url, kwargs)
+    if args:
+      raw_response = call(url, *args)
+    else:
+      raw_response = call(url, kwargs)
 
     if self._endpoint._response_cls:
       return self._endpoint._response_cls(raw_response)
