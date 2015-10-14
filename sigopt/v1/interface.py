@@ -10,27 +10,35 @@ from ..interface import BaseConnection
 from ..objects import ApiObject, Observation, Experiment, Suggestion
 from .resource import ApiResource
 
-def ClassOrPaginatedClass(some_class):
+def ClassOrPaginatedClassOrList(some_class):
   def decorator(body):
-    if isinstance(body, list):
+    if isinstance(body, dict):
+      data = body.get('data')
+      if isinstance(data, list):
+        return [
+          some_class(datum)
+          for datum
+          in data
+        ]
+    elif isinstance(body, list):
       return [
         some_class(data)
         for data
         in body
       ]
-    else:
-      return some_class(body)
+
+    return some_class(body)
   return decorator
 
-@ClassOrPaginatedClass
+@ClassOrPaginatedClassOrList
 def ObservationResponse(body):
   return Observation(body)
 
-@ClassOrPaginatedClass
+@ClassOrPaginatedClassOrList
 def SuggestionResponse(body):
   return Suggestion(body)
 
-@ClassOrPaginatedClass
+@ClassOrPaginatedClassOrList
 def ExperimentResponse(body):
   return Experiment(body)
 
