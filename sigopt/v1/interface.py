@@ -63,7 +63,7 @@ class Connection(BaseConnection):
       'observations',
       response_cls=ObservationResponse,
       endpoints=[
-        ApiEndpoint('multi', ObservationResponse, 'POST')
+        ApiEndpoint('batch', ObservationResponse, 'POST')
       ]
     )
 
