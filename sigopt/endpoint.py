@@ -3,7 +3,7 @@ class BoundApiEndpoint(object):
     self._bound_resource = bound_resource
     self._endpoint = endpoint
 
-  def __call__(self, *args, **kwargs):
+  def __call__(self, **kwargs):
     name = self._endpoint._name
     url = self._bound_resource._base_url + ('/' + name if name else '')
     conn = self._bound_resource._resource._conn
@@ -19,10 +19,7 @@ class BoundApiEndpoint(object):
     elif self._endpoint._method == 'DELETE':
       call = conn._delete
 
-    if args:
-      raw_response = call(url, *args)
-    else:
-      raw_response = call(url, kwargs)
+    raw_response = call(url, kwargs)
 
     if self._endpoint._response_cls:
       return self._endpoint._response_cls(raw_response)
@@ -36,3 +33,4 @@ class ApiEndpoint(object):
     self._response_cls = response_cls
     self._method = method
     self._attribute_name = attribute_name or name
+
