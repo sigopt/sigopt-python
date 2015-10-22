@@ -36,10 +36,9 @@ class PartiallyBoundApiResource(object):
     return BoundApiResource(self._resource, id, api_url)
 
 class BaseApiResource(object):
-  def __init__(self, conn, name, response_cls, version, endpoints=None, resources=None):
+  def __init__(self, conn, name, version, endpoints=None, resources=None):
     self._conn = conn
     self._name = name
-    self._response_cls = response_cls
     self._version = version
 
     self._endpoints = dict((

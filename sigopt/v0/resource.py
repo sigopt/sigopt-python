@@ -6,7 +6,6 @@ class ApiResource(BaseApiResource):
     super(ApiResource, self).__init__(
       conn=conn,
       name=name,
-      response_cls=response_cls,
       version='v0',
       endpoints=(endpoints + [
         ApiEndpoint(None, response_cls, 'GET', 'fetch'),
