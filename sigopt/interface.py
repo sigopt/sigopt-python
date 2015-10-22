@@ -3,8 +3,10 @@ import simplejson
 import requests
 import warnings
 
+from .endpoint import ApiEndpoint
 from .exception import ApiException
 from .objects import ApiObject
+from .resource import ApiResource
 from .response import (
   ExperimentResponse, ClientResponse, UserResponse,
   ExperimentsBestObservationResponse, ExperimentsSuggestResponse, ExperimentsSuggestMultiResponse,
