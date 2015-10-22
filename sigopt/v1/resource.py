@@ -2,17 +2,11 @@ from ..resource import BaseApiResource
 from ..endpoint import ApiEndpoint
 
 class ApiResource(BaseApiResource):
-  def __init__(self, conn, name, response_cls, endpoints=[], resources=[]):
+  def __init__(self, conn, name, endpoints=None, resources=None):
     super(ApiResource, self).__init__(
       conn=conn,
       name=name,
-      response_cls=response_cls,
       version='v1',
-      endpoints=(endpoints + [
-        ApiEndpoint(None, response_cls, 'POST', 'create'),
-        ApiEndpoint(None, response_cls, 'GET', 'fetch'),
-        ApiEndpoint(None, response_cls, 'PUT', 'update'),
-        ApiEndpoint(None, response_cls, 'DELETE', 'delete'),
-      ]),
+      endpoints=endpoints,
       resources=resources,
     )

@@ -3,7 +3,6 @@ from .objects import ApiObject, Cohort, Client, Experiment, Observation, Role, S
 class ApiResponse(ApiObject):
   pass
 
-
 class ExperimentsAllocateResponse(ApiResponse):
   @property
   def cohorts(self):
@@ -104,3 +103,20 @@ class UsersRolesResponse(ApiResponse):
   def roles(self):
     _roles = self._body.get('roles', [])
     return [Role(r) for r in _roles]
+
+# Allows response to be a single object of class some_class or a paginated
+# response of objects that come from class some_class
+def object_or_paginated_objects(api_object):
+  def decorator(body):
+    if body.get('object') == 'pagination':
+      return Pagination(api_object, body)
+    else:
+      return api_object(body)
+
+  return decorator
+
+def list_of_objects(api_object):
+  def decorator(body):
+    assert isinstance(body, list)
+    return [api_object(obj) for obj in body]
+  return decorator

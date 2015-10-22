@@ -7,40 +7,10 @@ import warnings
 from ..endpoint import ApiEndpoint
 from ..exception import ApiException
 from ..interface import BaseConnection
-from ..objects import ApiObject, Observation, Experiment, Suggestion
+from ..objects import Observation, Experiment, Suggestion
+from ..response import list_of_objects, object_or_paginated_objects
 from .resource import ApiResource
 
-def ClassOrPaginatedClassOrList(some_class):
-  def decorator(body):
-    if isinstance(body, dict):
-      data = body.get('data')
-      if isinstance(data, list):
-        return [
-          some_class(datum)
-          for datum
-          in data
-        ]
-    elif isinstance(body, list):
-      return [
-        some_class(data)
-        for data
-        in body
-      ]
-
-    return some_class(body)
-  return decorator
-
-@ClassOrPaginatedClassOrList
-def ObservationResponse(body):
-  return Observation(body)
-
-@ClassOrPaginatedClassOrList
-def SuggestionResponse(body):
-  return Suggestion(body)
-
-@ClassOrPaginatedClassOrList
-def ExperimentResponse(body):
-  return Experiment(body)
 
 class Connection(BaseConnection):
   def __init__(self, client_token, user_token=None):
@@ -52,25 +22,36 @@ class Connection(BaseConnection):
     suggestions = ApiResource(
       self,
       'suggestions',
-      response_cls=SuggestionResponse,
       endpoints=[
-        ApiEndpoint('multi', SuggestionResponse, 'POST')
+        ApiEndpoint(None, Suggestion, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Suggestion), 'GET', 'fetch'),
+        ApiEndpoint(None, Suggestion, 'PUT', 'update'),
+        ApiEndpoint(None, Suggestion, 'DELETE', 'delete'),
+        ApiEndpoint('multi', list_of_objects(Suggestion), 'POST')
       ]
     )
 
     observations = ApiResource(
       self,
       'observations',
-      response_cls=ObservationResponse,
       endpoints=[
-        ApiEndpoint('batch', ObservationResponse, 'POST')
+        ApiEndpoint(None, Observation, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
+        ApiEndpoint(None, Observation, 'PUT', 'update'),
+        ApiEndpoint(None, Observation, 'DELETE', 'delete'),
+        ApiEndpoint('batch', list_of_objects(Observation), 'POST')
       ]
     )
 
     self._experiments = ApiResource(
       self,
       'experiments',
-      response_cls=Experiment,
+      endpoints=[
+        ApiEndpoint(None, Experiment, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Experiment), 'GET', 'fetch'),
+        ApiEndpoint(None, Experiment, 'PUT', 'update'),
+        ApiEndpoint(None, Experiment, 'DELETE', 'delete'),
+      ],
       resources=[
         suggestions,
         observations,
