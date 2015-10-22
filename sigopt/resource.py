@@ -71,6 +71,7 @@ class ApiResource(BaseApiResource):
         ApiEndpoint(None, response_cls, 'GET', 'fetch'),
       ])
     )
+    self._response_cls = response_cls
 
   def create(self, **kwargs):
     return self._response_cls(
