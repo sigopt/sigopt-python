@@ -61,6 +61,7 @@ class Connection(BaseConnection):
         ApiEndpoint(None, object_or_paginated_objects(Experiment), 'GET', 'fetch'),
         ApiEndpoint(None, Experiment, 'PUT', 'update'),
         ApiEndpoint(None, Experiment, 'DELETE', 'delete'),
+        ApiEndpoint('reset', Experiment, 'POST'),
       ],
       resources=[
         suggestions,
