@@ -7,7 +7,7 @@ import warnings
 from ..endpoint import ApiEndpoint
 from ..exception import ApiException
 from ..interface import BaseConnection
-from ..objects import Observation, Experiment, Suggestion
+from ..objects import Observation, Experiment, Suggestion, Cohort
 from ..response import list_of_objects, object_or_paginated_objects
 from .resource import ApiResource
 
@@ -43,6 +43,16 @@ class Connection(BaseConnection):
       ]
     )
 
+    cohorts = ApiResource(
+      self,
+      'cohorts',
+      endpoints=[
+        ApiEndpoint(None, Cohort, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Cohort), 'GET', 'fetch'),
+        ApiEndpoint(None, Cohort, 'PUT', 'update'),
+      ]
+    )
+
     self._experiments = ApiResource(
       self,
       'experiments',
@@ -55,6 +65,7 @@ class Connection(BaseConnection):
       resources=[
         suggestions,
         observations,
+        cohorts,
       ]
     )
 
