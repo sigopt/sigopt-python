@@ -39,7 +39,8 @@ class Connection(BaseConnection):
         ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
         ApiEndpoint(None, Observation, 'PUT', 'update'),
         ApiEndpoint(None, Observation, 'DELETE', 'delete'),
-        ApiEndpoint('batch', list_of_objects(Observation), 'POST')
+        ApiEndpoint('batch', list_of_objects(Observation), 'POST'),
+        ApiEndpoint('best', Observation, 'GET'),
       ]
     )
 
