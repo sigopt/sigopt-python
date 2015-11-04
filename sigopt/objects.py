@@ -129,6 +129,9 @@ class Observation(ApiObject):
   def suggestion_id(self):
       return self._body.get('suggestion_id')
 
+  @property
+  def timestamp(self):
+      return self._body.get('timestamp')
 
 
 class Paging(ApiObject):
