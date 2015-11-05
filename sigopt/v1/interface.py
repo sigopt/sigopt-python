@@ -105,7 +105,7 @@ class Connection(BaseConnection):
     request_params = self._to_api_value(params)
     return self._handle_response(requests.delete(
       url,
-      json=request_params,
+      params=request_params,
       auth=self.client_auth,
       headers=self.default_headers,
     ))
