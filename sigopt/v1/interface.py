@@ -7,7 +7,13 @@ import warnings
 from ..endpoint import ApiEndpoint
 from ..exception import ApiException
 from ..interface import BaseConnection
-from ..objects import Observation, Experiment, Suggestion, Cohort
+from ..objects import (
+  Client,
+  Cohort,
+  Experiment,
+  Observation,
+  Suggestion,
+)
 from ..response import list_of_objects, object_or_paginated_objects
 from .resource import ApiResource
 
@@ -69,6 +75,18 @@ class Connection(BaseConnection):
         cohorts,
       ]
     )
+
+    self._clients = ApiResource(
+      self,
+      'clients',
+      endpoints=[
+        ApiEndpoint(None, Client, 'GET', 'fetch'),
+      ],
+    )
+
+  @property
+  def clients(self):
+    return self._clients
 
   @property
   def experiments(self):
