@@ -211,10 +211,6 @@ class Suggestion(ApiObject):
     return Assignments(_assignments) if _assignments is not None else None
 
   @property
-  def expected_improvement(self):
-    return self._body.get('expected_improvement')
-
-  @property
   def state(self):
     return self._body.get('state')
 
