@@ -117,8 +117,5 @@ def object_or_paginated_objects(api_object):
 
 def paginated_objects(api_object):
   def decorator(body):
-    if isinstance(body, list):
-      return [api_object(obj) for obj in body]
-    else:
-      return Pagination(api_object, body)
+    return Pagination(api_object, body)
   return decorator
