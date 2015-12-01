@@ -14,7 +14,7 @@ from ..objects import (
   Observation,
   Suggestion,
 )
-from ..response import list_of_objects, object_or_paginated_objects
+from ..response import paginated_objects, object_or_paginated_objects
 from .resource import ApiResource
 
 
@@ -33,7 +33,7 @@ class Connection(BaseConnection):
         ApiEndpoint(None, object_or_paginated_objects(Suggestion), 'GET', 'fetch'),
         ApiEndpoint(None, Suggestion, 'PUT', 'update'),
         ApiEndpoint(None, Suggestion, 'DELETE', 'delete'),
-        ApiEndpoint('multi', list_of_objects(Suggestion), 'POST')
+        ApiEndpoint('multi', paginated_objects(Suggestion), 'POST')
       ]
     )
 
@@ -45,7 +45,7 @@ class Connection(BaseConnection):
         ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
         ApiEndpoint(None, Observation, 'PUT', 'update'),
         ApiEndpoint(None, Observation, 'DELETE', 'delete'),
-        ApiEndpoint('batch', list_of_objects(Observation), 'POST'),
+        ApiEndpoint('batch', paginated_objects(Observation), 'POST'),
         ApiEndpoint('best', Observation, 'GET'),
       ]
     )
