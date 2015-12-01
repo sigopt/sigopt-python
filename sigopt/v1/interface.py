@@ -92,6 +92,17 @@ class Connection(BaseConnection):
   def experiments(self):
     return self._experiments
 
+  def _handle_response(self, response):
+    try:
+      response_json = response.json()
+    except simplejson.decoder.JSONDecodeError:
+      raise ApiException({'message': response.text}, response.status_code)
+
+    if 200 <= response.status_code <= 299:
+      return response_json
+    else:
+      raise ApiException(response_json, response.status_code)
+
   def _get(self, url, params=None):
     request_params = self._request_params(params)
     return self._handle_response(requests.get(

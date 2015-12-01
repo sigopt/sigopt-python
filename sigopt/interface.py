@@ -25,20 +25,6 @@ class BaseConnection(object):
     self.client_token = client_token
     self.user_token = user_token
 
-
-  def _handle_response(self, response):
-    try:
-      response_json = response.json()
-    except simplejson.decoder.JSONDecodeError:
-      raise ApiException({'message': response.text}, response.status_code)
-
-    if 200 <= response.status_code <= 299:
-      response = response_json.get('response')
-      return response
-    else:
-      error_json = response_json.get('error', {})
-      raise ApiException(error_json, response.status_code)
-
   def _to_api_value(self, obj):
     if isinstance(obj, ApiObject):
       return obj.to_json()
@@ -112,6 +98,19 @@ class Connection(BaseConnection):
   @property
   def users(self):
     return self._users
+
+  def _handle_response(self, response):
+    try:
+      response_json = response.json()
+    except simplejson.decoder.JSONDecodeError:
+      raise ApiException({'message': response.text}, response.status_code)
+
+    if 200 <= response.status_code <= 299:
+      response = response_json.get('response')
+      return response
+    else:
+      error_json = response_json.get('error', {})
+      raise ApiException(error_json, response.status_code)
 
   def experiment(self, experiment_id):
     warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
