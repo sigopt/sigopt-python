@@ -49,6 +49,10 @@ class Client(ApiObject):
   def name(self):
     return self._body.get('name')
 
+  @property
+  def created(self):
+    return self._body.get('created')
+
 
 class Cohort(ApiObject):
   @property
@@ -100,6 +104,10 @@ class Experiment(ApiObject):
     _metric = self._body.get('metric')
     return Metric(_metric) if _metric is not None else None
 
+  @property
+  def created(self):
+    return self._body.get('created')
+
 
 class Metric(ApiObject):
   @property
@@ -132,6 +140,10 @@ class Observation(ApiObject):
   @property
   def timestamp(self):
       return self._body.get('timestamp')
+
+  @property
+  def created(self):
+      return self._body.get('created')
 
 
 class Paging(ApiObject):
@@ -234,6 +246,10 @@ class User(ApiObject):
   @property
   def email(self):
     return self._body.get('email')
+
+  @property
+  def created(self):
+    return self._body.get('created')
 
 
 class Worker(ApiObject):
