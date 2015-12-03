@@ -234,6 +234,11 @@ class Suggestion(ApiObject):
   def experiment_id(self):
     return self._body.get('experiment_id')
 
+  @property
+  def created(self):
+    return self._body.get('created')
+
+
 class User(ApiObject):
   @property
   def id(self):
@@ -246,10 +251,6 @@ class User(ApiObject):
   @property
   def email(self):
     return self._body.get('email')
-
-  @property
-  def created(self):
-    return self._body.get('created')
 
 
 class Worker(ApiObject):
