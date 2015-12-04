@@ -119,8 +119,7 @@ class Experiment(ApiObject):
 
   @property
   def client(self):
-    _client = self._body.get('client')
-    return _client if isinstance(client, basestring) else None
+    return self._body.get('client')
 
 
 class Metric(ApiObject):
@@ -157,13 +156,11 @@ class Observation(ApiObject):
 
   @property
   def suggestion(self):
-    _suggestion = self._body.get('suggestion')
-    return _suggestion if isinstance(suggestion, basestring) else None
+    return self._body.get('suggestion')
 
   @property
   def experiment(self):
-    _experiment = self._body.get('experiment')
-    return _experiment if isinstance(experiment, basestring) else None
+    return self._body.get('experiment')
 
   @property
   def suggestion_id(self):
@@ -285,8 +282,7 @@ class Suggestion(ApiObject):
 
   @property
   def experiment(self):
-    _experiment = self._body.get('experiment')
-    return _experiment if isinstance(experiment, basestring) else None
+    return self._body.get('experiment')
 
   @property
   def experiment_id(self):
