@@ -227,8 +227,8 @@ class Parameter(ApiObject):
 
 class Progress(ApiObject):
   @property
-  def count_observations(self):
-    return self._body.get('count_observations')
+  def observation_count(self):
+    return self._body.get('observation_count')
 
   @property
   def best_observation(self):
