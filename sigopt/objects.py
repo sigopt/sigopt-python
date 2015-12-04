@@ -115,7 +115,7 @@ class Experiment(ApiObject):
   @property
   def progress(self):
     _progress = self._body.get('progress')
-    return Progress(_progress) is _progress is not None else None
+    return Progress(_progress) if _progress is not None else None
 
   @property
   def client(self):
