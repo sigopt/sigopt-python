@@ -46,12 +46,12 @@ class Client(ApiObject):
     return self._body.get('id')
 
   @property
-  def name(self):
-    return self._body.get('name')
-
-  @property
   def created(self):
     return self._body.get('created')
+
+  @property
+  def name(self):
+    return self._body.get('name')
 
 
 class Cohort(ApiObject):
@@ -91,8 +91,16 @@ class Experiment(ApiObject):
     return self._body.get('id')
 
   @property
+  def created(self):
+    return self._body.get('created')
+
+  @property
   def name(self):
     return self._body.get('name')
+
+  @property
+  def type(self):
+    return self._body.get('type')
 
   @property
   def parameters(self):
@@ -105,8 +113,14 @@ class Experiment(ApiObject):
     return Metric(_metric) if _metric is not None else None
 
   @property
-  def created(self):
-    return self._body.get('created')
+  def progress(self):
+    _progress = self._body.get('progress')
+    return Progress(_progress) is _progress is not None else None
+
+  @property
+  def client(self):
+    _client = self._body.get('client')
+    return _client if isinstance(client, basestring) else None
 
 
 class Metric(ApiObject):
@@ -119,6 +133,10 @@ class Observation(ApiObject):
   @property
   def id(self):
     return self._body.get('id')
+
+  @property
+  def created(self):
+      return self._body.get('created')
 
   @property
   def assignments(self):
@@ -134,16 +152,26 @@ class Observation(ApiObject):
     return self._body.get('value_stddev')
 
   @property
+  def failed(self):
+    return self._body.get('failed')
+
+  @property
+  def suggestion(self):
+    _suggestion = self._body.get('suggestion')
+    return _suggestion if isinstance(suggestion, basestring) else None
+
+  @property
+  def experiment(self):
+    _experiment = self._body.get('experiment')
+    return _experiment if isinstance(experiment, basestring) else None
+
+  @property
   def suggestion_id(self):
       return self._body.get('suggestion_id')
 
   @property
   def timestamp(self):
       return self._body.get('timestamp')
-
-  @property
-  def created(self):
-      return self._body.get('created')
 
 
 class Paging(ApiObject):
@@ -200,6 +228,27 @@ class Parameter(ApiObject):
     return self._body.get('transformation')
 
 
+class Progress(ApiObject):
+  @property
+  def count_observations(self):
+    return self._body.get('count_observations')
+
+  @property
+  def best_observation(self):
+    _observation = self._body.get('best_observation')
+    return Observation(_observation) if _observation is not None else None
+
+  @property
+  def last_observation(self):
+    _observation = self._body.get('last_observation1')
+    return Observation(_observation) if _observation is not None else None
+
+  @property
+  def first_observation(self):
+    _observation = self._body.get('first_observation')
+    return Observation(_observation) if _observation is not None else None
+
+
 class Role(ApiObject):
   @property
   def role(self):
@@ -218,25 +267,30 @@ class Role(ApiObject):
 
 class Suggestion(ApiObject):
   @property
-  def assignments(self):
-    _assignments = self._body.get('assignments')
-    return Assignments(_assignments) if _assignments is not None else None
+  def id(self):
+    return self._body.get('id')
+
+  @property
+  def created(self):
+    return self._body.get('created')
 
   @property
   def state(self):
     return self._body.get('state')
 
   @property
-  def id(self):
-    return self._body.get('id')
+  def assignments(self):
+    _assignments = self._body.get('assignments')
+    return Assignments(_assignments) if _assignments is not None else None
+
+  @property
+  def experiment(self):
+    _experiment = self._body.get('experiment')
+    return _experiment if isinstance(experiment, basestring) else None
 
   @property
   def experiment_id(self):
     return self._body.get('experiment_id')
-
-  @property
-  def created(self):
-    return self._body.get('created')
 
 
 class User(ApiObject):
