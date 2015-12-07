@@ -163,10 +163,6 @@ class Observation(ApiObject):
     return self._body.get('experiment')
 
   @property
-  def suggestion_id(self):
-      return self._body.get('suggestion_id')
-
-  @property
   def timestamp(self):
       return self._body.get('timestamp')
 
@@ -283,10 +279,6 @@ class Suggestion(ApiObject):
   @property
   def experiment(self):
     return self._body.get('experiment')
-
-  @property
-  def experiment_id(self):
-    return self._body.get('experiment_id')
 
 
 class User(ApiObject):
