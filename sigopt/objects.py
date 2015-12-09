@@ -103,6 +103,10 @@ class Experiment(ApiObject):
     return self._body.get('type')
 
   @property
+  def state(self):
+    return self._body.get('state')
+
+  @property
   def parameters(self):
     _parameters = self._body.get('parameters', [])
     return [Parameter(p) for p in _parameters]
