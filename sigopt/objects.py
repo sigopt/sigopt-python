@@ -237,7 +237,7 @@ class Progress(ApiObject):
 
   @property
   def last_observation(self):
-    _observation = self._body.get('last_observation1')
+    _observation = self._body.get('last_observation')
     return Observation(_observation) if _observation is not None else None
 
   @property
