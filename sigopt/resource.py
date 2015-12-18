@@ -21,7 +21,14 @@ class BoundApiResource(object):
       sub_resource = self._resource._sub_resources.get(attr)
       if sub_resource:
         return PartiallyBoundApiResource(sub_resource, self)
-    raise AttributeError(attr)
+    raise AttributeError(
+      'Cannot find attribute `{attribute}` on resource `{resource}`, likely no endpoint exists for: '
+      '{base_url}/{attribute}, or `{resource}` does not support `{attribute}`.'.format(
+        attribute=attr,
+        resource=self._resource._name,
+        base_url=self._base_url,
+      )
+    )
 
 class PartiallyBoundApiResource(object):
   def __init__(self, resource, bound_parent_resource):
