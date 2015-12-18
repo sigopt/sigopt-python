@@ -3,7 +3,7 @@ from __future__ import print_function
 import argparse
 import threading
 import time
-# insert your CLIENT_ID, CLIENT_TOKEN, USER_TOKEN into sigopt_creds.py
+# insert your CLIENT_TOKEN into sigopt_creds.py
 # otherwise you'll see "This endpoint requires an authenticated user" errors
 from sigopt_creds import CLIENT_TOKEN
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
   the_args = parser.parse_args()
 
   if the_args.experiment_id is None:
-    raise Exception("Must provide an experiment id")
+    raise Exception("Must provide an experiment id. This experiment should have two numerical params: param1 and param2")
 
   runners = [ExampleRunner(the_args.experiment_id) for _ in range(the_args.runner_count)]
 
