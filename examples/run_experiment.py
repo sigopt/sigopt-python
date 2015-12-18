@@ -1,51 +1,56 @@
 from __future__ import print_function
 
+import argparse
 import threading
 import time
+# insert your CLIENT_ID, CLIENT_TOKEN, USER_TOKEN into sigopt_creds.py
+# otherwise you'll see "This endpoint requires an authenticated user" errors
+from sigopt_creds import CLIENT_TOKEN
 
 from sigopt.interface import Connection
 
-# Just fill these in with your credentials
-CLIENT_TOKEN = 'XXXXXXXXXX'
-EXPERIMENT_ID = 0
 
 class ExampleRunner(threading.Thread):
-  def __init__(self, worker_id):
+  def __init__(self, experiment_id):
     threading.Thread.__init__(self)
-    self.worker_id = worker_id
-    self.connection = Connection(client_token=CLIENT_TOKEN, worker_id=self.worker_id)
+    self.connection = Connection(client_token=CLIENT_TOKEN)
+    self.experiment_id = experiment_id
 
   def run(self):
     while True:
-      assignments = self.connection.experiments(EXPERIMENT_ID).suggest().suggestion.assignments
-      print('{0} - Evaluating at parameters: {1}'.format(self.worker_id, assignments))
-      metric_value = self.evaluate(assignments)
-      print('{0} - Observed value: {1}'.format(self.worker_id, metric_value))
-      self.connection.experiments(EXPERIMENT_ID).report(data={
-        'assignments': assignments,
-        'value': metric_value,
-      })
+      suggestion = self.connection.experiments(self.experiment_id).suggestions().create()
+      print('{0} - Evaluating at parameters: {1}'.format(threading.current_thread(), suggestion.assignments))
+      value = self.evaluate_metric(suggestion.assignments)
+      print('{0} - Observed value: {1}'.format(threading.current_thread(), value))
+      self.connection.experiments(self.experiment_id).observations().create(
+        suggestion=suggestion.id,
+        value=value,
+      )
 
-  def evaluate(self, assignments):
+  def evaluate_metric(self, assignments):
     """
     Replace this with the function you want to optimize
     This fictitious example has only two parameters, named param1 and param2
     """
     sleep_seconds = 10
-    print('{0} - Sleeping for {1} seconds to simulate expensive computation...'.format(self.worker_id, sleep_seconds))
+    print('{0} - Sleeping for {1} seconds to simulate expensive computation...'.format(threading.current_thread(), sleep_seconds))
     time.sleep(sleep_seconds)
     return assignments['param1'] - assignments['param2']
 
 if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--runner_count', type=int, default=2)
+  parser.add_argument('--experiment_id', type=int)
+  the_args = parser.parse_args()
 
-  RUNNER_COUNT = 2
-  runners = [ExampleRunner('worker-' + str(i+1)) for i in range(RUNNER_COUNT)]
+  if the_args.experiment_id is None:
+    raise Exception("Must provide an experiment id")
+
+  runners = [ExampleRunner(the_args.experiment_id) for _ in range(the_args.runner_count)]
 
   for runner in runners:
     runner.daemon = True
     runner.start()
 
-  while True:
-    time.sleep(1)
-    if all((not r.is_alive() for r in runners)):
-      break
+  for runner in runners:
+    runner.join()
