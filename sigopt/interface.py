@@ -18,13 +18,12 @@ from .objects import (
 )
 
 class BaseConnection(object):
-  def __init__(self, client_token=None, user_token=None):
+  def __init__(self, client_token=None):
     self.api_url = 'https://api.sigopt.com'
-    if client_token is None and user_token is None:
-      raise ValueError('Must provide either user_token or client_token (or both)')
+    if client_token is None:
+      raise ValueError('Must provide client_token')
 
     self.client_token = client_token
-    self.user_token = user_token
 
   def _to_api_value(self, obj):
     if isinstance(obj, ApiObject):
@@ -40,8 +39,8 @@ class BaseConnection(object):
       return obj
 
 class Connection(BaseConnection):
-  def __init__(self, client_token, user_token=None):
-    super(Connection, self).__init__(client_token, user_token)
+  def __init__(self, client_token):
+    super(Connection, self).__init__(client_token)
     self.default_headers = {'Content-Type': 'application/json'}
     self.default_params = {}
     self.client_auth = HTTPBasicAuth(self.client_token, '')
