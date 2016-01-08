@@ -52,7 +52,6 @@ class Connection(BaseConnection):
         ApiEndpoint(None, object_or_paginated_objects(Suggestion), 'GET', 'fetch'),
         ApiEndpoint(None, Suggestion, 'PUT', 'update'),
         ApiEndpoint(None, Suggestion, 'DELETE', 'delete'),
-        ApiEndpoint('multi', paginated_objects(Suggestion), 'POST')
       ]
     )
 
@@ -64,7 +63,6 @@ class Connection(BaseConnection):
         ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
         ApiEndpoint(None, Observation, 'PUT', 'update'),
         ApiEndpoint(None, Observation, 'DELETE', 'delete'),
-        ApiEndpoint('batch', paginated_objects(Observation), 'POST'),
       ]
     )
 
