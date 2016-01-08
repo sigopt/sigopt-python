@@ -10,7 +10,6 @@ from .objects import ApiObject
 from .resource import ApiResource
 from .objects import (
   Client,
-  Cohort,
   Experiment,
   Observation,
   Pagination,
@@ -69,16 +68,6 @@ class Connection(BaseConnection):
       ]
     )
 
-    cohorts = ApiResource(
-      self,
-      'cohorts',
-      endpoints=[
-        ApiEndpoint(None, Cohort, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(Cohort), 'GET', 'fetch'),
-        ApiEndpoint(None, Cohort, 'PUT', 'update'),
-      ]
-    )
-
     self._experiments = ApiResource(
       self,
       'experiments',
@@ -91,7 +80,6 @@ class Connection(BaseConnection):
       resources=[
         suggestions,
         observations,
-        cohorts,
       ]
     )
 
