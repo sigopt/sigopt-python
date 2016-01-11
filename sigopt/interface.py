@@ -1,29 +1,28 @@
 import copy
 import simplejson
 import requests
+from requests.auth import HTTPBasicAuth
 import warnings
 
 from .endpoint import ApiEndpoint
 from .exception import ApiException
 from .objects import ApiObject
 from .resource import ApiResource
-from .response import (
-  ExperimentResponse, ClientResponse, UserResponse,
-  ExperimentsBestObservationResponse, ExperimentsSuggestResponse, ExperimentsSuggestMultiResponse,
-  ExperimentsWorkersResponse, ExperimentsHistoryResponse,
-  ExperimentsAllocateResponse, ExperimentsCreateCohortResponse, ExperimentsUpdateCohortResponse,
-  ClientsExperimentsResponse,
-  UsersRolesResponse,
+from .objects import (
+  Client,
+  Experiment,
+  Observation,
+  Pagination,
+  Suggestion,
 )
 
 class BaseConnection(object):
-  def __init__(self, client_token=None, user_token=None):
+  def __init__(self, client_token=None):
     self.api_url = 'https://api.sigopt.com'
-    if client_token is None and user_token is None:
-      raise ValueError('Must provide either user_token or client_token (or both)')
+    if client_token is None:
+      raise ValueError('Must provide client_token')
 
     self.client_token = client_token
-    self.user_token = user_token
 
   def _to_api_value(self, obj):
     if isinstance(obj, ApiObject):
@@ -39,65 +38,64 @@ class BaseConnection(object):
       return obj
 
 class Connection(BaseConnection):
-  def __init__(self, client_token=None, user_token=None, worker_id=None):
-    super(Connection, self).__init__(client_token, user_token)
+  def __init__(self, client_token):
+    super(Connection, self).__init__(client_token)
+    self.default_headers = {'Content-Type': 'application/json'}
+    self.default_params = {}
+    self.client_auth = HTTPBasicAuth(self.client_token, '')
 
-    self.worker_id = worker_id
-    self.default_params = {
-      'user_token': user_token,
-      'client_token': client_token,
-      'worker_id': worker_id,
-    }
+    suggestions = ApiResource(
+      self,
+      'suggestions',
+      endpoints=[
+        ApiEndpoint(None, Suggestion, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Suggestion), 'GET', 'fetch'),
+        ApiEndpoint(None, Suggestion, 'PUT', 'update'),
+        ApiEndpoint(None, Suggestion, 'DELETE', 'delete'),
+      ]
+    )
+
+    observations = ApiResource(
+      self,
+      'observations',
+      endpoints=[
+        ApiEndpoint(None, Observation, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
+        ApiEndpoint(None, Observation, 'PUT', 'update'),
+        ApiEndpoint(None, Observation, 'DELETE', 'delete'),
+      ]
+    )
 
     self._experiments = ApiResource(
       self,
       'experiments',
-      response_cls=ExperimentResponse,
       endpoints=[
-        ApiEndpoint('allocate', ExperimentsAllocateResponse, 'GET'),
-        ApiEndpoint('bestobservation', ExperimentsBestObservationResponse, 'GET'),
-        ApiEndpoint('createcohort', ExperimentsCreateCohortResponse, 'POST'),
-        ApiEndpoint('delete', None, 'POST'),
-        ApiEndpoint('history', ExperimentsHistoryResponse, 'GET'),
-        ApiEndpoint('releaseworker', None, 'POST'),
-        ApiEndpoint('report', None, 'POST'),
-        ApiEndpoint('reportmulti', None, 'POST'),
-        ApiEndpoint('reset', None, 'POST'),
-        ApiEndpoint('suggest', ExperimentsSuggestResponse, 'POST'),
-        ApiEndpoint('suggestmulti', ExperimentsSuggestMultiResponse, 'POST'),
-        ApiEndpoint('update', ExperimentResponse, 'POST'),
-        ApiEndpoint('updatecohort', ExperimentsUpdateCohortResponse, 'POST'),
-        ApiEndpoint('workers', ExperimentsWorkersResponse, 'GET'),
+        ApiEndpoint(None, Experiment, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Experiment), 'GET', 'fetch'),
+        ApiEndpoint(None, Experiment, 'PUT', 'update'),
+        ApiEndpoint(None, Experiment, 'DELETE', 'delete'),
       ],
+      resources=[
+        suggestions,
+        observations,
+      ]
     )
+
     self._clients = ApiResource(
       self,
       'clients',
-      response_cls=ClientResponse,
       endpoints=[
-        ApiEndpoint('experiments', ClientsExperimentsResponse, 'GET'),
+        ApiEndpoint(None, Client, 'GET', 'fetch'),
       ],
     )
-    self._users = ApiResource(
-      self,
-      'users',
-      response_cls=UserResponse,
-      endpoints=[
-        ApiEndpoint('roles', UsersRolesResponse, 'GET'),
-      ],
-    )
-
-  @property
-  def experiments(self):
-    return self._experiments
 
   @property
   def clients(self):
     return self._clients
 
   @property
-  def users(self):
-    return self._users
+  def experiments(self):
+    return self._experiments
 
   def _handle_response(self, response):
     try:
@@ -106,64 +104,51 @@ class Connection(BaseConnection):
       raise ApiException({'message': response.text}, response.status_code)
 
     if 200 <= response.status_code <= 299:
-      response = response_json.get('response')
-      return response
+      return response_json
     else:
-      error_json = response_json.get('error', {})
-      raise ApiException(error_json, response.status_code)
-
-  def experiment(self, experiment_id):
-    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
-    self._ensure_user_token()
-    return self.experiments(experiment_id)
-
-  def experiment_create(self, client_id, data):
-    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
-    self._ensure_user_token()
-    return self.experiments.create(client_id=client_id, data=data)
-
-  def experiment_delete(self, experiment_id):
-    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
-    self._ensure_user_token()
-    return self.experiments(experiment_id).delete()
-
-  def experiment_report(self, experiment_id, data):
-    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
-    self._ensure_client_token()
-    return self.experiments(experiment_id).report(data=data)
-
-  def client_experiments(self, client_id):
-    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
-    self._ensure_user_token()
-    return self.clients(client_id).experiments()
-
-  def experiment_suggest(self, experiment_id):
-    warnings.warn('This method will be removed in version 1.0', DeprecationWarning, stacklevel=2)
-    self._ensure_client_token()
-    return self.experiments(experiment_id).suggest()
+      raise ApiException(response_json, response.status_code)
 
   def _get(self, url, params=None):
     request_params = self._request_params(params)
-    return self._handle_response(requests.get(url, params=request_params))
+    return self._handle_response(requests.get(
+      url,
+      params=request_params,
+      auth=self.client_auth,
+      headers=self.default_headers,
+    ))
 
   def _post(self, url, params=None):
-    request_params = self._request_params(params)
-    return self._handle_response(requests.post(url, data=request_params))
+    request_params = self._to_api_value(params)
+    return self._handle_response(requests.post(
+      url,
+      json=request_params,
+      auth=self.client_auth,
+      headers=self.default_headers,
+    ))
 
-  def _ensure_client_token(self):
-    if self.client_token is None:
-      raise ValueError('client_token is required for this call')
+  def _put(self, url, params=None):
+    request_params = self._to_api_value(params)
+    return self._handle_response(requests.put(
+      url,
+      json=request_params,
+      auth=self.client_auth,
+      headers=self.default_headers,
+    ))
 
-  def _ensure_user_token(self):
-    if self.user_token is None:
-      raise ValueError('user_token is required for this call')
+  def _delete(self, url, params=None):
+    request_params = self._to_api_value(params)
+    return self._handle_response(requests.delete(
+      url,
+      params=request_params,
+      auth=self.client_auth,
+      headers=self.default_headers,
+    ))
 
   def _request_params(self, params):
-    req_params = copy.copy(self.default_params)
-    req_params.update(params or {})
+    req_params = params or {}
 
     def serialize(value):
-      if isinstance(value, dict):
+      if isinstance(value, dict) or isinstance(value, list):
         return simplejson.dumps(value)
       return str(value)
 
@@ -173,4 +158,20 @@ class Connection(BaseConnection):
       in req_params.items()
       if value is not None
     ))
+
+# Allows response to be a single object of class some_class or a paginated
+# response of objects that come from class some_class
+def object_or_paginated_objects(api_object):
+  def decorator(body):
+    if body.get('object') == 'pagination':
+      return Pagination(api_object, body)
+    else:
+      return api_object(body)
+
+  return decorator
+
+def paginated_objects(api_object):
+  def decorator(body):
+    return Pagination(api_object, body)
+  return decorator
 
