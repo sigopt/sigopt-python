@@ -1,11 +1,11 @@
 from setuptools import setup
 
 # keep this in sync with requirements.txt
-install_requires=['requests>=2.0.1','simplejson>=3.5.2']
+install_requires=['requests==2.5.1','simplejson>=3.5.2']
 
 setup(
   name='sigopt-python',
-  version='0.6.2',
+  version='1.0.0',
   description='SigOpt Python API Client',
   author='SigOpt',
   author_email='support@sigopt.com',
