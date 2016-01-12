@@ -24,7 +24,7 @@ Then, you can use the connection to issue API requests. An example creating an e
 optimization loop:
 
 ```python
-experiment = conn.experiments.create(
+experiment = conn.experiments().create(
   name='New Experiment',
   parameters=[{ 'name': 'param1', 'type': 'double', 'bounds': { 'min': 0, 'max': 1.0 }}],
 )
