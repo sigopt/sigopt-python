@@ -3,9 +3,9 @@ from __future__ import print_function
 import argparse
 import threading
 import time
-# insert your CLIENT_TOKEN into sigopt_creds.py
+# insert your client_token into sigopt_creds.py
 # otherwise you'll see "This endpoint requires an authenticated user" errors
-from sigopt_creds import CLIENT_TOKEN
+from sigopt_creds import client_token
 
 from sigopt.interface import Connection
 
@@ -13,7 +13,7 @@ from sigopt.interface import Connection
 class ExampleRunner(threading.Thread):
   def __init__(self, experiment_id):
     threading.Thread.__init__(self)
-    self.connection = Connection(client_token=CLIENT_TOKEN)
+    self.connection = Connection(client_token=client_token)
     self.experiment_id = experiment_id
 
   def run(self):

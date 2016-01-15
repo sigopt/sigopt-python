@@ -1,8 +1,8 @@
 import argparse
 
-# insert your CLIENT_TOKEN into sigopt_creds.py
+# insert your client_token into sigopt_creds.py
 # otherwise you'll see "This endpoint requires an authenticated user" errors
-from sigopt_creds import CLIENT_TOKEN
+from sigopt_creds import client_token
 
 from sigopt.interface import Connection
 
@@ -16,7 +16,7 @@ if __name__ == '__main__':
   parser.add_argument('--iterations', type=int, default=20)
   the_args = parser.parse_args()
 
-  connection = Connection(client_token=CLIENT_TOKEN)
+  connection = Connection(client_token=client_token)
 
   # Create an experiment with one paramter, x
   experiment = connection.experiments().create(
