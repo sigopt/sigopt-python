@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
   # Create an experiment with one paramter, x
   experiment = connection.experiments().create(
-    name="Test experiment",
+    name="Basic Test experiment",
     parameters=[{'name': 'x', 'bounds': {'max': 50.0, 'min': 0.0}, 'type': 'double'}],
   )
   print('Created experiment id {0}'.format(experiment.id))
