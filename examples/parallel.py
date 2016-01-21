@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import argparse
+import math
 import threading
 import time
 # insert your client_token into sigopt_creds.py
@@ -35,18 +36,26 @@ class ExampleRunner(threading.Thread):
     sleep_seconds = 10
     print('{0} - Sleeping for {1} seconds to simulate expensive computation...'.format(threading.current_thread(), sleep_seconds))
     time.sleep(sleep_seconds)
-    return assignments['param1'] - assignments['param2']
+    x1 = assignments['x1']
+    x2 = assignments['x2']
+    # EggHolder function - http://www.sfu.ca/~ssurjano/egg.html
+    return -(x2 + 47) * math.sin(math.sqrt(abs(x2 + x1 / 2 + 47))) - x1 * math.sin(math.sqrt(abs(x1 - (x2 + 47))))
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--runner_count', type=int, default=2)
-  parser.add_argument('--experiment_id', type=int)
   the_args = parser.parse_args()
 
-  if the_args.experiment_id is None:
-    raise Exception("Must provide an experiment id. This experiment should have two numerical params: param1 and param2")
+  conn = Connection(client_token=client_token)
+  experiment = conn.experiments().create(
+    name="Parallel Test Eggholder Function",
+    parameters=[
+      {'name': 'x1', 'bounds': {'max': 100.0, 'min': -100.0}, 'type': 'double'},
+      {'name': 'x2', 'bounds': {'max': 100.0, 'min': -100.0}, 'type': 'double'},
+    ],
+  )
 
-  runners = [ExampleRunner(the_args.experiment_id) for _ in range(the_args.runner_count)]
+  runners = [ExampleRunner(experiment.id) for _ in range(the_args.runner_count)]
 
   for runner in runners:
     runner.daemon = True
