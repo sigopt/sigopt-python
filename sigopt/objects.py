@@ -10,6 +10,12 @@ class ApiObject(object):
   def to_json(self):
     return copy.deepcopy(self._body)
 
+  def __eq__(self, other):
+    return (
+      isinstance(other, self.__class__) and
+      self._body == other._body
+    )
+
 
 class Assignments(ApiObject):
   def get(self, key):
@@ -18,11 +24,6 @@ class Assignments(ApiObject):
   def __getitem__(self, key):
     return self._body[key]
 
-  def __eq__(self, other):
-    if isinstance(other, self.__class__):
-      return self._body == other._body
-    else:
-      return False
 
 class Bounds(ApiObject):
   @property
