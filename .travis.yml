@@ -1,0 +1,20 @@
+sudo: false
+language: python
+python:
+  - "2.6"
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "pypy"
+cache:
+  pip: false
+install:
+  - pip install pytest
+  - pip install -r requirements.txt
+  - python setup.py clean --all
+  - python setup.py install
+script:
+  - PYTHONPATH=. python -m pytest -rw -v test
+
