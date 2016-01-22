@@ -1,13 +1,12 @@
 import copy
 import simplejson
-import requests
-from requests.auth import HTTPBasicAuth
 import warnings
 
 from .endpoint import ApiEndpoint
 from .exception import ApiException
 from .objects import ApiObject
 from .resource import ApiResource
+from .requestor import Requestor
 from .objects import (
   Client,
   Experiment,
@@ -42,7 +41,7 @@ class Connection(BaseConnection):
     super(Connection, self).__init__(client_token)
     self.default_headers = {'Content-Type': 'application/json'}
     self.default_params = {}
-    self.client_auth = HTTPBasicAuth(self.client_token, '')
+    self.requestor = Requestor(self.client_token, '')
 
     suggestions = ApiResource(
       self,
@@ -110,37 +109,33 @@ class Connection(BaseConnection):
 
   def _get(self, url, params=None):
     request_params = self._request_params(params)
-    return self._handle_response(requests.get(
+    return self._handle_response(self.requestor.get(
       url,
       params=request_params,
-      auth=self.client_auth,
       headers=self.default_headers,
     ))
 
   def _post(self, url, params=None):
     request_params = self._to_api_value(params)
-    return self._handle_response(requests.post(
+    return self._handle_response(self.requestor.post(
       url,
       json=request_params,
-      auth=self.client_auth,
       headers=self.default_headers,
     ))
 
   def _put(self, url, params=None):
     request_params = self._to_api_value(params)
-    return self._handle_response(requests.put(
+    return self._handle_response(self.requestor.put(
       url,
       json=request_params,
-      auth=self.client_auth,
       headers=self.default_headers,
     ))
 
   def _delete(self, url, params=None):
     request_params = self._to_api_value(params)
-    return self._handle_response(requests.delete(
+    return self._handle_response(self.requestor.delete(
       url,
       params=request_params,
-      auth=self.client_auth,
       headers=self.default_headers,
     ))
 
@@ -174,4 +169,3 @@ def paginated_objects(api_object):
   def decorator(body):
     return Pagination(api_object, body)
   return decorator
-
