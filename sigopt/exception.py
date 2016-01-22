@@ -17,7 +17,7 @@ class ApiException(SigOptException):
 
   def __repr__(self):
     return u'{0}({1}, {2}, {3})'.format(
-      self.__class__.__name__,
+      'ApiException',
       self.message,
       self.status_code,
       self._body,
@@ -25,7 +25,7 @@ class ApiException(SigOptException):
 
   def __str__(self):
     return '{0} ({1}): {2}'.format(
-      self.__class__.__name__,
+      'ApiException',
       self.status_code,
       self.message,
     )
