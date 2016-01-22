@@ -40,7 +40,6 @@ class Connection(BaseConnection):
   def __init__(self, client_token):
     super(Connection, self).__init__(client_token)
     self.default_headers = {'Content-Type': 'application/json'}
-    self.default_params = {}
     self.requestor = Requestor(self.client_token, '')
 
     suggestions = ApiResource(
