@@ -18,7 +18,7 @@ class ApiException(SigOptException):
   def __repr__(self):
     return u'{0}({1}, {2}, {3})'.format(
       'ApiException',
-      self.message,
+      self.message if self.message is not None else '',
       self.status_code,
       self._body,
     )
@@ -27,7 +27,7 @@ class ApiException(SigOptException):
     return '{0} ({1}): {2}'.format(
       'ApiException',
       self.status_code,
-      self.message,
+      self.message if self.message is not None else '',
     )
 
   def to_json(self):
