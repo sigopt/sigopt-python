@@ -64,4 +64,4 @@ To run the included tests, just run
 PYTHONPATH=. python -m pytest -rw -v test
 ```
 
-[![Build Status](https://travis-ci.org/sigopt/sigopt-python.svg?branch=master)]
+![Build Status](https://travis-ci.org/sigopt/sigopt-python.svg?branch=master)
