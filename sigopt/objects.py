@@ -1,11 +1,15 @@
 import copy
+import simplejson
 
 class ApiObject(object):
   def __init__(self, body):
     self._body = body
 
   def __repr__(self):
-    return repr(self._body)
+    return '{}({})'.format(
+      self.__class__.__name__,
+      simplejson.dumps(self._body, sort_keys=True),
+    )
 
   def to_json(self):
     return copy.deepcopy(self._body)
