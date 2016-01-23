@@ -6,7 +6,7 @@ class ApiObject(object):
     self._body = body
 
   def __repr__(self):
-    return '{}({})'.format(
+    return '{0}({1})'.format(
       self.__class__.__name__,
       simplejson.dumps(self._body, sort_keys=True),
     )
