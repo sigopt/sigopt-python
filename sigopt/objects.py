@@ -44,6 +44,10 @@ class CategoricalValue(ApiObject):
   def name(self):
     return self._body.get('name')
 
+  @property
+  def enum_index(self):
+    return self._body.get('enum_index')
+
 
 class Client(ApiObject):
   @property
@@ -79,6 +83,10 @@ class Experiment(ApiObject):
   @property
   def state(self):
     return self._body.get('state')
+
+  @property
+  def can_be_deleted(self):
+    return self._body.get('can_be_deleted')
 
   @property
   def parameters(self):
@@ -181,6 +189,10 @@ class Parameter(ApiObject):
     return self._body.get('type')
 
   @property
+  def tunable(self):
+    return self._body.get('tunable')
+
+  @property
   def bounds(self):
     _bounds = self._body.get('bounds')
     return Bounds(_bounds) if _bounds is not None else None
@@ -189,6 +201,14 @@ class Parameter(ApiObject):
   def categorical_values(self):
     _categorical_values = self._body.get('categorical_values', [])
     return [CategoricalValue(cv) for cv in _categorical_values]
+
+  @property
+  def precision(self):
+    return self._body.get('precision')
+
+  @property
+  def default_value(self):
+    return self._body.get('default_value')
 
 
 class Progress(ApiObject):
