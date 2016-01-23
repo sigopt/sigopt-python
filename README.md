@@ -58,7 +58,7 @@ The REST endpoint `POST /v1/experiments/1/suggestions` then translates to `conn.
 
 ## Testing
 
-To run the included tests, just run
+To run the included tests, you'll need to install pytest (with `pip install pytest`). Then, just run
 
 ```bash
 PYTHONPATH=. python -m pytest -rw -v test
