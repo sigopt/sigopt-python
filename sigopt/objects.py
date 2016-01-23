@@ -136,10 +136,6 @@ class Observation(ApiObject):
   def experiment(self):
     return self._body.get('experiment')
 
-  @property
-  def timestamp(self):
-      return self._body.get('timestamp')
-
 
 class Paging(ApiObject):
   @property
@@ -190,10 +186,6 @@ class Parameter(ApiObject):
     _categorical_values = self._body.get('categorical_values', [])
     return [CategoricalValue(cv) for cv in _categorical_values]
 
-  @property
-  def transformation(self):
-    return self._body.get('transformation')
-
 
 class Progress(ApiObject):
   @property
@@ -214,22 +206,6 @@ class Progress(ApiObject):
   def first_observation(self):
     _observation = self._body.get('first_observation')
     return Observation(_observation) if _observation is not None else None
-
-
-class Role(ApiObject):
-  @property
-  def role(self):
-    return self._body.get('role')
-
-  @property
-  def client(self):
-    _client = self._body.get('client')
-    return Client(_client) if _client is not None else None
-
-  @property
-  def user(self):
-    _user = self._body.get('user')
-    return User(_user) if _user is not None else None
 
 
 class Suggestion(ApiObject):
@@ -253,32 +229,3 @@ class Suggestion(ApiObject):
   @property
   def experiment(self):
     return self._body.get('experiment')
-
-
-class User(ApiObject):
-  @property
-  def id(self):
-    return self._body.get('id')
-
-  @property
-  def name(self):
-    return self._body.get('name')
-
-  @property
-  def email(self):
-    return self._body.get('email')
-
-
-class Worker(ApiObject):
-  @property
-  def id(self):
-    return self._body.get('id')
-
-  @property
-  def suggestion(self):
-    _suggestion = self._body.get('suggestion')
-    return Suggestion(_suggestion) if _suggestion else None
-
-  @property
-  def claimed_time(self):
-    return self._body.get('claimed_time')

@@ -15,30 +15,13 @@ from .objects import (
   Suggestion,
 )
 
-class BaseConnection(object):
-  def __init__(self, client_token=None):
+class Connection(object):
+  def __init__(self, client_token):
     self.api_url = 'https://api.sigopt.com'
     if client_token is None:
       raise ValueError('Must provide client_token')
 
     self.client_token = client_token
-
-  def _to_api_value(self, obj):
-    if isinstance(obj, ApiObject):
-      return obj.to_json()
-    elif isinstance(obj, dict):
-      c = {}
-      for key in obj:
-        c[key] = self._to_api_value(obj[key])
-      return c
-    elif isinstance(obj, list):
-      return [self._to_api_value(c) for c in obj]
-    else:
-      return obj
-
-class Connection(BaseConnection):
-  def __init__(self, client_token):
-    super(Connection, self).__init__(client_token)
     self.default_headers = {'Content-Type': 'application/json'}
     self.requestor = Requestor(self.client_token, '')
 
@@ -153,6 +136,20 @@ class Connection(BaseConnection):
       if value is not None
     ))
 
+  def _to_api_value(self, obj):
+    if isinstance(obj, ApiObject):
+      return obj.to_json()
+    elif isinstance(obj, dict):
+      c = {}
+      for key in obj:
+        c[key] = self._to_api_value(obj[key])
+      return c
+    elif isinstance(obj, list):
+      return [self._to_api_value(c) for c in obj]
+    else:
+      return obj
+
+
 # Allows response to be a single object of class some_class or a paginated
 # response of objects that come from class some_class
 def object_or_paginated_objects(api_object):
@@ -162,9 +159,4 @@ def object_or_paginated_objects(api_object):
     else:
       return api_object(body)
 
-  return decorator
-
-def paginated_objects(api_object):
-  def decorator(body):
-    return Pagination(api_object, body)
   return decorator
