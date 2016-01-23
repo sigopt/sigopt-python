@@ -56,3 +56,12 @@ Just like in the resource urls, `suggestions` and `observations` are under `expe
 Access these objects with `conn.experiments(ID).suggestions` and `conn.experiments(ID).observations`.
 The REST endpoint `POST /v1/experiments/1/suggestions` then translates to `conn.experiments(ID).suggestions().create()`.
 
+## Testing
+
+To run the included tests, just run
+
+```bash
+PYTHONPATH=. python -m pytest -rw -v test
+```
+
+[![Build Status](https://travis-ci.org/sigopt/sigopt-python.svg?branch=master)]
