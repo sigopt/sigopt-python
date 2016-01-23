@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import pytest
+import six
 
 from sigopt.compat import json
 from sigopt.exception import ApiException
@@ -36,6 +39,8 @@ class MockRequestor(object):
 
 
 MESSAGE = 'This is an exception message.'
+UNICODE_MESSAGE = six.u('This is a friendly 👬 message')
+UNICODE_STR_MESSAGE = UNICODE_MESSAGE.encode('utf-8')
 
 SAMPLE_EXCEPTION = {
   'message': MESSAGE,
@@ -117,3 +122,14 @@ class TestRequestor(object):
     assert str(e) == 'ApiException (500): ' + MESSAGE
     assert e.status_code == 500
     assert e.to_json() == SAMPLE_EXCEPTION
+
+  def test_unicode_json(self, connection):
+    connection.requestor = self.returns(MockResponse({'message': UNICODE_MESSAGE}, status_code=500))
+    with pytest.raises(ApiException) as e:
+      connection.experiments(1).fetch()
+    e = e.value
+    if six.PY2:
+      assert unicode(e) == six.u('ApiException (500): ') + UNICODE_MESSAGE
+      assert str(e) == 'ApiException (500): ' + UNICODE_STR_MESSAGE
+    else:
+      assert str(e) == 'ApiException (500): ' + UNICODE_MESSAGE
