@@ -1,7 +1,7 @@
 import copy
-import simplejson
 import warnings
 
+from .compat import json
 from .endpoint import ApiEndpoint
 from .exception import ApiException
 from .objects import ApiObject
@@ -81,7 +81,7 @@ class Connection(object):
   def _handle_response(self, response):
     try:
       response_json = response.json()
-    except simplejson.decoder.JSONDecodeError:
+    except ValueError:
       raise ApiException({'message': response.text}, response.status_code)
 
     if 200 <= response.status_code <= 299:
@@ -126,7 +126,7 @@ class Connection(object):
 
     def serialize(value):
       if isinstance(value, dict) or isinstance(value, list):
-        return simplejson.dumps(value)
+        return json.dumps(value)
       return str(value)
 
     return dict((

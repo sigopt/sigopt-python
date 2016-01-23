@@ -1,6 +1,6 @@
 import pytest
-import simplejson
 
+from sigopt.compat import json
 from sigopt.exception import ApiException
 from sigopt.interface import Connection
 from sigopt.objects import Experiment
@@ -15,7 +15,7 @@ class MockResponse(object):
     if self._json is not None:
       return self._json
     else:
-      raise simplejson.decoder.JSONDecodeError('', '', 0)
+      raise ValueError('Invalid json')
 
 
 class MockRequestor(object):

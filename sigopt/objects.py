@@ -1,5 +1,6 @@
 import copy
-import simplejson
+
+from .compat import json
 
 class ApiObject(object):
   def __init__(self, body):
@@ -8,7 +9,7 @@ class ApiObject(object):
   def __repr__(self):
     return '{0}({1})'.format(
       self.__class__.__name__,
-      simplejson.dumps(self._body, sort_keys=True),
+      json.dumps(self._body, sort_keys=True),
     )
 
   def to_json(self):
