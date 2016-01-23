@@ -199,8 +199,10 @@ class Parameter(ApiObject):
 
   @property
   def categorical_values(self):
-    _categorical_values = self._body.get('categorical_values', [])
-    return [CategoricalValue(cv) for cv in _categorical_values]
+    _categorical_values = self._body.get('categorical_values')
+    if _categorical_values is not None:
+      return [CategoricalValue(cv) for cv in _categorical_values]
+    return None
 
   @property
   def precision(self):
