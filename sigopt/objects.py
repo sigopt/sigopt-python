@@ -1,4 +1,5 @@
 import copy
+import six
 
 from .compat import json
 
@@ -7,7 +8,7 @@ class ApiObject(object):
     self._body = body
 
   def __repr__(self):
-    return '{0}({1})'.format(
+    return six.u('{0}({1})').format(
       self.__class__.__name__,
       json.dumps(self._body, sort_keys=True),
     )

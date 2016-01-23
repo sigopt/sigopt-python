@@ -1,4 +1,5 @@
 import copy
+import six
 
 
 class SigOptException(Exception):
@@ -16,7 +17,7 @@ class ApiException(SigOptException):
     self.status_code = status_code
 
   def __repr__(self):
-    return u'{0}({1}, {2}, {3})'.format(
+    return six.u('{0}({1}, {2}, {3})').format(
       'ApiException',
       self.message if self.message is not None else '',
       self.status_code,
@@ -24,7 +25,7 @@ class ApiException(SigOptException):
     )
 
   def __str__(self):
-    return '{0} ({1}): {2}'.format(
+    return six.u('{0} ({1}): {2}').format(
       'ApiException',
       self.status_code,
       self.message if self.message is not None else '',
