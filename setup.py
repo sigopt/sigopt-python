@@ -5,7 +5,7 @@ install_requires=['requests==2.5.1','simplejson>=3.5.2','six==1.10.0']
 
 setup(
   name='sigopt-python',
-  version='1.0.0',
+  version='1.1.0',
   description='SigOpt Python API Client',
   author='SigOpt',
   author_email='support@sigopt.com',
