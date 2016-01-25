@@ -1,3 +1,5 @@
+import six
+
 from .endpoint import ApiEndpoint, BoundApiEndpoint
 
 class BoundApiResource(object):
@@ -8,7 +10,7 @@ class BoundApiResource(object):
     if id is None:
       self._base_url = api_url
     else:
-      self._base_url = '{api_url}/{id}'.format(
+      self._base_url = six.u('{api_url}/{id}').format(
       api_url=api_url,
       id=id,
     )
@@ -22,8 +24,10 @@ class BoundApiResource(object):
       if sub_resource:
         return PartiallyBoundApiResource(sub_resource, self)
     raise AttributeError(
-      'Cannot find attribute `{attribute}` on resource `{resource}`, likely no endpoint exists for: '
-      '{base_url}/{attribute}, or `{resource}` does not support `{attribute}`.'.format(
+      six.u(
+        'Cannot find attribute `{attribute}` on resource `{resource}`, likely no endpoint exists for: '
+        '{base_url}/{attribute}, or `{resource}` does not support `{attribute}`.'
+      ).format(
         attribute=attr,
         resource=self._resource._name,
         base_url=self._base_url,
@@ -36,7 +40,7 @@ class PartiallyBoundApiResource(object):
     self._bound_parent_resource = bound_parent_resource
 
   def __call__(self, id=None):
-    api_url = '{parent_api_url}/{name}'.format(
+    api_url = six.u('{parent_api_url}/{name}').format(
       parent_api_url=self._bound_parent_resource._base_url,
       name=self._resource._name
     )
@@ -61,7 +65,7 @@ class BaseApiResource(object):
     )) if resources else {}
 
   def __call__(self, id=None):
-    api_url = '{api_url}/{version}/{name}'.format(
+    api_url = six.u('{api_url}/{version}/{name}').format(
       api_url=self._conn.api_url,
       version=self._version,
       name=self._name,

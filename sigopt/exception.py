@@ -1,10 +1,12 @@
 import copy
+import six
 
 
 class SigOptException(Exception):
   pass
 
 
+@six.python_2_unicode_compatible
 class ApiException(SigOptException):
   def __init__(self, body, status_code):
     self.message = body.get('message', None) if body is not None else None
@@ -15,19 +17,11 @@ class ApiException(SigOptException):
       super(ApiException, self).__init__()
     self.status_code = status_code
 
-  def __repr__(self):
-    return u'{0}({1}, {2}, {3})'.format(
-      self.__class__.__name__,
-      self.message,
-      self.status_code,
-      self._body,
-    )
-
   def __str__(self):
-    return '{0} ({1}): {2}'.format(
-      self.__class__.__name__,
+    return six.u('{0} ({1}): {2}').format(
+      'ApiException',
       self.status_code,
-      self.message,
+      self.message if self.message is not None else '',
     )
 
   def to_json(self):
