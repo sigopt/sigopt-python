@@ -50,8 +50,8 @@ if __name__ == '__main__':
   experiment = conn.experiments().create(
     name="Parallel Test Eggholder Function",
     parameters=[
-      {'name': 'x1', 'bounds': {'max': 100.0, 'min': -100.0}, 'type': 'double'},
-      {'name': 'x2', 'bounds': {'max': 100.0, 'min': -100.0}, 'type': 'double'},
+      {'name': 'x1', 'bounds': {'max': 70.0, 'min': -70.0}, 'type': 'double'},
+      {'name': 'x2', 'bounds': {'max': 70.0, 'min': -70.0}, 'type': 'double'},
     ],
   )
 
