@@ -28,9 +28,9 @@ if __name__ == '__main__':
   # In a loop: receive a suggestion, evaluate the metric, report an observation
   for _ in range(the_args.iterations):
     suggestion = connection.experiments(experiment.id).suggestions().create()
-    print('Evaluating at parameters: {0}'.format(suggestion.assignments))
+    print('Evaluating at suggested assignments: {0}'.format(suggestion.assignments))
     value = evaluate_metric(suggestion.assignments)
-    print('Observed value: {0}'.format(value))
+    print('Reporting observation of value: {0}'.format(value))
     connection.experiments(experiment.id).observations().create(
       suggestion=suggestion.id,
       value=value,
