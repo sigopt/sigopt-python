@@ -3,10 +3,6 @@ import os
 from subprocess import PIPE, Popen
 import sys
 
-# insert your client_token into sigopt_creds.py
-# otherwise you'll see "This endpoint requires an authenticated user" errors
-from sigopt_creds import client_token
-
 from sigopt.interface import Connection
 
 class SubProcessEvaluator(object):
@@ -40,9 +36,10 @@ if __name__ == '__main__':
     "output only the evaluated metric at the suggested point.")
   parser.add_argument('--experiment_id', required=True, help="The parameters of this experiment should be the "
     "same type and name of the command line arguments to your executable file.")
+  parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/user/profile")
   the_args = parser.parse_args()
 
-  connection = Connection(client_token=client_token)
+  connection = Connection(client_token=the_args.client_token)
   experiment = connection.experiments(the_args.experiment_id).fetch()
   connection.experiments(the_args.experiment_id).suggestions().delete(state="open")
   evaluator = SubProcessEvaluator(the_args.filename)

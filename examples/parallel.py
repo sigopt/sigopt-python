@@ -4,15 +4,12 @@ import argparse
 import math
 import threading
 import time
-# insert your client_token into sigopt_creds.py
-# otherwise you'll see "This endpoint requires an authenticated user" errors
-from sigopt_creds import client_token
 
 from sigopt.interface import Connection
 
 
 class ExampleRunner(threading.Thread):
-  def __init__(self, experiment_id):
+  def __init__(self, client_token, experiment_id):
     threading.Thread.__init__(self)
     self.connection = Connection(client_token=client_token)
     self.experiment_id = experiment_id
@@ -44,8 +41,10 @@ class ExampleRunner(threading.Thread):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--runner_count', type=int, default=2)
+  parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/user/profile")
   the_args = parser.parse_args()
 
+  client_token = the_args.client_token
   conn = Connection(client_token=client_token)
   experiment = conn.experiments().create(
     name="Parallel Test Eggholder Function",
@@ -55,7 +54,7 @@ if __name__ == '__main__':
     ],
   )
 
-  runners = [ExampleRunner(experiment.id) for _ in range(the_args.runner_count)]
+  runners = [ExampleRunner(client_token, experiment.id) for _ in range(the_args.runner_count)]
 
   for runner in runners:
     runner.daemon = True
