@@ -1,6 +1,7 @@
 import argparse
 import os
 from subprocess import PIPE, Popen
+import sys
 
 # insert your client_token into sigopt_creds.py
 # otherwise you'll see "This endpoint requires an authenticated user" errors
@@ -26,8 +27,9 @@ class SubProcessEvaluator(object):
       for param_name, assignment
       in assignments.to_json().iteritems()
     ]
-    process = Popen(['./{}'.format(self.filename)] + arguments, stdout=PIPE)
+    process = Popen(['./{}'.format(self.filename)] + arguments, stdout=PIPE, stderr=PIPE)
     (stdoutdata,stderrdata) = process.communicate()
+    sys.stderr.write(stderrdata)
     return float(stdoutdata.strip())
 
 
