@@ -11,11 +11,11 @@ To start, you'll need to create an experiment with parameter names matching the 
 
 Example Usage
 
-For example, if your filename is test and you have one double parameter with suggested value 11.05, this script will run
+For example, your filename is `test` and it expects an argument `x` on the command line that is a double. Say this script normally spews setup info, but if you run `./test --quiet`, the only information sent to stdout is the value of your function evalauted at `x`. Set up an experiment with one parameter named `x` that has type `double`, and run the following command:
 ```
-python other_languages.py --command='./test --quiet' --experiment_id=2136 --client_token=$CLIENT_TOKEN
+python other_languages.py --command='./test --quiet' --experiment_id=EXPERIMENT_ID --client_token=$CLIENT_TOKEN
 ```
-The above command will run the following sub process
+The above command will run the following sub process to evaluate your metric, automatially requesting the suggsetion beforehand and reporting the observation afterwards:
 ```
 ./test --quiet --x=SUGGESTION_FOR_X
 ```
