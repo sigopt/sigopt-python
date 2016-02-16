@@ -1,9 +1,5 @@
 import argparse
 
-# insert your client_token into sigopt_creds.py
-# otherwise you'll see "This endpoint requires an authenticated user" errors
-from sigopt_creds import client_token
-
 from sigopt.interface import Connection
 
 # Take a suggestion from sigopt and evaluate your function
@@ -14,9 +10,10 @@ def evaluate_metric(assignments):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--iterations', type=int, default=20)
+  parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/user/profile")
   the_args = parser.parse_args()
 
-  connection = Connection(client_token=client_token)
+  connection = Connection(client_token=the_args.client_token)
 
   # Create an experiment with one paramter, x
   experiment = connection.experiments().create(
@@ -28,9 +25,9 @@ if __name__ == '__main__':
   # In a loop: receive a suggestion, evaluate the metric, report an observation
   for _ in range(the_args.iterations):
     suggestion = connection.experiments(experiment.id).suggestions().create()
-    print('Evaluating at parameters: {0}'.format(suggestion.assignments))
+    print('Evaluating at suggested assignments: {0}'.format(suggestion.assignments))
     value = evaluate_metric(suggestion.assignments)
-    print('Observed value: {0}'.format(value))
+    print('Reporting observation of value: {0}'.format(value))
     connection.experiments(experiment.id).observations().create(
       suggestion=suggestion.id,
       value=value,
