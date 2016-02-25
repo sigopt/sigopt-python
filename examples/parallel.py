@@ -28,15 +28,20 @@ class ExampleRunner(threading.Thread):
   def evaluate_metric(self, assignments):
     """
     Replace this with the function you want to optimize
-    This fictitious example has only two parameters, named param1 and param2
+    This fictitious example has only two parameters, named x1 and x2
     """
     sleep_seconds = 10
     print('{0} - Sleeping for {1} seconds to simulate expensive computation...'.format(threading.current_thread(), sleep_seconds))
     time.sleep(sleep_seconds)
     x1 = assignments['x1']
     x2 = assignments['x2']
-    # EggHolder function - http://www.sfu.ca/~ssurjano/egg.html
-    return -(x2 + 47) * math.sin(math.sqrt(abs(x2 + x1 / 2 + 47))) - x1 * math.sin(math.sqrt(abs(x1 - (x2 + 47))))
+    # Franke function - http://www.sfu.ca/~ssurjano/franke2d.html
+    return (
+      .75 * math.exp(-(9 * x1 - 2) ** 2 / 4.0 - (9 * x2 - 2) ** 2 / 4.0) +
+      .75 * math.exp(-(9 * x1 + 1) ** 2 / 49.0 - (9 * x2 + 1) / 10.0) +
+      .5 * math.exp(-(9 * x1 - 7) ** 2 / 4.0 - (9 * x2 - 3) ** 2 / 4.0) -
+      .2 * math.exp(-(9 * x1 - 4) ** 2 - (9 * x2 - 7) ** 2)
+    )
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
@@ -47,10 +52,10 @@ if __name__ == '__main__':
   client_token = the_args.client_token
   conn = Connection(client_token=client_token)
   experiment = conn.experiments().create(
-    name="Parallel Test Eggholder Function",
+    name="Parallel Test Franke Function",
     parameters=[
-      {'name': 'x1', 'bounds': {'max': 70.0, 'min': -70.0}, 'type': 'double'},
-      {'name': 'x2', 'bounds': {'max': 70.0, 'min': -70.0}, 'type': 'double'},
+      {'name': 'x1', 'bounds': {'max': 1.0, 'min': 0.0}, 'type': 'double'},
+      {'name': 'x2', 'bounds': {'max': 1.0, 'min': 0.0}, 'type': 'double'},
     ],
   )
 
