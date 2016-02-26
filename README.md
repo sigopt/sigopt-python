@@ -9,7 +9,7 @@ Take a look in `examples` for example usage.
 
 ## Getting Started
 
-Install the sigopt python modules with `pip install sigopt-python`.
+Install the sigopt python modules with `pip install sigopt`.
 
 Sign up for an account at [https://sigopt.com](https://sigopt.com).
 In order to use the API, you'll need your `client_token` from your [user profile](https://sigopt.com/user/profile).
@@ -49,7 +49,7 @@ For example, endpoints that interact with experiments are under `conn.experiment
 `ENDPOINT_GROUP(ID)` operates on a single object, while `ENDPOINT_GROUP()` will operate on multiple objects.
 
 `POST`, `GET`, `PUT` and `DELETE` translate to the method calls `create`, `fetch`, `update` and `delete`.
-To retrieve an experiment, call `conn.experiments(ID).fetch()`. To create an experiment call 
+To retrieve an experiment, call `conn.experiments(ID).fetch()`. To create an experiment call
 `conn.experiments(ID).create()`. Parameters are passed to the API as named arguments.
 
 Just like in the resource urls, `suggestions` and `observations` are under `experiments`.
