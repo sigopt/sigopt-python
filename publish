@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 VERSION=$1
 if [ "x" = "x$VERSION" ]; then
   echo 'Must provide version to deploy.'
