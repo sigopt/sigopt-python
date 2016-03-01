@@ -19,8 +19,11 @@ class Connection(object):
       raise ValueError('Must provide client_token')
 
     self.client_token = client_token
-    self.default_headers = {'Content-Type': 'application/json'}
-    self.requestor = Requestor(self.client_token, '')
+    default_headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'sigopt-python/{0}'.format(VERSION),
+    }
+    self.requestor = Requestor(self.client_token, '', default_headers)
 
     suggestions = ApiResource(
       self,
@@ -91,7 +94,6 @@ class Connection(object):
     return self._handle_response(self.requestor.get(
       url,
       params=request_params,
-      headers=self.default_headers,
     ))
 
   def _post(self, url, params=None):
@@ -99,7 +101,6 @@ class Connection(object):
     return self._handle_response(self.requestor.post(
       url,
       json=request_params,
-      headers=self.default_headers,
     ))
 
   def _put(self, url, params=None):
@@ -107,7 +108,6 @@ class Connection(object):
     return self._handle_response(self.requestor.put(
       url,
       json=request_params,
-      headers=self.default_headers,
     ))
 
   def _delete(self, url, params=None):
@@ -115,7 +115,6 @@ class Connection(object):
     return self._handle_response(self.requestor.delete(
       url,
       params=request_params,
-      headers=self.default_headers,
     ))
 
   def _request_params(self, params):

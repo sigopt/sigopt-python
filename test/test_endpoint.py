@@ -27,7 +27,6 @@ class TestEndpoint(object):
       kwargs = {'params': params}
     getattr(connection.requestor, method).assert_called_once_with(
       'https://api.sigopt.com/v1' + url,
-      headers=mock.ANY,
       **kwargs
     )
 
