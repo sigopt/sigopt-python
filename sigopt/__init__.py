@@ -1,1 +1,1 @@
-from sigopt.version import VERSION
+from .version import VERSION
