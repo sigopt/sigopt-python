@@ -1,6 +1,3 @@
-import copy
-import warnings
-
 from .compat import json
 from .endpoint import ApiEndpoint
 from .exception import ApiException
