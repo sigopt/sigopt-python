@@ -1,16 +1,17 @@
 from .compat import json
 from .endpoint import ApiEndpoint
 from .exception import ApiException
-from .objects import ApiObject
-from .resource import ApiResource
-from .requestor import Requestor
 from .objects import (
+  ApiObject,
   Client,
   Experiment,
   Observation,
   Pagination,
   Suggestion,
 )
+from .requestor import Requestor
+from .resource import ApiResource
+from .version import VERSION
 
 class Connection(object):
   def __init__(self, client_token):
