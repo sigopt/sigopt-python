@@ -1,6 +1,6 @@
 import six
 
-from .endpoint import ApiEndpoint, BoundApiEndpoint
+from .endpoint import BoundApiEndpoint
 
 class BoundApiResource(object):
   def __init__(self, resource, id, api_url):
