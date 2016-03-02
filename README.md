@@ -16,10 +16,23 @@ In order to use the API, you'll need your `client_token` from your [user profile
 
 To call the API, instantiate a connection with your token.
 
+### Authentication Option 1 (preferred)
+Insert your `client_token` into the environment variables `SIGOPT_API_TOKEN`, and instantiate a connection:
+
 ```python
-import sigopt.interface
-conn = sigopt.interface.Connection(client_token=client_token)
+from sigopt.interface import Connection
+conn = Connection()
 ```
+
+### Authentication Option 2
+Authenticate each connection with your `client_token` directly.
+```python
+from sigopt.interface import Connection
+conn = Connection(client_token=client_token)
+```
+
+
+## Issuing Requests
 Then, you can use the connection to issue API requests. An example creating an experiment and running the
 optimization loop:
 
