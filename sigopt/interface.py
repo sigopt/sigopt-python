@@ -1,3 +1,5 @@
+import os
+
 from .compat import json
 from .endpoint import ApiEndpoint
 from .exception import ApiException
@@ -14,10 +16,12 @@ from .resource import ApiResource
 from .version import VERSION
 
 class Connection(object):
-  def __init__(self, client_token):
+  def __init__(self, client_token=None):
     self.api_url = 'https://api.sigopt.com'
+    client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
+
     if client_token is None:
-      raise ValueError('Must provide client_token')
+      raise ValueError('Must provide client_token or set environment variable SIGOPT_API_TOKEN')
 
     self.client_token = client_token
     default_headers = {
