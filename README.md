@@ -25,7 +25,7 @@ conn = Connection()
 ```
 
 ### Authentication Option 2
-Authenticate each connection with your `client_token` directly.
+Authenticate each connection with your `client_token` directly (will override any token set via environment variable):
 ```python
 from sigopt.interface import Connection
 conn = Connection(client_token=client_token)
