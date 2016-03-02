@@ -17,7 +17,7 @@ In order to use the API, you'll need your `client_token` from your [user profile
 To call the API, instantiate a connection with your token.
 
 ### Authentication Option 1 (preferred)
-Insert your `client_token` into the environment variables `SIGOPT_API_TOKEN`, and instantiate a connection:
+Insert your `client_token` into the environment variable `SIGOPT_API_TOKEN`, and instantiate a connection:
 
 ```python
 from sigopt.interface import Connection
