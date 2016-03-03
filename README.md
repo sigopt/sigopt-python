@@ -12,12 +12,12 @@ Take a look in `examples` for example usage.
 Install the sigopt python modules with `pip install sigopt`.
 
 Sign up for an account at [https://sigopt.com](https://sigopt.com).
-In order to use the API, you'll need your `client_token` from your [user profile](https://sigopt.com/user/profile).
+In order to use the API, you'll need your API token from your [user profile](https://sigopt.com/user/profile).
 
 To call the API, instantiate a connection with your token.
 
 ### Authentication Option 1 (preferred)
-Insert your `client_token` into the environment variable `SIGOPT_API_TOKEN`, and instantiate a connection:
+Insert your API token into the environment variable `SIGOPT_API_TOKEN`, and instantiate a connection:
 
 ```python
 from sigopt.interface import Connection
@@ -25,10 +25,10 @@ conn = Connection()
 ```
 
 ### Authentication Option 2
-Authenticate each connection with your `client_token` directly (will override any token set via environment variable):
+Authenticate each connection with your API token directly (will override any token set via environment variable):
 ```python
 from sigopt.interface import Connection
-conn = Connection(client_token=client_token)
+conn = Connection(client_token=api_token)
 ```
 
 
@@ -52,7 +52,7 @@ conn.experiments(experiment.id).observations().create(
 
 ## Authentication
 
-Your `client_token` does not have permission to view or modify information about individual user accounts,
+Your API token does not have permission to view or modify information about individual user accounts,
 so it is safe to include when running SigOpt in production.
 
 ## Endpoints
