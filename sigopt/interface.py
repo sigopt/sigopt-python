@@ -20,7 +20,7 @@ class Connection(object):
     self.api_url = 'https://api.sigopt.com'
     client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
 
-    if client_token is None:
+    if not client_token:
       raise ValueError('Must provide client_token or set environment variable SIGOPT_API_TOKEN')
 
     self.client_token = client_token
