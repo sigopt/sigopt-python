@@ -2,7 +2,7 @@ from setuptools import setup
 from sigopt.version import VERSION
 
 # keep this in sync with requirements.txt
-install_requires=['requests==2.5.1','simplejson>=3.5.2','six==1.10.0']
+install_requires=['requests>=2.5.1','simplejson>=3.5.2','six>=1.9.0']
 
 setup(
   name='sigopt',
