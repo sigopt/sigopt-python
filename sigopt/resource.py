@@ -2,12 +2,14 @@ import six
 
 from .endpoint import BoundApiEndpoint
 
+_NO_ARG = object()
+
 class BoundApiResource(object):
   def __init__(self, resource, id, api_url):
     self._resource = resource
     self._id = id
 
-    if id is None:
+    if id is _NO_ARG:
       self._base_url = api_url
     else:
       self._base_url = six.u('{api_url}/{id}').format(
@@ -39,7 +41,7 @@ class PartiallyBoundApiResource(object):
     self._resource = resource
     self._bound_parent_resource = bound_parent_resource
 
-  def __call__(self, id=None):
+  def __call__(self, id=_NO_ARG):
     api_url = six.u('{parent_api_url}/{name}').format(
       parent_api_url=self._bound_parent_resource._base_url,
       name=self._resource._name
@@ -64,7 +66,7 @@ class BaseApiResource(object):
       in resources
     )) if resources else {}
 
-  def __call__(self, id=None):
+  def __call__(self, id=_NO_ARG):
     api_url = six.u('{api_url}/{version}/{name}').format(
       api_url=self._conn.api_url,
       version=self._version,
