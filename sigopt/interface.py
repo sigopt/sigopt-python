@@ -75,6 +75,9 @@ class Connection(object):
       ],
     )
 
+  def set_api_url(self, api_url):
+    self.api_url = api_url
+
   @property
   def clients(self):
     return self._clients
