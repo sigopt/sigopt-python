@@ -131,6 +131,7 @@ class Suggestion(ApiObject):
   created = Field(int)
   experiment = Field(str)
   id = Field(str)
+  metadata = Field(dict)
   state = Field(str)
 
 
