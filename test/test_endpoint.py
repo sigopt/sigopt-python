@@ -129,3 +129,7 @@ class TestEndpoint(object):
   def test_observation_delete_all(self, connection):
     connection.experiments(1).observations().delete()
     self.assert_called(connection, 'delete', '/experiments/1/observations')
+
+  def test_plan(self, connection):
+    connection.clients(1).plan().fetch()
+    self.assert_called(connection, 'get', '/clients/1/plan')

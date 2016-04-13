@@ -119,6 +119,26 @@ class Parameter(ApiObject):
   type = Field(str)
 
 
+class PlanPeriod(ApiObject):
+  end = Field(int)
+  experiments = Field(ListOf(str))
+  start = Field(int)
+
+
+class PlanRules(ApiObject):
+  max_dimension = Field(int)
+  max_experiments = Field(int)
+  max_observations = Field(int)
+  max_parallelism = Field(int)
+
+
+class Plan(ApiObject):
+  current_period = Field(PlanPeriod)
+  id = Field(str)
+  name = Field(str)
+  rules = Field(PlanRules)
+
+
 class Progress(ApiObject):
   best_observation = Field(Observation)
   first_observation = Field(Observation)
