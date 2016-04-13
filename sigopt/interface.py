@@ -9,6 +9,7 @@ from .objects import (
   Experiment,
   Observation,
   Pagination,
+  Plan,
   Suggestion,
 )
 from .requestor import Requestor
@@ -52,6 +53,14 @@ class Connection(object):
       ]
     )
 
+    plan = ApiResource(
+      self,
+      'plan',
+      endpoints=[
+        ApiEndpoint(None, Plan, 'GET', 'fetch'),
+      ],
+    )
+
     self._experiments = ApiResource(
       self,
       'experiments',
@@ -72,6 +81,9 @@ class Connection(object):
       'clients',
       endpoints=[
         ApiEndpoint(None, Client, 'GET', 'fetch'),
+      ],
+      resources=[
+        plan,
       ],
     )
 

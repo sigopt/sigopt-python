@@ -237,3 +237,37 @@ class TestObjects(object):
     assert isinstance(pagination.paging, Paging)
     assert pagination.paging.before == '1'
     assert pagination.paging.after == '2'
+
+  def test_plan(self):
+    plan = Plan({
+      'object': 'plan',
+      'id': 'premium',
+      'name': 'SigOpt Premium',
+      'rules': {
+        'max_dimension': 1,
+        'max_experiments': 2,
+        'max_observations': 3,
+        'max_parallelism': 4,
+      },
+      'current_period': {
+        'start': 0,
+        'end': 1000,
+        'experiments': [
+          '1',
+          '2',
+        ],
+      },
+    })
+
+    assert isinstance(plan, Plan)
+    assert plan.id == 'premium'
+    assert plan.name == 'SigOpt Premium'
+    assert isinstance(plan.rules, PlanRules)
+    assert plan.rules.max_dimension == 1
+    assert plan.rules.max_experiments == 2
+    assert plan.rules.max_observations == 3
+    assert plan.rules.max_parallelism == 4
+    assert isinstance(plan.current_period, PlanPeriod)
+    assert plan.current_period.start == 0
+    assert plan.current_period.end == 1000
+    assert plan.current_period.experiments == ['1', '2']
