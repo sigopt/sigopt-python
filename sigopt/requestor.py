@@ -1,5 +1,6 @@
 import requests
 
+from .exception import ApiException
 
 class Requestor(object):
   def __init__(self, user=None, password=None, headers=None):
@@ -20,9 +21,27 @@ class Requestor(object):
 
   def _request(self, method, url, params=None, json=None, headers=None):
     headers = self._with_default_headers(headers)
-    return requests.request(method, url=url, params=params, json=json, auth=self.auth, headers=headers)
+    return self._handle_response(requests.request(
+      method=method,
+      url=url,
+      params=params,
+      json=json,
+      auth=self.auth,
+      headers=headers,
+    ))
 
   def _with_default_headers(self, headers):
     headers = (headers or {}).copy()
     headers.update(self.default_headers)
     return headers
+
+  def _handle_response(self, response):
+    try:
+      response_json = response.json()
+    except ValueError:
+      raise ApiException({'message': response.text}, response.status_code)
+
+    if 200 <= response.status_code <= 299:
+      return response_json
+    else:
+      raise ApiException(response_json, response.status_code)
