@@ -1,6 +1,8 @@
 import requests
 
-from .exception import ApiException
+from .exception import ApiException, ConnectionException
+
+DEFAULT_API_URL = 'https://api.sigopt.com'
 
 class Requestor(object):
   def __init__(self, user=None, password=None, headers=None):
@@ -21,14 +23,24 @@ class Requestor(object):
 
   def _request(self, method, url, params=None, json=None, headers=None):
     headers = self._with_default_headers(headers)
-    return self._handle_response(requests.request(
-      method=method,
-      url=url,
-      params=params,
-      json=json,
-      auth=self.auth,
-      headers=headers,
-    ))
+    try:
+      response = requests.request(
+        method=method,
+        url=url,
+        params=params,
+        json=json,
+        auth=self.auth,
+        headers=headers,
+      )
+    except requests.exceptions.RequestException as e:
+      message = ['An error occurred connecting to SigOpt.']
+      if not url or not url.startswith(DEFAULT_API_URL):
+        message.append('The host may be misconfigured or unavailable.')
+      message.append('Contact support@sigopt.com for assistance.')
+      message.append('')
+      message.append(str(e))
+      raise ConnectionException('\n'.join(message))
+    return self._handle_response(response)
 
   def _with_default_headers(self, headers):
     headers = (headers or {}).copy()

@@ -11,13 +11,13 @@ from .objects import (
   Plan,
   Suggestion,
 )
-from .requestor import Requestor
+from .requestor import Requestor, DEFAULT_API_URL
 from .resource import ApiResource
 from .version import VERSION
 
 class Connection(object):
   def __init__(self, client_token=None):
-    self.api_url = 'https://api.sigopt.com'
+    self.api_url = DEFAULT_API_URL
     client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
 
     if not client_token:
