@@ -4,7 +4,7 @@ import pytest
 import six
 
 from sigopt.compat import json
-from sigopt.exception import ApiException
+from sigopt.exception import ApiException, ConnectionException
 from sigopt.interface import Connection
 from sigopt.objects import Experiment
 
@@ -91,6 +91,13 @@ class TestRequestor(object):
     assert str(e) == 'ApiException (500): ' + MESSAGE
     assert e.status_code == 500
     assert e.to_json() == SAMPLE_EXCEPTION
+
+  def test_connection_error(self, connection):
+    connection.requestor = self.returns(ConnectionException('fake connection exception'))
+    with pytest.raises(ConnectionException) as e:
+      connection.experiments(1).fetch()
+    e = e.value
+    assert str(e) == 'ConnectionException: fake connection exception'
 
   def test_unicode_json(self, connection):
     connection.requestor = self.returns(ApiException(SAMPLE_UNICODE_EXCEPTION, 500))

@@ -7,7 +7,25 @@ class SigOptException(Exception):
 
 
 @six.python_2_unicode_compatible
+class ConnectionException(SigOptException):
+  """
+  An exception that occurs when the SigOpt API was unavailable.
+  """
+  def __init__(self, message):
+    self.message = message
+
+  def __str__(self):
+    return six.u('{0}: {1}').format(
+      'ConnectionException',
+      self.message if self.message is not None else '',
+    )
+
+@six.python_2_unicode_compatible
 class ApiException(SigOptException):
+  """
+  An exception that occurs when the SigOpt API was contacted successfully, but
+  it responded with an error.
+  """
   def __init__(self, body, status_code):
     self.message = body.get('message', None) if body is not None else None
     self._body = body
