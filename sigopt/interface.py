@@ -2,7 +2,6 @@ import os
 
 from .compat import json
 from .endpoint import ApiEndpoint
-from .exception import ApiException
 from .objects import (
   ApiObject,
   Client,
@@ -12,13 +11,13 @@ from .objects import (
   Plan,
   Suggestion,
 )
-from .requestor import Requestor
+from .requestor import Requestor, DEFAULT_API_URL
 from .resource import ApiResource
 from .version import VERSION
 
 class Connection(object):
   def __init__(self, client_token=None):
-    self.api_url = 'https://api.sigopt.com'
+    self.api_url = DEFAULT_API_URL
     client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
 
     if not client_token:
@@ -98,44 +97,33 @@ class Connection(object):
   def experiments(self):
     return self._experiments
 
-  def _handle_response(self, response):
-    try:
-      response_json = response.json()
-    except ValueError:
-      raise ApiException({'message': response.text}, response.status_code)
-
-    if 200 <= response.status_code <= 299:
-      return response_json
-    else:
-      raise ApiException(response_json, response.status_code)
-
   def _get(self, url, params=None):
     request_params = self._request_params(params)
-    return self._handle_response(self.requestor.get(
+    return self.requestor.get(
       url,
       params=request_params,
-    ))
+    )
 
   def _post(self, url, params=None):
     request_params = self._to_api_value(params)
-    return self._handle_response(self.requestor.post(
+    return self.requestor.post(
       url,
       json=request_params,
-    ))
+    )
 
   def _put(self, url, params=None):
     request_params = self._to_api_value(params)
-    return self._handle_response(self.requestor.put(
+    return self.requestor.put(
       url,
       json=request_params,
-    ))
+    )
 
   def _delete(self, url, params=None):
     request_params = self._to_api_value(params)
-    return self._handle_response(self.requestor.delete(
+    return self.requestor.delete(
       url,
       params=request_params,
-    ))
+    )
 
   def _request_params(self, params):
     req_params = params or {}
