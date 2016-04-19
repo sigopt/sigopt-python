@@ -66,17 +66,17 @@ class Bounds(ApiObject):
 
 class CategoricalValue(ApiObject):
   enum_index = Field(int)
-  name = Field(unicode)
+  name = Field(six.text_type)
 
 
 class Client(ApiObject):
   created = Field(int)
   id = Field(str)
-  name = Field(unicode)
+  name = Field(six.text_type)
 
 
 class Metric(ApiObject):
-  name = Field(unicode)
+  name = Field(six.text_type)
 
 
 class Observation(ApiObject):
@@ -113,7 +113,7 @@ class Parameter(ApiObject):
   bounds = Field(Bounds)
   categorical_values = Field(ListOf(CategoricalValue))
   default_value = Field(Any)
-  name = Field(unicode)
+  name = Field(six.text_type)
   precision = Field(int)
   tunable = Field(bool)
   type = Field(str)
@@ -162,7 +162,7 @@ class Experiment(ApiObject):
   id = Field(str)
   metadata = Field(dict)
   metric = Field(Metric)
-  name = Field(unicode)
+  name = Field(six.text_type)
   parameters = Field(ListOf(Parameter))
   progress = Field(Progress)
   state = Field(str)
