@@ -51,12 +51,28 @@ class ApiObject(object):
     )
 
 
-class Assignments(ApiObject):
-  def get(self, key):
-    return self._body.get(key)
+class _DictWrapper(ApiObject, dict):
+  def __init__(self, body):
+    dict.__init__(self, body)
 
-  def __getitem__(self, key):
-    return self._body[key]
+  @property
+  def _body(self):
+    return self
+
+  def to_json(self):
+    return dict(copy.deepcopy(self))
+
+  def copy(self):
+    return self.__class__(dict.copy(self))
+
+  def __eq__(self, other):
+    return (
+      isinstance(other, self.__class__) and
+      dict.__eq__(self, other)
+    )
+
+class Assignments(_DictWrapper):
+  pass
 
 
 class Bounds(ApiObject):
@@ -75,6 +91,10 @@ class Client(ApiObject):
   name = Field(str)
 
 
+class Metadata(_DictWrapper):
+  pass
+
+
 class Metric(ApiObject):
   name = Field(str)
 
@@ -85,7 +105,7 @@ class Observation(ApiObject):
   experiment = Field(str)
   failed = Field(bool)
   id = Field(str)
-  metadata = Field(dict)
+  metadata = Field(Metadata)
   suggestion = Field(str)
   value = Field(float)
   value_stddev = Field(float)
@@ -151,7 +171,7 @@ class Suggestion(ApiObject):
   created = Field(int)
   experiment = Field(str)
   id = Field(str)
-  metadata = Field(dict)
+  metadata = Field(Metadata)
   state = Field(str)
 
 
@@ -160,7 +180,7 @@ class Experiment(ApiObject):
   client = Field(str)
   created = Field(int)
   id = Field(str)
-  metadata = Field(dict)
+  metadata = Field(Metadata)
   metric = Field(Metric)
   name = Field(str)
   parameters = Field(ListOf(Parameter))
