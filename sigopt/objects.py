@@ -27,7 +27,7 @@ class Field(object):
 
 class ApiObject(object):
   def __init__(self, body):
-    self._body = body
+    object.__setattr__(self, '_body', body)
 
   def __getattribute__(self, name):
     value = object.__getattribute__(self, name)
@@ -35,10 +35,33 @@ class ApiObject(object):
       return value(self._body.get(name))
     return value
 
+  def __setattr__(self, name, value):
+    field = self._get_field(name)
+    if field:
+      value = ApiObject.as_json(value)
+      self._body[name] = value
+    else:
+      object.__setattr__(self, name, value)
+
+  def __delattr__(self, name):
+    field = self._get_field(name)
+    if field:
+      del self._body[name]
+    else:
+      object.__delattr__(self, name)
+
+  def _get_field(self, name):
+    try:
+      subvalue = object.__getattribute__(self, name)
+    except AttributeError:
+      return None
+    else:
+      return subvalue if isinstance(subvalue, Field) else None
+
   def __repr__(self):
     return six.u('{0}({1})').format(
       self.__class__.__name__,
-      json.dumps(self._body, sort_keys=True),
+      json.dumps(ApiObject.as_json(self._body)),
     )
 
   def to_json(self):
@@ -49,6 +72,20 @@ class ApiObject(object):
       isinstance(other, self.__class__) and
       self._body == other._body
     )
+
+  @staticmethod
+  def as_json(obj):
+    if isinstance(obj, ApiObject):
+      return obj.to_json()
+    elif isinstance(obj, dict):
+      c = {}
+      for key in obj:
+        c[key] = ApiObject.as_json(obj[key])
+      return c
+    elif isinstance(obj, list):
+      return [ApiObject.as_json(c) for c in obj]
+    else:
+      return obj
 
 
 class _DictWrapper(ApiObject, dict):

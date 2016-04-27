@@ -54,12 +54,20 @@ class TestBase(object):
     assert 'abc' in a
     assert 'xyz' not in a
 
+    a['abc'] = 123
+    a['lmn'] = 'pqr'
+    assert a['abc'] == 123
+    assert a['lmn'] == 'pqr'
+    assert a.to_json()['abc'] == 123
+    assert a.to_json()['lmn'] == 'pqr'
+
     assert a.copy() == a
 
 
 class TestObjects(object):
-  def test_experiment(self):
-    experiment = Experiment({
+  @pytest.fixture
+  def experiment(self):
+    return Experiment({
       'object': 'experiment',
       'id': '123',
       'name': 'Test Experiment',
@@ -157,6 +165,7 @@ class TestObjects(object):
       },
     })
 
+  def test_experiment(self, experiment):
     assert experiment.id == '123'
     assert experiment.name == 'Test Experiment'
     assert experiment.type == 'offline'
@@ -184,7 +193,7 @@ class TestObjects(object):
     assert experiment.progress.last_observation.assignments.get('a') == 2
     assert experiment.progress.last_observation.assignments.get('b') == 'd'
     assert experiment.progress.last_observation.value == 3.1
-    assert experiment.progress.last_observation.value_stddev is 0.5
+    assert experiment.progress.last_observation.value_stddev == 0.5
     assert experiment.progress.last_observation.failed is False
     assert experiment.progress.last_observation.created == 452
     assert experiment.progress.last_observation.suggestion == '12'
@@ -230,6 +239,33 @@ class TestObjects(object):
     assert isinstance(experiment.metadata, Metadata)
     assert experiment.metadata['abc'] == 'def'
     assert experiment.metadata['ghi'] == 123
+
+  def test_mutable_experiment(self, experiment):
+    experiment.name = 'other name'
+    assert experiment.name == 'other name'
+    assert experiment.to_json()['name'] == 'other name'
+
+    experiment.parameters = [Parameter({})]
+    assert len(experiment.parameters) == 1
+    assert isinstance(experiment.parameters[0], Parameter)
+    assert experiment.parameters[0].to_json() == {}
+    assert experiment.to_json()['parameters'] == [{}]
+
+    experiment.metadata = {'rst': 'zzz'}
+    assert isinstance(experiment.metadata, Metadata)
+    assert experiment.metadata['rst'] == 'zzz'
+    assert experiment.metadata.get('abc') is None
+
+  def test_del_experiment(self, experiment):
+    assert experiment.name is not None
+    assert experiment.parameters is not None
+    assert experiment.metadata is not None
+    del experiment.name
+    del experiment.parameters
+    del experiment.metadata
+    assert experiment.name is None
+    assert experiment.parameters is None
+    assert experiment.metadata is None
 
   def test_client(self):
     client = Client({
