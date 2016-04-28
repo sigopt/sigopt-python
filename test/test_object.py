@@ -14,19 +14,60 @@ class TestBase(object):
     assert Experiment({'a': 'b'}) != Experiment({'a': 'c'})
     assert Experiment({'a': 'b'}) != Experiment({'a': 'b', 'c': 'd'})
 
+    assert Assignments({'a': 'b'}) == Assignments({'a': 'b'})
+    assert Assignments({'a': 'b'}) != Assignments({})
+    assert Assignments({'a': 'b'}) != Assignments({'a': 'c'})
+    assert Assignments({'a': 'b'}) != Assignments({'a': 'b', 'c': 'd'})
+
   def test_repr(self):
     assert repr(Experiment({})) == 'Experiment({})'
     assert repr(Experiment({'a': 'b'})) == 'Experiment({"a": "b"})'
+    assert repr(Assignments({})) == 'Assignments({})'
+    assert repr(Assignments({'a': 'b'})) == 'Assignments({"a": "b"})'
     assert repr(Bounds({'a': 'b'})) == 'Bounds({"a": "b"})'
 
   def test_json(self):
     assert Experiment({}).to_json() == {}
     assert Experiment({'bounds': {'min': 1, 'max': 2}}).to_json() == {'bounds': {'min': 1, 'max': 2}}
+    assert Assignments({}).to_json() == {}
+    assert Assignments({'abc': 'def', 'ghi': 123}).to_json() == {'abc': 'def', 'ghi': 123}
+
+  def test_dict_like(self):
+    a = Assignments({'abc': 'def', 'ghi': 123})
+    assert a['abc'] == 'def'
+    assert a.get('abc') == 'def'
+    assert a.get('abc', 'fake') == 'def'
+    assert a['ghi'] == 123
+    assert a.get('ghi') == 123
+    assert a.get('ghi', 'fake') == 123
+
+    with pytest.raises(AttributeError):
+      a.method_that_doesnt_exist_on_dict()
+
+    with pytest.raises(KeyError):
+      a['xyz']
+    assert a.get('xyz') == None
+    assert a.get('xyz', 'fake') == 'fake'
+
+    assert len(a) == 2
+    assert set(a.keys()) == set(('abc', 'ghi'))
+    assert 'abc' in a
+    assert 'xyz' not in a
+
+    a['abc'] = 123
+    a['lmn'] = 'pqr'
+    assert a['abc'] == 123
+    assert a['lmn'] == 'pqr'
+    assert a.to_json()['abc'] == 123
+    assert a.to_json()['lmn'] == 'pqr'
+
+    assert a.copy() == a
 
 
 class TestObjects(object):
-  def test_experiment(self):
-    experiment = Experiment({
+  @pytest.fixture
+  def experiment(self):
+    return Experiment({
       'object': 'experiment',
       'id': '123',
       'name': 'Test Experiment',
@@ -83,6 +124,10 @@ class TestObjects(object):
           'created': 453,
           'suggestion': '13',
           'experiment': '123',
+          'metadata': {
+            'abc': 'def',
+            'ghi': 123,
+          },
         },
       },
       'parameters': [
@@ -114,8 +159,13 @@ class TestObjects(object):
           'default_value': None,
         },
       ],
+      'metadata': {
+        'abc': 'def',
+        'ghi': 123,
+      },
     })
 
+  def test_experiment(self, experiment):
     assert experiment.id == '123'
     assert experiment.name == 'Test Experiment'
     assert experiment.type == 'offline'
@@ -143,7 +193,7 @@ class TestObjects(object):
     assert experiment.progress.last_observation.assignments.get('a') == 2
     assert experiment.progress.last_observation.assignments.get('b') == 'd'
     assert experiment.progress.last_observation.value == 3.1
-    assert experiment.progress.last_observation.value_stddev is 0.5
+    assert experiment.progress.last_observation.value_stddev == 0.5
     assert experiment.progress.last_observation.failed is False
     assert experiment.progress.last_observation.created == 452
     assert experiment.progress.last_observation.suggestion == '12'
@@ -159,6 +209,9 @@ class TestObjects(object):
     assert experiment.progress.best_observation.created == 453
     assert experiment.progress.best_observation.suggestion == '13'
     assert experiment.progress.best_observation.experiment == '123'
+    assert isinstance(experiment.progress.best_observation.metadata, Metadata)
+    assert experiment.progress.best_observation.metadata['abc'] == 'def'
+    assert experiment.progress.best_observation.metadata['ghi'] == 123
     assert len(experiment.parameters) == 2
     assert isinstance(experiment.parameters[0], Parameter)
     assert experiment.parameters[0].tunable is True
@@ -183,6 +236,36 @@ class TestObjects(object):
     assert experiment.parameters[1].categorical_values[1].enum_index == 2
     assert experiment.parameters[1].precision is None
     assert experiment.parameters[1].default_value is None
+    assert isinstance(experiment.metadata, Metadata)
+    assert experiment.metadata['abc'] == 'def'
+    assert experiment.metadata['ghi'] == 123
+
+  def test_mutable_experiment(self, experiment):
+    experiment.name = 'other name'
+    assert experiment.name == 'other name'
+    assert experiment.to_json()['name'] == 'other name'
+
+    experiment.parameters = [Parameter({})]
+    assert len(experiment.parameters) == 1
+    assert isinstance(experiment.parameters[0], Parameter)
+    assert experiment.parameters[0].to_json() == {}
+    assert experiment.to_json()['parameters'] == [{}]
+
+    experiment.metadata = {'rst': 'zzz'}
+    assert isinstance(experiment.metadata, Metadata)
+    assert experiment.metadata['rst'] == 'zzz'
+    assert experiment.metadata.get('abc') is None
+
+  def test_del_experiment(self, experiment):
+    assert experiment.name is not None
+    assert experiment.parameters is not None
+    assert experiment.metadata is not None
+    del experiment.name
+    del experiment.parameters
+    del experiment.metadata
+    assert experiment.name is None
+    assert experiment.parameters is None
+    assert experiment.metadata is None
 
   def test_client(self):
     client = Client({
@@ -207,6 +290,10 @@ class TestObjects(object):
       'state': 'open',
       'experiment': '1',
       'created': 123,
+      'metadata': {
+        'abc': 'def',
+        'ghi': 123,
+      },
     })
     assert isinstance(suggestion, Suggestion)
     assert suggestion.id == '1'
@@ -216,6 +303,9 @@ class TestObjects(object):
     assert suggestion.state == 'open'
     assert suggestion.experiment == '1'
     assert suggestion.created == 123
+    assert isinstance(suggestion.metadata, Metadata)
+    assert suggestion.metadata['abc'] == 'def'
+    assert suggestion.metadata['ghi'] == 123
 
   def test_pagination(self):
     pagination = Pagination(Experiment, {

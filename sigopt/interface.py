@@ -105,21 +105,21 @@ class Connection(object):
     )
 
   def _post(self, url, params=None):
-    request_params = self._to_api_value(params)
+    request_params = ApiObject.as_json(params)
     return self.requestor.post(
       url,
       json=request_params,
     )
 
   def _put(self, url, params=None):
-    request_params = self._to_api_value(params)
+    request_params = ApiObject.as_json(params)
     return self.requestor.put(
       url,
       json=request_params,
     )
 
   def _delete(self, url, params=None):
-    request_params = self._to_api_value(params)
+    request_params = ApiObject.as_json(params)
     return self.requestor.delete(
       url,
       params=request_params,
@@ -134,24 +134,11 @@ class Connection(object):
       return str(value)
 
     return dict((
-      (key, serialize(self._to_api_value(value)))
+      (key, serialize(ApiObject.as_json(value)))
       for key, value
       in req_params.items()
       if value is not None
     ))
-
-  def _to_api_value(self, obj):
-    if isinstance(obj, ApiObject):
-      return obj.to_json()
-    elif isinstance(obj, dict):
-      c = {}
-      for key in obj:
-        c[key] = self._to_api_value(obj[key])
-      return c
-    elif isinstance(obj, list):
-      return [self._to_api_value(c) for c in obj]
-    else:
-      return obj
 
 
 # Allows response to be a single object of class some_class or a paginated
