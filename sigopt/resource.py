@@ -1,4 +1,4 @@
-import six
+import sigopt.vendored.six as six
 
 from .endpoint import BoundApiEndpoint
 
