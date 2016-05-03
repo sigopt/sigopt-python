@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-import six
 
 from sigopt.compat import json
 from sigopt.exception import ApiException, ConnectionException
 from sigopt.interface import Connection
 from sigopt.objects import Experiment
+import sigopt.vendored.six as six
 
 class MockRequestor(object):
   def __init__(self, response):
