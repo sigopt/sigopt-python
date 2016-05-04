@@ -1,6 +1,9 @@
 import pytest
+import warnings
 
 from sigopt.objects import *
+
+warnings.simplefilter("always")
 
 class TestBase(object):
   def test_equality(self):
@@ -78,7 +81,6 @@ class TestObjects(object):
         'object': 'metric',
         'name': 'Revenue',
       },
-      'can_be_deleted': True,
       'client': '678',
       'progress': {
         'object': 'progress',
@@ -133,7 +135,6 @@ class TestObjects(object):
       'parameters': [
         {
           'object': 'parameter',
-          'tunable': True,
           'name': 'a',
           'type': 'double',
           'bounds': {
@@ -147,7 +148,6 @@ class TestObjects(object):
         },
         {
           'object': 'parameter',
-          'tunable': False,
           'name': 'b',
           'type': 'categorical',
           'bounds': None,
@@ -172,7 +172,6 @@ class TestObjects(object):
     assert experiment.created == 321
     assert isinstance(experiment.metric, Metric)
     assert experiment.metric.name == 'Revenue'
-    assert experiment.can_be_deleted is True
     assert experiment.client == '678'
     assert isinstance(experiment.progress, Progress)
     assert experiment.progress.observation_count == 3
@@ -214,7 +213,6 @@ class TestObjects(object):
     assert experiment.progress.best_observation.metadata['ghi'] == 123
     assert len(experiment.parameters) == 2
     assert isinstance(experiment.parameters[0], Parameter)
-    assert experiment.parameters[0].tunable is True
     assert experiment.parameters[0].name == 'a'
     assert experiment.parameters[0].type == 'double'
     assert isinstance(experiment.parameters[0].bounds, Bounds)
@@ -224,7 +222,6 @@ class TestObjects(object):
     assert experiment.parameters[0].precision == 3
     assert experiment.parameters[0].default_value == 2
     assert isinstance(experiment.parameters[1], Parameter)
-    assert experiment.parameters[1].tunable is False
     assert experiment.parameters[1].name == 'b'
     assert experiment.parameters[1].type == 'categorical'
     assert experiment.parameters[1].bounds is None
@@ -239,6 +236,16 @@ class TestObjects(object):
     assert isinstance(experiment.metadata, Metadata)
     assert experiment.metadata['abc'] == 'def'
     assert experiment.metadata['ghi'] == 123
+
+    with warnings.catch_warnings(record=True) as w:
+      assert experiment.can_be_deleted is None
+      assert len(w) == 1
+      assert issubclass(w[-1].category, DeprecationWarning)
+
+    with warnings.catch_warnings(record=True) as w:
+      assert experiment.parameters[0].tunable is None
+      assert len(w) == 1
+      assert issubclass(w[-1].category, DeprecationWarning)
 
   def test_mutable_experiment(self, experiment):
     experiment.name = 'other name'

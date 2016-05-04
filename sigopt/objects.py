@@ -1,4 +1,5 @@
 import copy
+import warnings
 
 from .compat import json
 import sigopt.vendored.six as six
@@ -23,6 +24,15 @@ class Field(object):
     if value is None:
       return None
     return self.type(value)
+
+
+class DeprecatedField(Field):
+  def __call__(self, value):
+    warnings.warn(
+      'This field has been deprecated and may be removed in a future version.',
+      DeprecationWarning,
+    )
+    return super(DeprecatedField, self).__call__(value)
 
 
 class ApiObject(object):
@@ -172,7 +182,7 @@ class Parameter(ApiObject):
   default_value = Field(Any)
   name = Field(six.text_type)
   precision = Field(int)
-  tunable = Field(bool)
+  tunable = DeprecatedField(bool)
   type = Field(str)
 
 
@@ -213,7 +223,7 @@ class Suggestion(ApiObject):
 
 
 class Experiment(ApiObject):
-  can_be_deleted = Field(bool)
+  can_be_deleted = DeprecatedField(bool)
   client = Field(str)
   created = Field(int)
   id = Field(str)
