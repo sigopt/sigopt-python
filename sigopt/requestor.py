@@ -6,7 +6,10 @@ DEFAULT_API_URL = 'https://api.sigopt.com'
 
 class Requestor(object):
   def __init__(self, user=None, password=None, headers=None):
-    self.auth = requests.auth.HTTPBasicAuth(user, password)
+    if user is not None and password is not None:
+      self.auth = requests.auth.HTTPBasicAuth(user, password)
+    else:
+      self.auth = None
     self.default_headers = headers or {}
 
   def get(self, url, params=None, json=None, headers=None):
