@@ -11,7 +11,7 @@ setup(
   author='SigOpt',
   author_email='support@sigopt.com',
   url='https://sigopt.com/',
-  packages=['sigopt'],
+  packages=['sigopt', 'sigopt.vendored'],
   install_requires=install_requires,
   classifiers=[
     "Development Status :: 5 - Production/Stable",
