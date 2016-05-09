@@ -15,20 +15,10 @@ from .requestor import Requestor, DEFAULT_API_URL
 from .resource import ApiResource
 from .version import VERSION
 
-class Connection(object):
-  def __init__(self, client_token=None):
+class ConnectionImpl(object):
+  def __init__(self, requestor):
+    self.requestor = requestor
     self.api_url = DEFAULT_API_URL
-    client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
-
-    if not client_token:
-      raise ValueError('Must provide client_token or set environment variable SIGOPT_API_TOKEN')
-
-    self.client_token = client_token
-    default_headers = {
-      'Content-Type': 'application/json',
-      'User-Agent': 'sigopt-python/{0}'.format(VERSION),
-    }
-    self.requestor = Requestor(self.client_token, '', default_headers)
 
     suggestions = ApiResource(
       self,
@@ -60,7 +50,7 @@ class Connection(object):
       ],
     )
 
-    self._experiments = ApiResource(
+    self.experiments = ApiResource(
       self,
       'experiments',
       endpoints=[
@@ -75,7 +65,7 @@ class Connection(object):
       ]
     )
 
-    self._clients = ApiResource(
+    self.clients = ApiResource(
       self,
       'clients',
       endpoints=[
@@ -85,17 +75,6 @@ class Connection(object):
         plan,
       ],
     )
-
-  def set_api_url(self, api_url):
-    self.api_url = api_url
-
-  @property
-  def clients(self):
-    return self._clients
-
-  @property
-  def experiments(self):
-    return self._experiments
 
   def _get(self, url, params=None):
     request_params = self._request_params(params)
@@ -139,6 +118,36 @@ class Connection(object):
       in req_params.items()
       if value is not None
     ))
+
+
+class Connection(object):
+  """
+  Client-facing interface for creating Connections.
+  Shouldn't be changed without a major version change.
+  """
+  def __init__(self, client_token=None):
+    client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
+    if not client_token:
+      raise ValueError('Must provide client_token or set environment variable SIGOPT_API_TOKEN')
+
+    default_headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'sigopt-python/{0}'.format(VERSION),
+    }
+    requestor = Requestor(client_token, '', default_headers)
+    self.impl = ConnectionImpl(requestor)
+
+  def set_api_url(self, api_url):
+    self.impl.set_api_url(api_url)
+
+  @property
+  def clients(self):
+    return self.impl.clients
+
+  @property
+  def experiments(self):
+    return self.impl.experiments
+
 
 
 # Allows response to be a single object of class some_class or a paginated
