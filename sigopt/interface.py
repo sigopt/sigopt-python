@@ -119,6 +119,8 @@ class ConnectionImpl(object):
       if value is not None
     ))
 
+  def set_api_url(self, api_url):
+    self.api_url = api_url
 
 class Connection(object):
   """
