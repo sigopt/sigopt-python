@@ -5,8 +5,8 @@ from .exception import ApiException, ConnectionException
 DEFAULT_API_URL = 'https://api.sigopt.com'
 
 class Requestor(object):
-  def __init__(self, user=None, password=None, headers=None):
-    if user is not None and password is not None:
+  def __init__(self, user, password, headers):
+    if user is not None:
       self.auth = requests.auth.HTTPBasicAuth(user, password)
     else:
       self.auth = None
