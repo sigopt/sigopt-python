@@ -65,6 +65,15 @@ class ConnectionImpl(object):
       ]
     )
 
+    client_experiments = ApiResource(
+      self,
+      'experiments',
+      endpoints=[
+        ApiEndpoint(None, Experiment, 'POST', 'create'),
+        ApiEndpoint(None, lambda x: Pagination(Experiment, x), 'GET', 'fetch'),
+      ],
+    )
+
     self.clients = ApiResource(
       self,
       'clients',
@@ -72,6 +81,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, Client, 'GET', 'fetch'),
       ],
       resources=[
+        client_experiments,
         plan,
       ],
     )
