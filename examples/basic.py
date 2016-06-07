@@ -1,6 +1,6 @@
 import argparse
 
-from sigopt.interface import Connection
+from sigopt import Connection
 
 # Take a suggestion from sigopt and evaluate your function
 def evaluate_metric(assignments):
