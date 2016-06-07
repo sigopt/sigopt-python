@@ -5,7 +5,7 @@ import math
 import threading
 import time
 
-from sigopt.interface import Connection
+from sigopt import Connection
 
 
 class ExampleRunner(threading.Thread):

@@ -20,14 +20,14 @@ To call the API, instantiate a connection with your token.
 Insert your API token into the environment variable `SIGOPT_API_TOKEN`, and instantiate a connection:
 
 ```python
-from sigopt.interface import Connection
+from sigopt import Connection
 conn = Connection()
 ```
 
 ### Authentication Option 2
 Authenticate each connection with your API token directly (will override any token set via environment variable):
 ```python
-from sigopt.interface import Connection
+from sigopt import Connection
 conn = Connection(client_token=api_token)
 ```
 
