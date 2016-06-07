@@ -13,6 +13,7 @@ class ConnectionException(SigOptException):
   """
   def __init__(self, message):
     super(ConnectionException, self).__init__(message)
+    self.message = message
 
   def __str__(self):
     return six.u('{0}: {1}').format(
