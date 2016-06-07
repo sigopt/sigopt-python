@@ -161,14 +161,12 @@ class Connection(object):
     return self.impl.experiments
 
 
-
 # Allows response to be a single object of class some_class or a paginated
 # response of objects that come from class some_class
 def object_or_paginated_objects(api_object):
-  def decorator(body):
+  def decorator(body, *args, **kwargs):
     if body.get('object') == 'pagination':
-      return Pagination(api_object, body)
+      return Pagination(api_object, body, *args, **kwargs)
     else:
-      return api_object(body)
-
+      return api_object(body, *args, **kwargs)
   return decorator

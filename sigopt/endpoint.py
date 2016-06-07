@@ -22,7 +22,7 @@ class BoundApiEndpoint(object):
     raw_response = call(url, kwargs)
 
     if self._endpoint._response_cls:
-      return self._endpoint._response_cls(raw_response)
+      return self._endpoint._response_cls(raw_response, self, kwargs)
     else:
       return None
 
@@ -33,4 +33,3 @@ class ApiEndpoint(object):
     self._response_cls = response_cls
     self._method = method
     self._attribute_name = attribute_name or name
-
