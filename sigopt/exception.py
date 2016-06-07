@@ -12,6 +12,7 @@ class ConnectionException(SigOptException):
   An exception that occurs when the SigOpt API was unavailable.
   """
   def __init__(self, message):
+    super(ConnectionException, self).__init__(message)
     self.message = message
 
   def __str__(self):
