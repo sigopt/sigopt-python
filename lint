@@ -2,6 +2,12 @@
 
 export PYTHONPATH='sigopt'
 
+PYTHON_VERSION=$(python --version 2>&1)
+if [[ $PYTHON_VERSION =~ "Python 2.6" || $PYTHON_VERSION =~ "Python 3.2" ]]; then
+  echo 'Skipping lint for unsupported python version'
+  exit 0
+fi
+
 pylint sigopt \
   -d abstract-class-instantiated \
   -d abstract-class-little-used \
