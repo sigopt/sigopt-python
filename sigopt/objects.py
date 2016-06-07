@@ -35,10 +35,7 @@ class DeprecatedField(Field):
     return super(DeprecatedField, self).__call__(value)
 
 
-class ApiObject(object):
-  def __init__(self, body):
-    object.__setattr__(self, '_body', body)
-
+class BaseApiObject(object):
   def __getattribute__(self, name):
     value = object.__getattribute__(self, name)
     if isinstance(value, Field):
@@ -77,6 +74,12 @@ class ApiObject(object):
   def to_json(self):
     return copy.deepcopy(self._body)
 
+
+class ApiObject(BaseApiObject):
+  def __init__(self, body):
+    super(ApiObject, self).__init__()
+    object.__setattr__(self, '_body', body)
+
   def __eq__(self, other):
     return (
       isinstance(other, self.__class__) and
@@ -98,8 +101,9 @@ class ApiObject(object):
       return obj
 
 
-class _DictWrapper(ApiObject, dict):
+class _DictWrapper(BaseApiObject, dict):
   def __init__(self, body):
+    super(_DictWrapper, self).__init__()
     dict.__init__(self, body)
 
   @property
@@ -117,6 +121,7 @@ class _DictWrapper(ApiObject, dict):
       isinstance(other, self.__class__) and
       dict.__eq__(self, other)
     )
+
 
 class Assignments(_DictWrapper):
   pass
