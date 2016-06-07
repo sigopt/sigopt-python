@@ -315,22 +315,21 @@ class TestObjects(object):
     assert suggestion.metadata['ghi'] == 123
 
   def test_pagination(self):
+    experiment = Experiment({'object': 'experiment'})
     pagination = Pagination(Experiment, {
       'object': 'pagination',
-      'count': 5,
-      'data': [
-        {'object': 'experiment'},
-      ],
+      'count': 2,
+      'data': [experiment.to_json()],
       'paging': {
         'before': '1',
         'after': '2',
       },
     })
-
     assert isinstance(pagination, Pagination)
-    assert pagination.count == 5
+    assert pagination.count == 2
     assert len(pagination.data) == 1
     assert isinstance(pagination.data[0], Experiment)
+    assert pagination.data[0] == experiment
     assert isinstance(pagination.paging, Paging)
     assert pagination.paging.before == '1'
     assert pagination.paging.after == '2'

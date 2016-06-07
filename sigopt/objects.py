@@ -76,9 +76,11 @@ class BaseApiObject(object):
 
 
 class ApiObject(BaseApiObject):
-  def __init__(self, body):
+  def __init__(self, body, bound_endpoint=None, retrieve_params=None):
     super(ApiObject, self).__init__()
     object.__setattr__(self, '_body', body)
+    object.__setattr__(self, '_bound_endpoint', bound_endpoint)
+    object.__setattr__(self, '_retrieve_params', retrieve_params)
 
   def __eq__(self, other):
     return (
@@ -102,9 +104,11 @@ class ApiObject(BaseApiObject):
 
 
 class _DictWrapper(BaseApiObject, dict):
-  def __init__(self, body):
+  def __init__(self, body, bound_endpoint=None, retrieve_params=None):
     super(_DictWrapper, self).__init__()
     dict.__init__(self, body)
+    self._bound_endpoint = bound_endpoint
+    self._retrieve_params = retrieve_params
 
   @property
   def _body(self):
@@ -172,13 +176,33 @@ class Pagination(ApiObject):
   count = Field(int)
   paging = Field(Paging)
 
-  def __init__(self, data_cls, body):
-    super(Pagination, self).__init__(body)
+  def __init__(self, data_cls, body, bound_endpoint=None, retrieve_params=None):
+    super(Pagination, self).__init__(body, bound_endpoint, retrieve_params)
     self.data_cls = data_cls
 
   @property
   def data(self):
     return Field(ListOf(self.data_cls))(self._body.get('data'))
+
+  def iterate_pages(self):
+    data = self.data
+    paging = self.paging or Paging({})
+    use_before = bool(paging.before)
+    while data:
+      for d in data:
+        yield d
+      next_paging = dict(before=paging.before) if use_before else dict(after=paging.after)
+      if next_paging.get('before') is not None or next_paging.get('after') is not None:
+        params = self._retrieve_params.copy()
+        params.pop('before', None)
+        params.pop('after', None)
+        params.update(next_paging)
+        response = self._bound_endpoint(**params)
+        data = response.data
+        paging = response.paging
+      else:
+        data = []
+        paging = None
 
 
 class Parameter(ApiObject):
