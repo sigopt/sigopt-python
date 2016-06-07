@@ -11,7 +11,7 @@ python:
 cache:
   pip: false
 install:
-  - pip install pytest mock
+  - pip install pytest mock pylint
   - pip install -r requirements.txt
   - python setup.py clean --all
   - python setup.py install
