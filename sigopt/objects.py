@@ -88,7 +88,7 @@ class ApiObject(BaseApiObject):
 
   @staticmethod
   def as_json(obj):
-    if isinstance(obj, ApiObject):
+    if isinstance(obj, BaseApiObject):
       return obj.to_json()
     elif isinstance(obj, dict):
       c = {}
