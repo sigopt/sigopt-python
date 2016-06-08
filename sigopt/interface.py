@@ -70,7 +70,7 @@ class ConnectionImpl(object):
       'experiments',
       endpoints=[
         ApiEndpoint(None, Experiment, 'POST', 'create'),
-        ApiEndpoint(None, lambda x: Pagination(Experiment, x), 'GET', 'fetch'),
+        ApiEndpoint(None, lambda *args, **kwargs: Pagination(Experiment, *args, **kwargs), 'GET', 'fetch'),
       ],
     )
 
