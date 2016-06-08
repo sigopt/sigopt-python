@@ -36,6 +36,10 @@ class TestEndpoint(object):
     connection.clients(1).fetch()
     self.assert_called(requestor, connection, 'get', '/clients/1')
 
+  def test_client_experiments(self, requestor, connection):
+    connection.clients(1).experiments().fetch()
+    self.assert_called(requestor, connection, 'get', '/clients/1/experiments')
+
   def test_experiment_list(self, requestor, connection):
     connection.experiments().fetch()
     self.assert_called(requestor, connection, 'get', '/experiments')
