@@ -143,7 +143,7 @@ class CategoricalValue(ApiObject):
 
 class Client(ApiObject):
   created = Field(int)
-  id = Field(str)
+  id = Field(six.text_type)
   name = Field(six.text_type)
 
 
@@ -158,18 +158,18 @@ class Metric(ApiObject):
 class Observation(ApiObject):
   assignments = Field(Assignments)
   created = Field(int)
-  experiment = Field(str)
+  experiment = Field(six.text_type)
   failed = Field(bool)
-  id = Field(str)
+  id = Field(six.text_type)
   metadata = Field(Metadata)
-  suggestion = Field(str)
+  suggestion = Field(six.text_type)
   value = Field(float)
   value_stddev = Field(float)
 
 
 class Paging(ApiObject):
-  after = Field(str)
-  before = Field(str)
+  after = Field(six.text_type)
+  before = Field(six.text_type)
 
 
 class Pagination(ApiObject):
@@ -212,12 +212,12 @@ class Parameter(ApiObject):
   name = Field(six.text_type)
   precision = Field(int)
   tunable = DeprecatedField(bool)
-  type = Field(str)
+  type = Field(six.text_type)
 
 
 class PlanPeriod(ApiObject):
   end = Field(int)
-  experiments = Field(ListOf(str))
+  experiments = Field(ListOf(six.text_type))
   start = Field(int)
 
 
@@ -230,8 +230,8 @@ class PlanRules(ApiObject):
 
 class Plan(ApiObject):
   current_period = Field(PlanPeriod)
-  id = Field(str)
-  name = Field(str)
+  id = Field(six.text_type)
+  name = Field(six.text_type)
   rules = Field(PlanRules)
 
 
@@ -245,21 +245,21 @@ class Progress(ApiObject):
 class Suggestion(ApiObject):
   assignments = Field(Assignments)
   created = Field(int)
-  experiment = Field(str)
-  id = Field(str)
+  experiment = Field(six.text_type)
+  id = Field(six.text_type)
   metadata = Field(Metadata)
-  state = Field(str)
+  state = Field(six.text_type)
 
 
 class Experiment(ApiObject):
   can_be_deleted = DeprecatedField(bool)
-  client = Field(str)
+  client = Field(six.text_type)
   created = Field(int)
-  id = Field(str)
+  id = Field(six.text_type)
   metadata = Field(Metadata)
   metric = Field(Metric)
   name = Field(six.text_type)
   parameters = Field(ListOf(Parameter))
   progress = Field(Progress)
-  state = Field(str)
-  type = Field(str)
+  state = Field(six.text_type)
+  type = Field(six.text_type)
