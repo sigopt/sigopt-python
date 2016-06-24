@@ -226,6 +226,7 @@ class PlanRules(ApiObject):
   max_experiments = Field(int)
   max_observations = Field(int)
   max_parallelism = Field(int)
+  max_users = Field(int)
 
 
 class Plan(ApiObject):
