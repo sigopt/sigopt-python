@@ -6,6 +6,7 @@ import threading
 import time
 
 from sigopt import Connection
+import sigopt.examples
 
 
 class ExampleRunner(threading.Thread):
@@ -33,15 +34,7 @@ class ExampleRunner(threading.Thread):
     sleep_seconds = 10
     print('{0} - Sleeping for {1} seconds to simulate expensive computation...'.format(threading.current_thread(), sleep_seconds))
     time.sleep(sleep_seconds)
-    x1 = assignments['x1']
-    x2 = assignments['x2']
-    # Franke function - http://www.sfu.ca/~ssurjano/franke2d.html
-    return (
-      .75 * math.exp(-(9 * x1 - 2) ** 2 / 4.0 - (9 * x2 - 2) ** 2 / 4.0) +
-      .75 * math.exp(-(9 * x1 + 1) ** 2 / 49.0 - (9 * x2 + 1) / 10.0) +
-      .5 * math.exp(-(9 * x1 - 7) ** 2 / 4.0 - (9 * x2 - 3) ** 2 / 4.0) -
-      .2 * math.exp(-(9 * x1 - 4) ** 2 - (9 * x2 - 7) ** 2)
-    )
+    return sigopt.examples.franke_function(assignments['x1'], assignments['x2'])
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
