@@ -19,11 +19,12 @@ if __name__ == '__main__':
   experiment = connection.experiments().create(
     name="Basic Test experiment",
     parameters=[{'name': 'x', 'bounds': {'max': 50.0, 'min': 0.0}, 'type': 'double'}],
+    observation_budget=the_args.iterations,
   )
   print('Created experiment id {0}'.format(experiment.id))
 
   # In a loop: receive a suggestion, evaluate the metric, report an observation
-  for _ in range(the_args.iterations):
+  for _ in range(experiment.observation_budget):
     suggestion = connection.experiments(experiment.id).suggestions().create()
     print('Evaluating at suggested assignments: {0}'.format(suggestion.assignments))
     value = evaluate_metric(suggestion.assignments)
