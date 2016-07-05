@@ -260,6 +260,7 @@ class Experiment(ApiObject):
   metadata = Field(Metadata)
   metric = Field(Metric)
   name = Field(six.text_type)
+  observation_budget = Field(int)
   parameters = Field(ListOf(Parameter))
   progress = Field(Progress)
   state = Field(six.text_type)
