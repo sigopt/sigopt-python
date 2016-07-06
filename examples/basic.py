@@ -9,7 +9,7 @@ def evaluate_metric(assignments):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--iterations', type=int, default=20)
+  parser.add_argument('--observation_budget', type=int, default=20)
   parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/user/profile")
   the_args = parser.parse_args()
 
@@ -19,7 +19,7 @@ if __name__ == '__main__':
   experiment = connection.experiments().create(
     name="Basic Test experiment",
     parameters=[{'name': 'x', 'bounds': {'max': 50.0, 'min': 0.0}, 'type': 'double'}],
-    observation_budget=the_args.iterations,
+    observation_budget=the_args.observation_budget,
   )
   print('Created experiment id {0}'.format(experiment.id))
 
