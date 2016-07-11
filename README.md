@@ -3,7 +3,7 @@
 This is the SigOpt Python API client.
 Use this to natively call SigOpt API endpoints to create experiments and report data.
 
-For the complete API documentation, visit [https://sigopt.com/docs](https://sigopt.com/docs).
+For more help getting started with SigOpt and Python, check out the [docs](sigopt.com/docs/overview/python).
 
 Take a look in `examples` for example usage.
 
@@ -16,19 +16,19 @@ In order to use the API, you'll need your API token from your [user profile](htt
 
 To call the API, instantiate a connection with your token.
 
-### Authentication Option 1 (preferred)
+### Authentication
+Authenticate each connection with your API token directly (will override any token set via environment variable):
+```python
+from sigopt import Connection
+conn = Connection(client_token=api_token)
+```
+
+### Authentication with Environment Variable
 Insert your API token into the environment variable `SIGOPT_API_TOKEN`, and instantiate a connection:
 
 ```python
 from sigopt import Connection
 conn = Connection()
-```
-
-### Authentication Option 2
-Authenticate each connection with your API token directly (will override any token set via environment variable):
-```python
-from sigopt import Connection
-conn = Connection(client_token=api_token)
 ```
 
 
