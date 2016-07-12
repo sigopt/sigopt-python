@@ -16,6 +16,6 @@ install:
   - python setup.py clean --all
   - python setup.py install
 script:
-  - make pytest
+  - make test
   - make lint
 

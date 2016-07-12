@@ -1,7 +1,7 @@
 .PHONY: pytest lint
 
-pytest:	export PYTHONPATH=.
-pytest:
+test:	export PYTHONPATH=.
+test:
 	@python -m pytest -rw -v test
 
 lint:
