@@ -1,4 +1,4 @@
 # For continuous integration and development
 mock==1.0.1
-pylint==1.4.5
+pylint
 pytest==2.8.7
