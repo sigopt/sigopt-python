@@ -1,8 +1,8 @@
 import copy
 import warnings
 
-from .compat import json
 import sigopt.vendored.six as six
+from .compat import json
 
 
 class ListOf(object):
