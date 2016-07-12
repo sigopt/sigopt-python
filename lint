@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export PYTHONPATH='sigopt'
+
 PYTHON_VERSION=$(python --version 2>&1)
 if [[ $PYTHON_VERSION =~ "Python 2.6" || $PYTHON_VERSION =~ "Python 3.2" ]]; then
   echo 'Skipping lint for unsupported python version'
