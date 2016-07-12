@@ -86,10 +86,16 @@ The REST endpoint `POST /v1/experiments/1/suggestions` then translates to `conn.
 
 ## Testing
 
-To run the included tests, you'll need to install pytest and mock (with `pip install pytest mock`). Then, just run
+To run the included tests, just run
 
 ```bash
-PYTHONPATH=. python -m pytest -rw -v test
+pip install -r requirements-dev.txt
+make test
+```
+
+To lint, install requirements (included in the previous step) and run
+```bash
+make lint
 ```
 
 ![Build Status](https://travis-ci.org/sigopt/sigopt-python.svg?branch=master)
