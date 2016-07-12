@@ -11,11 +11,11 @@ python:
 cache:
   pip: false
 install:
-  - pip install pytest mock pylint
+  - pip install -r requirements-dev.txt
   - pip install -r requirements.txt
   - python setup.py clean --all
   - python setup.py install
 script:
-  - PYTHONPATH=. python -m pytest -rw -v test
-  - ./lint
+  - make test
+  - make lint
 
