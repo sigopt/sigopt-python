@@ -1,4 +1,4 @@
-.PHONY: pytest lint
+.PHONY: test lint
 
 test:	export PYTHONPATH=.
 test:
