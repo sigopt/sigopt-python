@@ -3,7 +3,7 @@
 This is the SigOpt Python API client.
 Use this to natively call SigOpt API endpoints to create experiments and report data.
 
-For the complete API documentation, visit [https://sigopt.com/docs](https://sigopt.com/docs).
+For more help getting started with SigOpt and Python, check out the [docs](sigopt.com/docs/overview/python).
 
 Take a look in `examples` for example usage.
 
@@ -16,19 +16,19 @@ In order to use the API, you'll need your API token from your [user profile](htt
 
 To call the API, instantiate a connection with your token.
 
-### Authentication Option 1 (preferred)
+### Authentication
+Authenticate each connection with your API token directly (will override any token set via environment variable):
+```python
+from sigopt import Connection
+conn = Connection(client_token=api_token)
+```
+
+### Authentication with Environment Variable
 Insert your API token into the environment variable `SIGOPT_API_TOKEN`, and instantiate a connection:
 
 ```python
 from sigopt import Connection
 conn = Connection()
-```
-
-### Authentication Option 2
-Authenticate each connection with your API token directly (will override any token set via environment variable):
-```python
-from sigopt import Connection
-conn = Connection(client_token=api_token)
 ```
 
 
@@ -37,20 +37,35 @@ Then, you can use the connection to issue API requests. An example creating an e
 optimization loop:
 
 ```python
-experiment = conn.experiments().create(
-  name='New Experiment',
-  parameters=[{ 'name': 'param1', 'type': 'double', 'bounds': { 'min': 0, 'max': 1.0 }}],
-)
+import sigopt
+import sigopt.examples
+conn = sigopt.Connection(client_token=SIGOPT_API_TOKEN)
 
-suggestion = conn.experiments(experiment.id).suggestions().create()
-value = evaluate_metric(suggestion) # Implement this, the return  value should be a number
-conn.experiments(experiment.id).observations().create(
-  'suggestion': suggestion.id,
-  'value': value,
+experiment = conn.experiments().create(
+  name='Franke Optimization',
+  parameters=[
+    dict(name='x', type='double', bounds=dict(min=0.0, max=1.0)),
+    dict(name='y', type='double', bounds=dict(min=0.0, max=1.0)),
+  ],
 )
+print("Created experiment: https://sigopt.com/experiment/" + experiment.id);
+
+# Evaluate your model with the suggested parameter assignments
+# Franke function - http://www.sfu.ca/~ssurjano/franke2d.html
+def evaluate_model(assignments):
+  return franke_function(assignments['x'], assignments['y'])
+
+# Run the Optimization Loop between 10x - 20x the number of parameters
+for _ in range(20):
+  suggestion = conn.experiments(experiment.id).suggestions().create()
+  value = evaluate_model(suggestion.assignments)
+  conn.experiments(experiment.id).observations().create(
+    suggestion=suggestion.id,
+    value=value,
+  )
 ```
 
-## Authentication
+## API Token
 
 Your API token does not have permission to view or modify information about individual user accounts,
 so it is safe to include when running SigOpt in production.
@@ -71,10 +86,16 @@ The REST endpoint `POST /v1/experiments/1/suggestions` then translates to `conn.
 
 ## Testing
 
-To run the included tests, you'll need to install pytest and mock (with `pip install pytest mock`). Then, just run
+To run the included tests, just run
 
 ```bash
-PYTHONPATH=. python -m pytest -rw -v test
+pip install -r requirements-dev.txt
+make test
+```
+
+To lint, install requirements (included in the previous step) and run
+```bash
+make lint
 ```
 
 ![Build Status](https://travis-ci.org/sigopt/sigopt-python.svg?branch=master)
