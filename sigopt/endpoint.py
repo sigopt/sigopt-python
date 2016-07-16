@@ -21,7 +21,7 @@ class BoundApiEndpoint(object):
 
     raw_response = call(url, kwargs)
 
-    if self._endpoint._response_cls:
+    if self._endpoint._response_cls is not None:
       return self._endpoint._response_cls(raw_response, self, kwargs)
     else:
       return None

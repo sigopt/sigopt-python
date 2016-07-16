@@ -27,7 +27,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, Suggestion, 'POST', 'create'),
         ApiEndpoint(None, object_or_paginated_objects(Suggestion), 'GET', 'fetch'),
         ApiEndpoint(None, Suggestion, 'PUT', 'update'),
-        ApiEndpoint(None, Suggestion, 'DELETE', 'delete'),
+        ApiEndpoint(None, None, 'DELETE', 'delete'),
       ]
     )
 
@@ -38,7 +38,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, Observation, 'POST', 'create'),
         ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
         ApiEndpoint(None, Observation, 'PUT', 'update'),
-        ApiEndpoint(None, Observation, 'DELETE', 'delete'),
+        ApiEndpoint(None, None, 'DELETE', 'delete'),
       ]
     )
 
@@ -57,7 +57,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, Experiment, 'POST', 'create'),
         ApiEndpoint(None, object_or_paginated_objects(Experiment), 'GET', 'fetch'),
         ApiEndpoint(None, Experiment, 'PUT', 'update'),
-        ApiEndpoint(None, Experiment, 'DELETE', 'delete'),
+        ApiEndpoint(None, None, 'DELETE', 'delete'),
       ],
       resources=[
         suggestions,

@@ -36,7 +36,7 @@ SAMPLE_UNICODE_EXCEPTION = {
 SAMPLE_RESPONSE = {
   'number': 1.2,
   'string': 'abc',
-  'list': [1,2,3],
+  'list': [1, 2, 3],
   'object': {
     'key': 'value',
   }
@@ -51,7 +51,7 @@ class TestRequestor(object):
     assert connection.experiments(1).fetch() == Experiment(SAMPLE_RESPONSE)
     assert connection.experiments().create() == Experiment(SAMPLE_RESPONSE)
     assert connection.experiments(1).update() == Experiment(SAMPLE_RESPONSE)
-    assert connection.experiments(1).delete() == Experiment(SAMPLE_RESPONSE)
+    assert connection.experiments(1).delete() is None
 
   def test_ok_code(self):
     connection = ConnectionImpl(self.returns(SAMPLE_RESPONSE))
