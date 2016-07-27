@@ -256,6 +256,7 @@ class Experiment(ApiObject):
   can_be_deleted = DeprecatedField(bool)
   client = Field(six.text_type)
   created = Field(int)
+  development = Field(bool)
   id = Field(six.text_type)
   metadata = Field(Metadata)
   metric = Field(Metric)
