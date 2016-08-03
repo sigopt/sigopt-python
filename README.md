@@ -38,7 +38,7 @@ optimization loop:
 
 ```python
 import sigopt
-import sigopt.examples
+from sigopt.examples import franke_function
 conn = sigopt.Connection(client_token=SIGOPT_API_TOKEN)
 
 experiment = conn.experiments().create(
