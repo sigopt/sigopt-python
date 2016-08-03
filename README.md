@@ -37,9 +37,9 @@ Then, you can use the connection to issue API requests. An example creating an e
 optimization loop:
 
 ```python
-import sigopt
+from sigopt import Connection
 from sigopt.examples import franke_function
-conn = sigopt.Connection(client_token=SIGOPT_API_TOKEN)
+conn = Connection(client_token=SIGOPT_API_TOKEN)
 
 experiment = conn.experiments().create(
   name='Franke Optimization',
