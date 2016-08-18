@@ -1,6 +1,6 @@
 # SigOpt Python API
 
-This is the SigOpt Python API client.
+This is the [SigOpt](https://sigopt.com) Python API client.
 Use this to natively call SigOpt API endpoints to create experiments and report data.
 
 For more help getting started with SigOpt and Python, check out the [docs](https://sigopt.com/docs/overview/python).
