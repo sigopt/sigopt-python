@@ -24,10 +24,11 @@ class TestBase(object):
 
   def test_repr(self):
     assert repr(Experiment({})) == 'Experiment({})'
-    assert repr(Experiment({'a': 'b'})) == 'Experiment({"a": "b"})'
+    assert repr(Experiment({'a': 'b'})) == 'Experiment({\n  "a": "b"\n})'
     assert repr(Assignments({})) == 'Assignments({})'
-    assert repr(Assignments({'a': 'b'})) == 'Assignments({"a": "b"})'
-    assert repr(Bounds({'a': 'b'})) == 'Bounds({"a": "b"})'
+    assert repr(Assignments({'a': 'b'})) == 'Assignments({\n  "a": "b"\n})'
+    assert repr(Assignments({'a': 'b', 'c': 'd'})) == 'Assignments({\n  "a": "b",\n  "c": "d"\n})'
+    assert repr(Bounds({'a': 'b'})) == 'Bounds({\n  "a": "b"\n})'
 
   def test_json(self):
     assert Experiment({}).to_json() == {}
@@ -49,7 +50,7 @@ class TestBase(object):
 
     with pytest.raises(KeyError):
       a['xyz']
-    assert a.get('xyz') == None
+    assert a.get('xyz') is None
     assert a.get('xyz', 'fake') == 'fake'
 
     assert len(a) == 2
