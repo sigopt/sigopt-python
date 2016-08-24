@@ -68,7 +68,12 @@ class BaseApiObject(object):
   def __repr__(self):
     return six.u('{0}({1})').format(
       self.__class__.__name__,
-      json.dumps(ApiObject.as_json(self._body), indent=2, sort_keys=True),
+      json.dumps(
+        ApiObject.as_json(self._body),
+        indent=2,
+        sort_keys=True,
+        separators=(',',': '),
+      ),
     )
 
   def to_json(self):
