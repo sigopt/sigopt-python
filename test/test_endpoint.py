@@ -139,3 +139,7 @@ class TestEndpoint(object):
   def test_plan(self, requestor, connection):
     connection.clients(1).plan().fetch()
     self.assert_called(requestor, connection, 'get', '/clients/1/plan')
+
+  def test_token_create(self, requestor, connection):
+    connection.experiments(1).tokens().create()
+    self.assert_called(requestor, connection, 'post', '/experiments/1/tokens')
