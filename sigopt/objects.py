@@ -266,3 +266,13 @@ class Experiment(ApiObject):
   progress = Field(Progress)
   state = Field(six.text_type)
   type = Field(six.text_type)
+
+class Token(ApiObject):
+  all_experiments = Field(bool)
+  development = Field(bool)
+  permissions = Field(six.text_type)
+  token = Field(six.text_type)
+  client_id = Field(six.text_type)
+  experiment = Field(six.text_type)
+  user = Field(six.text_type
+)

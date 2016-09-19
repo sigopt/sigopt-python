@@ -367,3 +367,23 @@ class TestObjects(object):
     assert plan.current_period.start == 0
     assert plan.current_period.end == 1000
     assert plan.current_period.experiments == ['1', '2']
+
+  def test_token(self):
+    token = Token({
+      'all_experiments': False,
+      'development': True,
+      'permissions': 'read',
+      'token': '123',
+      'client_id': '456',
+      'experiment': '1',
+      'user': '789',
+    })
+
+    assert isinstance(token, Token)
+    assert token.all_experiments is False
+    assert token.development is True
+    assert token.permissions == 'read'
+    assert token.token == '123'
+    assert token.client_id == '456'
+    assert token.experiment == '1'
+    assert token.user == '789'

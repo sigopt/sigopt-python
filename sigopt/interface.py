@@ -10,6 +10,7 @@ from .objects import (
   Pagination,
   Plan,
   Suggestion,
+  Token,
 )
 from .requestor import Requestor, DEFAULT_API_URL
 from .resource import ApiResource
@@ -50,6 +51,14 @@ class ConnectionImpl(object):
       ],
     )
 
+    tokens = ApiResource(
+      self,
+      'tokens',
+      endpoints=[
+        ApiEndpoint(None, Token, 'POST', 'create'),
+      ],
+    )
+
     self.experiments = ApiResource(
       self,
       'experiments',
@@ -62,6 +71,7 @@ class ConnectionImpl(object):
       resources=[
         suggestions,
         observations,
+        tokens,
       ]
     )
 
