@@ -375,7 +375,7 @@ class TestObjects(object):
       'development': True,
       'permissions': 'read',
       'token': '123',
-      'client_id': '456',
+      'client': '456',
       'experiment': '1',
       'user': '789',
     })
@@ -385,6 +385,6 @@ class TestObjects(object):
     assert token.development is True
     assert token.permissions == 'read'
     assert token.token == '123'
-    assert token.client_id == '456'
+    assert token.client == '456'
     assert token.experiment == '1'
     assert token.user == '789'

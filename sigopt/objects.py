@@ -277,7 +277,7 @@ class Token(ApiObject):
   development = Field(bool)
   permissions = Field(six.text_type)
   token = Field(six.text_type)
-  client_id = Field(six.text_type)
+  client = Field(six.text_type)
   experiment = Field(six.text_type)
   user = Field(six.text_type
 )
