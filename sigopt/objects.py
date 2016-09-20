@@ -279,5 +279,4 @@ class Token(ApiObject):
   token = Field(six.text_type)
   client = Field(six.text_type)
   experiment = Field(six.text_type)
-  user = Field(six.text_type
-)
+  user = Field(six.text_type)
