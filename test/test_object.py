@@ -75,7 +75,8 @@ class TestObjects(object):
       'object': 'experiment',
       'id': '123',
       'name': 'Test Experiment',
-      'type': 'offline',
+      'type': 'cross_validated',
+      'folds': 10,
       'created': 321,
       'state': 'active',
       'metric': {
@@ -169,7 +170,7 @@ class TestObjects(object):
   def test_experiment(self, experiment):
     assert experiment.id == '123'
     assert experiment.name == 'Test Experiment'
-    assert experiment.type == 'offline'
+    assert experiment.type == 'cross_validated'
     assert experiment.created == 321
     assert isinstance(experiment.metric, Metric)
     assert experiment.metric.name == 'Revenue'
@@ -237,6 +238,7 @@ class TestObjects(object):
     assert isinstance(experiment.metadata, Metadata)
     assert experiment.metadata['abc'] == 'def'
     assert experiment.metadata['ghi'] == 123
+    assert experiment.folds == 10
 
     with warnings.catch_warnings(record=True) as w:
       assert experiment.can_be_deleted is None
@@ -298,6 +300,7 @@ class TestObjects(object):
       'state': 'open',
       'experiment': '1',
       'created': 123,
+      'fold_index': 2,
       'metadata': {
         'abc': 'def',
         'ghi': 123,
@@ -314,6 +317,7 @@ class TestObjects(object):
     assert isinstance(suggestion.metadata, Metadata)
     assert suggestion.metadata['abc'] == 'def'
     assert suggestion.metadata['ghi'] == 123
+    assert suggestion.fold_index == 2
 
   def test_pagination(self):
     experiment = Experiment({'object': 'experiment'})
