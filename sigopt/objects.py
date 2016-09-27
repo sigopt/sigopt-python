@@ -252,6 +252,7 @@ class Suggestion(ApiObject):
   assignments = Field(Assignments)
   created = Field(int)
   experiment = Field(six.text_type)
+  fold_index = Field(int)
   id = Field(six.text_type)
   metadata = Field(Metadata)
   state = Field(six.text_type)
@@ -262,6 +263,7 @@ class Experiment(ApiObject):
   client = Field(six.text_type)
   created = Field(int)
   development = Field(bool)
+  folds = Field(int)
   id = Field(six.text_type)
   metadata = Field(Metadata)
   metric = Field(Metric)
@@ -272,6 +274,7 @@ class Experiment(ApiObject):
   state = Field(six.text_type)
   type = Field(six.text_type)
 
+
 class Token(ApiObject):
   all_experiments = Field(bool)
   development = Field(bool)
@@ -279,5 +282,4 @@ class Token(ApiObject):
   token = Field(six.text_type)
   client = Field(six.text_type)
   experiment = Field(six.text_type)
-  user = Field(six.text_type
-)
+  user = Field(six.text_type)
