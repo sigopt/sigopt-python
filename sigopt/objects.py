@@ -252,6 +252,7 @@ class Suggestion(ApiObject):
   assignments = Field(Assignments)
   created = Field(int)
   experiment = Field(six.text_type)
+  fold = Field(six.text_type)
   fold_index = Field(int)
   id = Field(six.text_type)
   metadata = Field(Metadata)
