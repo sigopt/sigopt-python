@@ -147,17 +147,18 @@ class Connection(object):
   Client-facing interface for creating Connections.
   Shouldn't be changed without a major version change.
   """
-  def __init__(self, client_token=None, user_agent=None):
+  def __init__(self, client_token=None, user_agent=None, headers=None):
     client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
     if not client_token:
       raise ValueError('Must provide client_token or set environment variable SIGOPT_API_TOKEN')
 
-    default_headers = {
+    headers = headers or {}
+    headers.update({
       'Content-Type': 'application/json',
       'User-Agent': user_agent if user_agent is not None else 'sigopt-python/{0}'.format(VERSION),
       'X-SigOpt-Python-Version': VERSION,
-    }
-    requestor = Requestor(client_token, '', default_headers)
+    })
+    requestor = Requestor(client_token, '', headers)
     self.impl = ConnectionImpl(requestor)
 
   def set_api_url(self, api_url):
