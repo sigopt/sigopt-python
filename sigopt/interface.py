@@ -65,6 +65,7 @@ class ConnectionImpl(object):
       endpoints=[
         ApiEndpoint(None, Experiment, 'POST', 'create'),
         ApiEndpoint(None, object_or_paginated_objects(Experiment), 'GET', 'fetch'),
+        ApiEndpoint(None, object_or_paginated_objects(Experiment), 'GET', 'progress'),
         ApiEndpoint(None, Experiment, 'PUT', 'update'),
         ApiEndpoint(None, None, 'DELETE', 'delete'),
       ],
