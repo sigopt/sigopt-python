@@ -3,6 +3,7 @@ import os
 from .compat import json
 from .endpoint import ApiEndpoint
 from .objects import (
+  AggregatedObservation,
   ApiObject,
   Client,
   Experiment,
