@@ -286,7 +286,7 @@ class Token(ApiObject):
   user = Field(six.text_type)
 
 
-class Progress(ApiObject):
+class AggregatedObservation(ApiObject):
   assignments = Field(Assignments)
   value = Field(float)
   value_stddev = Field(float)
