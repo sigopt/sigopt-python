@@ -60,13 +60,20 @@ class ConnectionImpl(object):
       ],
     )
 
+    aggregatedObservations = ApiResource(
+      self,
+      'progress',
+      endpoints=[
+        ApiEndpoint(None, object_or_paginated_objects(AggregatedObservation), 'GET', 'fetch'),
+      ],
+    )
+
     self.experiments = ApiResource(
       self,
       'experiments',
       endpoints=[
         ApiEndpoint(None, Experiment, 'POST', 'create'),
         ApiEndpoint(None, object_or_paginated_objects(Experiment), 'GET', 'fetch'),
-        ApiEndpoint(None, object_or_paginated_objects(AggregatedObservation), 'GET', 'progress'),
         ApiEndpoint(None, Experiment, 'PUT', 'update'),
         ApiEndpoint(None, None, 'DELETE', 'delete'),
       ],
@@ -74,6 +81,7 @@ class ConnectionImpl(object):
         suggestions,
         observations,
         tokens,
+        aggregatedObservations,
       ]
     )
 
