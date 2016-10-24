@@ -53,7 +53,7 @@ class TestEndpoint(object):
     self.assert_called(requestor, connection, 'get', '/experiments/1')
 
   def test_experiment_progress(self, requestor, connection):
-    connection.experiments(1).progress()
+    connection.experiments(1).progress().fetch()
     self.assert_called(requestor, connection, 'get', '/experiments/1/progress')
 
   def test_experiment_create(self, requestor, connection):
