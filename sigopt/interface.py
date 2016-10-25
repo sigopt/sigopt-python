@@ -3,8 +3,8 @@ import os
 from .compat import json
 from .endpoint import ApiEndpoint
 from .objects import (
-  AggregatedObservation,
   ApiObject,
+  BestAssignments,
   Client,
   Experiment,
   Observation,
@@ -60,11 +60,11 @@ class ConnectionImpl(object):
       ],
     )
 
-    aggregatedObservations = ApiResource(
+    best_assignments = ApiResource(
       self,
-      'progress',
+      'best_assignments',
       endpoints=[
-        ApiEndpoint(None, object_or_paginated_objects(AggregatedObservation), 'GET', 'fetch'),
+        ApiEndpoint(None, object_or_paginated_objects(BestAssignments), 'GET', 'fetch'),
       ],
     )
 
@@ -81,7 +81,7 @@ class ConnectionImpl(object):
         suggestions,
         observations,
         tokens,
-        aggregatedObservations,
+        best_assignments,
       ]
     )
 
