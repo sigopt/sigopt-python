@@ -284,3 +284,9 @@ class Token(ApiObject):
   client = Field(six.text_type)
   experiment = Field(six.text_type)
   user = Field(six.text_type)
+
+
+class BestAssignments(ApiObject):
+  assignments = Field(Assignments)
+  value = Field(float)
+  value_stddev = Field(float)

@@ -4,6 +4,7 @@ from .compat import json
 from .endpoint import ApiEndpoint
 from .objects import (
   ApiObject,
+  BestAssignments,
   Client,
   Experiment,
   Observation,
@@ -59,6 +60,14 @@ class ConnectionImpl(object):
       ],
     )
 
+    best_assignments = ApiResource(
+      self,
+      'best_assignments',
+      endpoints=[
+        ApiEndpoint(None, object_or_paginated_objects(BestAssignments), 'GET', 'fetch'),
+      ],
+    )
+
     self.experiments = ApiResource(
       self,
       'experiments',
@@ -72,6 +81,7 @@ class ConnectionImpl(object):
         suggestions,
         observations,
         tokens,
+        best_assignments,
       ]
     )
 
