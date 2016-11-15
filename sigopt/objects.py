@@ -268,6 +268,7 @@ class Experiment(ApiObject):
   id = Field(six.text_type)
   metadata = Field(Metadata)
   metric = Field(Metric)
+  metrics = Field(ListOf(Metric))
   name = Field(six.text_type)
   observation_budget = Field(int)
   parameters = Field(ListOf(Parameter))

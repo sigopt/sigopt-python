@@ -83,6 +83,16 @@ class TestObjects(object):
         'object': 'metric',
         'name': 'Revenue',
       },
+      'metrics': [
+        {
+          'object': 'metric',
+          'name': 'Revenue',
+        },
+        {
+          'object': 'metric',
+          'name': 'Sales',
+        },
+      ],
       'client': '678',
       'progress': {
         'object': 'progress',
@@ -174,6 +184,10 @@ class TestObjects(object):
     assert experiment.created == 321
     assert isinstance(experiment.metric, Metric)
     assert experiment.metric.name == 'Revenue'
+    assert isinstance(experiment.metrics[0], Metric)
+    assert experiment.metrics[0].name == 'Revenue'
+    assert isinstance(experiment.metrics[1], Metric)
+    assert experiment.metrics[1].name == 'Sales'
     assert experiment.client == '678'
     assert isinstance(experiment.progress, Progress)
     assert experiment.progress.observation_count == 3
