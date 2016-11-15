@@ -79,10 +79,6 @@ class TestObjects(object):
       'folds': 10,
       'created': 321,
       'state': 'active',
-      'metric': {
-        'object': 'metric',
-        'name': 'Revenue',
-      },
       'metrics': [
         {
           'object': 'metric',
@@ -218,8 +214,6 @@ class TestObjects(object):
     assert experiment.name == 'Test Experiment'
     assert experiment.type == 'cross_validated'
     assert experiment.created == 321
-    assert isinstance(experiment.metric, Metric)
-    assert experiment.metric.name == 'Revenue'
     assert isinstance(experiment.metrics[0], Metric)
     assert experiment.metrics[0].name == 'Revenue'
     assert isinstance(experiment.metrics[1], Metric)
