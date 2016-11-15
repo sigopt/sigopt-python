@@ -156,6 +156,12 @@ class Metadata(_DictWrapper):
   pass
 
 
+class Value(ApiObject):
+  name = Field(six.text_type)
+  value = Field(float)
+  value_stddev = Field(float)
+
+
 class Metric(ApiObject):
   name = Field(six.text_type)
 
@@ -170,6 +176,7 @@ class Observation(ApiObject):
   suggestion = Field(six.text_type)
   value = Field(float)
   value_stddev = Field(float)
+  values = Field(ListOf(Value))
 
 
 class Paging(ApiObject):

@@ -104,8 +104,20 @@ class TestObjects(object):
             'a': 1,
             'b': 'c',
           },
-          'value': 3.1,
-          'value_stddev': None,
+          'values': [
+            {
+              'object': 'value',
+              'name': 'Revenue',
+              'value': 3.1,
+              'value_stddev': None,
+            },
+            {
+              'object': 'value',
+              'name': 'Sales',
+              'value': 2.5,
+              'value_stddev': None,
+            }
+          ],
           'failed': False,
           'created': 451,
           'suggestion': '11',
@@ -118,8 +130,20 @@ class TestObjects(object):
             'a': 2,
             'b': 'd',
           },
-          'value': 3.1,
-          'value_stddev': 0.5,
+          'values': [
+            {
+              'object': 'value',
+              'name': 'Revenue',
+              'value': 3.1,
+              'value_stddev': 0.5,
+            },
+            {
+              'object': 'value',
+              'name': 'Sales',
+              'value': 2.5,
+              'value_stddev': 0.8,
+            }
+          ],
           'failed': False,
           'created': 452,
           'suggestion': '12',
@@ -132,8 +156,20 @@ class TestObjects(object):
             'a': 3,
             'b': 'd',
           },
-          'value': None,
-          'value_stddev': None,
+          'values': [
+            {
+              'object': 'value',
+              'name': 'Revenue',
+              'value': None,
+              'value_stddev': None,
+            },
+            {
+              'object': 'value',
+              'name': 'Sales',
+              'value': None,
+              'value_stddev': None,
+            }
+          ],
           'failed': True,
           'created': 453,
           'suggestion': '13',
@@ -196,8 +232,12 @@ class TestObjects(object):
     assert isinstance(experiment.progress.first_observation.assignments, Assignments)
     assert experiment.progress.first_observation.assignments.get('a') == 1
     assert experiment.progress.first_observation.assignments.get('b') == 'c'
-    assert experiment.progress.first_observation.value == 3.1
-    assert experiment.progress.first_observation.value_stddev is None
+    assert experiment.progress.first_observation.values[0].name == 'Revenue'
+    assert experiment.progress.first_observation.values[0].value == 3.1
+    assert experiment.progress.first_observation.values[0].value_stddev is None
+    assert experiment.progress.first_observation.values[1].name == 'Sales'
+    assert experiment.progress.first_observation.values[1].value == 2.5
+    assert experiment.progress.first_observation.values[1].value_stddev is None
     assert experiment.progress.first_observation.failed is False
     assert experiment.progress.first_observation.created == 451
     assert experiment.progress.first_observation.suggestion == '11'
@@ -207,8 +247,12 @@ class TestObjects(object):
     assert isinstance(experiment.progress.last_observation.assignments, Assignments)
     assert experiment.progress.last_observation.assignments.get('a') == 2
     assert experiment.progress.last_observation.assignments.get('b') == 'd'
-    assert experiment.progress.last_observation.value == 3.1
-    assert experiment.progress.last_observation.value_stddev == 0.5
+    assert experiment.progress.last_observation.values[0].name == 'Revenue'
+    assert experiment.progress.last_observation.values[0].value == 3.1
+    assert experiment.progress.last_observation.values[0].value_stddev == 0.5
+    assert experiment.progress.last_observation.values[1].name == 'Sales'
+    assert experiment.progress.last_observation.values[1].value == 2.5
+    assert experiment.progress.last_observation.values[1].value_stddev == 0.8
     assert experiment.progress.last_observation.failed is False
     assert experiment.progress.last_observation.created == 452
     assert experiment.progress.last_observation.suggestion == '12'
@@ -218,8 +262,12 @@ class TestObjects(object):
     assert isinstance(experiment.progress.best_observation.assignments, Assignments)
     assert experiment.progress.best_observation.assignments.get('a') == 3
     assert experiment.progress.best_observation.assignments.get('b') == 'd'
-    assert experiment.progress.best_observation.value is None
-    assert experiment.progress.best_observation.value_stddev is None
+    assert experiment.progress.best_observation.values[0].name == 'Revenue'
+    assert experiment.progress.best_observation.values[0].value is None
+    assert experiment.progress.best_observation.values[0].value_stddev is None
+    assert experiment.progress.best_observation.values[1].name == 'Sales'
+    assert experiment.progress.best_observation.values[1].value is None
+    assert experiment.progress.best_observation.values[1].value_stddev is None
     assert experiment.progress.best_observation.failed is True
     assert experiment.progress.best_observation.created == 453
     assert experiment.progress.best_observation.suggestion == '13'
