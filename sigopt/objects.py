@@ -174,8 +174,8 @@ class Observation(ApiObject):
   id = Field(six.text_type)
   metadata = Field(Metadata)
   suggestion = Field(six.text_type)
-  value = DeprecatedField(float)
-  value_stddev = DeprecatedField(float)
+  value = Field(float)
+  value_stddev = Field(float)
   values = Field(ListOf(Value))
 
 
@@ -274,7 +274,7 @@ class Experiment(ApiObject):
   folds = Field(int)
   id = Field(six.text_type)
   metadata = Field(Metadata)
-  metric = DeprecatedField(Metric)
+  metric = Field(Metric)
   metrics = Field(ListOf(Metric))
   name = Field(six.text_type)
   observation_budget = Field(int)
@@ -296,6 +296,6 @@ class Token(ApiObject):
 
 class BestAssignments(ApiObject):
   assignments = Field(Assignments)
-  value = DeprecatedField(float)
-  value_stddev = DeprecatedField(float)
+  value = Field(float)
+  value_stddev = Field(float)
   values = Field(ListOf(Value))
