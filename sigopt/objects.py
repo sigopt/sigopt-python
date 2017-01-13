@@ -27,9 +27,13 @@ class Field(object):
 
 
 class DeprecatedField(Field):
+  def __init__(self, type, recommendation=None):
+    super(DeprecatedField, self).__init__(type)
+    self.recommendation = (' ' + recommendation) if recommendation else ''
+
   def __call__(self, value):
     warnings.warn(
-      'This field has been deprecated and may be removed in a future version.',
+      'This field has been deprecated and may be removed in a future version.{}'.format(self.recommendation),
       DeprecationWarning,
     )
     return super(DeprecatedField, self).__call__(value)
