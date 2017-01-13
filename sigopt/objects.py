@@ -33,7 +33,7 @@ class DeprecatedField(Field):
 
   def __call__(self, value):
     warnings.warn(
-      'This field has been deprecated and may be removed in a future version.{}'.format(self.recommendation),
+      'This field has been deprecated and may be removed in a future version.{0}'.format(self.recommendation),
       DeprecationWarning,
     )
     return super(DeprecatedField, self).__call__(value)
