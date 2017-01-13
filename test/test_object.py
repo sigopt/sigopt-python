@@ -250,6 +250,12 @@ class TestObjects(object):
       assert len(w) == 1
       assert issubclass(w[-1].category, DeprecationWarning)
 
+    with warnings.catch_warnings(record=True) as w:
+      experiment.progress.best_observation
+      assert len(w) == 1
+      assert issubclass(w[0].category, DeprecationWarning)
+      assert 'best_assignments' in str(w[0].message)
+
   def test_mutable_experiment(self, experiment):
     experiment.name = 'other name'
     assert experiment.name == 'other name'
