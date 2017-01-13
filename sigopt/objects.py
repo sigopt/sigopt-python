@@ -247,7 +247,7 @@ class Plan(ApiObject):
 
 
 class Progress(ApiObject):
-  best_observation = Field(Observation)
+  best_observation = DeprecatedField(Observation, recommendation='Prefer the `best_assignments` endpoint')
   first_observation = Field(Observation)
   last_observation = Field(Observation)
   observation_count = Field(int)
