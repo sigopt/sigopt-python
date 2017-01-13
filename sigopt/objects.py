@@ -234,6 +234,7 @@ class PlanPeriod(ApiObject):
 
 
 class PlanRules(ApiObject):
+  max_categorical_breadth = Field(int)
   max_dimension = Field(int)
   max_experiments = Field(int)
   max_observations = Field(int)
