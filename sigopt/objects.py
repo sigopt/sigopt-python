@@ -27,9 +27,13 @@ class Field(object):
 
 
 class DeprecatedField(Field):
+  def __init__(self, type, recommendation=None):
+    super(DeprecatedField, self).__init__(type)
+    self.recommendation = (' ' + recommendation) if recommendation else ''
+
   def __call__(self, value):
     warnings.warn(
-      'This field has been deprecated and may be removed in a future version.',
+      'This field has been deprecated and may be removed in a future version.{0}'.format(self.recommendation),
       DeprecationWarning,
     )
     return super(DeprecatedField, self).__call__(value)
@@ -243,7 +247,7 @@ class Plan(ApiObject):
 
 
 class Progress(ApiObject):
-  best_observation = Field(Observation)
+  best_observation = DeprecatedField(Observation, recommendation='Prefer the `best_assignments` endpoint')
   first_observation = Field(Observation)
   last_observation = Field(Observation)
   observation_count = Field(int)
