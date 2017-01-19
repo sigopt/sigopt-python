@@ -160,6 +160,12 @@ class Metadata(_DictWrapper):
   pass
 
 
+class MetricEvaluation(ApiObject):
+  name = Field(six.text_type)
+  value = Field(float)
+  value_stddev = Field(float)
+
+
 class Metric(ApiObject):
   name = Field(six.text_type)
 
@@ -174,6 +180,7 @@ class Observation(ApiObject):
   suggestion = Field(six.text_type)
   value = Field(float)
   value_stddev = Field(float)
+  values = Field(ListOf(MetricEvaluation))
 
 
 class Paging(ApiObject):
@@ -273,6 +280,7 @@ class Experiment(ApiObject):
   id = Field(six.text_type)
   metadata = Field(Metadata)
   metric = Field(Metric)
+  metrics = Field(ListOf(Metric))
   name = Field(six.text_type)
   observation_budget = Field(int)
   parameters = Field(ListOf(Parameter))
@@ -295,3 +303,4 @@ class BestAssignments(ApiObject):
   assignments = Field(Assignments)
   value = Field(float)
   value_stddev = Field(float)
+  values = Field(ListOf(MetricEvaluation))
