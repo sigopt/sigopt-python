@@ -241,6 +241,7 @@ class PlanRules(ApiObject):
   max_categorical_breadth = Field(int)
   max_dimension = Field(int)
   max_experiments = Field(int)
+  max_metrics = Field(int)
   max_observations = Field(int)
   max_parallelism = Field(int)
   max_users = Field(int)
