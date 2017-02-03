@@ -295,6 +295,7 @@ class Token(ApiObject):
   client = Field(six.text_type)
   development = Field(bool)
   experiment = Field(six.text_type)
+  permissions = DeprecatedField(six.text_type)
   token = Field(six.text_type)
   token_type = Field(six.text_type)
   user = Field(six.text_type)
