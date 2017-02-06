@@ -5,3 +5,4 @@ dist/
 *~
 # PyCharm related stuff
 .idea*
+.cache/
