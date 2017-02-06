@@ -440,6 +440,7 @@ class TestObjects(object):
       'all_experiments': False,
       'development': True,
       'permissions': 'read',
+      'token_type': 'client-dev',
       'token': '123',
       'client': '456',
       'experiment': '1',
@@ -450,6 +451,7 @@ class TestObjects(object):
     assert token.all_experiments is False
     assert token.development is True
     assert token.permissions == 'read'
+    assert token.token_type == 'client-dev'
     assert token.token == '123'
     assert token.client == '456'
     assert token.experiment == '1'
