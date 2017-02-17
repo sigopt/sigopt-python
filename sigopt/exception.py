@@ -1,5 +1,5 @@
 import copy
-import sigopt.vendored.six as six
+from .vendored import six as six
 
 
 class SigOptException(Exception):

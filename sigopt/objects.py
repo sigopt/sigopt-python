@@ -2,7 +2,7 @@ import copy
 import warnings
 
 from .compat import json
-import sigopt.vendored.six as six
+from .vendored import six as six
 
 
 class ListOf(object):
