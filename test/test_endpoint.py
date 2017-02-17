@@ -147,3 +147,19 @@ class TestEndpoint(object):
   def test_token_create(self, requestor, connection):
     connection.experiments(1).tokens().create()
     self.assert_called(requestor, connection, 'post', '/experiments/1/tokens')
+
+  def test_call_with_json(self, requestor, connection):
+    connection.experiments(1).tokens().create.call_with_json('{}')
+    self.assert_called(requestor, connection, 'post', '/experiments/1/tokens')
+
+  def test_call_with_json_params(self, requestor, connection):
+    connection.experiments(1).tokens().create.call_with_json('{"value": 5}')
+    self.assert_called(requestor, connection, 'post', '/experiments/1/tokens', {'value': 5})
+
+  def test_call_with_params(self, requestor, connection):
+    connection.experiments(1).tokens().create.call_with_params({})
+    self.assert_called(requestor, connection, 'post', '/experiments/1/tokens')
+
+  def test_call_with_params_params(self, requestor, connection):
+    connection.experiments(1).tokens().create.call_with_params({'value': 5})
+    self.assert_called(requestor, connection, 'post', '/experiments/1/tokens', {'value': 5})
