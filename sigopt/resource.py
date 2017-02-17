@@ -13,18 +13,24 @@ class BoundApiResource(object):
       self._base_url = api_url
     else:
       self._base_url = six.u('{api_url}/{id}').format(
-      api_url=api_url,
-      id=id,
-    )
+        api_url=api_url,
+        id=id,
+      )
 
-  def __getattr__(self, attr):
-    endpoint = self._resource._endpoints.get(attr)
+  def get_bound_entity(self, name):
+    endpoint = self._resource._endpoints.get(name)
     if endpoint:
       return BoundApiEndpoint(self, endpoint)
     else:
-      sub_resource = self._resource._sub_resources.get(attr)
+      sub_resource = self._resource._sub_resources.get(name)
       if sub_resource:
         return PartiallyBoundApiResource(sub_resource, self)
+    return None
+
+  def __getattr__(self, attr):
+    bound_entity = self.get_bound_entity(attr)
+    if bound_entity:
+      return bound_entity
     raise AttributeError(
       six.u(
         'Cannot find attribute `{attribute}` on resource `{resource}`, likely no endpoint exists for: '
