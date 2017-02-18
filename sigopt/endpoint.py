@@ -1,9 +1,14 @@
+from .compat import json as simplejson
+
 class BoundApiEndpoint(object):
   def __init__(self, bound_resource, endpoint):
     self._bound_resource = bound_resource
     self._endpoint = endpoint
 
-  def __call__(self, **kwargs):
+  def call_with_json(self, json):
+    return self.call_with_params(simplejson.loads(json))
+
+  def call_with_params(self, params):
     name = self._endpoint._name
     url = self._bound_resource._base_url + ('/' + name if name else '')
     conn = self._bound_resource._resource._conn
@@ -19,12 +24,15 @@ class BoundApiEndpoint(object):
     elif self._endpoint._method == 'DELETE':
       call = conn._delete
 
-    raw_response = call(url, kwargs)
+    raw_response = call(url, params)
 
     if self._endpoint._response_cls is not None:
-      return self._endpoint._response_cls(raw_response, self, kwargs)
+      return self._endpoint._response_cls(raw_response, self, params)
     else:
       return None
+
+  def __call__(self, **kwargs):
+    return self.call_with_params(kwargs)
 
 
 class ApiEndpoint(object):
