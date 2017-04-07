@@ -11,6 +11,7 @@ from .objects import (
   Pagination,
   Plan,
   Suggestion,
+  StoppingCriteria,
   Token,
 )
 from .requestor import Requestor, DEFAULT_API_URL
@@ -68,6 +69,14 @@ class ConnectionImpl(object):
       ],
     )
 
+    stopping_criteria = ApiResource(
+      self,
+      'stopping_criteria',
+      endpoints=[
+        ApiEndpoint(None, StoppingCriteria, 'GET', 'fetch'),
+      ],
+    )
+
     self.experiments = ApiResource(
       self,
       'experiments',
@@ -82,6 +91,7 @@ class ConnectionImpl(object):
         observations,
         tokens,
         best_assignments,
+        stopping_criteria,
       ]
     )
 

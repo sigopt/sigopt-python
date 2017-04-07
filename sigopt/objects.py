@@ -306,3 +306,7 @@ class BestAssignments(ApiObject):
   value = Field(float)
   value_stddev = Field(float)
   values = Field(ListOf(MetricEvaluation))
+
+
+class StoppingCriteria(ApiObject):
+  possible_stagnation = Field(bool)
