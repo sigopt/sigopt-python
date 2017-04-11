@@ -309,4 +309,5 @@ class BestAssignments(ApiObject):
 
 
 class StoppingCriteria(ApiObject):
-  possible_stagnation = Field(bool)
+  should_stop = Field(bool)
+  reasons = Field(ListOf(six.text_type))
