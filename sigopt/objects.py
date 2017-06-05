@@ -283,6 +283,7 @@ class Experiment(ApiObject):
   metric = Field(Metric)
   metrics = Field(ListOf(Metric))
   name = Field(six.text_type)
+  num_solutions = Field(int)
   observation_budget = Field(int)
   parameters = Field(ListOf(Parameter))
   progress = Field(Progress)
