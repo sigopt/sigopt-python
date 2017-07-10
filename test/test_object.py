@@ -460,9 +460,9 @@ class TestObjects(object):
   def test_metric(self):
     metric = Metric({
       'name': 'Test',
-      'baseline_value': 0.4,
+      'value_baseline': 0.4,
     })
 
     assert isinstance(metric, Metric)
     assert metric.name == 'Test'
-    assert metric.baseline_value == 0.4
+    assert metric.value_baseline == 0.4

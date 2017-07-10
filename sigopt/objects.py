@@ -168,7 +168,7 @@ class MetricEvaluation(ApiObject):
 
 class Metric(ApiObject):
   name = Field(six.text_type)
-  baseline_value = Field(float)
+  value_baseline = Field(float)
 
 
 class Observation(ApiObject):
