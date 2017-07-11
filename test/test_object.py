@@ -456,3 +456,13 @@ class TestObjects(object):
     assert token.client == '456'
     assert token.experiment == '1'
     assert token.user == '789'
+
+  def test_metric(self):
+    metric = Metric({
+      'name': 'Test',
+      'value_baseline': 0.4,
+    })
+
+    assert isinstance(metric, Metric)
+    assert metric.name == 'Test'
+    assert metric.value_baseline == 0.4
