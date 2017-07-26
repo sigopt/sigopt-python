@@ -5,12 +5,14 @@ from .exception import ApiException, ConnectionException
 DEFAULT_API_URL = 'https://api.sigopt.com'
 
 class Requestor(object):
-  def __init__(self, user, password, headers):
+  def __init__(self, user, password, headers, verify_ssl_certs=True, proxies=None):
     if user is not None:
       self.auth = requests.auth.HTTPBasicAuth(user, password)
     else:
       self.auth = None
     self.default_headers = headers or {}
+    self.verify_ssl_certs = verify_ssl_certs
+    self.proxies = proxies
 
   def get(self, url, params=None, json=None, headers=None):
     return self._request('get', url=url, params=params, json=json, headers=headers)
@@ -34,6 +36,8 @@ class Requestor(object):
         json=json,
         auth=self.auth,
         headers=headers,
+        verify=self.verify_ssl_certs,
+        proxies=self.proxies,
       )
     except requests.exceptions.RequestException as e:
       message = ['An error occurred connecting to SigOpt.']

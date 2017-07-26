@@ -162,6 +162,13 @@ class ConnectionImpl(object):
   def set_api_url(self, api_url):
     self.api_url = api_url
 
+  def set_verify_ssl_certs(self, verify_ssl_certs):
+    self.requestor.verify_ssl_certs = verify_ssl_certs
+
+  def set_proxies(self, proxies):
+    self.requestor.proxies = proxies
+
+
 class Connection(object):
   """
   Client-facing interface for creating Connections.
@@ -177,11 +184,21 @@ class Connection(object):
       'User-Agent': user_agent if user_agent is not None else 'sigopt-python/{0}'.format(VERSION),
       'X-SigOpt-Python-Version': VERSION,
     }
-    requestor = Requestor(client_token, '', default_headers)
+    requestor = Requestor(
+      client_token,
+      '',
+      default_headers,
+    )
     self.impl = ConnectionImpl(requestor)
 
   def set_api_url(self, api_url):
     self.impl.set_api_url(api_url)
+
+  def set_verify_ssl_certs(self, verify_ssl_certs):
+    self.impl.set_verify_ssl_certs(verify_ssl_certs)
+
+  def set_proxies(self, proxies):
+    self.impl.set_proxies(proxies)
 
   @property
   def clients(self):
