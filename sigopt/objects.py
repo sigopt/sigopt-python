@@ -305,6 +305,7 @@ class Token(ApiObject):
 
 class BestAssignments(ApiObject):
   assignments = Field(Assignments)
+  id = Field(str)
   value = Field(float)
   value_stddev = Field(float)
   values = Field(ListOf(MetricEvaluation))
