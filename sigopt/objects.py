@@ -156,6 +156,15 @@ class Client(ApiObject):
   name = Field(six.text_type)
 
 
+class Conditional(ApiObject):
+  name = Field(six.text_type)
+  values = Field(ListOf(six.text_type))
+
+
+class Conditions(_DictWrapper):
+  pass
+
+
 class Metadata(_DictWrapper):
   pass
 
@@ -225,6 +234,7 @@ class Pagination(ApiObject):
 class Parameter(ApiObject):
   bounds = Field(Bounds)
   categorical_values = Field(ListOf(CategoricalValue))
+  conditions = Field(Conditions)
   default_value = Field(Any)
   name = Field(six.text_type)
   precision = Field(int)
@@ -276,6 +286,7 @@ class Suggestion(ApiObject):
 class Experiment(ApiObject):
   can_be_deleted = DeprecatedField(bool)
   client = Field(six.text_type)
+  conditionals = Field(ListOf(Conditional))
   created = Field(int)
   development = Field(bool)
   folds = Field(int)
