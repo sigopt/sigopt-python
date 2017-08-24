@@ -3,6 +3,7 @@ build/
 dist/
 *.egg-info/
 *~
+venv/
 # PyCharm related stuff
 .idea*
 .cache/
