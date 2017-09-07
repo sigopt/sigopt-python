@@ -79,6 +79,14 @@ class TestObjects(object):
       'folds': 10,
       'created': 321,
       'state': 'active',
+      'linear_constraints': [{
+        'type': 'greater_than',
+        'terms': [{
+          'name': 'a',
+          'weight': 2,
+        }],
+        'threshold': 5,
+      }],
       'conditionals': [{
         'object': 'conditional',
         'name': 'num_hidden_layers',
@@ -230,6 +238,13 @@ class TestObjects(object):
     assert isinstance(experiment.metrics[1], Metric)
     assert experiment.metrics[1].name == 'Sales'
     assert experiment.client == '678'
+    assert experiment.linear_constraints
+    assert experiment.linear_constraints[0]
+    assert experiment.linear_constraints[0].type == 'greater_than'
+    assert experiment.linear_constraints[0].threshold == 5
+    assert experiment.linear_constraints[0].terms
+    assert experiment.linear_constraints[0].terms[0].name == 'a'
+    assert experiment.linear_constraints[0].terms[0].weight == 2
     assert experiment.conditionals
     assert experiment.conditionals[0]
     assert experiment.conditionals[0].name == 'num_hidden_layers'

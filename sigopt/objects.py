@@ -283,10 +283,22 @@ class Suggestion(ApiObject):
   state = Field(six.text_type)
 
 
+class ConstraintTerm(ApiObject):
+  name = Field(six.text_type)
+  weight = Field(float)
+
+
+class LinearConstraint(ApiObject):
+  terms = Field(ListOf(ConstraintTerm))
+  threshold = Field(float)
+  type = Field(six.text_type)
+
+
 class Experiment(ApiObject):
   can_be_deleted = DeprecatedField(bool)
   client = Field(six.text_type)
   conditionals = Field(ListOf(Conditional))
+  linear_constraints = Field(ListOf(LinearConstraint))
   created = Field(int)
   development = Field(bool)
   folds = Field(int)
