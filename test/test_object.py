@@ -87,6 +87,11 @@ class TestObjects(object):
         }],
         'threshold': 5,
       }],
+      'conditionals': [{
+        'object': 'conditional',
+        'name': 'num_hidden_layers',
+        'values': ['1', '3'],
+      }],
       'metrics': [
         {
           'object': 'metric',
@@ -197,6 +202,9 @@ class TestObjects(object):
           'categorical_values': None,
           'precision': 3,
           'default_value': 2,
+          'conditions': {
+            "num_hidden_layers": [],
+          },
         },
         {
           'object': 'parameter',
@@ -209,6 +217,9 @@ class TestObjects(object):
           ],
           'precision': None,
           'default_value': None,
+          'conditions': {
+            "num_hidden_layers": ['1', '3'],
+          },
         },
       ],
       'metadata': {
@@ -234,6 +245,10 @@ class TestObjects(object):
     assert experiment.linear_constraints[0].terms
     assert experiment.linear_constraints[0].terms[0].name == 'a'
     assert experiment.linear_constraints[0].terms[0].weight == 2
+    assert experiment.conditionals
+    assert experiment.conditionals[0]
+    assert experiment.conditionals[0].name == 'num_hidden_layers'
+    assert experiment.conditionals[0].values == ['1', '3']
     assert isinstance(experiment.progress, Progress)
     assert experiment.progress.observation_count == 3
     assert isinstance(experiment.progress.first_observation, Observation)
@@ -294,6 +309,8 @@ class TestObjects(object):
     assert experiment.parameters[0].categorical_values is None
     assert experiment.parameters[0].precision == 3
     assert experiment.parameters[0].default_value == 2
+    assert isinstance(experiment.parameters[0].conditions, Conditions)
+    assert experiment.parameters[0].conditions['num_hidden_layers'] == []
     assert isinstance(experiment.parameters[1], Parameter)
     assert experiment.parameters[1].name == 'b'
     assert experiment.parameters[1].type == 'categorical'
@@ -306,6 +323,8 @@ class TestObjects(object):
     assert experiment.parameters[1].categorical_values[1].enum_index == 2
     assert experiment.parameters[1].precision is None
     assert experiment.parameters[1].default_value is None
+    assert isinstance(experiment.parameters[1].conditions, Conditions)
+    assert experiment.parameters[1].conditions['num_hidden_layers'] == ['1', '3']
     assert isinstance(experiment.metadata, Metadata)
     assert experiment.metadata['abc'] == 'def'
     assert experiment.metadata['ghi'] == 123
