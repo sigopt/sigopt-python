@@ -310,6 +310,7 @@ class Experiment(ApiObject):
   num_solutions = Field(int)
   observation_budget = Field(int)
   parameters = Field(ListOf(Parameter))
+  parallel_bandwidth = Field(int)
   progress = Field(Progress)
   state = Field(six.text_type)
   type = Field(six.text_type)
