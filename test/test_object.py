@@ -399,7 +399,8 @@ class TestObjects(object):
       'state': 'open',
       'experiment': '1',
       'created': 123,
-      'fold_index': 2,
+      'progress_index': 2,
+      'reference': '101',
       'metadata': {
         'abc': 'def',
         'ghi': 123,
@@ -416,7 +417,8 @@ class TestObjects(object):
     assert isinstance(suggestion.metadata, Metadata)
     assert suggestion.metadata['abc'] == 'def'
     assert suggestion.metadata['ghi'] == 123
-    assert suggestion.fold_index == 2
+    assert suggestion.progress_index == 2
+    assert suggestion.reference == '101'
 
   def test_pagination(self):
     experiment = Experiment({'object': 'experiment'})

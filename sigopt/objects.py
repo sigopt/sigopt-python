@@ -276,10 +276,12 @@ class Suggestion(ApiObject):
   assignments = Field(Assignments)
   created = Field(int)
   experiment = Field(six.text_type)
-  fold = Field(six.text_type)
-  fold_index = Field(int)
+  fold = DeprecatedField(six.text_type, recommendation='Prefer the `reference` entry')
+  fold_index = DeprecatedField(int, recommendation='Prefer the `progress_index` entry')
   id = Field(six.text_type)
   metadata = Field(Metadata)
+  progress_index = Field(int)
+  reference = Field(six.text_type)
   state = Field(six.text_type)
 
 
@@ -301,7 +303,7 @@ class Experiment(ApiObject):
   linear_constraints = Field(ListOf(LinearConstraint))
   created = Field(int)
   development = Field(bool)
-  folds = Field(int)
+  folds = DeprecatedField(int, recommendation='Prefer the `suggestion_duration` entry')
   id = Field(six.text_type)
   metadata = Field(Metadata)
   metric = Field(Metric)
