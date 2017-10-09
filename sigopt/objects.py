@@ -313,6 +313,7 @@ class Experiment(ApiObject):
   parallel_bandwidth = Field(int)
   progress = Field(Progress)
   state = Field(six.text_type)
+  suggestion_duration = Field(int)
   type = Field(six.text_type)
 
 

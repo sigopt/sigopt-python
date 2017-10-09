@@ -77,6 +77,8 @@ class TestObjects(object):
       'name': 'Test Experiment',
       'type': 'cross_validated',
       'folds': 10,
+      'suggestion_duration': 10,
+      'parallel_bandwidth': 2,
       'created': 321,
       'state': 'active',
       'linear_constraints': [{
@@ -328,7 +330,8 @@ class TestObjects(object):
     assert isinstance(experiment.metadata, Metadata)
     assert experiment.metadata['abc'] == 'def'
     assert experiment.metadata['ghi'] == 123
-    assert experiment.folds == 10
+    assert experiment.folds == experiment.suggestion_duration == 10
+    assert experiment.parallel_bandwidth == 2
 
     with warnings.catch_warnings(record=True) as w:
       assert experiment.can_be_deleted is None
