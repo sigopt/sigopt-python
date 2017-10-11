@@ -421,7 +421,7 @@ class TestObjects(object):
     assert suggestion.metadata['abc'] == 'def'
     assert suggestion.metadata['ghi'] == 123
     assert suggestion.fold == '102'
-    assert suggestion.fold_index == 2
+    assert suggestion.fold_index == 3
     assert suggestion.progress_index == 2
     assert suggestion.reference == '101'
 
