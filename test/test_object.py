@@ -77,7 +77,7 @@ class TestObjects(object):
       'name': 'Test Experiment',
       'type': 'cross_validated',
       'folds': 10,
-      'suggestion_duration': 10,
+      'suggestion_duration': 9,
       'parallel_bandwidth': 2,
       'created': 321,
       'state': 'active',
@@ -330,7 +330,8 @@ class TestObjects(object):
     assert isinstance(experiment.metadata, Metadata)
     assert experiment.metadata['abc'] == 'def'
     assert experiment.metadata['ghi'] == 123
-    assert experiment.folds == experiment.suggestion_duration == 10
+    assert experiment.folds == 10
+    assert experiment.suggestion_duration == 9
     assert experiment.parallel_bandwidth == 2
 
     with warnings.catch_warnings(record=True) as w:
@@ -399,8 +400,10 @@ class TestObjects(object):
       'state': 'open',
       'experiment': '1',
       'created': 123,
+      'fold_index': 3,
       'progress_index': 2,
       'reference': '101',
+      'fold': '102',
       'metadata': {
         'abc': 'def',
         'ghi': 123,
@@ -417,6 +420,8 @@ class TestObjects(object):
     assert isinstance(suggestion.metadata, Metadata)
     assert suggestion.metadata['abc'] == 'def'
     assert suggestion.metadata['ghi'] == 123
+    assert suggestion.fold == '102'
+    assert suggestion.fold_index == 2
     assert suggestion.progress_index == 2
     assert suggestion.reference == '101'
 
