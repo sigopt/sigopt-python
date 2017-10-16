@@ -274,14 +274,14 @@ class Progress(ApiObject):
 
 class Suggestion(ApiObject):
   assignments = Field(Assignments)
+  checkpoint_index = Field(int)
   created = Field(int)
   experiment = Field(six.text_type)
-  fold = Field(six.text_type)
+  fold = DeprecatedField(six.text_type, recommendation='Prefer the `reference_id` endpoint')
   fold_index = Field(int)
   id = Field(six.text_type)
   metadata = Field(Metadata)
-  progress_index = Field(int)
-  reference = Field(six.text_type)
+  reference_id = Field(six.text_type)
   state = Field(six.text_type)
 
 
@@ -305,6 +305,7 @@ class Experiment(ApiObject):
   development = Field(bool)
   folds = Field(int)
   id = Field(six.text_type)
+  max_checkpoints = Field(int)
   metadata = Field(Metadata)
   metric = Field(Metric)
   metrics = Field(ListOf(Metric))
@@ -315,7 +316,6 @@ class Experiment(ApiObject):
   parallel_bandwidth = Field(int)
   progress = Field(Progress)
   state = Field(six.text_type)
-  suggestion_duration = Field(int)
   type = Field(six.text_type)
 
 
