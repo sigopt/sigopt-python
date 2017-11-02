@@ -77,6 +77,8 @@ class TestObjects(object):
       'name': 'Test Experiment',
       'type': 'cross_validated',
       'folds': 10,
+      'max_checkpoints': 9,
+      'parallel_bandwidth': 2,
       'created': 321,
       'state': 'active',
       'linear_constraints': [{
@@ -329,6 +331,8 @@ class TestObjects(object):
     assert experiment.metadata['abc'] == 'def'
     assert experiment.metadata['ghi'] == 123
     assert experiment.folds == 10
+    assert experiment.max_checkpoints == 9
+    assert experiment.parallel_bandwidth == 2
 
     with warnings.catch_warnings(record=True) as w:
       assert experiment.can_be_deleted is None
@@ -396,7 +400,10 @@ class TestObjects(object):
       'state': 'open',
       'experiment': '1',
       'created': 123,
-      'fold_index': 2,
+      'fold_index': 3,
+      'checkpoint_index': 2,
+      'reference_id': '101',
+      'fold': '102',
       'metadata': {
         'abc': 'def',
         'ghi': 123,
@@ -413,7 +420,10 @@ class TestObjects(object):
     assert isinstance(suggestion.metadata, Metadata)
     assert suggestion.metadata['abc'] == 'def'
     assert suggestion.metadata['ghi'] == 123
-    assert suggestion.fold_index == 2
+    assert suggestion.fold == '102'
+    assert suggestion.fold_index == 3
+    assert suggestion.checkpoint_index == 2
+    assert suggestion.reference_id == '101'
 
   def test_pagination(self):
     experiment = Experiment({'object': 'experiment'})
