@@ -13,6 +13,7 @@ class Requestor(object):
     self.default_headers = headers or {}
     self.verify_ssl_certs = verify_ssl_certs
     self.proxies = proxies
+    self._session = requests.Session()
 
   def get(self, url, params=None, json=None, headers=None):
     return self._request('get', url=url, params=params, json=json, headers=headers)
@@ -29,7 +30,7 @@ class Requestor(object):
   def _request(self, method, url, params=None, json=None, headers=None):
     headers = self._with_default_headers(headers)
     try:
-      response = requests.request(
+      response = self._session.request(
         method=method,
         url=url,
         params=params,
