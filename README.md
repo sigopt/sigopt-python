@@ -12,7 +12,7 @@ Take a look in `examples` for example usage.
 Install the sigopt python modules with `pip install sigopt`.
 
 Sign up for an account at [https://sigopt.com](https://sigopt.com).
-In order to use the API, you'll need your API token from the [API tokens page](https://sigopt.com/tokens/info).
+In order to use the API, you'll need your API token from the [API tokens page](https://sigopt.com/tokens).
 
 To call the API, instantiate a connection with your token.
 

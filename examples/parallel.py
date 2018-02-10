@@ -39,7 +39,7 @@ class ExampleRunner(threading.Thread):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--runner_count', type=int, default=2)
-  parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/tokens/info")
+  parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/tokens")
   the_args = parser.parse_args()
 
   client_token = the_args.client_token
