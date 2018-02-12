@@ -19,9 +19,9 @@ from .resource import ApiResource
 from .version import VERSION
 
 class ConnectionImpl(object):
-  def __init__(self, requestor):
+  def __init__(self, requestor, api_url=None):
     self.requestor = requestor
-    self.api_url = DEFAULT_API_URL
+    self.api_url = api_url or DEFAULT_API_URL
 
     suggestions = ApiResource(
       self,
@@ -176,6 +176,7 @@ class Connection(object):
   """
   def __init__(self, client_token=None, user_agent=None):
     client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
+    api_url = os.environ.get('SIGOPT_API_URL') or DEFAULT_API_URL
     if not client_token:
       raise ValueError('Must provide client_token or set environment variable SIGOPT_API_TOKEN')
 
@@ -189,7 +190,7 @@ class Connection(object):
       '',
       default_headers,
     )
-    self.impl = ConnectionImpl(requestor)
+    self.impl = ConnectionImpl(requestor, api_url=api_url)
 
   def set_api_url(self, api_url):
     self.impl.set_api_url(api_url)
