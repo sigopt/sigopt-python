@@ -23,6 +23,11 @@ class TestInterface(object):
     conn.set_api_url('https://api-test.sigopt.com')
     assert conn.impl.api_url == 'https://api-test.sigopt.com'
 
+  def test_api_url_env(self):
+    with mock.patch.dict(os.environ, {'SIGOPT_API_URL': 'https://api-env.sigopt.com'}):
+      conn = Connection('client_token')
+      assert conn.impl.api_url == 'https://api-env.sigopt.com'
+
   def test_verify(self):
     conn = Connection('client_token')
     conn.set_verify_ssl_certs(False)
