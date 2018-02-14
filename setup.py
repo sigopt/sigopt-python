@@ -1,5 +1,15 @@
+import sys
+import warnings
+
 from setuptools import setup
 from sigopt.version import VERSION
+
+if sys.version_info < (2, 7):
+  warnings.warn(
+    'Python 2.6 is no longer supported.'
+    ' Please upgrade to Python 2.7 or use version 2 of the sigopt-python client.',
+    DeprecationWarning
+  )
 
 # keep this in sync with requirements.txt
 install_requires = ['requests>=2.11.1']
