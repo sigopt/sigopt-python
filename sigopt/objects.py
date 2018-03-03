@@ -307,7 +307,6 @@ class Experiment(ApiObject):
   id = Field(six.text_type)
   max_checkpoints = Field(int)
   metadata = Field(Metadata)
-  metric = Field(Metric)
   metrics = Field(ListOf(Metric))
   name = Field(six.text_type)
   num_solutions = Field(int)
