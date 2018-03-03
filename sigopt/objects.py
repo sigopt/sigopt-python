@@ -307,6 +307,7 @@ class Experiment(ApiObject):
   id = Field(six.text_type)
   max_checkpoints = Field(int)
   metadata = Field(Metadata)
+  metric = DeprecatedField(Metric, recommendation='Prefer the first item of the `metrics` field'))
   metrics = Field(ListOf(Metric))
   name = Field(six.text_type)
   num_solutions = Field(int)
