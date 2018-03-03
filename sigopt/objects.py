@@ -277,7 +277,7 @@ class Suggestion(ApiObject):
   checkpoint_index = Field(int)
   created = Field(int)
   experiment = Field(six.text_type)
-  fold = DeprecatedField(six.text_type, recommendation='Prefer the `reference_id` endpoint')
+  fold = DeprecatedField(six.text_type, recommendation='Prefer the `reference_id` field')
   fold_index = Field(int)
   id = Field(six.text_type)
   metadata = Field(Metadata)
