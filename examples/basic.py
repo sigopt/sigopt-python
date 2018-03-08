@@ -10,7 +10,7 @@ def evaluate_metric(assignments):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--observation_budget', type=int, default=20)
-  parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/user/profile")
+  parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/tokens")
   the_args = parser.parse_args()
 
   connection = Connection(client_token=the_args.client_token)
