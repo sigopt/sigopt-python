@@ -11,10 +11,7 @@ class TestEndpoint(object):
     response = mock.Mock()
     response.status_code = 200
     response.json = mock.Mock(return_value={})
-    requestor.get = mock.Mock(return_value=response)
-    requestor.post = mock.Mock(return_value=response)
-    requestor.put = mock.Mock(return_value=response)
-    requestor.delete = mock.Mock(return_value=response)
+    requestor.request = mock.Mock(return_value=response)
     return requestor
 
   @pytest.fixture
@@ -23,11 +20,12 @@ class TestEndpoint(object):
 
   def assert_called(self, requestor, connection, method, url, params=None):
     params = params or {}
-    if method in ('put', 'post'):
-      kwargs = {'json': params}
+    if method in ('get', 'delete'):
+      kwargs = {'params': params, 'json': None}
     else:
-      kwargs = {'params': params}
-    getattr(requestor, method).assert_called_once_with(
+      kwargs = {'json': params, 'params': None}
+    requestor.request.assert_called_once_with(
+      method.upper(),
       'https://api.sigopt.com/v1' + url,
       **kwargs
     )

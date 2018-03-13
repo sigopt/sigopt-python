@@ -116,33 +116,29 @@ class ConnectionImpl(object):
       ],
     )
 
-  def _get(self, url, params=None):
-    request_params = self._request_params(params)
-    return self.requestor.get(
+  def _request(self, method, url, params):
+    if method.upper() in ('GET', 'DELETE'):
+      json, params = None, self._request_params(params)
+    else:
+      json, params = ApiObject.as_json(params), None
+    return self.requestor.request(
+      method,
       url,
-      params=request_params,
+      json=json,
+      params=params,
     )
+
+  def _get(self, url, params=None):
+    return self._request('GET', url, params)
 
   def _post(self, url, params=None):
-    request_params = ApiObject.as_json(params)
-    return self.requestor.post(
-      url,
-      json=request_params,
-    )
+    return self._request('POST', url, params)
 
   def _put(self, url, params=None):
-    request_params = ApiObject.as_json(params)
-    return self.requestor.put(
-      url,
-      json=request_params,
-    )
+    return self._request('PUT', url, params)
 
   def _delete(self, url, params=None):
-    request_params = ApiObject.as_json(params)
-    return self.requestor.delete(
-      url,
-      params=request_params,
-    )
+    return self._request('DELETE', url, params)
 
   def _request_params(self, params):
     req_params = params or {}

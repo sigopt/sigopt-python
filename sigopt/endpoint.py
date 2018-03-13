@@ -14,17 +14,7 @@ class BoundApiEndpoint(object):
     conn = self._bound_resource._resource._conn
     raw_response = None
 
-    call = None
-    if self._endpoint._method == 'GET':
-      call = conn._get
-    elif self._endpoint._method == 'POST':
-      call = conn._post
-    elif self._endpoint._method == 'PUT':
-      call = conn._put
-    elif self._endpoint._method == 'DELETE':
-      call = conn._delete
-
-    raw_response = call(url, params)
+    raw_response = conn._request(self._endpoint._method, url, params)
 
     if self._endpoint._response_cls is not None:
       return self._endpoint._response_cls(raw_response, self, params)
