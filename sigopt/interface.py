@@ -1,6 +1,6 @@
 import os
 
-from .compat import json
+from .compat import json as simplejson
 from .endpoint import ApiEndpoint
 from .objects import (
   ApiObject,
@@ -145,7 +145,7 @@ class ConnectionImpl(object):
 
     def serialize(value):
       if isinstance(value, dict) or isinstance(value, list):
-        return json.dumps(value)
+        return simplejson.dumps(value)
       return str(value)
 
     return dict((
