@@ -76,7 +76,7 @@ class BaseApiObject(object):
         ApiObject.as_json(self._body),
         indent=2,
         sort_keys=True,
-        separators=(',',': '),
+        separators=(',', ': '),
       ),
     )
 
@@ -108,8 +108,7 @@ class ApiObject(BaseApiObject):
       return c
     elif isinstance(obj, list):
       return [ApiObject.as_json(c) for c in obj]
-    else:
-      return obj
+    return obj
 
 
 class _DictWrapper(BaseApiObject, dict):
@@ -211,6 +210,7 @@ class Pagination(ApiObject):
     return Field(ListOf(self.data_cls))(self._body.get('data'))
 
   def iterate_pages(self):
+    # pylint: disable=no-member
     data = self.data
     paging = self.paging or Paging({})
     use_before = bool(paging.before)
@@ -229,6 +229,7 @@ class Pagination(ApiObject):
       else:
         data = []
         paging = None
+    # pylint: enable=no-member
 
 
 class Parameter(ApiObject):

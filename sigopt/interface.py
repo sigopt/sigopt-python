@@ -148,7 +148,7 @@ class ConnectionImpl(object):
     req_params = params or {}
 
     def serialize(value):
-      if isinstance(value, dict) or isinstance(value, list):
+      if isinstance(value, (dict, list)):
         return json.dumps(value)
       return str(value)
 
@@ -216,6 +216,5 @@ def object_or_paginated_objects(api_object):
   def decorator(body, *args, **kwargs):
     if body.get('object') == 'pagination':
       return Pagination(api_object, body, *args, **kwargs)
-    else:
-      return api_object(body, *args, **kwargs)
+    return api_object(body, *args, **kwargs)
   return decorator
