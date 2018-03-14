@@ -165,6 +165,14 @@ class Conditions(_DictWrapper):
   pass
 
 
+class ImportancesMap(_DictWrapper):
+  pass
+
+
+class Importances(ApiObject):
+  importances = Field(ImportancesMap)
+
+
 class Metadata(_DictWrapper):
   pass
 
