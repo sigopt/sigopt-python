@@ -7,6 +7,7 @@ from .objects import (
   BestAssignments,
   Client,
   Experiment,
+  Importances,
   Observation,
   Pagination,
   Plan,
@@ -69,6 +70,14 @@ class ConnectionImpl(object):
       ],
     )
 
+    importances = ApiResource(
+      self,
+      'importances',
+      endpoints=[
+        ApiEndpoint(None, Importances, 'GET', 'fetch'),
+      ],
+    )
+
     stopping_criteria = ApiResource(
       self,
       'stopping_criteria',
@@ -87,11 +96,12 @@ class ConnectionImpl(object):
         ApiEndpoint(None, None, 'DELETE', 'delete'),
       ],
       resources=[
-        suggestions,
-        observations,
-        tokens,
         best_assignments,
+        importances,
+        observations,
         stopping_criteria,
+        suggestions,
+        tokens,
       ]
     )
 
