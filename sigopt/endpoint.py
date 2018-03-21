@@ -18,8 +18,7 @@ class BoundApiEndpoint(object):
 
     if self._endpoint._response_cls is not None:
       return self._endpoint._response_cls(raw_response, self, params)
-    else:
-      return None
+    return None
 
   def __call__(self, **kwargs):
     return self.call_with_params(kwargs)

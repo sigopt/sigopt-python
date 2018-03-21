@@ -7,6 +7,7 @@ from .objects import (
   BestAssignments,
   Client,
   Experiment,
+  Importances,
   Observation,
   Pagination,
   Plan,
@@ -69,6 +70,14 @@ class ConnectionImpl(object):
       ],
     )
 
+    importances = ApiResource(
+      self,
+      'importances',
+      endpoints=[
+        ApiEndpoint(None, Importances, 'GET', 'fetch'),
+      ],
+    )
+
     stopping_criteria = ApiResource(
       self,
       'stopping_criteria',
@@ -87,11 +96,12 @@ class ConnectionImpl(object):
         ApiEndpoint(None, None, 'DELETE', 'delete'),
       ],
       resources=[
-        suggestions,
-        observations,
-        tokens,
         best_assignments,
+        importances,
+        observations,
         stopping_criteria,
+        suggestions,
+        tokens,
       ]
     )
 
@@ -144,7 +154,7 @@ class ConnectionImpl(object):
     req_params = params or {}
 
     def serialize(value):
-      if isinstance(value, dict) or isinstance(value, list):
+      if isinstance(value, (dict, list)):
         return simplejson.dumps(value)
       return str(value)
 
@@ -212,6 +222,5 @@ def object_or_paginated_objects(api_object):
   def decorator(body, *args, **kwargs):
     if body.get('object') == 'pagination':
       return Pagination(api_object, body, *args, **kwargs)
-    else:
-      return api_object(body, *args, **kwargs)
+    return api_object(body, *args, **kwargs)
   return decorator

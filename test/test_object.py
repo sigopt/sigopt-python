@@ -510,3 +510,16 @@ class TestObjects(object):
     assert isinstance(metric, Metric)
     assert metric.name == 'Test'
     assert metric.value_baseline == 0.4
+
+  def test_importances(self):
+    importances = Importances({
+      'importances': {
+        'a': 0.92,
+        'b': 0.03,
+      }
+    })
+
+    assert isinstance(importances, Importances)
+    assert isinstance(importances.importances, ImportancesMap)
+    assert importances.importances['a'] == 0.92
+    assert importances.importances['b'] == 0.03
