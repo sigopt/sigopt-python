@@ -1,5 +1,6 @@
 import requests
 
+from .compat import json as simplejson
 from .exception import ApiException, ConnectionException
 
 DEFAULT_API_URL = 'https://api.sigopt.com'
@@ -56,12 +57,16 @@ class Requestor(object):
     return headers
 
   def _handle_response(self, response):
-    try:
-      response_json = response.json()
-    except ValueError:
-      raise ApiException({'message': response.text}, response.status_code)
+    status_code = response.status_code
+    is_success = 200 <= status_code <= 299
 
-    if 200 <= response.status_code <= 299:
+    try:
+      response_json = simplejson.loads(response.text)
+    except ValueError:
+      response_json = {'message': response.text}
+      status_code = 500 if is_success else status_code
+
+    if is_success:
       return response_json
     else:
-      raise ApiException(response_json, response.status_code)
+      raise ApiException(response_json, status_code)
