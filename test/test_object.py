@@ -229,7 +229,7 @@ class TestObjects(object):
         'ghi': 123,
       },
       'updated': 453,
-      'user': 789,
+      'user': '789',
     })
 
   def test_experiment(self, experiment):
@@ -336,7 +336,7 @@ class TestObjects(object):
     assert experiment.max_checkpoints == 9
     assert experiment.parallel_bandwidth == 2
     assert experiment.updated == 453
-    assert experiment.user == 789
+    assert experiment.user == '789'
 
     with warnings.catch_warnings(record=True) as w:
       assert experiment.can_be_deleted is None

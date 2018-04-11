@@ -330,7 +330,7 @@ class Experiment(ApiObject):
   state = Field(six.text_type)
   type = Field(six.text_type)
   updated = Field(int)
-  user = Field(int)
+  user = Field(six.text_type)
 
 
 class Token(ApiObject):
