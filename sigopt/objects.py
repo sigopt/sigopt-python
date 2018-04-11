@@ -329,6 +329,8 @@ class Experiment(ApiObject):
   progress = Field(Progress)
   state = Field(six.text_type)
   type = Field(six.text_type)
+  updated = Field(int)
+  user = Field(int)
 
 
 class Token(ApiObject):
