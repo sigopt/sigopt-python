@@ -39,5 +39,6 @@ class TestInterface(object):
     assert conn.impl.requestor.proxies['http'] == 'http://127.0.0.1:6543'
 
   def test_error(self):
-    with pytest.raises(ValueError):
-      Connection()
+    with mock.patch.dict(os.environ, {'SIGOPT_API_TOKEN': ''}):
+      with pytest.raises(ValueError):
+        Connection()
