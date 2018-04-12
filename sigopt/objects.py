@@ -309,11 +309,11 @@ class Experiment(ApiObject):
   can_be_deleted = DeprecatedField(bool)
   client = Field(six.text_type)
   conditionals = Field(ListOf(Conditional))
-  linear_constraints = Field(ListOf(LinearConstraint))
   created = Field(int)
   development = Field(bool)
   folds = Field(int)
   id = Field(six.text_type)
+  linear_constraints = Field(ListOf(LinearConstraint))
   max_checkpoints = Field(int)
   metadata = Field(Metadata)
   metric = DeprecatedField(
@@ -329,6 +329,8 @@ class Experiment(ApiObject):
   progress = Field(Progress)
   state = Field(six.text_type)
   type = Field(six.text_type)
+  updated = Field(int)
+  user = Field(six.text_type)
 
 
 class Token(ApiObject):
