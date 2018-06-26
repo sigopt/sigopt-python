@@ -200,6 +200,13 @@ class Observation(ApiObject):
   values = Field(ListOf(MetricEvaluation))
 
 
+class Organization(ApiObject):
+  created = Field(int)
+  deleted = Field(bool)
+  id = Field(str)
+  name = Field(str)
+
+
 class Paging(ApiObject):
   after = Field(six.text_type)
   before = Field(six.text_type)

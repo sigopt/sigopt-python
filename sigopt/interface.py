@@ -9,6 +9,7 @@ from .objects import (
   Experiment,
   Importances,
   Observation,
+  Organization,
   Pagination,
   Plan,
   Suggestion,
@@ -32,7 +33,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, object_or_paginated_objects(Suggestion), 'GET', 'fetch'),
         ApiEndpoint(None, Suggestion, 'PUT', 'update'),
         ApiEndpoint(None, None, 'DELETE', 'delete'),
-      ]
+      ],
     )
 
     observations = ApiResource(
@@ -43,7 +44,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
         ApiEndpoint(None, Observation, 'PUT', 'update'),
         ApiEndpoint(None, None, 'DELETE', 'delete'),
-      ]
+      ],
     )
 
     plan = ApiResource(
@@ -102,7 +103,7 @@ class ConnectionImpl(object):
         stopping_criteria,
         suggestions,
         tokens,
-      ]
+      ],
     )
 
     client_experiments = ApiResource(
@@ -123,6 +124,14 @@ class ConnectionImpl(object):
       resources=[
         client_experiments,
         plan,
+      ],
+    )
+
+    self.organizations = ApiResource(
+      self,
+      'organizations',
+      endpoints=[
+        ApiEndpoint(None, object_or_paginated_objects(Organization), 'GET', 'fetch'),
       ],
     )
 
@@ -214,6 +223,10 @@ class Connection(object):
   @property
   def experiments(self):
     return self.impl.experiments
+
+  @property
+  def organizations(self):
+    return self.impl.organizations
 
 
 # Allows response to be a single object of class some_class or a paginated
