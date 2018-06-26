@@ -527,3 +527,16 @@ class TestObjects(object):
     assert isinstance(importances.importances, ImportancesMap)
     assert importances.importances['a'] == 0.92
     assert importances.importances['b'] == 0.03
+
+  def test_organization(self):
+    organization = Organization({
+      "created": 123456,
+      "id": "7890",
+      "name": "SigOpt",
+      "object": "organization",
+    })
+
+    assert isinstance(organization, Organization)
+    assert organization.created == 123456
+    assert organization.id == "7890"
+    assert organization.name == "SigOpt"

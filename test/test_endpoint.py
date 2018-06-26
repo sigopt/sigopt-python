@@ -161,3 +161,11 @@ class TestEndpoint(object):
   def test_call_with_params_params(self, requestor, connection):
     connection.experiments(1).tokens().create.call_with_params({'value': 5})
     self.assert_called(requestor, connection, 'post', '/experiments/1/tokens', {'value': 5})
+
+  def test_organizations_list(self, requestor, connection):
+    connection.organizations().fetch()
+    self.assert_called(requestor, connection, 'get', '/organizations')
+
+  def test_organization_details(self, requestor, connection):
+    connection.organizations(1).fetch()
+    self.assert_called(requestor, connection, 'get', '/organizations/1')
