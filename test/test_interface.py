@@ -3,6 +3,7 @@ import pytest
 import mock
 
 from sigopt.interface import Connection
+from sigopt.requestor import DEFAULT_HTTP_TIMEOUT
 from sigopt.resource import ApiResource
 
 class TestInterface(object):
@@ -11,6 +12,7 @@ class TestInterface(object):
     assert conn.impl.api_url == 'https://api.sigopt.com'
     assert conn.impl.requestor.verify_ssl_certs is True
     assert conn.impl.requestor.proxies is None
+    assert conn.impl.requestor.timeout == DEFAULT_HTTP_TIMEOUT
     assert isinstance(conn.clients, ApiResource)
     assert isinstance(conn.experiments, ApiResource)
 
@@ -42,3 +44,8 @@ class TestInterface(object):
     with mock.patch.dict(os.environ, {'SIGOPT_API_TOKEN': ''}):
       with pytest.raises(ValueError):
         Connection()
+
+  def test_timeout(self):
+    conn = Connection('client_token')
+    conn.set_timeout(30)
+    assert conn.impl.requestor.timeout == 30

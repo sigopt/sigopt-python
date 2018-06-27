@@ -183,6 +183,9 @@ class ConnectionImpl(object):
   def set_proxies(self, proxies):
     self.requestor.proxies = proxies
 
+  def set_timeout(self, timeout):
+    self.requestor.timeout = timeout
+
 
 class Connection(object):
   """
@@ -215,6 +218,9 @@ class Connection(object):
 
   def set_proxies(self, proxies):
     self.impl.set_proxies(proxies)
+
+  def set_timeout(self, timeout):
+    self.impl.set_timeout(timeout)
 
   @property
   def clients(self):
