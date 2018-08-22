@@ -101,12 +101,12 @@ class ApiObject(BaseApiObject):
   def as_json(obj):
     if isinstance(obj, BaseApiObject):
       return obj.to_json()
-    elif isinstance(obj, dict):
+    if isinstance(obj, dict):
       c = {}
       for key in obj:
         c[key] = ApiObject.as_json(obj[key])
       return c
-    elif isinstance(obj, list):
+    if isinstance(obj, list):
       return [ApiObject.as_json(c) for c in obj]
     return obj
 
