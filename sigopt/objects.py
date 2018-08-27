@@ -179,6 +179,7 @@ class MetricImportances(ApiObject):
 
 class Importances(ApiObject):
   metric_importances = Field(ListOf(MetricImportances))
+  importances = DeprecatedField(ImportancesMap)
 
 
 class Metadata(_DictWrapper):
