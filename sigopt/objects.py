@@ -173,7 +173,7 @@ class ImportancesMap(_DictWrapper):
   pass
 
 
-class MetricImportances(_DictWrapper):
+class MetricImportances(ApiObject):
   importances = Field(ImportancesMap)
 
 

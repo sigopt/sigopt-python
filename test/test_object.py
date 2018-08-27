@@ -542,7 +542,7 @@ class TestObjects(object):
     values = [[0.92, 0.65, 0.03], [0.48, 0.33, 0.01]]
     importances = Importances({
       'metric_importances': [
-        MetricImportances({
+        {
           'object': 'importances',
           'metric': 'metric1',
           'importances': {
@@ -550,8 +550,8 @@ class TestObjects(object):
             'parameter_2': 0.65,
             'parameter_3': 0.03,
            }
-        }),
-        MetricImportances({
+        },
+        {
           'object': 'importances',
           'metric': 'metric2',
           'importances': {
@@ -559,7 +559,7 @@ class TestObjects(object):
             'parameter_2': 0.33,
             'parameter_3': 0.01,
            }
-        })
+        }
       ]
     })
 
