@@ -539,17 +539,37 @@ class TestObjects(object):
     assert metric.value_baseline == 0.4
 
   def test_importances(self):
+    values = [[0.92, 0.65, 0.03], [0.48, 0.33, 0.01]]
     importances = Importances({
-      'importances': {
-        'a': 0.92,
-        'b': 0.03,
-      }
+      "metric_importances": [
+        MetricImportances({
+          "object": "importances",
+          "metric": "metric1",
+          "importances": {
+            "parameter_1": 0.92,
+            "parameter_2": 0.65,
+            "parameter_3": 0.03,
+           }
+        }),
+        MetricImportances({
+          "object": "importances",
+          "metric": "metric2",
+          "importances": {
+            "parameter_1": 0.48,
+            "parameter_2": 0.33,
+            "parameter_3": 0.01,
+           }
+        })
+      ]
     })
 
     assert isinstance(importances, Importances)
-    assert isinstance(importances.importances, ImportancesMap)
-    assert importances.importances['a'] == 0.92
-    assert importances.importances['b'] == 0.03
+    for i in range(2):
+      assert isinstance(importances.metric_importances[i], MetricImportances)
+      assert isinstance(importances.metric_importances[i].importances, ImportancesMap)
+      assert importances.metric_importances[i].importances['parameter_1'] == values[i][0]
+      assert importances.metric_importances[i].importances['parameter_2'] == values[i][1]
+      assert importances.metric_importances[i].importances['parameter_3'] == values[i][2]
 
   def test_organization(self):
     organization = Organization({
