@@ -173,13 +173,9 @@ class ImportancesMap(_DictWrapper):
   pass
 
 
-class MetricImportances(ApiObject):
-  importances = Field(ImportancesMap)
-
-
 class Importances(ApiObject):
-  metric_importances = Field(ListOf(MetricImportances))
-  importances = DeprecatedField(ImportancesMap)
+  importances = Field(ImportancesMap)
+  metric = Field(six.text_type)
 
 
 class Metadata(_DictWrapper):
