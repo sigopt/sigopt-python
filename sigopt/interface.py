@@ -75,7 +75,7 @@ class ConnectionImpl(object):
       self,
       'importances',
       endpoints=[
-        ApiEndpoint(None, Importances, 'GET', 'fetch'),
+        ApiEndpoint(None, lambda *args, **kwargs: Pagination(Importances, *args, **kwargs), 'GET', 'fetch'),
       ],
     )
 
