@@ -8,6 +8,7 @@ from .objects import (
   Client,
   Experiment,
   Importances,
+  MetricImportances,
   Observation,
   Organization,
   Pagination,
@@ -79,6 +80,14 @@ class ConnectionImpl(object):
       ],
     )
 
+    metric_importances = ApiResource(
+      self,
+      'metric_importances',
+      endpoints=[
+        ApiEndpoint(None, lambda *args, **kwargs: Pagination(MetricImportances, *args, **kwargs), 'GET', 'fetch'),
+      ],
+    )
+
     stopping_criteria = ApiResource(
       self,
       'stopping_criteria',
@@ -99,6 +108,7 @@ class ConnectionImpl(object):
       resources=[
         best_assignments,
         importances,
+        metric_importances,
         observations,
         stopping_criteria,
         suggestions,

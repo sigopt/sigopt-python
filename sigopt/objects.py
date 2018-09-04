@@ -177,6 +177,11 @@ class Importances(ApiObject):
   importances = Field(ImportancesMap)
 
 
+class MetricImportances(ApiObject):
+  importances = Field(ImportancesMap)
+  metric = Field(six.text_type)
+
+
 class Metadata(_DictWrapper):
   pass
 

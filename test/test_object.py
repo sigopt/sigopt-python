@@ -551,6 +551,23 @@ class TestObjects(object):
     assert importances.importances['a'] == 0.92
     assert importances.importances['b'] == 0.03
 
+  def test_metric_importances(self):
+    metric_importances = MetricImportances({
+      'object': 'metric_importances',
+      'metric': 'metric1',
+      'importances': ImportancesMap({
+        'parameter_1': 0.92,
+        'parameter_2': 0.65,
+        'parameter_3': 0.03,
+       })
+    })
+
+    assert isinstance(metric_importances, MetricImportances)
+    assert isinstance(metric_importances.importances, ImportancesMap)
+    assert metric_importances.importances['parameter_1'] == 0.92
+    assert metric_importances.importances['parameter_2'] == 0.65
+    assert metric_importances.importances['parameter_3'] == 0.03
+
   def test_organization(self):
     organization = Organization({
       "created": 123456,
