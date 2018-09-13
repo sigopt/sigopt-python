@@ -21,4 +21,4 @@ install:
   - python setup.py install
 script:
   - make test
-  - [[ ! "$(python --version)" = "Python 3.7."* ]] || (pip install pylint==2.1.1 && make lint)
+  - '[[ ! "$(python --version)" = "Python 3.7."* ]] || (pip install pylint==2.1.1 && make lint)'
