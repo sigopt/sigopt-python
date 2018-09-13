@@ -228,6 +228,18 @@ class TestObjects(object):
         'abc': 'def',
         'ghi': 123,
       },
+      'tasks': [
+        {
+          'cost': 0.567,
+          'name': 'task 1',
+          'object': 'task',
+        },
+        {
+          'cost': 1.0,
+          'name': 'task 2',
+          'object': 'task',
+        },
+      ],
       'updated': 453,
       'user': '789',
     })
@@ -354,6 +366,9 @@ class TestObjects(object):
       assert issubclass(w[0].category, DeprecationWarning)
       assert 'best_assignments' in str(w[0].message)
 
+    tasks_dict = {et.name: et.cost for et in experiment.tasks}
+    assert tasks_dict == {'task 1': 0.567, 'task 2': 1.0}
+
   def test_mutable_experiment(self, experiment):
     experiment.name = 'other name'
     assert experiment.name == 'other name'
@@ -412,6 +427,11 @@ class TestObjects(object):
         'abc': 'def',
         'ghi': 123,
       },
+      'task': {
+        'cost': 0.567,
+        'name': 'task 1',
+        'object': 'task',
+      },
     })
     assert isinstance(suggestion, Suggestion)
     assert suggestion.id == '1'
@@ -428,6 +448,9 @@ class TestObjects(object):
     assert suggestion.fold_index == 3
     assert suggestion.checkpoint_index == 2
     assert suggestion.reference_id == '101'
+    assert isinstance(suggestion.task, Task)
+    assert suggestion.task.name == 'task 1'
+    assert suggestion.task.cost == 0.567
 
   def test_pagination(self):
     experiment = Experiment({'object': 'experiment'})
@@ -527,3 +550,44 @@ class TestObjects(object):
     assert isinstance(importances.importances, ImportancesMap)
     assert importances.importances['a'] == 0.92
     assert importances.importances['b'] == 0.03
+
+  def test_metric_importances(self):
+    metric_importances = MetricImportances({
+      'object': 'metric_importances',
+      'metric': 'metric1',
+      'importances': ImportancesMap({
+        'parameter_1': 0.92,
+        'parameter_2': 0.65,
+        'parameter_3': 0.03,
+       })
+    })
+
+    assert isinstance(metric_importances, MetricImportances)
+    assert isinstance(metric_importances.importances, ImportancesMap)
+    assert metric_importances.importances['parameter_1'] == 0.92
+    assert metric_importances.importances['parameter_2'] == 0.65
+    assert metric_importances.importances['parameter_3'] == 0.03
+
+  def test_organization(self):
+    organization = Organization({
+      "created": 123456,
+      "id": "7890",
+      "name": "SigOpt",
+      "object": "organization",
+    })
+
+    assert isinstance(organization, Organization)
+    assert organization.created == 123456
+    assert organization.id == "7890"
+    assert organization.name == "SigOpt"
+
+  def test_task(self):
+    task = Task({
+      'cost': 0.567,
+      'name': 'task 1',
+      'object': 'task',
+    })
+
+    assert isinstance(task, Task)
+    assert task.name == 'task 1'
+    assert task.cost == 0.567

@@ -4,9 +4,10 @@ from .compat import json as simplejson
 from .exception import ApiException, ConnectionException
 
 DEFAULT_API_URL = 'https://api.sigopt.com'
+DEFAULT_HTTP_TIMEOUT = 150
 
 class Requestor(object):
-  def __init__(self, user, password, headers, verify_ssl_certs=True, proxies=None):
+  def __init__(self, user, password, headers, verify_ssl_certs=True, proxies=None, timeout=DEFAULT_HTTP_TIMEOUT):
     if user is not None:
       self.auth = requests.auth.HTTPBasicAuth(user, password)
     else:
@@ -14,6 +15,7 @@ class Requestor(object):
     self.default_headers = headers or {}
     self.verify_ssl_certs = verify_ssl_certs
     self.proxies = proxies
+    self.timeout = timeout
     self._session = requests.Session()
 
   def get(self, url, params=None, json=None, headers=None):
@@ -40,6 +42,7 @@ class Requestor(object):
         headers=headers,
         verify=self.verify_ssl_certs,
         proxies=self.proxies,
+        timeout=self.timeout,
       )
     except requests.exceptions.RequestException as e:
       message = ['An error occurred connecting to SigOpt.']

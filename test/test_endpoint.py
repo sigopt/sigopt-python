@@ -54,6 +54,14 @@ class TestEndpoint(object):
     connection.experiments(1).best_assignments().fetch()
     self.assert_called(requestor, connection, 'get', '/experiments/1/best_assignments')
 
+  def test_experiment_importances(self, requestor, connection):
+    connection.experiments(1).importances().fetch()
+    self.assert_called(requestor, connection, 'get', '/experiments/1/importances')
+
+  def test_experiment_metric_importances(self, requestor, connection):
+    connection.experiments(1).metric_importances().fetch()
+    self.assert_called(requestor, connection, 'get', '/experiments/1/metric_importances')
+
   def test_experiment_create(self, requestor, connection):
     connection.experiments().create()
     self.assert_called(requestor, connection, 'post', '/experiments')
@@ -161,3 +169,11 @@ class TestEndpoint(object):
   def test_call_with_params_params(self, requestor, connection):
     connection.experiments(1).tokens().create.call_with_params({'value': 5})
     self.assert_called(requestor, connection, 'post', '/experiments/1/tokens', {'value': 5})
+
+  def test_organizations_list(self, requestor, connection):
+    connection.organizations().fetch()
+    self.assert_called(requestor, connection, 'get', '/organizations')
+
+  def test_organization_details(self, requestor, connection):
+    connection.organizations(1).fetch()
+    self.assert_called(requestor, connection, 'get', '/organizations/1')

@@ -139,6 +139,11 @@ class Assignments(_DictWrapper):
   pass
 
 
+class Task(ApiObject):
+  cost = Field(float)
+  name = Field(six.text_type)
+
+
 class Bounds(ApiObject):
   max = Field(float)
   min = Field(float)
@@ -172,6 +177,11 @@ class Importances(ApiObject):
   importances = Field(ImportancesMap)
 
 
+class MetricImportances(ApiObject):
+  importances = Field(ImportancesMap)
+  metric = Field(six.text_type)
+
+
 class Metadata(_DictWrapper):
   pass
 
@@ -195,9 +205,17 @@ class Observation(ApiObject):
   id = Field(six.text_type)
   metadata = Field(Metadata)
   suggestion = Field(six.text_type)
+  task = Field(Task)
   value = Field(float)
   value_stddev = Field(float)
   values = Field(ListOf(MetricEvaluation))
+
+
+class Organization(ApiObject):
+  created = Field(int)
+  deleted = Field(bool)
+  id = Field(str)
+  name = Field(str)
 
 
 class Paging(ApiObject):
@@ -292,6 +310,7 @@ class Suggestion(ApiObject):
   metadata = Field(Metadata)
   reference_id = Field(six.text_type)
   state = Field(six.text_type)
+  task = Field(Task)
 
 
 class ConstraintTerm(ApiObject):
@@ -328,6 +347,7 @@ class Experiment(ApiObject):
   parallel_bandwidth = Field(int)
   progress = Field(Progress)
   state = Field(six.text_type)
+  tasks = Field(ListOf(Task))
   type = Field(six.text_type)
   updated = Field(int)
   user = Field(six.text_type)

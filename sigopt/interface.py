@@ -8,7 +8,9 @@ from .objects import (
   Client,
   Experiment,
   Importances,
+  MetricImportances,
   Observation,
+  Organization,
   Pagination,
   Plan,
   Suggestion,
@@ -32,7 +34,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, object_or_paginated_objects(Suggestion), 'GET', 'fetch'),
         ApiEndpoint(None, Suggestion, 'PUT', 'update'),
         ApiEndpoint(None, None, 'DELETE', 'delete'),
-      ]
+      ],
     )
 
     observations = ApiResource(
@@ -43,7 +45,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
         ApiEndpoint(None, Observation, 'PUT', 'update'),
         ApiEndpoint(None, None, 'DELETE', 'delete'),
-      ]
+      ],
     )
 
     plan = ApiResource(
@@ -78,6 +80,14 @@ class ConnectionImpl(object):
       ],
     )
 
+    metric_importances = ApiResource(
+      self,
+      'metric_importances',
+      endpoints=[
+        ApiEndpoint(None, lambda *args, **kwargs: Pagination(MetricImportances, *args, **kwargs), 'GET', 'fetch'),
+      ],
+    )
+
     stopping_criteria = ApiResource(
       self,
       'stopping_criteria',
@@ -98,11 +108,12 @@ class ConnectionImpl(object):
       resources=[
         best_assignments,
         importances,
+        metric_importances,
         observations,
         stopping_criteria,
         suggestions,
         tokens,
-      ]
+      ],
     )
 
     client_experiments = ApiResource(
@@ -123,6 +134,14 @@ class ConnectionImpl(object):
       resources=[
         client_experiments,
         plan,
+      ],
+    )
+
+    self.organizations = ApiResource(
+      self,
+      'organizations',
+      endpoints=[
+        ApiEndpoint(None, object_or_paginated_objects(Organization), 'GET', 'fetch'),
       ],
     )
 
@@ -174,6 +193,9 @@ class ConnectionImpl(object):
   def set_proxies(self, proxies):
     self.requestor.proxies = proxies
 
+  def set_timeout(self, timeout):
+    self.requestor.timeout = timeout
+
 
 class Connection(object):
   """
@@ -207,6 +229,9 @@ class Connection(object):
   def set_proxies(self, proxies):
     self.impl.set_proxies(proxies)
 
+  def set_timeout(self, timeout):
+    self.impl.set_timeout(timeout)
+
   @property
   def clients(self):
     return self.impl.clients
@@ -214,6 +239,10 @@ class Connection(object):
   @property
   def experiments(self):
     return self.impl.experiments
+
+  @property
+  def organizations(self):
+    return self.impl.organizations
 
 
 # Allows response to be a single object of class some_class or a paginated
