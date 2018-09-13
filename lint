@@ -18,6 +18,7 @@ pylint sigopt \
   -d bad-whitespace \
   -d broad-except \
   -d cell-var-from-loop \
+  -d consider-using-ternary \
   -d duplicate-code \
   -d global-statement \
   -d interface-not-implemented \

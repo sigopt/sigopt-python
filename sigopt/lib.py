@@ -30,8 +30,7 @@ def is_integer(num):
     return False
   elif isinstance(num, _numbers.Integral):
     return True
-  else:
-    return False
+  return False
 
 def is_number(x):
   if isinstance(x, bool):
