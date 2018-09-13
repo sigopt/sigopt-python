@@ -23,6 +23,9 @@ setup(
   url='https://sigopt.com/',
   packages=['sigopt', 'sigopt.examples', 'sigopt.vendored'],
   install_requires=install_requires,
+  extras_require={
+    'dev': 'numpy==1.15.1',
+  },
   classifiers=[
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
