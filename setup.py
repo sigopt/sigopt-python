@@ -24,7 +24,7 @@ setup(
   packages=['sigopt', 'sigopt.examples', 'sigopt.vendored'],
   install_requires=install_requires,
   extras_require={
-    'dev': 'numpy>=1.11.3',
+    'dev': 'numpy==1.11.3',
   },
   classifiers=[
     "Development Status :: 5 - Production/Stable",
