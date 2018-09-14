@@ -109,10 +109,11 @@ class ApiObject(BaseApiObject):
       return c
     if is_numpy_array(obj):
       return ApiObject.as_json(obj.tolist())
+    if is_sequence(obj):
       return [ApiObject.as_json(c) for c in obj]
-    elif is_integer(obj):
+    if is_integer(obj):
       return int(obj)
-    elif is_number(obj):
+    if is_number(obj):
       return float(obj)
     return obj
 
