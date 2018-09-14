@@ -1,12 +1,17 @@
 sudo: false
 language: python
-python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "pypy"
+matrix:
+  include:
+    - python: "2.7"
+    - python: "3.4"
+    - python: "3.5"
+    - python: "3.6"
+    # python 3.7 not natively supported yet. https://github.com/travis-ci/travis-ci/issues/9815
+    - python: "3.7"
+      dist: xenial
+      sudo: true
+    - python: "pypy"
+    - python: "pypy3"
 cache:
   pip: false
 install:
@@ -16,5 +21,4 @@ install:
   - python setup.py install
 script:
   - make test
-  - make lint
-
+  - '[[ ! "$(python --version)" = "Python 3.7."* ]] || (pip install pylint==2.1.1 && make lint)'
