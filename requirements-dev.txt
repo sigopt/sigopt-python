@@ -1,5 +1,4 @@
 # For continuous integration and development
 mock==1.0.1
-pylint==1.8.1
 pytest==2.8.7
 twine==1.9.1

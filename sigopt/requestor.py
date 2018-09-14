@@ -71,5 +71,4 @@ class Requestor(object):
 
     if is_success:
       return response_json
-    else:
-      raise ApiException(response_json, status_code)
+    raise ApiException(response_json, status_code)

@@ -46,6 +46,8 @@ pylint sigopt \
   -d too-many-statements \
   -d unidiomatic-typecheck \
   -d unused-wildcard-import \
+  -d useless-import-alias \
+  -d useless-object-inheritance \
   -d wildcard-import \
   -d wrong-import-order \
   -r n \

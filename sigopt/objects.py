@@ -102,14 +102,13 @@ class ApiObject(BaseApiObject):
   def as_json(obj):
     if isinstance(obj, BaseApiObject):
       return obj.to_json()
-    elif is_mapping(obj):
+    if is_mapping(obj):
       c = {}
       for key in obj:
         c[key] = ApiObject.as_json(obj[key])
       return c
-    elif is_numpy_array(obj):
+    if is_numpy_array(obj):
       return ApiObject.as_json(obj.tolist())
-    elif is_sequence(obj):
       return [ApiObject.as_json(c) for c in obj]
     elif is_integer(obj):
       return int(obj)

@@ -1,4 +1,4 @@
-from .vendored import six as six
+from .vendored import six
 
 from .endpoint import BoundApiEndpoint
 
@@ -21,10 +21,9 @@ class BoundApiResource(object):
     endpoint = self._resource._endpoints.get(name)
     if endpoint:
       return BoundApiEndpoint(self, endpoint)
-    else:
-      sub_resource = self._resource._sub_resources.get(name)
-      if sub_resource:
-        return PartiallyBoundApiResource(sub_resource, self)
+    sub_resource = self._resource._sub_resources.get(name)
+    if sub_resource:
+      return PartiallyBoundApiResource(sub_resource, self)
     return None
 
   def __getattr__(self, attr):
