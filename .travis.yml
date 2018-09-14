@@ -7,9 +7,11 @@ matrix:
     - python: "3.5"
     - python: "3.6"
     # python 3.7 not natively supported yet. https://github.com/travis-ci/travis-ci/issues/9815
-    - python: "3.7"
-      dist: xenial
-      sudo: true
+    # NOTE(patrick): Disabled for now since installing numpy in this xenial / sudo environment
+    # is a headache. Hoping that travis supports python 3.7 soon
+    # - python: "3.7"
+    #  dist: xenial
+    #  sudo: true
     - python: "pypy"
     - python: "pypy3"
 cache:
@@ -21,4 +23,4 @@ install:
   - pip install -e .\[dev\]
 script:
   - make test
-  - '[[ ! "$(python --version)" = "Python 3.7."* ]] || (pip install pylint==2.1.1 && make lint)'
+  - '[[ ! "$(python --version)" = "Python 3.6."* ]] || (pip install pylint==2.1.1 && make lint)'
