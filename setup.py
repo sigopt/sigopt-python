@@ -1,3 +1,4 @@
+from codecs import open
 import os
 import sys
 import warnings
