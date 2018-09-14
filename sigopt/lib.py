@@ -28,7 +28,7 @@ def is_integer(num):
   """
   if isinstance(num, bool):
     return False
-  elif isinstance(num, _numbers.Integral):
+  if isinstance(num, _numbers.Integral):
     return True
   return False
 
