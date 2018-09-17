@@ -2,6 +2,7 @@ import copy
 import warnings
 
 from .compat import json
+from .lib import is_sequence, is_mapping, is_integer, is_number, is_numpy_array
 from .vendored import six as six
 
 
@@ -101,13 +102,19 @@ class ApiObject(BaseApiObject):
   def as_json(obj):
     if isinstance(obj, BaseApiObject):
       return obj.to_json()
-    if isinstance(obj, dict):
+    if is_mapping(obj):
       c = {}
       for key in obj:
         c[key] = ApiObject.as_json(obj[key])
       return c
-    if isinstance(obj, list):
+    if is_numpy_array(obj):
+      return ApiObject.as_json(obj.tolist())
+    if is_sequence(obj):
       return [ApiObject.as_json(c) for c in obj]
+    if is_integer(obj):
+      return int(obj)
+    if is_number(obj):
+      return float(obj)
     return obj
 
 

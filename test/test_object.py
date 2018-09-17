@@ -1,3 +1,5 @@
+import math
+import numpy
 import pytest
 import warnings
 
@@ -6,6 +8,36 @@ from sigopt.objects import *
 warnings.simplefilter("always")
 
 class TestBase(object):
+  def test_as_json(self):
+    assert ApiObject.as_json(None) is None
+    assert ApiObject.as_json(False) is False
+    assert ApiObject.as_json(True) is True
+    assert ApiObject.as_json(1) == 1
+    assert ApiObject.as_json(1.1) == 1.1
+    assert ApiObject.as_json(numpy.int8(4)) == 4
+    assert ApiObject.as_json(numpy.int32(4)) == 4
+    assert ApiObject.as_json(numpy.int64(4)) == 4
+    assert ApiObject.as_json(numpy.float16(5.5)) == 5.5
+    assert ApiObject.as_json(numpy.float32(5.5)) == 5.5
+    assert ApiObject.as_json(numpy.float64(5.5)) == 5.5
+    assert ApiObject.as_json('abc') == 'abc'
+
+    assert ApiObject.as_json({}) == {}
+    assert ApiObject.as_json({"a": "b"}) == {"a": "b"}
+    assert ApiObject.as_json(Assignments({"a": "b"})) == {"a": "b"}
+    assert ApiObject.as_json(Experiment({"name": "test"})) == {"name": "test"}
+    assert ApiObject.as_json(Experiment({"bounds": {"min": 0}})) == {"bounds": {"min": 0}}
+
+    assert ApiObject.as_json([]) == []
+    assert ApiObject.as_json([1, 2, 3]) == [1, 2, 3]
+    assert ApiObject.as_json([[1], 2, 3]) == [[1], 2, 3]
+    assert ApiObject.as_json((1, 2, 3)) == [1, 2, 3]
+    assert ApiObject.as_json(numpy.array([1, 2, 3], dtype=numpy.int64)) == [1, 2, 3]
+    assert ApiObject.as_json(numpy.array([Experiment({})])) == [{}]
+    assert ApiObject.as_json(["abc"]) == ["abc"]
+    assert ApiObject.as_json([Assignments({"a": "b"})]) == [{"a": "b"}]
+    assert ApiObject.as_json([Experiment({"name": "test"})]) == [{"name": "test"}]
+
   def test_equality(self):
     assert Experiment({}) == Experiment({})
     assert Experiment({}) != {}
