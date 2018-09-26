@@ -292,6 +292,7 @@ class Progress(ApiObject):
   first_observation = Field(Observation)
   last_observation = Field(Observation)
   observation_count = Field(int)
+  observation_budget_consumed = Field(float)
 
 
 class Suggestion(ApiObject):
