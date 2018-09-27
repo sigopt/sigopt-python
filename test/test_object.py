@@ -108,7 +108,7 @@ class TestObjects(object):
       'progress': {
         'object': 'progress',
         'observation_count': 3,
-        'observation_budget_consumed': 3,
+        'observation_budget_consumed': 3.0,
         'first_observation': {
           'object': 'observation',
           'id': '1',
@@ -268,7 +268,7 @@ class TestObjects(object):
     assert experiment.conditionals[0].values == ['1', '3']
     assert isinstance(experiment.progress, Progress)
     assert experiment.progress.observation_count == 3
-    assert experiment.progress.observation_budget_consumed == 3
+    assert experiment.progress.observation_budget_consumed == 3.0
     assert isinstance(experiment.progress.first_observation, Observation)
     assert experiment.progress.first_observation.id == '1'
     assert isinstance(experiment.progress.first_observation.assignments, Assignments)
