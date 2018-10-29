@@ -1,6 +1,7 @@
 import collections as _collections
 import math as _math
 import numbers as _numbers
+import six as _six
 
 def is_numpy_array(val):
   return val.__class__.__name__ == 'ndarray'
@@ -11,7 +12,7 @@ def is_sequence(val):
   Avoids the common error that strings are iterable
   """
   return (
-    (isinstance(val, _collections.Sequence) and not isinstance(val, str)) or
+    (isinstance(val, _collections.Sequence) and not isinstance(val, _six.string_types)) or
     (is_numpy_array(val))
   )
 
