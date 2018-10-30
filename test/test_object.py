@@ -12,6 +12,13 @@ def load(filename):
   with open(os.path.join(os.path.dirname(__file__), 'json', filename), 'r') as f:
     return json.load(f)
 
+def load_and_parse(Cls, filename):
+  json = load(filename)
+  obj = Cls(json)
+  assert obj.to_json() == json
+  assert ApiObject.as_json(obj) == json
+  return obj
+
 class TestBase(object):
   def test_as_json(self):
     assert ApiObject.as_json(None) is None
@@ -108,7 +115,7 @@ class TestBase(object):
 class TestObjects(object):
   @pytest.fixture
   def experiment(self):
-    return Experiment(load('experiment.json'))
+    return load_and_parse(Experiment, 'experiment.json')
 
   def test_experiment(self, experiment):
     assert experiment.id == '123'
@@ -264,14 +271,14 @@ class TestObjects(object):
     assert experiment.metadata is None
 
   def test_client(self):
-    client = Client(load('client.json'))
+    client = load_and_parse(Client, 'client.json')
     assert isinstance(client, Client)
     assert client.id == '1'
     assert client.name == 'Client'
     assert client.created == 123
 
   def test_suggestion(self):
-    suggestion = Suggestion(load('suggestion.json'))
+    suggestion = load_and_parse(Suggestion, 'suggestion.json')
     assert isinstance(suggestion, Suggestion)
     assert suggestion.id == '1'
     assert isinstance(suggestion.assignments, Assignments)
@@ -292,19 +299,17 @@ class TestObjects(object):
     assert suggestion.task.cost == 0.567
 
   def test_pagination(self):
-    experiment = Experiment({'object': 'experiment'})
     pagination = Pagination(Experiment, load('pagination.json'))
     assert isinstance(pagination, Pagination)
     assert pagination.count == 2
     assert len(pagination.data) == 1
     assert isinstance(pagination.data[0], Experiment)
-    assert pagination.data[0] == experiment
     assert isinstance(pagination.paging, Paging)
     assert pagination.paging.before == '1'
     assert pagination.paging.after == '2'
 
   def test_plan(self):
-    plan = Plan(load('plan.json'))
+    plan = load_and_parse(Plan, 'plan.json')
     assert isinstance(plan, Plan)
     assert plan.id == 'premium'
     assert plan.name == 'SigOpt Premium'
@@ -319,7 +324,7 @@ class TestObjects(object):
     assert plan.current_period.experiments == ['1', '2']
 
   def test_token(self):
-    token = Token(load('token.json'))
+    token = load_and_parse(Token, 'token.json')
     assert isinstance(token, Token)
     assert token.all_experiments is False
     assert token.development is True
@@ -331,20 +336,20 @@ class TestObjects(object):
     assert token.user == '789'
 
   def test_metric(self):
-    metric = Metric(load('metric.json'))
+    metric = load_and_parse(Metric, 'metric.json')
     assert isinstance(metric, Metric)
     assert metric.name == 'Test'
     assert metric.value_baseline == 0.4
 
   def test_importances(self):
-    importances = Importances(load('importances.json'))
+    importances = load_and_parse(Importances, 'importances.json')
     assert isinstance(importances, Importances)
     assert isinstance(importances.importances, ImportancesMap)
     assert importances.importances['a'] == 0.92
     assert importances.importances['b'] == 0.03
 
   def test_metric_importances(self):
-    metric_importances = MetricImportances(load('metric_importances.json'))
+    metric_importances = load_and_parse(MetricImportances, 'metric_importances.json')
     assert isinstance(metric_importances, MetricImportances)
     assert isinstance(metric_importances.importances, ImportancesMap)
     assert metric_importances.importances['parameter_1'] == 0.92
@@ -352,14 +357,14 @@ class TestObjects(object):
     assert metric_importances.importances['parameter_3'] == 0.03
 
   def test_organization(self):
-    organization = Organization(load('organization.json'))
+    organization = load_and_parse(Organization, 'organization.json')
     assert isinstance(organization, Organization)
     assert organization.created == 123456
     assert organization.id == "7890"
     assert organization.name == "SigOpt"
 
   def test_task(self):
-    task = Task(load('task.json'))
+    task = load_and_parse(Task, 'task.json')
     assert isinstance(task, Task)
     assert task.name == 'task 1'
     assert task.cost == 0.567
