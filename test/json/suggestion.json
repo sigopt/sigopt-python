@@ -1,0 +1,24 @@
+{
+  "object": "suggestion",
+  "id": "1",
+  "assignments": {
+    "a": 1,
+    "b": "c"
+  },
+  "state": "open",
+  "experiment": "1",
+  "created": 123,
+  "fold_index": 3,
+  "checkpoint_index": 2,
+  "reference_id": "101",
+  "fold": "102",
+  "metadata": {
+    "abc": "def",
+    "ghi": 123
+  },
+  "task": {
+    "cost": 0.567,
+    "name": "task 1",
+    "object": "task"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "object": "pagination",
+  "count": 2,
+  "data": [
+    {
+      "object": "experiment"
+    }
+  ],
+  "paging": {
+    "before": "1",
+    "after": "2"
+  }
+}
