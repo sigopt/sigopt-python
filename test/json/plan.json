@@ -1,0 +1,19 @@
+{
+  "object": "plan",
+  "id": "premium",
+  "name": "SigOpt Premium",
+  "rules": {
+    "max_dimension": 1,
+    "max_experiments": 2,
+    "max_observations": 3,
+    "max_parallelism": 4
+  },
+  "current_period": {
+    "start": 0,
+    "end": 1000,
+    "experiments": [
+      "1",
+      "2"
+    ]
+  }
+}

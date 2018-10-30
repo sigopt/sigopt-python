@@ -1,3 +1,4 @@
+import os
 import math
 import numpy
 import pytest
@@ -6,6 +7,17 @@ import warnings
 from sigopt.objects import *
 
 warnings.simplefilter("always")
+
+def load(filename):
+  with open(os.path.join(os.path.dirname(__file__), 'json', filename), 'r') as f:
+    return json.load(f)
+
+def load_and_parse(Cls, filename):
+  json = load(filename)
+  obj = Cls(json)
+  assert obj.to_json() == json
+  assert ApiObject.as_json(obj) == json
+  return obj
 
 class TestBase(object):
   def test_as_json(self):
@@ -103,179 +115,7 @@ class TestBase(object):
 class TestObjects(object):
   @pytest.fixture
   def experiment(self):
-    return Experiment({
-      'object': 'experiment',
-      'id': '123',
-      'name': 'Test Experiment',
-      'type': 'cross_validated',
-      'folds': 10,
-      'max_checkpoints': 9,
-      'parallel_bandwidth': 2,
-      'created': 321,
-      'state': 'active',
-      'linear_constraints': [{
-        'type': 'greater_than',
-        'terms': [{
-          'name': 'a',
-          'weight': 2,
-        }],
-        'threshold': 5,
-      }],
-      'conditionals': [{
-        'object': 'conditional',
-        'name': 'num_hidden_layers',
-        'values': ['1', '3'],
-      }],
-      'metrics': [
-        {
-          'object': 'metric',
-          'name': 'Revenue',
-        },
-        {
-          'object': 'metric',
-          'name': 'Sales',
-        },
-      ],
-      'client': '678',
-      'progress': {
-        'object': 'progress',
-        'observation_count': 3,
-        'observation_budget_consumed': 3.0,
-        'first_observation': {
-          'object': 'observation',
-          'id': '1',
-          'assignments': {
-            'a': 1,
-            'b': 'c',
-          },
-          'values': [
-            {
-              'object': 'value',
-              'name': 'Revenue',
-              'value': 3.1,
-              'value_stddev': None,
-            },
-            {
-              'object': 'value',
-              'name': 'Sales',
-              'value': 2.5,
-              'value_stddev': None,
-            }
-          ],
-          'failed': False,
-          'created': 451,
-          'suggestion': '11',
-          'experiment': '123',
-        },
-        'last_observation': {
-          'object': 'observation',
-          'id': '2',
-          'assignments': {
-            'a': 2,
-            'b': 'd',
-          },
-          'values': [
-            {
-              'object': 'value',
-              'name': 'Revenue',
-              'value': 3.1,
-              'value_stddev': 0.5,
-            },
-            {
-              'object': 'value',
-              'name': 'Sales',
-              'value': 2.5,
-              'value_stddev': 0.8,
-            }
-          ],
-          'failed': False,
-          'created': 452,
-          'suggestion': '12',
-          'experiment': '123',
-        },
-        'best_observation': {
-          'object': 'observation',
-          'id': '3',
-          'assignments': {
-            'a': 3,
-            'b': 'd',
-          },
-          'values': [
-            {
-              'object': 'value',
-              'name': 'Revenue',
-              'value': None,
-              'value_stddev': None,
-            },
-            {
-              'object': 'value',
-              'name': 'Sales',
-              'value': None,
-              'value_stddev': None,
-            }
-          ],
-          'failed': True,
-          'created': 453,
-          'suggestion': '13',
-          'experiment': '123',
-          'metadata': {
-            'abc': 'def',
-            'ghi': 123,
-          },
-        },
-      },
-      'parameters': [
-        {
-          'object': 'parameter',
-          'name': 'a',
-          'type': 'double',
-          'bounds': {
-            'object': 'bounds',
-            'min': 1,
-            'max': 2,
-          },
-          'categorical_values': None,
-          'precision': 3,
-          'default_value': 2,
-          'conditions': {
-            "num_hidden_layers": [],
-          },
-        },
-        {
-          'object': 'parameter',
-          'name': 'b',
-          'type': 'categorical',
-          'bounds': None,
-          'categorical_values': [
-            {'name': 'c', 'enum_index': 1},
-            {'name': 'd', 'enum_index': 2},
-          ],
-          'precision': None,
-          'default_value': None,
-          'conditions': {
-            "num_hidden_layers": ['1', '3'],
-          },
-        },
-      ],
-      'metadata': {
-        'abc': 'def',
-        'ghi': 123,
-      },
-      'tasks': [
-        {
-          'cost': 0.567,
-          'name': 'task 1',
-          'object': 'task',
-        },
-        {
-          'cost': 1.0,
-          'name': 'task 2',
-          'object': 'task',
-        },
-      ],
-      'updated': 453,
-      'user': '789',
-    })
+    return load_and_parse(Experiment, 'experiment.json')
 
   def test_experiment(self, experiment):
     assert experiment.id == '123'
@@ -431,42 +271,14 @@ class TestObjects(object):
     assert experiment.metadata is None
 
   def test_client(self):
-    client = Client({
-      'object': 'client',
-      'id': '1',
-      'name': 'Client',
-      'created': 123,
-    })
+    client = load_and_parse(Client, 'client.json')
     assert isinstance(client, Client)
     assert client.id == '1'
     assert client.name == 'Client'
     assert client.created == 123
 
   def test_suggestion(self):
-    suggestion = Suggestion({
-      'object': 'suggestion',
-      'id': '1',
-      'assignments': {
-        'a': 1,
-        'b': 'c',
-      },
-      'state': 'open',
-      'experiment': '1',
-      'created': 123,
-      'fold_index': 3,
-      'checkpoint_index': 2,
-      'reference_id': '101',
-      'fold': '102',
-      'metadata': {
-        'abc': 'def',
-        'ghi': 123,
-      },
-      'task': {
-        'cost': 0.567,
-        'name': 'task 1',
-        'object': 'task',
-      },
-    })
+    suggestion = load_and_parse(Suggestion, 'suggestion.json')
     assert isinstance(suggestion, Suggestion)
     assert suggestion.id == '1'
     assert isinstance(suggestion.assignments, Assignments)
@@ -487,46 +299,17 @@ class TestObjects(object):
     assert suggestion.task.cost == 0.567
 
   def test_pagination(self):
-    experiment = Experiment({'object': 'experiment'})
-    pagination = Pagination(Experiment, {
-      'object': 'pagination',
-      'count': 2,
-      'data': [experiment.to_json()],
-      'paging': {
-        'before': '1',
-        'after': '2',
-      },
-    })
+    pagination = Pagination(Experiment, load('pagination.json'))
     assert isinstance(pagination, Pagination)
     assert pagination.count == 2
     assert len(pagination.data) == 1
     assert isinstance(pagination.data[0], Experiment)
-    assert pagination.data[0] == experiment
     assert isinstance(pagination.paging, Paging)
     assert pagination.paging.before == '1'
     assert pagination.paging.after == '2'
 
   def test_plan(self):
-    plan = Plan({
-      'object': 'plan',
-      'id': 'premium',
-      'name': 'SigOpt Premium',
-      'rules': {
-        'max_dimension': 1,
-        'max_experiments': 2,
-        'max_observations': 3,
-        'max_parallelism': 4,
-      },
-      'current_period': {
-        'start': 0,
-        'end': 1000,
-        'experiments': [
-          '1',
-          '2',
-        ],
-      },
-    })
-
+    plan = load_and_parse(Plan, 'plan.json')
     assert isinstance(plan, Plan)
     assert plan.id == 'premium'
     assert plan.name == 'SigOpt Premium'
@@ -541,17 +324,7 @@ class TestObjects(object):
     assert plan.current_period.experiments == ['1', '2']
 
   def test_token(self):
-    token = Token({
-      'all_experiments': False,
-      'development': True,
-      'permissions': 'read',
-      'token_type': 'client-dev',
-      'token': '123',
-      'client': '456',
-      'experiment': '1',
-      'user': '789',
-    })
-
+    token = load_and_parse(Token, 'token.json')
     assert isinstance(token, Token)
     assert token.all_experiments is False
     assert token.development is True
@@ -563,39 +336,20 @@ class TestObjects(object):
     assert token.user == '789'
 
   def test_metric(self):
-    metric = Metric({
-      'name': 'Test',
-      'value_baseline': 0.4,
-    })
-
+    metric = load_and_parse(Metric, 'metric.json')
     assert isinstance(metric, Metric)
     assert metric.name == 'Test'
     assert metric.value_baseline == 0.4
 
   def test_importances(self):
-    importances = Importances({
-      'importances': {
-        'a': 0.92,
-        'b': 0.03,
-      }
-    })
-
+    importances = load_and_parse(Importances, 'importances.json')
     assert isinstance(importances, Importances)
     assert isinstance(importances.importances, ImportancesMap)
     assert importances.importances['a'] == 0.92
     assert importances.importances['b'] == 0.03
 
   def test_metric_importances(self):
-    metric_importances = MetricImportances({
-      'object': 'metric_importances',
-      'metric': 'metric1',
-      'importances': ImportancesMap({
-        'parameter_1': 0.92,
-        'parameter_2': 0.65,
-        'parameter_3': 0.03,
-       })
-    })
-
+    metric_importances = load_and_parse(MetricImportances, 'metric_importances.json')
     assert isinstance(metric_importances, MetricImportances)
     assert isinstance(metric_importances.importances, ImportancesMap)
     assert metric_importances.importances['parameter_1'] == 0.92
@@ -603,25 +357,14 @@ class TestObjects(object):
     assert metric_importances.importances['parameter_3'] == 0.03
 
   def test_organization(self):
-    organization = Organization({
-      "created": 123456,
-      "id": "7890",
-      "name": "SigOpt",
-      "object": "organization",
-    })
-
+    organization = load_and_parse(Organization, 'organization.json')
     assert isinstance(organization, Organization)
     assert organization.created == 123456
     assert organization.id == "7890"
     assert organization.name == "SigOpt"
 
   def test_task(self):
-    task = Task({
-      'cost': 0.567,
-      'name': 'task 1',
-      'object': 'task',
-    })
-
+    task = load_and_parse(Task, 'task.json')
     assert isinstance(task, Task)
     assert task.name == 'task 1'
     assert task.cost == 0.567

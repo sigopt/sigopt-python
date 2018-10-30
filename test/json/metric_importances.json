@@ -1,0 +1,9 @@
+{
+  "object": "metric_importances",
+  "metric": "metric1",
+  "importances": {
+    "parameter_1": 0.92,
+    "parameter_2": 0.65,
+    "parameter_3": 0.03
+  }
+}

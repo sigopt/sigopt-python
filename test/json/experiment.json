@@ -1,0 +1,191 @@
+{
+  "object": "experiment",
+  "id": "123",
+  "name": "Test Experiment",
+  "type": "cross_validated",
+  "folds": 10,
+  "max_checkpoints": 9,
+  "parallel_bandwidth": 2,
+  "created": 321,
+  "state": "active",
+  "linear_constraints": [
+    {
+      "type": "greater_than",
+      "terms": [
+        {
+          "name": "a",
+          "weight": 2
+        }
+      ],
+      "threshold": 5
+    }
+  ],
+  "conditionals": [
+    {
+      "object": "conditional",
+      "name": "num_hidden_layers",
+      "values": [
+        "1",
+        "3"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "object": "metric",
+      "name": "Revenue"
+    },
+    {
+      "object": "metric",
+      "name": "Sales"
+    }
+  ],
+  "client": "678",
+  "progress": {
+    "object": "progress",
+    "observation_count": 3,
+    "observation_budget_consumed": 3.0,
+    "first_observation": {
+      "object": "observation",
+      "id": "1",
+      "assignments": {
+        "a": 1,
+        "b": "c"
+      },
+      "values": [
+        {
+          "object": "value",
+          "name": "Revenue",
+          "value": 3.1,
+          "value_stddev": null
+        },
+        {
+          "object": "value",
+          "name": "Sales",
+          "value": 2.5,
+          "value_stddev": null
+        }
+      ],
+      "failed": false,
+      "created": 451,
+      "suggestion": "11",
+      "experiment": "123"
+    },
+    "last_observation": {
+      "object": "observation",
+      "id": "2",
+      "assignments": {
+        "a": 2,
+        "b": "d"
+      },
+      "values": [
+        {
+          "object": "value",
+          "name": "Revenue",
+          "value": 3.1,
+          "value_stddev": 0.5
+        },
+        {
+          "object": "value",
+          "name": "Sales",
+          "value": 2.5,
+          "value_stddev": 0.8
+        }
+      ],
+      "failed": false,
+      "created": 452,
+      "suggestion": "12",
+      "experiment": "123"
+    },
+    "best_observation": {
+      "object": "observation",
+      "id": "3",
+      "assignments": {
+        "a": 3,
+        "b": "d"
+      },
+      "values": [
+        {
+          "object": "value",
+          "name": "Revenue",
+          "value": null,
+          "value_stddev": null
+        },
+        {
+          "object": "value",
+          "name": "Sales",
+          "value": null,
+          "value_stddev": null
+        }
+      ],
+      "failed": true,
+      "created": 453,
+      "suggestion": "13",
+      "experiment": "123",
+      "metadata": {
+        "abc": "def",
+        "ghi": 123
+      }
+    }
+  },
+  "parameters": [
+    {
+      "object": "parameter",
+      "name": "a",
+      "type": "double",
+      "bounds": {
+        "object": "bounds",
+        "min": 1,
+        "max": 2
+      },
+      "categorical_values": null,
+      "precision": 3,
+      "default_value": 2,
+      "conditions": {
+        "num_hidden_layers": []
+      }
+    },
+    {
+      "object": "parameter",
+      "name": "b",
+      "type": "categorical",
+      "bounds": null,
+      "categorical_values": [
+        {
+          "name": "c",
+          "enum_index": 1
+        },
+        {
+          "name": "d",
+          "enum_index": 2
+        }
+      ],
+      "precision": null,
+      "default_value": null,
+      "conditions": {
+        "num_hidden_layers": [
+          "1",
+          "3"
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "abc": "def",
+    "ghi": 123
+  },
+  "tasks": [
+    {
+      "cost": 0.567,
+      "name": "task 1",
+      "object": "task"
+    },
+    {
+      "cost": 1.0,
+      "name": "task 2",
+      "object": "task"
+    }
+  ],
+  "updated": 453,
+  "user": "789"
+}
