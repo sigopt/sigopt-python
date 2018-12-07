@@ -5,9 +5,10 @@ from .exception import ApiException, ConnectionException
 
 DEFAULT_API_URL = 'https://api.sigopt.com'
 DEFAULT_HTTP_TIMEOUT = 150
+DEFAULT_MAX_RETRIES = 1
 
 class Requestor(object):
-  def __init__(self, user, password, headers, verify_ssl_certs=True, proxies=None, timeout=DEFAULT_HTTP_TIMEOUT):
+  def __init__(self, user, password, headers, verify_ssl_certs=True, proxies=None, timeout=DEFAULT_HTTP_TIMEOUT, max_retries=DEFAULT_MAX_RETRIES):
     if user is not None:
       self.auth = requests.auth.HTTPBasicAuth(user, password)
     else:
@@ -17,6 +18,9 @@ class Requestor(object):
     self.proxies = proxies
     self.timeout = timeout
     self._session = requests.Session()
+    adapter = requests.adapters.HTTPAdapter(max_retries=max_retries)
+    self._session.mount('http://', adapter)
+    self._session.mount('https://', adapter)
 
   def get(self, url, params=None, json=None, headers=None):
     return self.request('get', url=url, params=params, json=json, headers=headers)
