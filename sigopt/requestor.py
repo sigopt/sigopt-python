@@ -8,7 +8,16 @@ DEFAULT_HTTP_TIMEOUT = 150
 DEFAULT_MAX_RETRIES = 1
 
 class Requestor(object):
-  def __init__(self, user, password, headers, verify_ssl_certs=True, proxies=None, timeout=DEFAULT_HTTP_TIMEOUT, max_retries=DEFAULT_MAX_RETRIES):
+  def __init__(
+    self,
+    user,
+    password,
+    headers,
+    verify_ssl_certs=True,
+    proxies=None,
+    timeout=DEFAULT_HTTP_TIMEOUT,
+    max_retries=DEFAULT_MAX_RETRIES,
+  ):
     if user is not None:
       self.auth = requests.auth.HTTPBasicAuth(user, password)
     else:
