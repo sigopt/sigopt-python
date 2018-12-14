@@ -20,6 +20,7 @@ pylint sigopt \
   -d cell-var-from-loop \
   -d consider-using-ternary \
   -d duplicate-code \
+  -d fixme \
   -d global-statement \
   -d interface-not-implemented \
   -d invalid-name \
