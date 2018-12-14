@@ -45,19 +45,13 @@ class TestPagination(object):
     }, bound_endpoint, {}).iterate_pages()) == [experiment1]
     assert bound_endpoint.mock_calls == []
 
-  @pytest.fixture(params=[dict(), dict(after='2')])
-  def after(self, request):
+  @pytest.fixture(params=[
+    dict(before='1'),
+    dict(after='2'),
+    dict(before='1', after='2'),
+  ])
+  def paging(self, request):
     return request.param
-
-  @pytest.fixture(params=[dict(), dict(before='1')])
-  def before(self, request):
-    return request.param
-
-  @pytest.fixture
-  def paging(self, before, after):
-    if not before and not after:
-      pytest.skip()
-    return dict(**before, **after)
 
   def test_next_page(self, experiment1, experiment2, bound_endpoint, paging):
     assert list(Pagination(Experiment, {
