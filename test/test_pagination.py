@@ -62,28 +62,107 @@ class TestPagination(object):
     }, bound_endpoint, {}).iterate_pages()) == [experiment1, experiment2]
     assert len(bound_endpoint.mock_calls) == 1
 
-  def test_params(self, experiment1, bound_endpoint, paging):
-    retrieve_params = {'state': 'all'}
+  def make_call(self, paging, bound_endpoint, retrieve_params):
     list(Pagination(Experiment, {
       'object': 'pagination',
       'count': 1,
-      'data': [experiment1.to_json()],
+      'data': [{'object': 'experiment'}],
       'paging': paging,
     }, bound_endpoint, retrieve_params).iterate_pages())
+
+  def test_retrieve_params(self, bound_endpoint, paging):
+    self.make_call(
+      retrieve_params={'state': 'all'},
+      paging=paging,
+      bound_endpoint=bound_endpoint,
+    )
     assert len(bound_endpoint.mock_calls) == 1
     assert bound_endpoint.call_args[1]['state'] == 'all'
 
-  def test_existing_paging(self, experiment1, bound_endpoint, paging):
-    retrieve_params = {'before': '999', 'after': '888'}
-    list(Pagination(Experiment, {
-      'object': 'pagination',
-      'count': 1,
-      'data': [experiment1.to_json()],
-      'paging': paging,
-    }, bound_endpoint, retrieve_params).iterate_pages())
+  def test_iterate_pages_before_returns_before(self, bound_endpoint):
+    self.make_call(
+      retrieve_params={'before': '888'},
+      paging={'before': '1', 'after': None},
+      bound_endpoint=bound_endpoint,
+    )
     assert len(bound_endpoint.mock_calls) == 1
-    assert bound_endpoint.call_args.get('before') != retrieve_params.get('before')
-    assert bound_endpoint.call_args.get('after') != retrieve_params.get('after')
+    assert bound_endpoint.call_args[1].get('before') == '1'
+    assert bound_endpoint.call_args[1].get('after') is None
+
+  def test_iterate_pages_before_returns_after(self, bound_endpoint):
+    self.make_call(
+      retrieve_params={'before': '888'},
+      paging={'before': None, 'after': '2'},
+      bound_endpoint=bound_endpoint,
+    )
+    assert len(bound_endpoint.mock_calls) == 0
+
+  def test_iterate_pages_before_returns_both(self, bound_endpoint):
+    self.make_call(
+      retrieve_params={'before': '888'},
+      paging={'before': '1', 'after': '2'},
+      bound_endpoint=bound_endpoint,
+    )
+    assert bound_endpoint.call_args[1].get('before') == '1'
+    assert bound_endpoint.call_args[1].get('after') is None
+
+  def test_iterate_pages_after_returns_before(self, bound_endpoint):
+    self.make_call(
+      retrieve_params={'after': '999'},
+      paging={'before': '1', 'after': None},
+      bound_endpoint=bound_endpoint,
+    )
+    assert len(bound_endpoint.mock_calls) == 0
+
+  def test_iterate_pages_after_returns_after(self, bound_endpoint):
+    self.make_call(
+      retrieve_params={'after': '999'},
+      paging={'before': None, 'after': '2'},
+      bound_endpoint=bound_endpoint,
+    )
+    assert len(bound_endpoint.mock_calls) == 1
+    assert bound_endpoint.call_args[1].get('before') is None
+    assert bound_endpoint.call_args[1].get('after') == '2'
+
+  def test_iterate_pages_after_returns_both(self, bound_endpoint):
+    self.make_call(
+      retrieve_params={'after': '999'},
+      paging={'before': '1', 'after': '2'},
+      bound_endpoint=bound_endpoint,
+    )
+    assert len(bound_endpoint.mock_calls) == 1
+    assert bound_endpoint.call_args[1].get('before') is None
+    assert bound_endpoint.call_args[1].get('after') == '2'
+
+  def test_iterate_pages_before_after_returns_before(self, bound_endpoint):
+    self.make_call(
+      retrieve_params={'before': '999', 'after': '888'},
+      paging={'before': '1', 'after': None},
+      bound_endpoint=bound_endpoint,
+    )
+    assert len(bound_endpoint.mock_calls) == 1
+    assert bound_endpoint.call_args[1].get('before') == '1'
+    assert bound_endpoint.call_args[1].get('after') is None
+
+  # NOTE(patrick): Remove xfail in next major version bump
+  @pytest.mark.xfail(strict=True)
+  def test_iterate_pages_before_after_returns_after(self, bound_endpoint):
+    self.make_call(
+      retrieve_params={'before': '999', 'after': '888'},
+      paging={'before': None, 'after': '2'},
+      bound_endpoint=bound_endpoint,
+    )
+    assert len(bound_endpoint.mock_calls) == 0
+
+  def test_iterate_pages_before_after_returns_both(self, bound_endpoint):
+    self.make_call(
+      retrieve_params={'before': '999', 'after': '888'},
+      paging={'before': '1', 'after': '2'},
+      bound_endpoint=bound_endpoint,
+    )
+    assert len(bound_endpoint.mock_calls) == 1
+    assert bound_endpoint.call_args[1].get('before') == '1'
+    assert bound_endpoint.call_args[1].get('after') is None
 
   def test_lazy_iterator(self, experiment1, bound_endpoint, paging):
     iterator = Pagination(Experiment, {
