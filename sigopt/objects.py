@@ -246,16 +246,27 @@ class Pagination(ApiObject):
     # pylint: disable=no-member
     data = self.data
     paging = self.paging or Paging({})
-    use_before = bool(paging.before)
+
+    # TODO(patrick): Probably should always rely on _retrieve_params vs. using paging.before,
+    # but that is divergent behaviour. Consider for next major version bump
+    specified_direction = ('before' in self._retrieve_params) ^ ('after' in self._retrieve_params)
+    if specified_direction:
+      use_before = 'before' in self._retrieve_params or 'after' not in self._retrieve_params
+    else:
+      use_before = bool(paging.before)
+
     while data:
       for d in data:
         yield d
       next_paging = dict(before=paging.before) if use_before else dict(after=paging.after)
       if next_paging.get('before') is not None or next_paging.get('after') is not None:
         params = self._retrieve_params.copy()
-        params.pop('before', None)
-        params.pop('after', None)
-        params.update(next_paging)
+        if use_before:
+          params['before'] = paging.before
+          params.pop('after', None)
+        else:
+          params.pop('before', None)
+          params['after'] = paging.after
         response = self._bound_endpoint(**params)
         data = response.data
         paging = response.paging
