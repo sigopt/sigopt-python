@@ -42,3 +42,6 @@ def is_number(x):
   if isinstance(x, float) and _math.isnan(x):
     return False
   return isinstance(x, _numbers.Number) or is_integer(x)
+
+def is_string(s):
+  return isinstance(s, _six.string_types)
