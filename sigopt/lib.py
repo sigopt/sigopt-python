@@ -44,7 +44,4 @@ def is_number(x):
   return isinstance(x, _numbers.Number) or is_integer(x)
 
 def is_string(s):
-  return (
-    isinstance(s, _six.string_types) or
-    isinstance(s, _six.binary_type)
-  )
+  return isinstance(s, [_six.string_types, _six.binary_type])
