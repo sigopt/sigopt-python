@@ -67,12 +67,15 @@ class TestBase(object):
     assert Assignments({'a': 'b'}) != Assignments({'a': 'b', 'c': 'd'})
 
   def test_repr(self):
-    assert repr(Experiment({})) == 'Experiment({})'
-    assert repr(Experiment({'a': 'b'})) == 'Experiment({\n  "a": "b"\n})'
+    assert repr(Experiment({})) == 'Experiment()'
+    assert repr(Experiment({'user': 'b'})) == 'Experiment(\n  user="b",\n)'
     assert repr(Assignments({})) == 'Assignments({})'
     assert repr(Assignments({'a': 'b'})) == 'Assignments({\n  "a": "b"\n})'
     assert repr(Assignments({'a': 'b', 'c': 'd'})) == 'Assignments({\n  "a": "b",\n  "c": "d"\n})'
-    assert repr(Bounds({'a': 'b'})) == 'Bounds({\n  "a": "b"\n})'
+    assert (
+        repr(Bounds({'max': 0.1, 'min': -0.2})) == 'Bounds(\n  max=0.1,\n  min=-0.2,\n)'
+        or repr(Bounds({'max': 0.1, 'min': -0.2})) == 'Bounds(\n  min=-0.2,\n  max=0.1,\n)'
+    )
 
   def test_json(self):
     assert Experiment({}).to_json() == {}
