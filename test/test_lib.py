@@ -121,8 +121,8 @@ class TestBase(object):
   def test_is_string(self):
     assert is_string('abc')
     assert is_string(u'abc')
+    assert is_string(b'abc')
 
-    assert not is_string(b'abc')
     assert not is_string({})
     assert not is_string({'a': 123})
     assert not is_string([])
