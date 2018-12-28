@@ -1,7 +1,8 @@
 import collections as _collections
 import math as _math
 import numbers as _numbers
-import six as _six
+
+from .vendored import six as _six
 
 def is_numpy_array(val):
   return val.__class__.__name__ == 'ndarray'
