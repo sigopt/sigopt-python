@@ -3,6 +3,7 @@ import pytest
 import warnings
 
 from sigopt.lib import *
+from sigopt.vendored import six as _six
 
 warnings.simplefilter("always")
 
@@ -121,7 +122,9 @@ class TestBase(object):
   def test_is_string(self):
     assert is_string('abc')
     assert is_string(u'abc')
-    assert is_string(b'abc')
+
+    if not isinstance('abc', _six.binary_type):
+        assert not is_string(b'abc')
 
     assert not is_string({})
     assert not is_string({'a': 123})
