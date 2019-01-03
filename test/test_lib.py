@@ -3,6 +3,7 @@ import pytest
 import warnings
 
 from sigopt.lib import *
+from sigopt.vendored import six as _six
 
 warnings.simplefilter("always")
 
@@ -117,3 +118,28 @@ class TestBase(object):
     assert not is_mapping(set((1, 'a')))
     assert not is_mapping({1, 'a'})
     assert not is_mapping(frozenset((1, 'a')))
+
+  def test_is_string(self):
+    assert is_string('abc')
+    assert is_string(u'abc')
+
+    if not isinstance('abc', _six.binary_type):
+        assert not is_string(b'abc')
+
+    assert not is_string({})
+    assert not is_string({'a': 123})
+    assert not is_string([])
+    assert not is_string([1, 2, 3])
+    assert not is_string(())
+    assert not is_string((1, 2, 3))
+    assert not is_string(numpy.array([]))
+    assert not is_string(numpy.array([1, 2, 3]))
+    assert not is_string(None)
+    assert not is_string(False)
+    assert not is_string(True)
+    assert not is_string(0)
+    assert not is_string(1.0)
+    assert not is_string(set())
+    assert not is_string(set((1, 'a')))
+    assert not is_string({1, 'a'})
+    assert not is_string(frozenset((1, 'a')))
