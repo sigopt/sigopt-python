@@ -135,7 +135,11 @@ class ApiObject(BaseApiObject):
         return six.u('{0}{\n{1},\n{0}}').format(
           indent,
           six.u(',\n').join([
-            six.u('  {0}"{1}"={2}').format(indent, key, ApiObject.dumps(obj[key], indent_level=indent_level + 2).lstrip())
+            six.u('  {0}"{1}"={2}').format(
+              indent,
+              key,
+              ApiObject.dumps(obj[key], indent_level=indent_level + 2).lstrip()
+            )
             for key
             in obj
           ])
