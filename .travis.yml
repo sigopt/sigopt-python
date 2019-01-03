@@ -17,10 +17,7 @@ matrix:
 cache:
   pip: false
 install:
-  - pip install -r requirements-dev.txt
-  - pip install -r requirements.txt
-  - python setup.py clean --all
-  - pip install -e .\[dev\]
+  - make update
 script:
   - make test
   - '[[ ! "$(python --version)" = "Python 3.6."* ]] || (pip install pylint==2.1.1 && make lint)'
