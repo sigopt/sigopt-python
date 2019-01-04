@@ -2,7 +2,7 @@ import copy
 import warnings
 
 from .compat import json
-from .lib import is_sequence, is_mapping, is_integer, is_number, is_numpy_array
+from .lib import is_sequence, is_mapping, is_integer, is_number, is_numpy_array, is_string
 from .vendored import six as six
 
 
@@ -71,15 +71,22 @@ class BaseApiObject(object):
       return subvalue if isinstance(subvalue, Field) else None
 
   def __repr__(self):
-    return six.u('{0}({1})').format(
-      self.__class__.__name__,
-      json.dumps(
-        ApiObject.as_json(self._body),
-        indent=2,
-        sort_keys=True,
-        separators=(',', ': '),
-      ),
-    )
+    attributes = dir(self)
+    attributes = [a for a in attributes if not a.startswith('_')]
+    attributes = [a for a in attributes if not callable(getattr(self, a))]
+    keys_in_json = set(ApiObject.as_json(self._body).keys())
+    keys = keys_in_json.intersection(set(attributes))
+
+    if keys:
+      return six.u('{0}(\n{1}\n)').format(
+        self.__class__.__name__,
+        '\n'.join([
+          six.u('  {}={},').format(key, ApiObject.dumps(getattr(self, key), indent_level=2).lstrip())
+          for key
+          in keys
+        ]),
+      )
+    return six.u('{0}()').format(self.__class__.__name__)
 
   def to_json(self):
     return copy.deepcopy(self._body)
@@ -117,6 +124,47 @@ class ApiObject(BaseApiObject):
       return float(obj)
     return obj
 
+  @staticmethod
+  def dumps(obj, indent_level=0):
+    indent = ' ' * indent_level
+
+    if isinstance(obj, BaseApiObject):
+      return six.u('{0}{1}'.format(indent, str(obj).replace('\n', '\n{0}'.format(indent))))
+    if is_mapping(obj):
+      if obj:
+        return six.u('{0}{\n{1},\n{0}}').format(
+          indent,
+          six.u(',\n').join([
+            six.u('  {0}"{1}"={2}').format(
+              indent,
+              key,
+              ApiObject.dumps(obj[key], indent_level=indent_level + 2).lstrip()
+            )
+            for key
+            in obj
+          ])
+        )
+      return six.u('{0}{1}'.format(indent, str(obj)))
+    if is_numpy_array(obj):
+      return ApiObject.dumps(obj.tolist(), indent_level=indent_level)
+    if is_sequence(obj):
+      if obj:
+        return six.u('{0}[\n{1},\n{0}]').format(
+          indent,
+          six.u(',\n').join([
+            ApiObject.dumps(c, indent_level=indent_level + 2)
+            for c
+            in obj
+          ])
+        )
+      return six.u('{0}{1}'.format(indent, str(obj)))
+    if is_integer(obj):
+      return six.u('{0}{1}'.format(indent, str(int(obj))))
+    if is_number(obj):
+      return six.u('{0}{1}'.format(indent, str(float(obj))))
+    if is_string(obj):
+      return six.u('{0}"{1}"'.format(indent, obj))
+    return six.u('{0}{1}'.format(indent, obj))
 
 class _DictWrapper(BaseApiObject, dict):
   def __init__(self, body, bound_endpoint=None, retrieve_params=None):
@@ -141,6 +189,16 @@ class _DictWrapper(BaseApiObject, dict):
       dict.__eq__(self, other)
     )
 
+  def __repr__(self):
+    return six.u('{0}({1})').format(
+      self.__class__.__name__,
+      json.dumps(
+        ApiObject.as_json(self._body),
+        indent=2,
+        sort_keys=True,
+        separators=(',', ': '),
+      ),
+    )
 
 class Assignments(_DictWrapper):
   pass
