@@ -330,12 +330,13 @@ class TestObjects(object):
     token = load_and_parse(Token, 'token.json')
     assert isinstance(token, Token)
     assert token.all_experiments is False
-    assert token.development is True
-    assert token.permissions == 'read'
-    assert token.token_type == 'client-dev'
-    assert token.token == '123'
     assert token.client == '456'
+    assert token.development is True
     assert token.experiment == '1'
+    assert token.expires == 1547139000
+    assert token.permissions == 'read'
+    assert token.token == '123'
+    assert token.token_type == 'client-dev'
     assert token.user == '789'
 
   def test_metric(self):
