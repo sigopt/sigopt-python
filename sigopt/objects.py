@@ -427,6 +427,7 @@ class Experiment(ApiObject):
   parameters = Field(ListOf(Parameter))
   parallel_bandwidth = Field(int)
   progress = Field(Progress)
+  project = Field(six.text_type)
   state = Field(six.text_type)
   tasks = Field(ListOf(Task))
   type = Field(six.text_type)
@@ -457,3 +458,13 @@ class BestAssignments(ApiObject):
 class StoppingCriteria(ApiObject):
   should_stop = Field(bool)
   reasons = Field(ListOf(six.text_type))
+
+
+class Project(ApiObject):
+  id = Field(six.text_type)
+  client = Field(six.text_type)
+  name = Field(six.text_type)
+  user = Field(six.text_type)
+  created = Field(int)
+  updated = Field(int)
+  metadata = Field(Metadata)
