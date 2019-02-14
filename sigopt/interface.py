@@ -13,6 +13,7 @@ from .objects import (
   Organization,
   Pagination,
   Plan,
+  Project,
   Suggestion,
   StoppingCriteria,
   Token,
@@ -125,6 +126,27 @@ class ConnectionImpl(object):
       ],
     )
 
+    client_project_experiments = ApiResource(
+      self,
+      'experiments',
+      endpoints=[
+        ApiEndpoint(None, lambda *args, **kwargs: Pagination(Experiment, *args, **kwargs), 'GET', 'fetch'),
+      ],
+    )
+
+    client_projects = ApiResource(
+      self,
+      'projects',
+      endpoints=[
+        ApiEndpoint(None, Project, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Project), 'GET', 'fetch'),
+        ApiEndpoint(None, Project, 'PUT', 'update'),
+      ],
+      resources=[
+        client_project_experiments,
+      ],
+    )
+
     self.clients = ApiResource(
       self,
       'clients',
@@ -133,6 +155,7 @@ class ConnectionImpl(object):
       ],
       resources=[
         client_experiments,
+        client_projects,
         plan,
       ],
     )
