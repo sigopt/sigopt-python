@@ -46,6 +46,7 @@ if __name__ == '__main__':
   conn = Connection(client_token=client_token)
   experiment = conn.experiments().create(
     name="Parallel Test Franke Function",
+    project="sigopt-examples",
     parameters=[
       {'name': 'x1', 'bounds': {'max': 1.0, 'min': 0.0}, 'type': 'double'},
       {'name': 'x2', 'bounds': {'max': 1.0, 'min': 0.0}, 'type': 'double'},
