@@ -20,4 +20,4 @@ install:
   - make update
 script:
   - make test
-  - '[[ ! "$(python --version)" = "Python 3.6."* ]] || (pip install pylint==2.1.1 && make lint)'
+  - '[[ ! "$(python --version)" = "Python 3.6."* ]] || (pip install pylint==2.3.0 && make lint)'
