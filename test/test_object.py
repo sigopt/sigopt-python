@@ -123,7 +123,6 @@ class TestObjects(object):
   def test_experiment(self, experiment):
     assert experiment.id == '123'
     assert experiment.name == 'Test Experiment'
-    assert experiment.type == 'cross_validated'
     assert experiment.created == 321
     assert isinstance(experiment.metrics[0], Metric)
     assert experiment.metrics[0].name == 'Revenue'
@@ -221,8 +220,6 @@ class TestObjects(object):
     assert isinstance(experiment.metadata, Metadata)
     assert experiment.metadata['abc'] == 'def'
     assert experiment.metadata['ghi'] == 123
-    assert experiment.folds == 10
-    assert experiment.max_checkpoints == 9
     assert experiment.parallel_bandwidth == 2
     assert experiment.updated == 453
     assert experiment.user == '789'
@@ -293,10 +290,6 @@ class TestObjects(object):
     assert isinstance(suggestion.metadata, Metadata)
     assert suggestion.metadata['abc'] == 'def'
     assert suggestion.metadata['ghi'] == 123
-    assert suggestion.fold == '102'
-    assert suggestion.fold_index == 3
-    assert suggestion.checkpoint_index == 2
-    assert suggestion.reference_id == '101'
     assert isinstance(suggestion.task, Task)
     assert suggestion.task.name == 'task 1'
     assert suggestion.task.cost == 0.567
