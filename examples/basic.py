@@ -18,6 +18,7 @@ if __name__ == '__main__':
   # Create an experiment with one paramter, x
   experiment = connection.experiments().create(
     name="Basic Test experiment",
+    project="sigopt-examples",
     parameters=[{'name': 'x', 'bounds': {'max': 50.0, 'min': 0.0}, 'type': 'double'}],
     observation_budget=the_args.observation_budget,
   )
