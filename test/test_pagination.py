@@ -144,8 +144,6 @@ class TestPagination(object):
     assert bound_endpoint.call_args[1].get('before') == '1'
     assert bound_endpoint.call_args[1].get('after') is None
 
-  # NOTE(patrick): Remove xfail in next major version bump
-  @pytest.mark.xfail(strict=True)
   def test_iterate_pages_before_after_returns_after(self, bound_endpoint):
     self.make_call(
       retrieve_params={'before': '999', 'after': '888'},
