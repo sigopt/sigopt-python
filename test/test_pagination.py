@@ -59,14 +59,6 @@ class TestPagination(object):
   def forward_paging(self, request):
     return request.param
 
-  @pytest.fixture(params=[
-    dict(before='1'),
-    dict(after='2'),
-    dict(before='1', after='2'),
-  ])
-  def paging(self, request):
-    return request.param
-
   def make_call(self, paging, bound_endpoint, retrieve_params):
     list(Pagination(Experiment, {
       'object': 'pagination',
