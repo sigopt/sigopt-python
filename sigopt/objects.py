@@ -305,7 +305,6 @@ class Pagination(ApiObject):
     data = self.data
     paging = self.paging or Paging({})
 
-    specified_direction = ('before' in self._retrieve_params) ^ ('after' in self._retrieve_params)
     use_before = 'before' in self._retrieve_params or 'after' not in self._retrieve_params
 
     while data:
