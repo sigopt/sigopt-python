@@ -17,15 +17,12 @@ class TestPagination(object):
     return Experiment({'object': 'experiment', 'type': 'offline'})
 
   @pytest.fixture
-  def bound_endpoint(self, experiment2):
+  def bound_endpoint(self, experiment2, no_paging):
     second_page = Pagination(Experiment, {
       'object': 'pagination',
       'count': 2,
       'data': [experiment2.to_json()],
-      'paging': {
-        'before': None,
-        'after': None,
-      },
+      'paging': no_paging,
     })
     return mock.Mock(BoundApiEndpoint, side_effect=lambda *args, **kwargs: second_page)
 
@@ -33,17 +30,9 @@ class TestPagination(object):
     assert list(Pagination(Experiment, {}, bound_endpoint, {}).iterate_pages()) == []
     assert bound_endpoint.mock_calls == []
 
-  def test_single_page(self, experiment1, bound_endpoint):
-    assert list(Pagination(Experiment, {
-      'object': 'pagination',
-      'count': 1,
-      'data': [experiment1.to_json()],
-      'paging': {
-        'before': None,
-        'after': None,
-      },
-    }, bound_endpoint, {}).iterate_pages()) == [experiment1]
-    assert bound_endpoint.mock_calls == []
+  @pytest.fixture
+  def no_paging(self):
+    return dict(before=None, after=None)
 
   @pytest.fixture(params=[
     dict(before='1', after='2'),
@@ -53,19 +42,20 @@ class TestPagination(object):
     return request.param
 
   @pytest.fixture(params=[
-    dict(before='1'),
+    dict(before='1', after=None),
     dict(before='1', after='2'),
   ])
   def forward_paging(self, request):
     return request.param
 
-  @pytest.fixture(params=[
-    dict(before='1'),
-    dict(after='2'),
-    dict(before='1', after='2'),
-  ])
-  def paging(self, request):
-    return request.param
+  def test_single_page(self, experiment1, bound_endpoint, no_paging):
+    assert list(Pagination(Experiment, {
+      'object': 'pagination',
+      'count': 1,
+      'data': [experiment1.to_json()],
+      'paging': no_paging,
+    }, bound_endpoint, {}).iterate_pages()) == [experiment1]
+    assert bound_endpoint.mock_calls == []
 
   def make_call(self, paging, bound_endpoint, retrieve_params):
     list(Pagination(Experiment, {
@@ -237,12 +227,11 @@ class TestPagination(object):
     assert bound_endpoint.call_args[1]['after'] == '2'
 
   def test_paging_before_and_after_precedence_rules(self, experiment1, bound_endpoint):
-    paging = {'before': '1', 'after': '2'}
     list(Pagination(Experiment, {
       'object': 'pagination',
       'count': 1,
       'data': [experiment1.to_json()],
-      'paging': paging,
+      'paging': {'before': '1', 'after': '2'},
     }, bound_endpoint, {}).iterate_pages())
     assert len(bound_endpoint.mock_calls) == 1
     assert bound_endpoint.call_args[1]['before'] == '1'
