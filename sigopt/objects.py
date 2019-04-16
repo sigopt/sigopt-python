@@ -400,9 +400,14 @@ class LinearConstraint(ApiObject):
   threshold = Field(float)
   type = Field(six.text_type)
 
+
+class TrainingEarlyStoppingCriteria(_DictWrapper):
+  pass
+
+
 class TrainingMonitor(ApiObject):
   max_checkpoints = Field(int)
-  early_stopping_criteria = Field(ListOf(object))
+  early_stopping_criteria = Field(ListOf(TrainingEarlyStoppingCriteria))
 
 class Experiment(ApiObject):
   can_be_deleted = DeprecatedField(bool)
@@ -468,18 +473,23 @@ class Project(ApiObject):
   metadata = Field(Metadata)
 
 class TrainingRun(ApiObject):
-  id = Field(six.text_type)
-  suggestion = Field(six.text_type)
+  id = Field(str)
+  suggestion = Field(str)
+  observation = Field(str)
+  best_checkpoint = Field(str)
+  finished = Field(bool)
   created = Field(int)
   updated = Field(int)
+  metadata = Field(Metadata)
 
 class StoppingReasons(_DictWrapper):
   pass
 
 class Checkpoint(ApiObject):
-  id = Field(six.text_type)
-  training_run = Field(six.text_type)
+  id = Field(str)
+  training_run = Field(str)
   created = Field(int)
   should_stop = Field(bool)
   stopping_reasons = Field(StoppingReasons)
   values = Field(ListOf(MetricEvaluation))
+  metadata = Field(Metadata)
