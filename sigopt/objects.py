@@ -474,6 +474,7 @@ class Project(ApiObject):
 
 class TrainingRun(ApiObject):
   id = Field(str)
+  checkpoint_count = Field(int)
   suggestion = Field(str)
   observation = Field(str)
   best_checkpoint = Field(str)
