@@ -73,6 +73,14 @@ class ConnectionImpl(object):
       ],
     )
 
+    best_observations = ApiResource(
+      self,
+      'best_observations',
+      endpoints=[
+        ApiEndpoint(None, lambda *args, **kwargs: Pagination(Observation, *args, **kwargs), 'GET', 'fetch'),
+      ],
+    )
+
     importances = ApiResource(
       self,
       'importances',
@@ -108,6 +116,7 @@ class ConnectionImpl(object):
       ],
       resources=[
         best_assignments,
+        best_observations,
         importances,
         metric_importances,
         observations,
