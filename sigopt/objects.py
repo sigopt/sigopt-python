@@ -472,25 +472,28 @@ class Project(ApiObject):
   updated = Field(int)
   metadata = Field(Metadata)
 
+
 class TrainingRun(ApiObject):
   id = Field(str)
-  checkpoint_count = Field(int)
-  suggestion = Field(str)
-  observation = Field(str)
   best_checkpoint = Field(str)
-  finished = Field(bool)
+  checkpoint_count = Field(int)
   created = Field(int)
-  updated = Field(int)
+  finished = Field(bool)
   metadata = Field(Metadata)
+  observation = Field(str)
+  suggestion = Field(str)
+  updated = Field(int)
+
 
 class StoppingReasons(_DictWrapper):
   pass
 
+
 class Checkpoint(ApiObject):
   id = Field(str)
-  training_run = Field(str)
   created = Field(int)
+  metadata = Field(Metadata)
   should_stop = Field(bool)
   stopping_reasons = Field(StoppingReasons)
+  training_run = Field(str)
   values = Field(ListOf(MetricEvaluation))
-  metadata = Field(Metadata)
