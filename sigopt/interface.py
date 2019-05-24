@@ -6,6 +6,7 @@ from .objects import (
   ApiObject,
   BestAssignments,
   Client,
+  Checkpoint,
   Experiment,
   Importances,
   MetricImportances,
@@ -17,6 +18,7 @@ from .objects import (
   Suggestion,
   StoppingCriteria,
   Token,
+  TrainingRun
 )
 from .requestor import Requestor, DEFAULT_API_URL
 from .resource import ApiResource
@@ -97,6 +99,25 @@ class ConnectionImpl(object):
       ],
     )
 
+    checkpoints = ApiResource(
+      self,
+      'checkpoints',
+      endpoints=[
+        ApiEndpoint(None, Checkpoint, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Checkpoint), 'GET', 'fetch')
+      ]
+    )
+
+    training_runs = ApiResource(
+      self,
+      'training_runs',
+      endpoints=[
+        ApiEndpoint(None, TrainingRun, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(TrainingRun), 'GET', 'fetch')
+      ],
+      resources=[checkpoints]
+    )
+
     self.experiments = ApiResource(
       self,
       'experiments',
@@ -114,6 +135,7 @@ class ConnectionImpl(object):
         stopping_criteria,
         suggestions,
         tokens,
+        training_runs,
       ],
     )
 
