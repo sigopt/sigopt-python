@@ -126,6 +126,7 @@ class TestObjects(object):
     assert experiment.created == 321
     assert isinstance(experiment.metrics[0], Metric)
     assert experiment.metrics[0].name == 'Revenue'
+    assert experiment.metrics[0].objective == 'maximize'
     assert isinstance(experiment.metrics[1], Metric)
     assert experiment.metrics[1].name == 'Sales'
     assert experiment.client == '678'
@@ -337,6 +338,7 @@ class TestObjects(object):
     assert isinstance(metric, Metric)
     assert metric.name == 'Test'
     assert metric.value_baseline == 0.4
+    assert metric.objective == 'maximize'
 
   def test_importances(self):
     importances = load_and_parse(Importances, 'importances.json')

@@ -1,4 +1,5 @@
 {
   "name": "Test",
-  "value_baseline": 0.4
+  "value_baseline": 0.4,
+  "objective": "maximize"
 }

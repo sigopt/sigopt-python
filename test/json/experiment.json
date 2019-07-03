@@ -30,7 +30,8 @@
   "metrics": [
     {
       "object": "metric",
-      "name": "Revenue"
+      "name": "Revenue",
+      "objective": "maximize"
     },
     {
       "object": "metric",
