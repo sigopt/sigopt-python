@@ -31,11 +31,13 @@
     {
       "object": "metric",
       "name": "Revenue",
-      "objective": "maximize"
+      "objective": "maximize",
+      "threshold": null
     },
     {
       "object": "metric",
-      "name": "Sales"
+      "name": "Sales",
+      "threshold": -3.0
     }
   ],
   "client": "678",
