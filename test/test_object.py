@@ -130,7 +130,7 @@ class TestObjects(object):
     assert experiment.metrics[0].threshold is None
     assert isinstance(experiment.metrics[1], Metric)
     assert experiment.metrics[1].name == 'Sales'
-    assert experiment.metrics[0].threshold == -3.0
+    assert experiment.metrics[1].threshold == -3.0
     assert experiment.client == '678'
     assert experiment.linear_constraints
     assert experiment.linear_constraints[0]
