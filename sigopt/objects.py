@@ -404,7 +404,6 @@ class LinearConstraint(ApiObject):
 
 
 class TrainingEarlyStoppingCriteria(ApiObject):
-  id = Field(six.text_type)
   lookback_checkpoints = Field(int)
   name = Field(six.text_type)
   metric = Field(six.text_type)
