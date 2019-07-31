@@ -74,8 +74,6 @@ class TestPagination(object):
     }, bound_endpoint, {}).iterate_pages()) == [experiment1, experiment2]
     assert len(bound_endpoint.mock_calls) == 1
 
-  # NOTE(patrick): Remove xfail in next major version bump
-  @pytest.mark.xfail(strict=True)
   def test_receive_after_doesnt_page(self, experiment1, experiment2, bound_endpoint, backward_paging):
     assert list(Pagination(Experiment, {
       'object': 'pagination',
@@ -159,8 +157,6 @@ class TestPagination(object):
     assert bound_endpoint.call_args[1].get('before') == '1'
     assert bound_endpoint.call_args[1].get('after') is None
 
-  # NOTE(patrick): Remove xfail in next major version bump
-  @pytest.mark.xfail(strict=True)
   def test_iterate_pages_before_after_returns_after(self, bound_endpoint):
     self.make_call(
       retrieve_params={'before': '999', 'after': '888'},

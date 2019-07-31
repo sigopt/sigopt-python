@@ -306,13 +306,7 @@ class Pagination(ApiObject):
     data = self.data
     paging = self.paging or Paging({})
 
-    # TODO(patrick): Probably should always rely on _retrieve_params vs. using paging.before,
-    # but that is divergent behaviour. Consider for next major version bump
-    specified_direction = ('before' in self._retrieve_params) ^ ('after' in self._retrieve_params)
-    if specified_direction:
-      use_before = 'before' in self._retrieve_params or 'after' not in self._retrieve_params
-    else:
-      use_before = bool(paging.before)
+    use_before = 'before' in self._retrieve_params or 'after' not in self._retrieve_params
 
     while data:
       for d in data:
