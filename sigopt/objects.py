@@ -402,8 +402,13 @@ class LinearConstraint(ApiObject):
   type = Field(six.text_type)
 
 
-class TrainingEarlyStoppingCriteria(_DictWrapper):
-  pass
+class TrainingEarlyStoppingCriteria(ApiObject):
+  lookback_checkpoints = Field(int)
+  name = Field(six.text_type)
+  metric = Field(six.text_type)
+  min_checkpoints = Field(int)
+  type = Field(six.text_type)
+
 
 
 class TrainingMonitor(ApiObject):
