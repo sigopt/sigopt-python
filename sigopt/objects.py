@@ -259,7 +259,6 @@ class MetricEvaluation(ApiObject):
 
 class Metric(ApiObject):
   name = Field(six.text_type)
-  value_baseline = Field(float)
   objective = Field(six.text_type)
   threshold = Field(float)
 

@@ -339,7 +339,6 @@ class TestObjects(object):
     metric = load_and_parse(Metric, 'metric.json')
     assert isinstance(metric, Metric)
     assert metric.name == 'Test'
-    assert metric.value_baseline == 0.4
     assert metric.objective == 'maximize'
     assert metric.threshold is None
 
