@@ -28,14 +28,13 @@ jobs:
     docker:
       - image: circleci/python:3.7
     steps:
-      - prepare-for-numpy-install
       - test
+      - lint
   test-36:
     docker:
       - image: circleci/python:3.6
     steps:
       - test
-      - lint
   test-35:
     docker:
       - image: circleci/python:3.5
