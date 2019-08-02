@@ -40,7 +40,6 @@ jobs:
       - image: circleci/python:2.7
     steps:
       - test
-      - lint
 
 workflows:
   main:
