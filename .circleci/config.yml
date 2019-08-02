@@ -4,6 +4,7 @@ commands:
   test:
     steps:
       - checkout
+      - run: sudo apt-get install -yq libssl-dev python-dev
       - run: sudo make update
       - run: make test
 
