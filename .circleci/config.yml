@@ -3,8 +3,8 @@ version: 2.1
 commands:
   test:
     steps:
-      - make update
-      - make test
+      - run: make update
+      - run: make test
 
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
       - image: circleci/python:3.7
     steps:
       - test
-      - 'pip install pylint==2.3.0 && make lint'
+      - run: 'pip install pylint==2.3.0 && make lint'
   test-36:
     docker:
       - image: circleci/python:3.6
