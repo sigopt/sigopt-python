@@ -4,7 +4,6 @@ commands:
   test:
     steps:
       - checkout
-      - run: sudo apt-get install -yq lsb-release build-essential libssl-dev python-dev
       - run: sudo make update
       - run: make test
 
@@ -14,6 +13,7 @@ jobs:
     docker:
       - image: circleci/python:3.7
     steps:
+      - run: sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
       - test
       - run: 'pip install pylint==2.3.1 && make lint'
   test-36:
