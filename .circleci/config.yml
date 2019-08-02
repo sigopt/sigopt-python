@@ -12,7 +12,7 @@ commands:
       - run: make test
   lint:
     steps:
-      - run: pip install pylint==2.3.1
+      - run: sudo pip install pylint==2.3.1
       - run: make lint
 
 
