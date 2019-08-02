@@ -4,7 +4,7 @@ commands:
   test:
     steps:
       - checkout
-      - run: make update
+      - run: sudo make update
       - run: make test
 
 
