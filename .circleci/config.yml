@@ -6,6 +6,10 @@ commands:
       - checkout
       - run: sudo make update
       - run: make test
+  lint:
+    steps:
+      - run: pip install pylint==2.3.1
+      - run: make lint
 
 
 jobs:
@@ -13,9 +17,9 @@ jobs:
     docker:
       - image: circleci/python:3.7
     steps:
-      - run: sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
+      - run: 'sudo ln -s /usr/include/locale.h /usr/include/xlocale.h'
       - test
-      - run: 'pip install pylint==2.3.1 && make lint'
+      - lint
   test-36:
     docker:
       - image: circleci/python:3.6
@@ -34,9 +38,9 @@ jobs:
   test-27:
     docker:
       - image: circleci/python:2.7
-      - run: 'pip install pylint==2.3.1 && make lint'
     steps:
       - test
+      - lint
 
 workflows:
   main:
