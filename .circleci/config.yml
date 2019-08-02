@@ -3,6 +3,7 @@ version: 2.1
 commands:
   test:
     steps:
+      - checkout
       - run: make update
       - run: make test
 
