@@ -1,3 +1,5 @@
+[![Build Status](https://circleci.com/gh/sigopt/sigopt-python.svg?style=svg)](https://circleci.com/gh/sigopt/sigopt-python)
+
 # SigOpt Python API
 
 This is the [SigOpt](https://sigopt.com) Python API client.
@@ -97,5 +99,3 @@ To lint, install requirements (included in the previous step) and run
 ```bash
 make lint
 ```
-
-![Build Status](https://travis-ci.org/sigopt/sigopt-python.svg?branch=master)
