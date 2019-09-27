@@ -32,6 +32,7 @@
       "object": "metric",
       "name": "Revenue",
       "objective": "maximize",
+      "strategy": "optimize",
       "threshold": null
     },
     {

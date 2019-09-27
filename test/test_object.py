@@ -127,9 +127,11 @@ class TestObjects(object):
     assert isinstance(experiment.metrics[0], Metric)
     assert experiment.metrics[0].name == 'Revenue'
     assert experiment.metrics[0].objective == 'maximize'
+    assert experiment.metrics[0].strategy == 'optimize'
     assert experiment.metrics[0].threshold is None
     assert isinstance(experiment.metrics[1], Metric)
     assert experiment.metrics[1].name == 'Sales'
+    assert experiment.metrics[1].strategy == 'optimize'
     assert experiment.metrics[1].threshold == -3.0
     assert experiment.client == '678'
     assert experiment.linear_constraints
