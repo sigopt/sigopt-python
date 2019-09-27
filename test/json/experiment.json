@@ -38,6 +38,7 @@
     {
       "object": "metric",
       "name": "Sales",
+      "strategy": "optimize",
       "threshold": -3.0
     }
   ],
