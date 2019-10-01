@@ -260,6 +260,7 @@ class MetricEvaluation(ApiObject):
 class Metric(ApiObject):
   name = Field(six.text_type)
   objective = Field(six.text_type)
+  strategy = Field(six.text_type)
   threshold = Field(float)
 
 

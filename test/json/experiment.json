@@ -32,11 +32,13 @@
       "object": "metric",
       "name": "Revenue",
       "objective": "maximize",
+      "strategy": "optimize",
       "threshold": null
     },
     {
       "object": "metric",
       "name": "Sales",
+      "strategy": "optimize",
       "threshold": -3.0
     }
   ],
