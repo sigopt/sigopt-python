@@ -88,7 +88,7 @@ class ConnectionImpl(object):
       self,
       'metric_importances',
       endpoints=[
-        ApiEndpoint(None, lambda *args, **kwargs: Pagination(MetricImportances, *args, **kwargs), 'GET', 'fetch'),
+        ApiEndpoint(None, paginated_objects(MetricImportances), 'GET', 'fetch'),
       ],
     )
 
@@ -145,7 +145,7 @@ class ConnectionImpl(object):
       'experiments',
       endpoints=[
         ApiEndpoint(None, Experiment, 'POST', 'create'),
-        ApiEndpoint(None, lambda *args, **kwargs: Pagination(Experiment, *args, **kwargs), 'GET', 'fetch'),
+        ApiEndpoint(None, paginated_objects(Experiment), 'GET', 'fetch'),
       ],
     )
 
@@ -153,7 +153,7 @@ class ConnectionImpl(object):
       self,
       'experiments',
       endpoints=[
-        ApiEndpoint(None, lambda *args, **kwargs: Pagination(Experiment, *args, **kwargs), 'GET', 'fetch'),
+        ApiEndpoint(None, paginated_objects(Experiment), 'GET', 'fetch'),
       ],
     )
 
@@ -289,6 +289,12 @@ class Connection(object):
   @property
   def organizations(self):
     return self.impl.organizations
+
+
+def paginated_objects(api_object):
+  def decorator(body, *args, **kwargs):
+    return Pagination(api_object, body, *args, **kwargs)
+  return decorator
 
 
 # Allows response to be a single object of class some_class or a paginated
