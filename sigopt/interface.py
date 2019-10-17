@@ -44,6 +44,7 @@ class ConnectionImpl(object):
       self,
       'observations',
       endpoints=[
+        ApiEndpoint(None, Observation, 'POST', 'create_batch'),
         ApiEndpoint(None, Observation, 'POST', 'create'),
         ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
         ApiEndpoint(None, Observation, 'PUT', 'update'),
