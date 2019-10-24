@@ -1,0 +1,15 @@
+{
+  "object": "queued_suggestion",
+  "id": "1",
+  "assignments": {
+    "a": 1,
+    "b": "c"
+  },
+  "experiment": "1",
+  "created": 123,
+  "task": {
+    "cost": 0.567,
+    "name": "task 1",
+    "object": "task"
+  }
+}

@@ -1,0 +1,8 @@
+experiment:
+  name: e1
+  parameters:
+    - name: p1
+      type: double
+      bound:
+        min: 0
+        max: 1

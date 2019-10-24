@@ -18,12 +18,14 @@ class TestEndpoint(object):
   def connection(self, requestor):
     return ConnectionImpl(requestor)
 
-  def assert_called(self, requestor, connection, method, url, params=None):
+  def assert_called(self, requestor, connection, method, url, params=None, headers=None, user_agent=None):
     params = params or {}
     if method in ('get', 'delete'):
       kwargs = {'params': params, 'json': None}
     else:
       kwargs = {'json': params, 'params': None}
+    kwargs.update({'headers': headers})
+    kwargs.update({'user_agent': user_agent})
     requestor.request.assert_called_once_with(
       method.upper(),
       'https://api.sigopt.com/v1' + url,
@@ -110,6 +112,26 @@ class TestEndpoint(object):
     connection.experiments(1).suggestions().delete(state='open')
     self.assert_called(requestor, connection, 'delete', '/experiments/1/suggestions', {'state': 'open'})
 
+  def test_queued_suggestion_list(self, requestor, connection):
+    connection.experiments(1).queued_suggestions().fetch()
+    self.assert_called(requestor, connection, 'get', '/experiments/1/queued_suggestions')
+
+  def test_queued_suggestion_list_params(self, requestor, connection):
+    connection.experiments(1).queued_suggestions().fetch(limit=10, before='1')
+    self.assert_called(requestor, connection, 'get', '/experiments/1/queued_suggestions', {'limit': '10', 'before': '1'})
+
+  def test_queued_suggestion_detail(self, requestor, connection):
+    connection.experiments(1).queued_suggestions(2).fetch()
+    self.assert_called(requestor, connection, 'get', '/experiments/1/queued_suggestions/2')
+
+  def test_queued_suggestion_create_params(self, requestor, connection):
+    connection.experiments(1).queued_suggestions().create(assignments={'a': 1})
+    self.assert_called(requestor, connection, 'post', '/experiments/1/queued_suggestions', {'assignments': {'a': 1}})
+
+  def test_queued_suggestion_delete(self, requestor, connection):
+    connection.experiments(1).queued_suggestions(2).delete()
+    self.assert_called(requestor, connection, 'delete', '/experiments/1/queued_suggestions/2')
+
   def test_observation_list(self, requestor, connection):
     connection.experiments(1).observations().fetch()
     self.assert_called(requestor, connection, 'get', '/experiments/1/observations')
@@ -149,10 +171,6 @@ class TestEndpoint(object):
   def test_observation_delete_all(self, requestor, connection):
     connection.experiments(1).observations().delete()
     self.assert_called(requestor, connection, 'delete', '/experiments/1/observations')
-
-  def test_plan(self, requestor, connection):
-    connection.clients(1).plan().fetch()
-    self.assert_called(requestor, connection, 'get', '/clients/1/plan')
 
   def test_token_create(self, requestor, connection):
     connection.experiments(1).tokens().create()

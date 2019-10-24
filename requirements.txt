@@ -1,2 +1,6 @@
-# Keep this in sync with setup.py
+click>=7.0.0
+GitPython>=2.0.0
+ipython>=5.0.0
+pypng>=0.0.20
+PyYAML>=5.4.1
 requests>=2.11.1

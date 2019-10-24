@@ -1,37 +1,39 @@
 version: 2.1
 
 commands:
-  test:
+  setup:
     steps:
       - checkout
       - run: sudo make update
+  test:
+    steps:
+      - setup
       - run: make test
   lint:
     steps:
+      - setup
       - run: sudo pip install pylint==2.3.1
       - run: make lint
 
-
 jobs:
+  lint:
+    docker:
+      - image: circleci/python:3.8
+    steps:
+      - lint
+  test-38:
+    docker:
+      - image: circleci/python:3.8
+    steps:
+      - test
   test-37:
     docker:
       - image: circleci/python:3.7
     steps:
       - test
-      - lint
   test-36:
     docker:
       - image: circleci/python:3.6
-    steps:
-      - test
-  test-35:
-    docker:
-      - image: circleci/python:3.5
-    steps:
-      - test
-  test-34:
-    docker:
-      - image: circleci/python:3.4
     steps:
       - test
   test-27:
@@ -44,7 +46,7 @@ workflows:
   main:
     jobs:
       - test-27
-      - test-34
-      - test-35
       - test-36
       - test-37
+      - test-38
+      - lint

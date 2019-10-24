@@ -45,3 +45,6 @@ class ApiException(SigOptException):
 
   def to_json(self):
     return copy.deepcopy(self._body)
+
+class RunException(SigOptException):
+  pass

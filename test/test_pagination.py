@@ -5,9 +5,13 @@ import warnings
 from sigopt.endpoint import BoundApiEndpoint
 from sigopt.objects import *
 
-warnings.simplefilter("always")
+warnings.simplefilter("error")
 
 class TestPagination(object):
+  @pytest.fixture(autouse=True)
+  def set_warnings(self):
+    warnings.simplefilter("error")
+
   @pytest.fixture
   def experiment1(self):
     return Experiment({'object': 'experiment'})

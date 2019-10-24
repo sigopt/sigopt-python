@@ -1,6 +1,10 @@
-import collections as _collections
 import math as _math
 import numbers as _numbers
+
+try:
+  from collections.abc import Mapping as _Mapping, Sequence as _Sequence
+except ImportError:
+  from collections import Mapping as _Mapping, Sequence as _Sequence
 
 from .vendored import six as _six
 
@@ -15,7 +19,7 @@ def is_sequence(val):
   if is_numpy_array(val):
     return True
   return (
-    isinstance(val, _collections.Sequence) and
+    isinstance(val, _Sequence) and
       not isinstance(val, _six.string_types) and
       not isinstance(val, _six.binary_type)
   )
@@ -24,7 +28,7 @@ def is_mapping(val):
   """
   Returns True iff this is a "dict-like" type
   """
-  return isinstance(val, _collections.Mapping)
+  return isinstance(val, _Mapping)
 
 def is_integer(num):
   """
@@ -46,3 +50,9 @@ def is_number(x):
 
 def is_string(s):
   return isinstance(s, _six.string_types)
+
+def find(lis, predicate):
+  """
+  Finds the first element in lis satisfying predicate, or else None
+  """
+  return next((item for item in lis if predicate(item)), None)

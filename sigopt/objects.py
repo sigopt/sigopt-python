@@ -70,23 +70,31 @@ class BaseApiObject(object):
     else:
       return subvalue if isinstance(subvalue, Field) else None
 
-  def __repr__(self):
+  def _repr_keys(self):
     attributes = dir(self)
     attributes = [a for a in attributes if not a.startswith('_')]
+    attributes = [a for a in attributes if not isinstance(getattr(self.__class__, a), DeprecatedField)]
     attributes = [a for a in attributes if not callable(getattr(self, a))]
     keys_in_json = set(ApiObject.as_json(self._body).keys())
-    keys = keys_in_json.intersection(set(attributes))
+    return keys_in_json.intersection(set(attributes))
 
-    if keys:
+  @staticmethod
+  def _emit_repr(object_name, values_mapping):
+    if values_mapping:
       return six.u('{0}(\n{1}\n)').format(
-        self.__class__.__name__,
+        object_name,
         '\n'.join([
-          six.u('  {}={},').format(key, ApiObject.dumps(getattr(self, key), indent_level=2).lstrip())
-          for key
-          in keys
+          six.u('  {}={},').format(key, ApiObject.dumps(value, indent_level=2).lstrip())
+          for key, value
+          in values_mapping.items()
         ]),
       )
-    return six.u('{0}()').format(self.__class__.__name__)
+    return six.u('{0}()').format(object_name)
+
+  def __repr__(self):
+    keys = self._repr_keys()
+    values = {key: getattr(self, key) for key in keys}
+    return BaseApiObject._emit_repr(self.__class__.__name__, values)
 
   def to_json(self):
     return copy.deepcopy(self._body)
@@ -223,6 +231,7 @@ class Client(ApiObject):
   created = Field(int)
   id = Field(six.text_type)
   name = Field(six.text_type)
+  organization = Field(six.text_type)
 
 
 class Conditional(ApiObject):
@@ -298,13 +307,34 @@ class Pagination(ApiObject):
     super(Pagination, self).__init__(body, bound_endpoint, retrieve_params)
     self.data_cls = data_cls
 
+  def _repr_keys(self):
+    return ['data', 'count', 'paging']
+
+  def __repr__(self):
+    values = {
+      'data': self._unsafe_data,
+      'count': self.count,
+      'paging': self.paging,
+    }
+    values = {k: v for k, v in values.items() if v is not None}
+    return BaseApiObject._emit_repr('Pagination<{0}>'.format(self.data_cls.__name__), values)
+
   @property
   def data(self):
+    warnings.warn(
+      'The .data field only contains a single page of results, which may be incomplete for large responses.'
+      ' Prefer to use the `.iterate_pages() to ensure that you iterate through all elements in the response.',
+      RuntimeWarning,
+    )
+    return self._unsafe_data
+
+  @property
+  def _unsafe_data(self):
     return Field(ListOf(self.data_cls))(self._body.get('data'))
 
   def iterate_pages(self):
     # pylint: disable=no-member
-    data = self.data
+    data = self._unsafe_data
     paging = self.paging or Paging({})
 
     use_before = 'before' in self._retrieve_params or 'after' not in self._retrieve_params
@@ -322,12 +352,20 @@ class Pagination(ApiObject):
           params.pop('before', None)
           params['after'] = paging.after
         response = self._bound_endpoint(**params)
-        data = response.data
+        data = response._unsafe_data
         paging = response.paging
       else:
         data = []
         paging = None
     # pylint: enable=no-member
+
+
+class ParameterPrior(ApiObject):
+  mean = Field(float)
+  name = Field(six.text_type)
+  scale = Field(float)
+  shape_a = Field(float)
+  shape_b = Field(float)
 
 
 class Parameter(ApiObject):
@@ -337,35 +375,9 @@ class Parameter(ApiObject):
   default_value = Field(Any)
   name = Field(six.text_type)
   precision = Field(int)
+  prior = Field(ParameterPrior)
   tunable = DeprecatedField(bool)
   type = Field(six.text_type)
-
-
-class PlanPeriod(ApiObject):
-  end = Field(int)
-  experiments = Field(ListOf(six.text_type))
-  start = Field(int)
-
-
-class PlanRules(ApiObject):
-  max_categorical_breadth = Field(int)
-  max_clients = Field(int)
-  max_conditionals_breadth = Field(int)
-  max_constraints = Field(int)
-  max_dimension = Field(int)
-  max_experiments = Field(int)
-  max_metrics = Field(int)
-  max_observations = Field(int)
-  max_parallelism = Field(int)
-  max_solutions = Field(int)
-  max_users = Field(int)
-
-
-class Plan(ApiObject):
-  current_period = Field(PlanPeriod)
-  id = Field(six.text_type)
-  name = Field(six.text_type)
-  rules = Field(PlanRules)
 
 
 class Progress(ApiObject):
@@ -386,6 +398,14 @@ class Suggestion(ApiObject):
   task = Field(Task)
 
 
+class QueuedSuggestion(ApiObject):
+  assignments = Field(Assignments)
+  created = Field(int)
+  experiment = Field(str)
+  id = Field(str)
+  task = Field(Task)
+
+
 class ConstraintTerm(ApiObject):
   name = Field(six.text_type)
   weight = Field(float)
@@ -403,7 +423,6 @@ class TrainingEarlyStoppingCriteria(ApiObject):
   metric = Field(six.text_type)
   min_checkpoints = Field(int)
   type = Field(six.text_type)
-
 
 
 class TrainingMonitor(ApiObject):
@@ -479,9 +498,11 @@ class TrainingRun(ApiObject):
   best_checkpoint = Field(str)
   checkpoint_count = Field(int)
   created = Field(int)
+  deleted = Field(bool)
   finished = Field(bool)
   metadata = Field(Metadata)
   observation = Field(str)
+  state = Field(str)
   suggestion = Field(str)
   updated = Field(int)
 
@@ -498,3 +519,17 @@ class Checkpoint(ApiObject):
   stopping_reasons = Field(StoppingReasons)
   training_run = Field(str)
   values = Field(ListOf(MetricEvaluation))
+
+
+class User(ApiObject):
+  created = Field(int)
+  deleted = Field(bool)
+  email = Field(str)
+  id = Field(str)
+  name = Field(str)
+
+
+class Session(ApiObject):
+  api_token = Field(Token)
+  client = Field(Client)
+  user = Field(User)
