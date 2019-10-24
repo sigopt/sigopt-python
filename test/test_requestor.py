@@ -5,7 +5,7 @@ import pytest
 from sigopt.compat import json
 from sigopt.exception import ApiException, ConnectionException
 from sigopt.interface import ConnectionImpl
-from sigopt.objects import Experiment
+from sigopt.objects import Experiment, Pagination, Observation
 import sigopt.vendored.six as six
 
 class MockRequestor(object):
@@ -52,6 +52,7 @@ class TestRequestor(object):
     assert connection.experiments().create() == Experiment(SAMPLE_RESPONSE)
     assert connection.experiments(1).update() == Experiment(SAMPLE_RESPONSE)
     assert connection.experiments(1).delete() is None
+    assert connection.experiments(1).observations().create_batch() == Pagination(Observation, SAMPLE_RESPONSE)
 
   def test_ok_code(self):
     connection = ConnectionImpl(self.returns(SAMPLE_RESPONSE))

@@ -130,6 +130,10 @@ class TestEndpoint(object):
     connection.experiments(1).observations().create(assignments={'a': 1})
     self.assert_called(requestor, connection, 'post', '/experiments/1/observations', {'assignments': {'a': 1}})
 
+  def test_observation_create_batch(self, requestor, connection):
+    connection.experiments(1).observations().create_batch()
+    self.assert_called(requestor, connection, 'post', '/experiments/1/observations/batch')
+
   def test_observation_update(self, requestor, connection):
     connection.experiments(1).observations(2).update()
     self.assert_called(requestor, connection, 'put', '/experiments/1/observations/2')
