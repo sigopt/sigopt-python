@@ -5,8 +5,8 @@ from .endpoint import ApiEndpoint
 from .objects import (
   ApiObject,
   BestAssignments,
-  Client,
   Checkpoint,
+  Client,
   Experiment,
   Importances,
   MetricImportances,
@@ -15,10 +15,11 @@ from .objects import (
   Pagination,
   Plan,
   Project,
-  Suggestion,
+  QueuedSuggestion,
   StoppingCriteria,
+  Suggestion,
   Token,
-  TrainingRun
+  TrainingRun,
 )
 from .requestor import Requestor, DEFAULT_API_URL
 from .resource import ApiResource
@@ -38,6 +39,16 @@ class ConnectionImpl(object):
         ApiEndpoint(None, Suggestion, 'PUT', 'update'),
         ApiEndpoint(None, None, 'DELETE', 'delete'),
       ],
+    )
+
+    queued_suggestions = ApiResource(
+      self,
+      'queued_suggestions',
+      endpoints=[
+        ApiEndpoint(None, QueuedSuggestion, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(QueuedSuggestion), 'GET', 'fetch'),
+        ApiEndpoint(None, None, 'DELETE', 'delete'),
+      ]
     )
 
     observations = ApiResource(
@@ -133,6 +144,7 @@ class ConnectionImpl(object):
         importances,
         metric_importances,
         observations,
+        queued_suggestions,
         stopping_criteria,
         suggestions,
         tokens,

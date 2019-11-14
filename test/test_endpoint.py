@@ -110,6 +110,26 @@ class TestEndpoint(object):
     connection.experiments(1).suggestions().delete(state='open')
     self.assert_called(requestor, connection, 'delete', '/experiments/1/suggestions', {'state': 'open'})
 
+  def test_queued_suggestion_list(self, requestor, connection):
+    connection.experiments(1).queued_suggestions().fetch()
+    self.assert_called(requestor, connection, 'get', '/experiments/1/queued_suggestions')
+
+  def test_queued_suggestion_list_params(self, requestor, connection):
+    connection.experiments(1).queued_suggestions().fetch(limit=10, before='1')
+    self.assert_called(requestor, connection, 'get', '/experiments/1/queued_suggestions', {'limit': '10', 'before': '1'})
+
+  def test_queued_suggestion_detail(self, requestor, connection):
+    connection.experiments(1).queued_suggestions(2).fetch()
+    self.assert_called(requestor, connection, 'get', '/experiments/1/queued_suggestions/2')
+
+  def test_queued_suggestion_create_params(self, requestor, connection):
+    connection.experiments(1).queued_suggestions().create(assignments={'a': 1})
+    self.assert_called(requestor, connection, 'post', '/experiments/1/queued_suggestions', {'assignments': {'a': 1}})
+
+  def test_queued_suggestion_delete(self, requestor, connection):
+    connection.experiments(1).queued_suggestions(2).delete()
+    self.assert_called(requestor, connection, 'delete', '/experiments/1/queued_suggestions/2')
+
   def test_observation_list(self, requestor, connection):
     connection.experiments(1).observations().fetch()
     self.assert_called(requestor, connection, 'get', '/experiments/1/observations')
