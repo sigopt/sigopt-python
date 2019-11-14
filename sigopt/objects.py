@@ -386,6 +386,14 @@ class Suggestion(ApiObject):
   task = Field(Task)
 
 
+class QueuedSuggestion(ApiObject):
+  assignments = Field(Assignments)
+  created = Field(int)
+  experiment = Field(str)
+  id = Field(str)
+  task = Field(Task)
+
+
 class ConstraintTerm(ApiObject):
   name = Field(six.text_type)
   weight = Field(float)
@@ -403,7 +411,6 @@ class TrainingEarlyStoppingCriteria(ApiObject):
   metric = Field(six.text_type)
   min_checkpoints = Field(int)
   type = Field(six.text_type)
-
 
 
 class TrainingMonitor(ApiObject):

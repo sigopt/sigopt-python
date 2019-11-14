@@ -299,6 +299,19 @@ class TestObjects(object):
     assert suggestion.task.name == 'task 1'
     assert suggestion.task.cost == 0.567
 
+  def test_queued_suggestion(self):
+    queued_suggestion = load_and_parse(QueuedSuggestion, 'queued_suggestion.json')
+    assert isinstance(queued_suggestion, QueuedSuggestion)
+    assert queued_suggestion.id == '1'
+    assert isinstance(queued_suggestion.assignments, Assignments)
+    assert queued_suggestion.assignments.get('a') == 1
+    assert queued_suggestion.assignments.get('b') == 'c'
+    assert queued_suggestion.experiment == '1'
+    assert queued_suggestion.created == 123
+    assert isinstance(queued_suggestion.task, Task)
+    assert queued_suggestion.task.name == 'task 1'
+    assert queued_suggestion.task.cost == 0.567
+
   def test_pagination(self):
     pagination = Pagination(Experiment, load('pagination.json'))
     assert isinstance(pagination, Pagination)
