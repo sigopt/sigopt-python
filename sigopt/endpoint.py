@@ -16,7 +16,7 @@ class BoundApiEndpoint(object):
 
     raw_response = conn._request(self._endpoint._method, url, params)
 
-    if self._endpoint._response_cls is not None:
+    if raw_response is not None and self._endpoint._response_cls is not None:
       return self._endpoint._response_cls(raw_response, self, params)
     return None
 

@@ -62,6 +62,10 @@ class TestRequestor(object):
     connection = ConnectionImpl(self.returns(SAMPLE_RESPONSE))
     assert connection.experiments(1).fetch() == Experiment(SAMPLE_RESPONSE)
 
+  def test_no_response(self):
+    connection = ConnectionImpl(self.returns(None))
+    assert connection.experiments(1).fetch() is None
+
   def test_client_error(self):
     connection = ConnectionImpl(self.returns(ApiException(SAMPLE_RESPONSE, 400)))
     with pytest.raises(ApiException) as e:
