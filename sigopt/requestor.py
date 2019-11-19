@@ -70,11 +70,14 @@ class Requestor(object):
     status_code = response.status_code
     is_success = 200 <= status_code <= 299
 
-    try:
-      response_json = simplejson.loads(response.text)
-    except ValueError:
-      response_json = {'message': response.text}
-      status_code = 500 if is_success else status_code
+    if status_code == 204:
+      response_json = None
+    else:
+      try:
+        response_json = simplejson.loads(response.text)
+      except ValueError:
+        response_json = {'message': response.text}
+        status_code = 500 if is_success else status_code
 
     if is_success:
       return response_json
