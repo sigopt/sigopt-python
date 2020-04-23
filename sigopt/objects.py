@@ -505,3 +505,17 @@ class Checkpoint(ApiObject):
   stopping_reasons = Field(StoppingReasons)
   training_run = Field(str)
   values = Field(ListOf(MetricEvaluation))
+
+
+class ApiToken(_DictWrapper):
+  pass
+
+
+class User(_DictWrapper):
+  pass
+
+
+class Session(ApiObject):
+  api_token = Field(ApiToken)
+  client = Field(Client)
+  user = Field(User)

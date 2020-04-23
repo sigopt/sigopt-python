@@ -15,6 +15,8 @@ class Requestor(object):
     verify_ssl_certs=True,
     proxies=None,
     timeout=DEFAULT_HTTP_TIMEOUT,
+    client_ssl_certs=None,
+    ca_bundle=None,
   ):
     if user is not None:
       self.auth = requests.auth.HTTPBasicAuth(user, password)
@@ -22,8 +24,10 @@ class Requestor(object):
       self.auth = None
     self.default_headers = headers or {}
     self.verify_ssl_certs = verify_ssl_certs
+    self.ca_bundle = ca_bundle
     self.proxies = proxies
     self.timeout = timeout
+    self.client_ssl_certs = client_ssl_certs
 
   def get(self, url, params=None, json=None, headers=None):
     return self.request('get', url=url, params=params, json=json, headers=headers)
@@ -39,6 +43,9 @@ class Requestor(object):
 
   def request(self, method, url, params=None, json=None, headers=None):
     headers = self._with_default_headers(headers)
+    verify = self.verify_ssl_certs
+    if verify and self.ca_bundle:
+      verify = self.ca_bundle
     try:
       response = requests.request(
         method=method,
@@ -47,9 +54,10 @@ class Requestor(object):
         json=json,
         auth=self.auth,
         headers=headers,
-        verify=self.verify_ssl_certs,
+        verify=verify,
         proxies=self.proxies,
         timeout=self.timeout,
+        cert=self.client_ssl_certs,
       )
     except requests.exceptions.RequestException as e:
       message = ['An error occurred connecting to SigOpt.']

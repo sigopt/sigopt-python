@@ -16,6 +16,7 @@ from .objects import (
   Plan,
   Project,
   QueuedSuggestion,
+  Session,
   StoppingCriteria,
   Suggestion,
   Token,
@@ -203,6 +204,14 @@ class ConnectionImpl(object):
       ],
     )
 
+    self.pki_sessions = ApiResource(
+      self,
+      'pki_sessions',
+      endpoints=[
+        ApiEndpoint(None, Session, 'POST', 'create'),
+      ],
+    )
+
   def _request(self, method, url, params):
     if method.upper() in ('GET', 'DELETE'):
       json, params = None, self._request_params(params)
@@ -254,6 +263,12 @@ class ConnectionImpl(object):
   def set_timeout(self, timeout):
     self.requestor.timeout = timeout
 
+  def set_client_ssl_certs(self, client_ssl_certs):
+    self.requestor.client_ssl_certs = client_ssl_certs
+
+  def set_ca_bundle(self, ca_bundle):
+    self.requestor.ca_bundle = ca_bundle
+
 
 class Connection(object):
   """
@@ -290,6 +305,12 @@ class Connection(object):
   def set_timeout(self, timeout):
     self.impl.set_timeout(timeout)
 
+  def set_client_ssl_certs(self, client_ssl_certs):
+    self.impl.set_client_ssl_certs(client_ssl_certs)
+
+  def set_ca_bundle(self, ca_bundle):
+    self.impl.set_ca_bundle(ca_bundle)
+
   @property
   def clients(self):
     return self.impl.clients
@@ -301,6 +322,10 @@ class Connection(object):
   @property
   def organizations(self):
     return self.impl.organizations
+
+  @property
+  def pki_sessions(self):
+    return self.impl.pki_sessions
 
 
 def paginated_objects(api_object):
