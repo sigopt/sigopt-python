@@ -507,15 +507,11 @@ class Checkpoint(ApiObject):
   values = Field(ListOf(MetricEvaluation))
 
 
-class ApiToken(_DictWrapper):
-  pass
-
-
 class User(_DictWrapper):
   pass
 
 
 class Session(ApiObject):
-  api_token = Field(ApiToken)
+  api_token = Field(Token)
   client = Field(Client)
   user = Field(User)

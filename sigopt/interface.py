@@ -77,6 +77,7 @@ class ConnectionImpl(object):
       'tokens',
       endpoints=[
         ApiEndpoint(None, Token, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(Token), 'GET', 'fetch'),
       ],
     )
 
@@ -193,6 +194,7 @@ class ConnectionImpl(object):
         client_experiments,
         client_projects,
         plan,
+        tokens,
       ],
     )
 
@@ -201,6 +203,14 @@ class ConnectionImpl(object):
       'organizations',
       endpoints=[
         ApiEndpoint(None, object_or_paginated_objects(Organization), 'GET', 'fetch'),
+      ],
+    )
+
+    self.sessions = ApiResource(
+      self,
+      'sessions',
+      endpoints=[
+        ApiEndpoint(None, Session, 'GET', 'fetch'),
       ],
     )
 
@@ -326,6 +336,10 @@ class Connection(object):
   @property
   def pki_sessions(self):
     return self.impl.pki_sessions
+
+  @property
+  def sessions(self):
+    return self.impl.sessions
 
 
 def paginated_objects(api_object):
