@@ -16,7 +16,6 @@ class Requestor(object):
     proxies=None,
     timeout=DEFAULT_HTTP_TIMEOUT,
     client_ssl_certs=None,
-    ca_bundle=None,
   ):
     if user is not None:
       self.auth = requests.auth.HTTPBasicAuth(user, password)
@@ -24,7 +23,6 @@ class Requestor(object):
       self.auth = None
     self.default_headers = headers or {}
     self.verify_ssl_certs = verify_ssl_certs
-    self.ca_bundle = ca_bundle
     self.proxies = proxies
     self.timeout = timeout
     self.client_ssl_certs = client_ssl_certs
