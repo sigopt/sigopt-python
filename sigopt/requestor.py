@@ -29,6 +29,12 @@ class Requestor(object):
     self.timeout = timeout
     self.client_ssl_certs = client_ssl_certs
 
+  def set_client_token(self, client_token):
+    if client_token is not None:
+      self.auth = requests.auth.HTTPBasicAuth(client_token, '')
+    else:
+      self.auth = None
+
   def get(self, url, params=None, json=None, headers=None):
     return self.request('get', url=url, params=params, json=json, headers=headers)
 

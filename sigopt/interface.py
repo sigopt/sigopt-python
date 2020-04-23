@@ -206,14 +206,6 @@ class ConnectionImpl(object):
       ],
     )
 
-    self.sessions = ApiResource(
-      self,
-      'sessions',
-      endpoints=[
-        ApiEndpoint(None, Session, 'GET', 'fetch'),
-      ],
-    )
-
     self.pki_sessions = ApiResource(
       self,
       'pki_sessions',
@@ -279,6 +271,9 @@ class ConnectionImpl(object):
   def set_ca_bundle(self, ca_bundle):
     self.requestor.ca_bundle = ca_bundle
 
+  def set_client_token(self, client_token):
+    self.requestor.set_client_token(client_token)
+
 
 class Connection(object):
   """
@@ -321,6 +316,9 @@ class Connection(object):
   def set_ca_bundle(self, ca_bundle):
     self.impl.set_ca_bundle(ca_bundle)
 
+  def set_client_token(self, client_token):
+    self.impl.set_client_token(client_token)
+
   @property
   def clients(self):
     return self.impl.clients
@@ -336,10 +334,6 @@ class Connection(object):
   @property
   def pki_sessions(self):
     return self.impl.pki_sessions
-
-  @property
-  def sessions(self):
-    return self.impl.sessions
 
 
 def paginated_objects(api_object):
