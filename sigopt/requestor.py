@@ -49,9 +49,6 @@ class Requestor(object):
 
   def request(self, method, url, params=None, json=None, headers=None):
     headers = self._with_default_headers(headers)
-    verify = self.verify_ssl_certs
-    if verify and self.ca_bundle:
-      verify = self.ca_bundle
     try:
       response = requests.request(
         method=method,
@@ -60,7 +57,7 @@ class Requestor(object):
         json=json,
         auth=self.auth,
         headers=headers,
-        verify=verify,
+        verify=self.verify_ssl_certs,
         proxies=self.proxies,
         timeout=self.timeout,
         cert=self.client_ssl_certs,

@@ -268,9 +268,6 @@ class ConnectionImpl(object):
   def set_client_ssl_certs(self, client_ssl_certs):
     self.requestor.client_ssl_certs = client_ssl_certs
 
-  def set_ca_bundle(self, ca_bundle):
-    self.requestor.ca_bundle = ca_bundle
-
   def set_client_token(self, client_token):
     self.requestor.set_client_token(client_token)
 
@@ -312,9 +309,6 @@ class Connection(object):
 
   def set_client_ssl_certs(self, client_ssl_certs):
     self.impl.set_client_ssl_certs(client_ssl_certs)
-
-  def set_ca_bundle(self, ca_bundle):
-    self.impl.set_ca_bundle(ca_bundle)
 
   def set_client_token(self, client_token):
     self.impl.set_client_token(client_token)
