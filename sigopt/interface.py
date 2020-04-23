@@ -313,16 +313,6 @@ class Connection(object):
   def set_client_token(self, client_token):
     self.impl.set_client_token(client_token)
 
-  def pki_login(self, client_id=None, development=False):
-    session = self.pki_sessions().create()
-    client_id = client_id or session.client.id
-    self.set_client_token(session.api_token.token)
-    client_tokens = self.clients(client_id).tokens().fetch()
-    for token in client_tokens.data:
-      if token.development == development:
-        self.set_client_token(token.token)
-        break
-
   @property
   def clients(self):
     return self.impl.clients
