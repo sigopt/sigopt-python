@@ -507,8 +507,12 @@ class Checkpoint(ApiObject):
   values = Field(ListOf(MetricEvaluation))
 
 
-class User(_DictWrapper):
-  pass
+class User(ApiObject):
+  created = Field(int)
+  deleted = Field(bool)
+  email = Field(str)
+  id = Field(str)
+  name = Field(str)
 
 
 class Session(ApiObject):
