@@ -17,21 +17,21 @@ class Requestor(object):
     timeout=DEFAULT_HTTP_TIMEOUT,
     client_ssl_certs=None,
   ):
-    if user is not None:
-      self.auth = requests.auth.HTTPBasicAuth(user, password)
-    else:
-      self.auth = None
+    self._set_auth(user, password)
     self.default_headers = headers or {}
     self.verify_ssl_certs = verify_ssl_certs
     self.proxies = proxies
     self.timeout = timeout
     self.client_ssl_certs = client_ssl_certs
 
-  def set_client_token(self, client_token):
-    if client_token is not None:
-      self.auth = requests.auth.HTTPBasicAuth(client_token, '')
+  def _set_auth(self, username, password):
+    if username is not None:
+      self.auth = requests.auth.HTTPBasicAuth(username, password)
     else:
       self.auth = None
+
+  def set_client_token(self, client_token):
+    self._set_auth(client_token, '')
 
   def get(self, url, params=None, json=None, headers=None):
     return self.request('get', url=url, params=params, json=json, headers=headers)
