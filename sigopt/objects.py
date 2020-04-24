@@ -505,3 +505,17 @@ class Checkpoint(ApiObject):
   stopping_reasons = Field(StoppingReasons)
   training_run = Field(str)
   values = Field(ListOf(MetricEvaluation))
+
+
+class User(ApiObject):
+  created = Field(int)
+  deleted = Field(bool)
+  email = Field(str)
+  id = Field(str)
+  name = Field(str)
+
+
+class Session(ApiObject):
+  api_token = Field(Token)
+  client = Field(Client)
+  user = Field(User)
