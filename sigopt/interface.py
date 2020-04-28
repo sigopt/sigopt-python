@@ -72,15 +72,6 @@ class ConnectionImpl(object):
       ],
     )
 
-    tokens = ApiResource(
-      self,
-      'tokens',
-      endpoints=[
-        ApiEndpoint(None, Token, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(Token), 'GET', 'fetch'),
-      ],
-    )
-
     best_assignments = ApiResource(
       self,
       'best_assignments',
@@ -132,6 +123,13 @@ class ConnectionImpl(object):
       resources=[checkpoints]
     )
 
+    experiment_tokens = ApiResource(
+      self,
+      'tokens',
+      endpoints=[
+        ApiEndpoint(None, Token, 'POST', 'create'),
+      ],
+    )
     self.experiments = ApiResource(
       self,
       'experiments',
@@ -149,7 +147,7 @@ class ConnectionImpl(object):
         queued_suggestions,
         stopping_criteria,
         suggestions,
-        tokens,
+        experiment_tokens,
         training_runs,
       ],
     )
@@ -184,6 +182,13 @@ class ConnectionImpl(object):
       ],
     )
 
+    client_tokens = ApiResource(
+      self,
+      'tokens',
+      endpoints=[
+        ApiEndpoint(None, object_or_paginated_objects(Token), 'GET', 'fetch'),
+      ],
+    )
     self.clients = ApiResource(
       self,
       'clients',
@@ -193,8 +198,8 @@ class ConnectionImpl(object):
       resources=[
         client_experiments,
         client_projects,
+        client_tokens,
         plan,
-        tokens,
       ],
     )
 
