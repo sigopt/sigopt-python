@@ -182,13 +182,6 @@ class ConnectionImpl(object):
       ],
     )
 
-    client_tokens = ApiResource(
-      self,
-      'tokens',
-      endpoints=[
-        ApiEndpoint(None, object_or_paginated_objects(Token), 'GET', 'fetch'),
-      ],
-    )
     self.clients = ApiResource(
       self,
       'clients',
@@ -198,7 +191,6 @@ class ConnectionImpl(object):
       resources=[
         client_experiments,
         client_projects,
-        client_tokens,
         plan,
       ],
     )
