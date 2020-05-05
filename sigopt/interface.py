@@ -274,7 +274,7 @@ class Connection(object):
   Client-facing interface for creating Connections.
   Shouldn't be changed without a major version change.
   """
-  def __init__(self, client_token=None, user_agent=None):
+  def __init__(self, client_token=None, user_agent=None, session=None):
     client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
     api_url = os.environ.get('SIGOPT_API_URL') or DEFAULT_API_URL
     if not client_token:
@@ -289,6 +289,7 @@ class Connection(object):
       client_token,
       '',
       default_headers,
+      session=session,
     )
     self.impl = ConnectionImpl(requestor, api_url=api_url)
 
