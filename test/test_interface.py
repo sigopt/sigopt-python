@@ -1,7 +1,6 @@
 import os
 import pytest
 import mock
-import requests
 
 from sigopt.interface import Connection
 from sigopt.requestor import DEFAULT_HTTP_TIMEOUT
@@ -19,9 +18,17 @@ class TestInterface(object):
     assert isinstance(conn.experiments, ApiResource)
 
   def test_create_uses_session_if_provided(self):
-    session = requests.Session()
+    session = mock.Mock()
     conn = Connection(client_token='client_token', session=session)
     assert conn.impl.requestor.session is session
+
+    response = mock.Mock()
+    session.request.return_value = response
+    response.status_code = 200
+    response.text = '{}'
+    session.request.assert_not_called()
+    conn.experiments().fetch()
+    session.request.assert_called_once()
 
   def test_environment_variable(self):
     with mock.patch.dict(os.environ, {'SIGOPT_API_TOKEN': 'client_token'}):
