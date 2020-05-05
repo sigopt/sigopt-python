@@ -100,7 +100,7 @@ To lint, install requirements (included in the previous step) and run
 make lint
 ```
 
-## Acknowledgmnts
+## Acknowledgments
 
 We would like to thank the following people for their contributions:
 
