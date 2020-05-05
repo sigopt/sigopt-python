@@ -99,3 +99,9 @@ To lint, install requirements (included in the previous step) and run
 ```bash
 make lint
 ```
+
+## Acknowledgmnts
+
+We would like to thank the following people for their contributions:
+
+- @aadamson for their contributions in supporting custom `requests.Session` objects (#170)
