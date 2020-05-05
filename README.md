@@ -104,4 +104,4 @@ make lint
 
 We would like to thank the following people for their contributions:
 
-- @aadamson for their contributions in supporting custom `requests.Session` objects (#170)
+- [@aadamson](github.com/aadamson) for their contributions in supporting custom `requests.Session` objects [#170](https://github.com/sigopt/sigopt-python/pull/170)
