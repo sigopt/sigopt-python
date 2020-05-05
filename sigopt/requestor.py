@@ -12,7 +12,7 @@ class Requestor(object):
     user,
     password,
     headers,
-    verify_ssl_certs=True,
+    verify_ssl_certs=None,
     proxies=None,
     timeout=DEFAULT_HTTP_TIMEOUT,
     client_ssl_certs=None,
