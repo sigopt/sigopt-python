@@ -99,3 +99,9 @@ To lint, install requirements (included in the previous step) and run
 ```bash
 make lint
 ```
+
+## Acknowledgmnts
+
+We would like to thank the following people for their contributions:
+
+- [@aadamson](https://github.com/aadamson) for their contributions in supporting custom `requests.Session` objects [#170](https://github.com/sigopt/sigopt-python/pull/170)

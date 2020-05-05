@@ -12,10 +12,11 @@ class Requestor(object):
     user,
     password,
     headers,
-    verify_ssl_certs=True,
+    verify_ssl_certs=None,
     proxies=None,
     timeout=DEFAULT_HTTP_TIMEOUT,
     client_ssl_certs=None,
+    session=None,
   ):
     self._set_auth(user, password)
     self.default_headers = headers or {}
@@ -23,6 +24,7 @@ class Requestor(object):
     self.proxies = proxies
     self.timeout = timeout
     self.client_ssl_certs = client_ssl_certs
+    self.session = session
 
   def _set_auth(self, username, password):
     if username is not None:
@@ -48,7 +50,8 @@ class Requestor(object):
   def request(self, method, url, params=None, json=None, headers=None):
     headers = self._with_default_headers(headers)
     try:
-      response = requests.request(
+      caller = (self.session or requests)
+      response = caller.request(
         method=method,
         url=url,
         params=params,

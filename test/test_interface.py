@@ -10,11 +10,25 @@ class TestInterface(object):
   def test_create(self):
     conn = Connection(client_token='client_token')
     assert conn.impl.api_url == 'https://api.sigopt.com'
-    assert conn.impl.requestor.verify_ssl_certs is True
+    assert conn.impl.requestor.verify_ssl_certs is None
+    assert conn.impl.requestor.session is None
     assert conn.impl.requestor.proxies is None
     assert conn.impl.requestor.timeout == DEFAULT_HTTP_TIMEOUT
     assert isinstance(conn.clients, ApiResource)
     assert isinstance(conn.experiments, ApiResource)
+
+  def test_create_uses_session_if_provided(self):
+    session = mock.Mock()
+    conn = Connection(client_token='client_token', session=session)
+    assert conn.impl.requestor.session is session
+
+    response = mock.Mock()
+    session.request.return_value = response
+    response.status_code = 200
+    response.text = '{}'
+    session.request.assert_not_called()
+    conn.experiments().fetch()
+    session.request.assert_called_once()
 
   def test_environment_variable(self):
     with mock.patch.dict(os.environ, {'SIGOPT_API_TOKEN': 'client_token'}):

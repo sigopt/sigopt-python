@@ -1,4 +1,4 @@
 # For continuous integration and development
-mock==1.0.1
+mock>=3.0.5
 pytest==2.8.7
 twine==1.9.1
