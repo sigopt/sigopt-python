@@ -19,8 +19,9 @@ class TestInterface(object):
     assert isinstance(conn.experiments, ApiResource)
 
   def test_create_uses_session_if_provided(self):
-    conn = Connection(client_token='client_token', session=requests.Session())
-    assert conn.impl.requestor.session is not None
+    session = requests.Session()
+    conn = Connection(client_token='client_token', session=session)
+    assert conn.impl.requestor.session is session
 
   def test_environment_variable(self):
     with mock.patch.dict(os.environ, {'SIGOPT_API_TOKEN': 'client_token'}):
