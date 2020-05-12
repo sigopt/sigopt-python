@@ -281,6 +281,7 @@ class TestObjects(object):
     assert client.id == '1'
     assert client.name == 'Client'
     assert client.created == 123
+    assert client.organization == '2'
 
   def test_suggestion(self):
     suggestion = load_and_parse(Suggestion, 'suggestion.json')

@@ -2,5 +2,6 @@
   "object": "client",
   "id": "1",
   "name": "Client",
-  "created": 123
+  "created": 123,
+  "organization": "2"
 }
