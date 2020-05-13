@@ -223,6 +223,7 @@ class Client(ApiObject):
   created = Field(int)
   id = Field(six.text_type)
   name = Field(six.text_type)
+  organization = Field(six.text_type)
 
 
 class Conditional(ApiObject):
