@@ -331,6 +331,14 @@ class Pagination(ApiObject):
     # pylint: enable=no-member
 
 
+class ParameterPrior(ApiObject):
+  mean = Field(float)
+  name = Field(six.text_type)
+  scale = Field(float)
+  shape_a = Field(float)
+  shape_b = Field(float)
+
+
 class Parameter(ApiObject):
   bounds = Field(Bounds)
   categorical_values = Field(ListOf(CategoricalValue))
@@ -338,6 +346,7 @@ class Parameter(ApiObject):
   default_value = Field(Any)
   name = Field(six.text_type)
   precision = Field(int)
+  prior = Field(ParameterPrior)
   tunable = DeprecatedField(bool)
   type = Field(six.text_type)
 
