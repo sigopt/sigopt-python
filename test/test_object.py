@@ -323,21 +323,6 @@ class TestObjects(object):
     assert pagination.paging.before == '1'
     assert pagination.paging.after == '2'
 
-  def test_plan(self):
-    plan = load_and_parse(Plan, 'plan.json')
-    assert isinstance(plan, Plan)
-    assert plan.id == 'premium'
-    assert plan.name == 'SigOpt Premium'
-    assert isinstance(plan.rules, PlanRules)
-    assert plan.rules.max_dimension == 1
-    assert plan.rules.max_experiments == 2
-    assert plan.rules.max_observations == 3
-    assert plan.rules.max_parallelism == 4
-    assert isinstance(plan.current_period, PlanPeriod)
-    assert plan.current_period.start == 0
-    assert plan.current_period.end == 1000
-    assert plan.current_period.experiments == ['1', '2']
-
   def test_token(self):
     token = load_and_parse(Token, 'token.json')
     assert isinstance(token, Token)
