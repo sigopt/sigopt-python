@@ -5,8 +5,7 @@ import pytest
 import warnings
 
 from sigopt.objects import *
-
-warnings.simplefilter("always")
+from .utils import ObserveWarnings
 
 def load(filename):
   with open(os.path.join(os.path.dirname(__file__), 'json', filename), 'r') as f:
@@ -20,6 +19,10 @@ def load_and_parse(Cls, filename):
   return obj
 
 class TestBase(object):
+  @pytest.fixture(autouse=True)
+  def set_warnings(self):
+    warnings.simplefilter("error")
+
   def test_as_json(self):
     assert ApiObject.as_json(None) is None
     assert ApiObject.as_json(False) is False
@@ -178,24 +181,6 @@ class TestObjects(object):
     assert experiment.progress.last_observation.created == 452
     assert experiment.progress.last_observation.suggestion == '12'
     assert experiment.progress.last_observation.experiment == '123'
-    assert isinstance(experiment.progress.best_observation, Observation)
-    assert experiment.progress.best_observation.id == '3'
-    assert isinstance(experiment.progress.best_observation.assignments, Assignments)
-    assert experiment.progress.best_observation.assignments.get('a') == 3
-    assert experiment.progress.best_observation.assignments.get('b') == 'd'
-    assert experiment.progress.best_observation.values[0].name == 'Revenue'
-    assert experiment.progress.best_observation.values[0].value is None
-    assert experiment.progress.best_observation.values[0].value_stddev is None
-    assert experiment.progress.best_observation.values[1].name == 'Sales'
-    assert experiment.progress.best_observation.values[1].value is None
-    assert experiment.progress.best_observation.values[1].value_stddev is None
-    assert experiment.progress.best_observation.failed is True
-    assert experiment.progress.best_observation.created == 453
-    assert experiment.progress.best_observation.suggestion == '13'
-    assert experiment.progress.best_observation.experiment == '123'
-    assert isinstance(experiment.progress.best_observation.metadata, Metadata)
-    assert experiment.progress.best_observation.metadata['abc'] == 'def'
-    assert experiment.progress.best_observation.metadata['ghi'] == 123
     assert len(experiment.parameters) == 2
     assert isinstance(experiment.parameters[0], Parameter)
     assert experiment.parameters[0].name == 'a'
@@ -229,18 +214,36 @@ class TestObjects(object):
     assert experiment.updated == 453
     assert experiment.user == '789'
 
-    with warnings.catch_warnings(record=True) as w:
+    with ObserveWarnings() as w:
       assert experiment.can_be_deleted is None
       assert len(w) == 1
       assert issubclass(w[-1].category, DeprecationWarning)
 
-    with warnings.catch_warnings(record=True) as w:
+    with ObserveWarnings() as w:
       assert experiment.parameters[0].tunable is None
       assert len(w) == 1
       assert issubclass(w[-1].category, DeprecationWarning)
 
-    with warnings.catch_warnings(record=True) as w:
-      experiment.progress.best_observation
+    with ObserveWarnings() as w:
+      best_observation = experiment.progress.best_observation
+      assert isinstance(best_observation, Observation)
+      assert best_observation.id == '3'
+      assert isinstance(best_observation.assignments, Assignments)
+      assert best_observation.assignments.get('a') == 3
+      assert best_observation.assignments.get('b') == 'd'
+      assert best_observation.values[0].name == 'Revenue'
+      assert best_observation.values[0].value is None
+      assert best_observation.values[0].value_stddev is None
+      assert best_observation.values[1].name == 'Sales'
+      assert best_observation.values[1].value is None
+      assert best_observation.values[1].value_stddev is None
+      assert best_observation.failed is True
+      assert best_observation.created == 453
+      assert best_observation.suggestion == '13'
+      assert best_observation.experiment == '123'
+      assert isinstance(best_observation.metadata, Metadata)
+      assert best_observation.metadata['abc'] == 'def'
+      assert best_observation.metadata['ghi'] == 123
       assert len(w) == 1
       assert issubclass(w[0].category, DeprecationWarning)
       assert 'best_assignments' in str(w[0].message)
@@ -346,10 +349,14 @@ class TestObjects(object):
     assert token.development is True
     assert token.experiment == '1'
     assert token.expires == 1547139000
-    assert token.permissions == 'read'
     assert token.token == '123'
     assert token.token_type == 'client-dev'
     assert token.user == '789'
+
+    with ObserveWarnings() as w:
+      assert token.permissions == 'read'
+      assert len(w) == 1
+      assert issubclass(w[-1].category, DeprecationWarning)
 
   def test_metric(self):
     metric = load_and_parse(Metric, 'metric.json')

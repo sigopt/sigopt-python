@@ -5,11 +5,13 @@ import warnings
 from sigopt.lib import *
 from sigopt.vendored import six as _six
 
-warnings.simplefilter("always")
-
 LONG_NUMBER = 100000000000000000000000
 
 class TestBase(object):
+  @pytest.fixture(autouse=True)
+  def set_warnings(self):
+    warnings.simplefilter("error")
+
   def test_is_integer(self):
     assert is_integer(int('3')) is True
     assert is_integer(0) is True
