@@ -73,6 +73,7 @@ class BaseApiObject(object):
   def __repr__(self):
     attributes = dir(self)
     attributes = [a for a in attributes if not a.startswith('_')]
+    attributes = [a for a in attributes if not isinstance(getattr(self.__class__, a), DeprecatedField)]
     attributes = [a for a in attributes if not callable(getattr(self, a))]
     keys_in_json = set(ApiObject.as_json(self._body).keys())
     keys = keys_in_json.intersection(set(attributes))
