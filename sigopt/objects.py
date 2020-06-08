@@ -301,11 +301,20 @@ class Pagination(ApiObject):
 
   @property
   def data(self):
+    warnings.warn(
+      'The .data field only contains a single page of results, which may be incomplete for large responses.'
+      ' Prefer to use the `.iterate_pages() to ensure that you iterate through all elements in the response.',
+      RuntimeWarning,
+    )
+    return self._unsafe_data
+
+  @property
+  def _unsafe_data(self):
     return Field(ListOf(self.data_cls))(self._body.get('data'))
 
   def iterate_pages(self):
     # pylint: disable=no-member
-    data = self.data
+    data = self._unsafe_data
     paging = self.paging or Paging({})
 
     use_before = 'before' in self._retrieve_params or 'after' not in self._retrieve_params
@@ -323,7 +332,7 @@ class Pagination(ApiObject):
           params.pop('before', None)
           params['after'] = paging.after
         response = self._bound_endpoint(**params)
-        data = response.data
+        data = response._unsafe_data
         paging = response.paging
       else:
         data = []

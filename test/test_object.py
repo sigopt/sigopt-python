@@ -320,11 +320,15 @@ class TestObjects(object):
     pagination = Pagination(Experiment, load('pagination.json'))
     assert isinstance(pagination, Pagination)
     assert pagination.count == 2
-    assert len(pagination.data) == 1
-    assert isinstance(pagination.data[0], Experiment)
     assert isinstance(pagination.paging, Paging)
     assert pagination.paging.before == '1'
     assert pagination.paging.after == '2'
+    with ObserveWarnings() as w:
+      data = pagination.data
+      assert len(data) == 1
+      assert isinstance(data[0], Experiment)
+      assert len(w) == 1
+      assert issubclass(w[-1].category, RuntimeWarning)
 
   def test_plan(self):
     plan = load_and_parse(Plan, 'plan.json')
