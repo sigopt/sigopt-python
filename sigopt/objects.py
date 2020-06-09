@@ -380,33 +380,6 @@ class Parameter(ApiObject):
   type = Field(six.text_type)
 
 
-class PlanPeriod(ApiObject):
-  end = Field(int)
-  experiments = Field(ListOf(six.text_type))
-  start = Field(int)
-
-
-class PlanRules(ApiObject):
-  max_categorical_breadth = Field(int)
-  max_clients = Field(int)
-  max_conditionals_breadth = Field(int)
-  max_constraints = Field(int)
-  max_dimension = Field(int)
-  max_experiments = Field(int)
-  max_metrics = Field(int)
-  max_observations = Field(int)
-  max_parallelism = Field(int)
-  max_solutions = Field(int)
-  max_users = Field(int)
-
-
-class Plan(ApiObject):
-  current_period = Field(PlanPeriod)
-  id = Field(six.text_type)
-  name = Field(six.text_type)
-  rules = Field(PlanRules)
-
-
 class Progress(ApiObject):
   best_observation = DeprecatedField(Observation, recommendation='Prefer the `best_assignments` endpoint')
   first_observation = Field(Observation)

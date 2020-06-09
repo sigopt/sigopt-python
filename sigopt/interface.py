@@ -13,7 +13,6 @@ from .objects import (
   Observation,
   Organization,
   Pagination,
-  Plan,
   Project,
   QueuedSuggestion,
   Session,
@@ -61,14 +60,6 @@ class ConnectionImpl(object):
         ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
         ApiEndpoint(None, Observation, 'PUT', 'update'),
         ApiEndpoint(None, None, 'DELETE', 'delete'),
-      ],
-    )
-
-    plan = ApiResource(
-      self,
-      'plan',
-      endpoints=[
-        ApiEndpoint(None, Plan, 'GET', 'fetch'),
       ],
     )
 
@@ -191,7 +182,6 @@ class ConnectionImpl(object):
       resources=[
         client_experiments,
         client_projects,
-        plan,
       ],
     )
 
