@@ -70,24 +70,31 @@ class BaseApiObject(object):
     else:
       return subvalue if isinstance(subvalue, Field) else None
 
-  def __repr__(self):
+  def _repr_keys(self):
     attributes = dir(self)
     attributes = [a for a in attributes if not a.startswith('_')]
     attributes = [a for a in attributes if not isinstance(getattr(self.__class__, a), DeprecatedField)]
     attributes = [a for a in attributes if not callable(getattr(self, a))]
     keys_in_json = set(ApiObject.as_json(self._body).keys())
-    keys = keys_in_json.intersection(set(attributes))
+    return keys_in_json.intersection(set(attributes))
 
-    if keys:
+  @staticmethod
+  def _emit_repr(object_name, values_mapping):
+    if values_mapping:
       return six.u('{0}(\n{1}\n)').format(
-        self.__class__.__name__,
+        object_name,
         '\n'.join([
-          six.u('  {}={},').format(key, ApiObject.dumps(getattr(self, key), indent_level=2).lstrip())
-          for key
-          in keys
+          six.u('  {}={},').format(key, ApiObject.dumps(value, indent_level=2).lstrip())
+          for key, value
+          in values_mapping.items()
         ]),
       )
-    return six.u('{0}()').format(self.__class__.__name__)
+    return six.u('{0}()').format(object_name)
+
+  def __repr__(self):
+    keys = self._repr_keys()
+    values = {key: getattr(self, key) for key in keys}
+    return BaseApiObject._emit_repr(self.__class__.__name__, values)
 
   def to_json(self):
     return copy.deepcopy(self._body)
@@ -300,13 +307,34 @@ class Pagination(ApiObject):
     super(Pagination, self).__init__(body, bound_endpoint, retrieve_params)
     self.data_cls = data_cls
 
+  def _repr_keys(self):
+    return ['data', 'count', 'paging']
+
+  def __repr__(self):
+    values = {
+      'data': self._unsafe_data,
+      'count': self.count,
+      'paging': self.paging,
+    }
+    values = {k: v for k, v in values.items() if v is not None}
+    return BaseApiObject._emit_repr('Pagination<{0}>'.format(self.data_cls.__name__), values)
+
   @property
   def data(self):
+    warnings.warn(
+      'The .data field only contains a single page of results, which may be incomplete for large responses.'
+      ' Prefer to use the `.iterate_pages() to ensure that you iterate through all elements in the response.',
+      RuntimeWarning,
+    )
+    return self._unsafe_data
+
+  @property
+  def _unsafe_data(self):
     return Field(ListOf(self.data_cls))(self._body.get('data'))
 
   def iterate_pages(self):
     # pylint: disable=no-member
-    data = self.data
+    data = self._unsafe_data
     paging = self.paging or Paging({})
 
     use_before = 'before' in self._retrieve_params or 'after' not in self._retrieve_params
@@ -324,7 +352,7 @@ class Pagination(ApiObject):
           params.pop('before', None)
           params['after'] = paging.after
         response = self._bound_endpoint(**params)
-        data = response.data
+        data = response._unsafe_data
         paging = response.paging
       else:
         data = []
