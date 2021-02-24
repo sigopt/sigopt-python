@@ -2,6 +2,7 @@ import mock
 import pytest
 
 from sigopt.optimization import optimization_loop
+from .utils import ObserveWarnings
 
 
 class TestOptimizationLoop(object):
@@ -40,5 +41,8 @@ class TestOptimizationLoop(object):
     )
     connection = connection_with_budget_two
     experiment = connection.experiments('123').fetch()
-    optimization_loop(connection, experiment, loop_body)
+    with ObserveWarnings() as w:
+      optimization_loop(connection, experiment, loop_body)
+      assert len(w) >= 1
+      assert issubclass(w[-1].category, RuntimeWarning)
     assert loop_body.call_count == 2

@@ -124,6 +124,15 @@ class ConnectionImpl(object):
         ApiEndpoint(None, Token, 'POST', 'create'),
       ],
     )
+
+    self.tokens = ApiResource(
+      self,
+      'tokens',
+      endpoints=[
+        ApiEndpoint(None, Token, 'GET', 'fetch'),
+      ],
+    )
+
     self.experiments = ApiResource(
       self,
       'experiments',
@@ -143,7 +152,6 @@ class ConnectionImpl(object):
         suggestions,
         experiment_tokens,
         experiment_training_runs,
-        training_runs,
       ],
     )
 
@@ -197,14 +205,6 @@ class ConnectionImpl(object):
         ApiEndpoint(None, None, 'DELETE', 'delete'),
       ],
       resources=[checkpoints]
-    )
-
-    client_tokens = ApiResource(
-      self,
-      'tokens',
-      endpoints=[
-        ApiEndpoint(None, object_or_paginated_objects(Token), 'GET', 'fetch'),
-      ],
     )
 
     self.clients = ApiResource(

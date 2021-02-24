@@ -81,5 +81,4 @@ class TestRunCli(object):
       'test/cli/test_files/print_hello.py',
     ])
     assert result.exit_code == 1
-    assert 'The "experiment" section' in str(result.exception)
-    assert 'must be a mapping' in str(result.exception)
+    assert 'The following keys' in str(result.exception)

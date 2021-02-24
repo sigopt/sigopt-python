@@ -17,6 +17,7 @@ from sigopt.runs.utils import (
   try_load_numpy_image,
   try_load_pil_image,
 )
+from utils import ObserveWarnings
 
 
 @pytest.fixture
@@ -148,9 +149,12 @@ def test_create_api_image_payload_string_path(image_path, expected_type):
 
 
 def test_create_api_image_payload_string_path_bad_type():
-  path = "./test/runs/test_files/test.txt"
-  data = create_api_image_payload(path)
-  assert data is None
+  with ObserveWarnings() as w:
+    path = "./test/runs/test_files/test.txt"
+    data = create_api_image_payload(path)
+    assert data is None
+    assert len(w) == 1
+    assert issubclass(w[-1].category, RuntimeWarning)
 
 
 def test_create_api_image_payload_pil_image(pil_image):
@@ -179,8 +183,11 @@ def test_create_api_image_payload_numpy_image():
 
 
 def test_create_api_image_payload_unsupported_type():
-  data = create_api_image_payload({})
-  assert data is None
+  with ObserveWarnings() as w:
+    data = create_api_image_payload({})
+    assert data is None
+    assert len(w) >= 1
+    assert issubclass(w[-1].category, RuntimeWarning)
 
 
 def test_get_blob_properties():
