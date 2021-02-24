@@ -1,10 +1,8 @@
-import git
 import os
 import signal
 import subprocess
 import sys
 import threading
-from git.exc import InvalidGitRepositoryError
 
 from ..config import config
 from ..vendored import six
@@ -56,8 +54,16 @@ def maybe_truncate_log(log_content):
   return log_content
 
 def get_git_hexsha():
-  repo = git.Repo(search_parent_directories=True)
-  return repo.head.object.hexsha
+  try:
+    import git
+    from git.exc import InvalidGitRepositoryError
+  except ImportError:
+    return None
+  try:
+    repo = git.Repo(search_parent_directories=True)
+    return repo.head.object.hexsha
+  except InvalidRepositoryError:
+    return None
 
 def get_subprocess_environment(env=None):
   ret = os.environ.copy()
