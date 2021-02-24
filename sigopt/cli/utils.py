@@ -62,7 +62,7 @@ def get_git_hexsha():
   try:
     repo = git.Repo(search_parent_directories=True)
     return repo.head.object.hexsha
-  except InvalidRepositoryError:
+  except InvalidGitRepositoryError:
     return None
 
 def get_subprocess_environment(env=None):
@@ -125,10 +125,9 @@ def run_user_program(run_factory, entrypoint, entrypoint_args, user_provided_nam
       source_code = {}
       with open(entrypoint) as entrypoint_fp:
         source_code['content'] = entrypoint_fp.read()
-      try:
-        source_code['hash'] = get_git_hexsha()
-      except InvalidGitRepositoryError:
-        pass
+        git_hash = get_git_hexsha()
+        if git_hash:
+          source_code['hash'] = git_hash
       run_context.log_source_code(**source_code)
     if entrypoint.endswith('.ipynb'):
       if entrypoint_args:
