@@ -73,6 +73,17 @@ class TestRunCli(object):
     assert result.exit_code == 1
     assert "The sigopt file 'sigopt.yml' is missing" in str(result.exception)
 
+  @pytest.mark.xfail(reason='Warnings not appearing in stderr')
+  def test_warning_from_sigopt_yaml(self, no_top_level_sigopt_yaml):
+    runner = CliRunner(mix_stderr=False)
+    result = runner.invoke(cli, [
+      'optimize',
+      '--sigopt-file=test/cli/test_files/warning_sigopt.yml',
+      'test/cli/test_files/print_hello.py',
+    ])
+    assert result.exit_code == 0
+    assert 'The following keys' in str(result.stderr)
+
   def test_optimize_command_needs_valid_sigopt_yaml(self, no_top_level_sigopt_yaml):
     runner = CliRunner()
     result = runner.invoke(cli, [
@@ -81,4 +92,4 @@ class TestRunCli(object):
       'test/cli/test_files/print_hello.py',
     ])
     assert result.exit_code == 1
-    assert 'The following keys' in str(result.exception)
+    assert 'must be a mapping' in str(result.exception)
