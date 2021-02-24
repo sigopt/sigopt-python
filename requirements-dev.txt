@@ -1,6 +1,6 @@
 # For continuous integration and development
 
-Pillow==6.2.2
+Pillow==7.1.0
 matplotlib==2.2.5
 mock>=3.0.5
 numpy>=1.16.4
