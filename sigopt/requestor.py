@@ -1,7 +1,9 @@
 import requests
 
 from .compat import json as simplejson
+from .config import config
 from .exception import ApiException, ConnectionException
+from .version import VERSION
 
 DEFAULT_API_URL = 'https://api.sigopt.com'
 DEFAULT_HTTP_TIMEOUT = 150
@@ -47,8 +49,8 @@ class Requestor(object):
   def delete(self, url, params=None, json=None, headers=None):
     return self.request('delete', url=url, params=params, json=json, headers=headers)
 
-  def request(self, method, url, params=None, json=None, headers=None):
-    headers = self._with_default_headers(headers)
+  def request(self, method, url, params=None, json=None, headers=None, user_agent=None):
+    headers = self._with_default_headers(headers, user_agent)
     try:
       caller = (self.session or requests)
       response = caller.request(
@@ -73,10 +75,24 @@ class Requestor(object):
       raise ConnectionException('\n'.join(message))
     return self._handle_response(response)
 
-  def _with_default_headers(self, headers):
-    headers = (headers or {}).copy()
-    headers.update(self.default_headers)
-    return headers
+  def _with_default_headers(self, headers, user_agent):
+    user_agent_str = user_agent or 'sigopt-python/{0}'.format(VERSION)
+    user_agent_info = config.get_user_agent_info()
+    if user_agent_info:
+      user_agent_info_str = ''.join([
+        '(',
+        '; '.join(user_agent_info),
+        ')',
+      ])
+      user_agent_str = ' '.join([user_agent_str, user_agent_info_str])
+
+    request_headers = {'User-Agent': user_agent_str}
+
+    if headers:
+      request_headers.update(headers)
+
+    request_headers.update(self.default_headers)
+    return request_headers
 
   def _handle_response(self, response):
     status_code = response.status_code

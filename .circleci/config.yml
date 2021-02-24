@@ -1,6 +1,14 @@
 version: 2.1
 
 commands:
+  setup_python3_kernel:
+    steps: 
+      # Get jupyter notebook compilation working in Python 2 tests
+      # https://ipython.readthedocs.io/en/latest/install/kernel_install.html#kernels-for-python-2-and-3
+      - run: '[[ ! "$(python --version 2>&1)" = "Python 2."* ]] || curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py'
+      - run: '[[ ! "$(python --version 2>&1)" = "Python 2."* ]] || sudo python3 get-pip.py'
+      - run: '[[ ! "$(python --version 2>&1)" = "Python 2."* ]] || sudo python3 -m pip install ipykernel'
+      - run: '[[ ! "$(python --version 2>&1)" = "Python 2."* ]] || python3 -m ipykernel install --user'
   setup:
     steps:
       - checkout
@@ -8,13 +16,13 @@ commands:
   test:
     steps:
       - setup
+      - setup_python3_kernel
       - run: make test
   lint:
     steps:
       - setup
       - run: sudo pip install pylint==2.3.1
       - run: make lint
-
 
 jobs:
   lint:
@@ -37,16 +45,6 @@ jobs:
       - image: circleci/python:3.6
     steps:
       - test
-  test-35:
-    docker:
-      - image: circleci/python:3.5
-    steps:
-      - test
-  test-34:
-    docker:
-      - image: circleci/python:3.4
-    steps:
-      - test
   test-27:
     docker:
       - image: circleci/python:2.7
@@ -57,8 +55,6 @@ workflows:
   main:
     jobs:
       - test-27
-      - test-34
-      - test-35
       - test-36
       - test-37
       - test-38

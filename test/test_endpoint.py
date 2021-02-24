@@ -18,12 +18,14 @@ class TestEndpoint(object):
   def connection(self, requestor):
     return ConnectionImpl(requestor)
 
-  def assert_called(self, requestor, connection, method, url, params=None):
+  def assert_called(self, requestor, connection, method, url, params=None, headers=None, user_agent=None):
     params = params or {}
     if method in ('get', 'delete'):
       kwargs = {'params': params, 'json': None}
     else:
       kwargs = {'json': params, 'params': None}
+    kwargs.update({'headers': headers})
+    kwargs.update({'user_agent': user_agent})
     requestor.request.assert_called_once_with(
       method.upper(),
       'https://api.sigopt.com/v1' + url,

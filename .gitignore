@@ -8,3 +8,4 @@ venv/
 # PyCharm related stuff
 .idea*
 .cache/
+.ipynb_checkpoints

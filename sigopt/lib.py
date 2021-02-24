@@ -50,3 +50,9 @@ def is_number(x):
 
 def is_string(s):
   return isinstance(s, _six.string_types)
+
+def find(lis, predicate):
+  """
+  Finds the first element in lis satisfying predicate, or else None
+  """
+  return next((item for item in lis if predicate(item)), None)

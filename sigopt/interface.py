@@ -1,6 +1,7 @@
 import os
 
 from .compat import json as simplejson
+from .config import config
 from .endpoint import ApiEndpoint
 from .objects import (
   ApiObject,
@@ -25,8 +26,9 @@ from .requestor import Requestor, DEFAULT_API_URL
 from .resource import ApiResource
 from .version import VERSION
 
+
 class ConnectionImpl(object):
-  def __init__(self, requestor, api_url=None):
+  def __init__(self, requestor, api_url=None, user_agent=None, verify_ssl_certs=None):
     self.requestor = requestor
     self.api_url = api_url or DEFAULT_API_URL
 
@@ -104,14 +106,15 @@ class ConnectionImpl(object):
       ]
     )
 
-    training_runs = ApiResource(
+    experiment_training_runs = ApiResource(
       self,
       'training_runs',
       endpoints=[
         ApiEndpoint(None, TrainingRun, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(TrainingRun), 'GET', 'fetch')
+        ApiEndpoint(None, object_or_paginated_objects(TrainingRun), 'GET', 'fetch'),
+        ApiEndpoint(None, TrainingRun, 'PUT', 'update'),
       ],
-      resources=[checkpoints]
+      resources=[checkpoints],
     )
 
     experiment_tokens = ApiResource(
@@ -121,6 +124,15 @@ class ConnectionImpl(object):
         ApiEndpoint(None, Token, 'POST', 'create'),
       ],
     )
+
+    self.tokens = ApiResource(
+      self,
+      'tokens',
+      endpoints=[
+        ApiEndpoint(None, Token, 'GET', 'fetch'),
+      ],
+    )
+
     self.experiments = ApiResource(
       self,
       'experiments',
@@ -139,7 +151,7 @@ class ConnectionImpl(object):
         stopping_criteria,
         suggestions,
         experiment_tokens,
-        training_runs,
+        experiment_training_runs,
       ],
     )
 
@@ -160,6 +172,16 @@ class ConnectionImpl(object):
       ],
     )
 
+    client_project_training_runs = ApiResource(
+      self,
+      'training_runs',
+      endpoints=[
+        ApiEndpoint(None, paginated_objects(TrainingRun), 'GET', 'fetch'),
+        ApiEndpoint(None, TrainingRun, 'POST', 'create'),
+      ],
+      resources=[checkpoints],
+    )
+
     client_projects = ApiResource(
       self,
       'projects',
@@ -170,7 +192,19 @@ class ConnectionImpl(object):
       ],
       resources=[
         client_project_experiments,
+        client_project_training_runs,
       ],
+    )
+
+    self.training_runs = ApiResource(
+      self,
+      'training_runs',
+      endpoints=[
+        ApiEndpoint(None, object_or_paginated_objects(TrainingRun), 'GET', 'fetch'),
+        ApiEndpoint(None, TrainingRun, 'PUT', 'update'),
+        ApiEndpoint(None, None, 'DELETE', 'delete'),
+      ],
+      resources=[checkpoints]
     )
 
     self.clients = ApiResource(
@@ -193,6 +227,10 @@ class ConnectionImpl(object):
       ],
     )
 
+    self.user_agent = user_agent
+    if verify_ssl_certs is not None:
+      self.set_verify_ssl_certs(verify_ssl_certs)
+
     self.pki_sessions = ApiResource(
       self,
       'pki_sessions',
@@ -201,16 +239,19 @@ class ConnectionImpl(object):
       ],
     )
 
-  def _request(self, method, url, params):
+  def _request(self, method, url, params, headers=None):
     if method.upper() in ('GET', 'DELETE'):
       json, params = None, self._request_params(params)
     else:
       json, params = ApiObject.as_json(params), None
+
     return self.requestor.request(
       method,
       url,
       json=json,
       params=params,
+      headers=headers,
+      user_agent=self.user_agent,
     )
 
   def _get(self, url, params=None):
@@ -265,14 +306,20 @@ class Connection(object):
   Shouldn't be changed without a major version change.
   """
   def __init__(self, client_token=None, user_agent=None, session=None):
-    client_token = client_token or os.environ.get('SIGOPT_API_TOKEN')
+    client_token = client_token or os.environ.get('SIGOPT_API_TOKEN', config.api_token)
     api_url = os.environ.get('SIGOPT_API_URL') or DEFAULT_API_URL
+    # no-verify overrides a passed in path
+    no_verify_ssl_certs = os.environ.get('SIGOPT_API_NO_VERIFY_SSL_CERTS')
+    if no_verify_ssl_certs:
+      verify_ssl_certs = False
+    else:
+      verify_ssl_certs = os.environ.get('SIGOPT_API_VERIFY_SSL_CERTS')
+
     if not client_token:
       raise ValueError('Must provide client_token or set environment variable SIGOPT_API_TOKEN')
 
     default_headers = {
       'Content-Type': 'application/json',
-      'User-Agent': user_agent if user_agent is not None else 'sigopt-python/{0}'.format(VERSION),
       'X-SigOpt-Python-Version': VERSION,
     }
     requestor = Requestor(
@@ -281,7 +328,7 @@ class Connection(object):
       default_headers,
       session=session,
     )
-    self.impl = ConnectionImpl(requestor, api_url=api_url)
+    self.impl = ConnectionImpl(requestor, api_url=api_url, user_agent=user_agent, verify_ssl_certs=verify_ssl_certs)
 
   def set_api_url(self, api_url):
     self.impl.set_api_url(api_url)
@@ -314,6 +361,13 @@ class Connection(object):
     return self.impl.organizations
 
   @property
+  def tokens(self):
+    return self.impl.tokens
+
+  @property
+  def training_runs(self):
+    return self.impl.training_runs
+
   def pki_sessions(self):
     return self.impl.pki_sessions
 

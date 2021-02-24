@@ -1,12 +1,19 @@
 import os
 import pytest
 import mock
+import pytest
 
+from sigopt.config import config
 from sigopt.interface import Connection
 from sigopt.requestor import DEFAULT_HTTP_TIMEOUT
 from sigopt.resource import ApiResource
 
 class TestInterface(object):
+  @pytest.yield_fixture
+  def config_dict(self, autouse=True):
+    with mock.patch.dict(config._configuration, {}) as mock_config_dict:
+      yield config._configuration
+
   def test_create(self):
     conn = Connection(client_token='client_token')
     assert conn.impl.api_url == 'https://api.sigopt.com'
@@ -14,6 +21,7 @@ class TestInterface(object):
     assert conn.impl.requestor.session is None
     assert conn.impl.requestor.proxies is None
     assert conn.impl.requestor.timeout == DEFAULT_HTTP_TIMEOUT
+    assert conn.impl.requestor.auth.username == 'client_token'
     assert isinstance(conn.clients, ApiResource)
     assert isinstance(conn.experiments, ApiResource)
 
@@ -32,7 +40,13 @@ class TestInterface(object):
 
   def test_environment_variable(self):
     with mock.patch.dict(os.environ, {'SIGOPT_API_TOKEN': 'client_token'}):
-      Connection()
+      conn = Connection()
+      assert conn.impl.requestor.auth.username == 'client_token'
+
+  def test_token_in_config(self, config_dict):
+    with mock.patch.dict(config_dict, {'api_token': 'test_token_in_config'}), mock.patch.dict(os.environ, {}):
+      conn = Connection()
+      assert conn.impl.requestor.auth.username == 'test_token_in_config'
 
   def test_api_url(self):
     conn = Connection('client_token')
