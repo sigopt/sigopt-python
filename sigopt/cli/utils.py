@@ -17,8 +17,11 @@ class StreamThread(threading.Thread):
     self.lock = threading.Lock()
 
   def read_input_line(self):
-    with self.lock:
-      return self.input_stream.readline()
+    try:
+      with self.lock:
+        return self.input_stream.readline()
+    except ValueError:
+      raise StopIteration()
 
   def run(self):
     for line in iter(self.read_input_line, ''.encode()):
