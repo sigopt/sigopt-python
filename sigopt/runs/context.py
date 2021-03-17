@@ -60,6 +60,7 @@ class NullRunContext(BaseRunContext):
   def __init__(self):
     super(NullRunContext, self).__init__()
     self._manual_parameter_values = {}
+    self.run_id = None
 
   def log_assignments(self, assignments):
     pass
@@ -214,6 +215,10 @@ class LiveRunContext(BaseRunContext):
     self.suggestion = suggestion
     self._previously_logged_metric_names = set()
     self._manual_parameter_values = {}
+
+  @property
+  def run_id(self):
+    return self.run.id
 
   def __enter__(self):
     return self
