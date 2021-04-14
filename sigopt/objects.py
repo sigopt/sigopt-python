@@ -376,6 +376,7 @@ class Parameter(ApiObject):
   name = Field(six.text_type)
   precision = Field(int)
   prior = Field(ParameterPrior)
+  transformation = Field(six.text_type)
   tunable = DeprecatedField(bool)
   type = Field(six.text_type)
 
