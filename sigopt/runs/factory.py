@@ -3,14 +3,26 @@ import contextlib
 from ..exception import RunException
 from ..interface import Connection
 from .context import LiveRunContext, NullRunContext
+from .defaults import get_default_project
 
 
-class RunFactory(object):
+_global_connection = None
+def _get_connection_singleton():
+  global _global_connection
+  if _global_connection is None:
+    _global_connection = Connection()
+  return _global_connection
+
+class Factory(object):
+  @property
+  def connection(self):
+    return _get_connection_singleton()
+
+class RunFactory(Factory):
   CONFIG_CONTEXT_KEY = 'run_connection'
   RUN_CONTEXT_KEY = 'run_context'
 
   _global_run_context = None
-  _global_connection = None
   _null_run_context = NullRunContext()
 
   @classmethod
@@ -47,18 +59,8 @@ class RunFactory(object):
     cls._global_run_context = None
     return global_run
 
-  @classmethod
-  def _get_connection_singleton(cls):
-    if cls._global_connection is None:
-      cls._global_connection = Connection()
-    return cls._global_connection
-
   def __init__(self):
     self._all_assignments = {}
-
-  @property
-  def connection(self):
-    return self._get_connection_singleton()
 
   def to_json(self):
     run_context_data = self._global_run_context and self._global_run_context.to_json()
@@ -83,3 +85,17 @@ class RunFactory(object):
       suggestion=suggestion,
       all_assignments=self._all_assignments,
     )
+
+class ExperimentFactory(Factory):
+  def create_experiment(self, *, name, metrics, parameters, project=None, budget=None, **kwargs):
+    if project is None:
+      project = get_default_project()
+    experiment = self.connection.experiments().create(
+      name=name,
+      metrics=metrics,
+      parameters=parameters,
+      project=project,
+      observation_budget=budget,
+      **kwargs,
+    )
+    return experiment

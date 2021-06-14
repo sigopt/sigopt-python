@@ -2,6 +2,7 @@ from .interface import Connection
 from .magics import SigOptMagics as _Magics
 from .runs import (
   RunFactory,
+  create_experiment,
   create_run,
   get_parameter,
   log_checkpoint,

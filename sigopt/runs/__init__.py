@@ -1,5 +1,5 @@
 from ..config import config
-from .factory import RunFactory
+from .factory import RunFactory, ExperimentFactory
 from .proxy import ProxyMethod
 
 
@@ -10,6 +10,9 @@ class RunContextProxyMethod(ProxyMethod):
 
 class RunFactoryProxyMethod(ProxyMethod):
   instance = RunFactory.from_config(config)
+
+class ExperimentFactoryProxyMethod(ProxyMethod):
+  instance = ExperimentFactory()
 
 set_parameters= RunContextProxyMethod('set_parameters')
 get_parameter = RunContextProxyMethod('get_parameter')
@@ -24,3 +27,4 @@ log_image = RunContextProxyMethod('log_image')
 
 create_run = RunFactoryProxyMethod('create_run')
 create_global_run = RunFactoryProxyMethod('create_global_run')
+create_experiment = ExperimentFactoryProxyMethod('create_experiment')
