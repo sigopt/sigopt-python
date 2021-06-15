@@ -153,26 +153,28 @@ class LiveRunContext(BaseRunContext):
   SUGGESTION_KEY = 'suggestion'
 
   @classmethod
+  def _validate_run_name(cls, run_name, project_id):
+    return run_name or get_default_name(project_id)
+
+  @classmethod
+  def _prepare_for_create(cls, connection, project_id):
+    project_id = project_id or get_default_project()
+    client_id = connection.tokens('self').fetch().client
+    ensure_project_exists(connection, client_id, project_id)
+    return client_id, project_id
+
+  @classmethod
   def create(
     cls,
     connection,
     run_name=None,
     project_id=None,
-    suggestion=None,
     all_assignments=None
   ):
-    project_id = project_id or get_default_project()
-    run_name = run_name or get_default_name(project_id)
-    client_id = connection.tokens('self').fetch().client
-    ensure_project_exists(connection, client_id, project_id)
-    if suggestion is not None:
-      connection.experiments(suggestion.experiment).update(project=project_id)
-    suggestion_id = None if suggestion is None else suggestion.id
-    run = connection.clients(client_id).projects(project_id).training_runs().create(
-      name=run_name,
-      suggestion=suggestion_id,
-    )
-    run_context = cls(connection, run, suggestion)
+    client_id, project_id = cls._prepare_for_create(connection, project_id)
+    run_name = cls._validate_run_name(run_name, project_id)
+    run = connection.clients(client_id).projects(project_id).training_runs().create(name=run_name)
+    run_context = cls(connection, run, suggestion=None)
     print(
       'Run started, view it on the SigOpt dashboard at https://app.sigopt.com/run/{run_id}'.format(
         run_id=run.id,
@@ -180,6 +182,29 @@ class LiveRunContext(BaseRunContext):
     )
     if all_assignments:
       run_context.log_assignments(all_assignments)
+    return run_context
+
+  @classmethod
+  def create_from_experiment(
+    cls,
+    connection,
+    experiment,
+    run_name=None,
+  ):
+    assert experiment.project, "The experiment must belong to a project"
+    client_id, project_id = experiment.client, experiment.project
+    run_name = cls._validate_run_name(run_name, project_id)
+    suggestion = connection.experiments(experiment.id).suggestions().create()
+    run = connection.clients(client_id).projects(project_id).training_runs().create(
+      name=run_name,
+      suggestion=suggestion.id,
+    )
+    run_context = cls(connection, run, suggestion)
+    print(
+      'Run started, view it on the SigOpt dashboard at https://app.sigopt.com/run/{run_id}'.format(
+        run_id=run.id,
+      )
+    )
     return run_context
 
   def to_json(self):

@@ -3,6 +3,7 @@ import contextlib
 from ..exception import RunException
 from ..interface import Connection
 from .context import LiveRunContext, NullRunContext
+from .experiment import ExperimentContext
 from .defaults import get_default_project
 
 
@@ -69,20 +70,19 @@ class RunFactory(Factory):
     }
 
   @contextlib.contextmanager
-  def create_global_run(self, name=None, project=None, suggestion=None):
-    with self.create_run(name=name, project=project, suggestion=suggestion) as run:
+  def create_global_run(self, name=None, project=None):
+    with self.create_run(name=name, project=project) as run:
       self._push_global_run(run)
       try:
         yield run
       finally:
         self._pop_global_run()
 
-  def create_run(self, name=None, project=None, suggestion=None):
+  def create_run(self, name=None, project=None):
     return LiveRunContext.create(
       self.connection,
       run_name=name,
       project_id=project,
-      suggestion=suggestion,
       all_assignments=self._all_assignments,
     )
 
@@ -98,4 +98,4 @@ class ExperimentFactory(Factory):
       observation_budget=budget,
       **kwargs,
     )
-    return experiment
+    return ExperimentContext(self.connection, experiment)
