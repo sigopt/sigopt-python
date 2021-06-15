@@ -5,12 +5,18 @@ class ProxyMethod(object):
     self.method_name = method_name
 
   @property
+  def __name__(self):
+    return self._bound_method.__name__
+
+  @property
+  def __doc__(self):
+    return self._bound_method.__doc__
+
+  @property
   def _bound_method(self):
     return getattr(self.instance, self.method_name)
 
   def __getattribute__(self, name):
-    if name == '__doc__':
-      return self._bound_method.__doc__
     return super(ProxyMethod, self).__getattribute__(name)
 
   def __call__(self, *args, **kwargs):
