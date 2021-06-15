@@ -25,3 +25,9 @@ class ExperimentContext(object):
   def loop(self):
     while not self.is_finished():
       yield self.create_run()
+
+  def __getattr__(self, attr):
+    return getattr(self._experiment, attr)
+
+  def __dir__(self):
+    return sorted(set(dir(super())) | set(dir(self._experiment)))
