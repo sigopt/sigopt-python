@@ -14,7 +14,7 @@ class RunFactoryProxyMethod(ProxyMethod):
 class ExperimentFactoryProxyMethod(ProxyMethod):
   instance = ExperimentFactory()
 
-set_parameters= RunContextProxyMethod('set_parameters')
+set_parameters = RunContextProxyMethod('set_parameters')
 get_parameter = RunContextProxyMethod('get_parameter')
 log_checkpoint = RunContextProxyMethod('log_checkpoint')
 log_dataset = RunContextProxyMethod('log_dataset')
