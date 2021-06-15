@@ -4,6 +4,7 @@ from .runs import (
   RunFactory,
   create_experiment,
   create_run,
+  get_experiment,
   get_parameter,
   log_checkpoint,
   log_dataset,

@@ -99,3 +99,7 @@ class ExperimentFactory(Factory):
       **kwargs,
     )
     return ExperimentContext(self.connection, experiment)
+
+  def get_experiment(self, experiment_id):
+    experiment = self.connection.experiments(experiment_id).fetch()
+    return ExperimentContext(self.connection, experiment)
