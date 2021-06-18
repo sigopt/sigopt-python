@@ -1,0 +1,2 @@
+class RunParameters(dict):
+  pass

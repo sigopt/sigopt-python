@@ -8,6 +8,7 @@ from .file_utils import create_api_image_payload, get_blob_properties
 from .interface import get_connection
 from .lib import remove_nones, sanitize_number, validate_name
 from .objects import Suggestion, TrainingRun
+from .run_params import RunParameters
 
 
 _UNSET = object()
@@ -19,6 +20,10 @@ class NoDefaultParameterError(RunException):
 class BaseRunContext(object):
   @property
   def id(self):
+    raise NotImplementedError
+
+  @property
+  def params(self):
     raise NotImplementedError
 
   def _log_dataset(self, name):
@@ -248,6 +253,7 @@ class RunContext(BaseRunContext):
     self.connection = connection
     self.run = run
     self.suggestion = suggestion
+    self._params = RunParameters()
 
   def to_json(self):
     data = {"run": self.run.to_json()}
@@ -266,6 +272,10 @@ class RunContext(BaseRunContext):
   @property
   def id(self):
     return self.run.id
+
+  @property
+  def params(self):
+    return self._params
 
   def __enter__(self):
     return self
@@ -397,12 +407,19 @@ class GlobalRunContext(BaseRunContext):
 
   def __init__(self, run_context):
     self._run_context = run_context
+    self._global_params = RunParameters()
 
   @property
   def id(self):
     if self._run_context is None:
       return None
     return self._run_context.id
+
+  @property
+  def params(self):
+    if self._run_context is None:
+      return self._global_params
+    return self._run_context.params
 
   @property
   def run_context(self):
