@@ -2,7 +2,6 @@ import threading
 
 from .interface import get_connection
 from .run_factory import BaseRunFactory
-from .defaults import assert_valid_project_id, get_default_project, ensure_project_exists
 
 
 class ExperimentContext(BaseRunFactory):

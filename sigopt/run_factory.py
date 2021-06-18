@@ -1,5 +1,4 @@
-from .defaults import assert_valid_project_id, ensure_project_exists, get_default_name
-from .interface import get_connection
+from .defaults import get_default_name
 from .run_context import RunContext
 
 

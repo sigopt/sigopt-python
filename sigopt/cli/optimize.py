@@ -3,7 +3,7 @@ import yaml
 
 from ..config import config
 from ..defaults import get_default_project
-from ..experiment_context import create_experiment
+from ..factory import SigOptFactory
 from ..vendored import six
 from .cli import cli
 from .validate import EXPERIMENT_KEY, validate_experiment_input, validate_sigopt_input
@@ -38,7 +38,8 @@ def optimize(entrypoint, entrypoint_args, sigopt_file):
   experiment_input = get_and_validate_experiment_input(sigopt_input, sigopt_file)
   setup_cli(config)
   project_id = get_default_project()
-  experiment = create_experiment(project=project_id, **experiment_input)
+  factory = SigOptFactory(project_id)
+  experiment = factory.create_experiment(**experiment_input)
   for run_context in experiment.loop():
     with run_context:
       run_user_program(config, run_context, entrypoint, entrypoint_args)
