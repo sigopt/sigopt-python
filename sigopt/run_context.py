@@ -29,7 +29,7 @@ class BaseRunContext(object):
   def _log_dataset(self, name):
     raise NotImplementedError
 
-  def _get_parameter(self, name, default):
+  def _set_parameters(self, parameters):
     raise NotImplementedError
 
   def _log_failure(self):
@@ -59,21 +59,23 @@ class BaseRunContext(object):
   def _end(self, exception):
     raise NotImplementedError
 
-  def get_parameter(self, name, default=_UNSET):
+  def set_parameter(self, name, value):
     '''
-    sigopt.get_parameter(name, default)
-      Tracks and returns an assignment value for your model.
-      Normally returns the default value,
-      except in the sigopt optimize context the returned value is generated from a SigOpt Experiment's Suggestion.
+    sigopt.set_parameter(name, value)
     name: string, required
-      The name of the assignment that you would like to track.
-    default: number/string, required
-      The value of the assignment to use when no other value is available.
-    returns: number/string
-      The value to use for this assignment in your code.
-      Returns the default when no value is available.
+      The name of the parameter.
+    value: number/string, required
+      The value of the parameter.
     '''
-    return self._get_parameter(name, default)
+    return self._set_parameters({name: value})
+
+  def set_parameters(self, parameters):
+    '''
+    sigopt.set_parameter(parameters)
+    name: dict, required
+      A mapping of parameter names to values.
+    '''
+    return self._set_parameters(parameters)
 
   def log_dataset(self, name):
     '''
@@ -197,21 +199,13 @@ class BaseRunContext(object):
     self._end(exception=exception)
 
 
-UPDATE = object()
-UPDATE_AND_RETURN = object()
-
-def updates(update_key, returns=UPDATE):
+def updates(update_key):
 
   def function_wrapper(wrapped_function):
 
     def function_impl(self, *args, **kwargs):
-      raw_return = wrapped_function(self, *args, **kwargs)
-      if returns is UPDATE_AND_RETURN:
-        update_value, return_value = raw_return
-      else:
-        update_value, return_value = raw_return, None
+      update_value = wrapped_function(self, *args, **kwargs)
       self._update_run({update_key: update_value})
-      return return_value
 
     function_impl.__doc__ = wrapped_function.__doc__
     return function_impl
@@ -253,7 +247,10 @@ class RunContext(BaseRunContext):
     self.connection = connection
     self.run = run
     self.suggestion = suggestion
-    self._params = RunParameters()
+    fixed_values = {}
+    if self.suggestion is not None:
+      fixed_values.update(self.suggestion.assignments)
+    self._params = RunParameters(self, fixed_values)
 
   def to_json(self):
     data = {"run": self.run.to_json()}
@@ -333,40 +330,35 @@ class RunContext(BaseRunContext):
       headers={'X-Response-Content': 'skip'},
     )
 
-  @updates('assignments', returns=UPDATE_AND_RETURN)
-  def _get_parameter(self, name, default=_UNSET):
-    value = default
-    if self.suggestion is not None:
-      value = self.suggestion.assignments.get(name, value)
-    if value is _UNSET:
-      raise NoDefaultParameterError(name)
-    return {name: value}, value
+  @updates('assignments')
+  def _set_parameters(self, parameters):
+    return parameters
 
-  @updates('datasets', returns=UPDATE)
+  @updates('datasets')
   def _log_dataset(self, name):
     return {name: {}}
 
-  @updates('state', returns=UPDATE)
+  @updates('state')
   def _log_failure(self):
     return 'failed'
 
-  @updates('metadata', returns=UPDATE)
+  @updates('metadata')
   def _log_metadata(self, metadata):
     return metadata
 
   @updates('values')
-  def _log_metric(self, metrics):
+  def _log_metrics(self, metrics):
     return metrics
 
-  @updates('model', returns=UPDATE)
+  @updates('model')
   def _log_model(self, type):
     return remove_nones({'type': type})
 
-  @updates('source_code', returns=UPDATE)
+  @updates('source_code')
   def _log_source_code(self, source_code):
     return source_code
 
-  @updates('logs', returns=UPDATE)
+  @updates('logs')
   def _update_logs(self, logs):
     return logs
 
@@ -407,7 +399,7 @@ class GlobalRunContext(BaseRunContext):
 
   def __init__(self, run_context):
     self._run_context = run_context
-    self._global_params = RunParameters()
+    self._global_params = RunParameters(self, dict())
 
   @property
   def id(self):
@@ -462,6 +454,7 @@ for _method_name in [
   "_log_model",
   "_log_checkpoint",
   "_log_image",
+  "_set_parameters",
 ]:
   delegate_to_run_context(_method_name)
 
