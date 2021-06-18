@@ -1,8 +1,8 @@
 from ..config import config
-from .factory import RunFactory, ExperimentFactory
 from .proxy import ProxyMethod
 
 
+'''
 class RunContextProxyMethod(ProxyMethod):
   @property
   def instance(self):
@@ -29,3 +29,4 @@ create_run = RunFactoryProxyMethod('create_run')
 create_global_run = RunFactoryProxyMethod('create_global_run')
 create_experiment = ExperimentFactoryProxyMethod('create_experiment')
 get_experiment = ExperimentFactoryProxyMethod('get_experiment')
+'''

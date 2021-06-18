@@ -1,7 +1,8 @@
 import click
 
-from ..runs.factory import RunFactory
-from ..vendored import six
+from ..config import config
+from ..defaults import get_default_project
+from ..run_factory import RunFactory
 from .cli import cli
 from .utils import check_path, run_user_program, setup_cli
 
@@ -14,7 +15,10 @@ from .utils import check_path, run_user_program, setup_cli
 def run(entrypoint, entrypoint_args):
   check_path(
     entrypoint,
-    six.u("Provided entrypoint '{entrypoint}' does not exist").format(entrypoint=entrypoint),
+    "Provided entrypoint '{entrypoint}' does not exist",
   )
-  setup_cli()
-  run_user_program(RunFactory(), entrypoint, entrypoint_args)
+  setup_cli(config)
+  project_id = get_default_project()
+  factory = RunFactory(project_id)
+  with factory.create_run() as run_context:
+    run_user_program(config, run_context, entrypoint, entrypoint_args)

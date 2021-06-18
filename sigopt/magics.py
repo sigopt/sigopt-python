@@ -12,8 +12,8 @@ from .config import config
 from .interface import Connection
 from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
 from .optimization import optimization_loop
-from .runs import create_global_run
-from .runs.defaults import ensure_project_exists, get_default_project
+from .run_context import GlobalRunContext
+from .defaults import ensure_project_exists, get_default_project
 from .vendored import six
 
 
@@ -46,8 +46,7 @@ class SigOptMagics(Magics):
 
   def ensure_project(self):
     project_id = get_default_project()
-    client_id = self._connection.tokens('self').fetch().client
-    ensure_project_exists(self._connection, client_id, project_id)
+    ensure_project_exists(self._connection, project_id)
     return project_id
 
   @cell_magic
@@ -69,10 +68,10 @@ class SigOptMagics(Magics):
       'Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/{experiment_id}'
     ).format(experiment_id=self._experiment.id))
 
-  def exec_cell(self, name, cell, ns, project_id, suggestion=None):
-    with create_global_run(name=name, suggestion=suggestion, project=project_id) as run:
+  def exec_cell(self, run_context, cell, ns):
+    with GlobalRunContext.use_global_run(run_context):
       if config.code_tracking_enabled:
-        run.log_source_code(content=cell)
+        run_context.log_source_code(content=cell)
       stream_monitor = SystemOutputStreamMonitor() if config.log_collection_enabled else NullStreamMonitor()
       with stream_monitor:
         # pylint: disable=exec-used
@@ -81,7 +80,7 @@ class SigOptMagics(Magics):
       stream_data = stream_monitor.get_stream_data()
       if stream_data:
         stdout, stderr = stream_data
-        run.update_logs({'stdout': {'content': stdout}, 'stderr': {'content': stderr}})
+        run_context.update_logs({'stdout': {'content': stdout}, 'stderr': {'content': stderr}})
 
   @cell_magic
   def run(self, line, cell):

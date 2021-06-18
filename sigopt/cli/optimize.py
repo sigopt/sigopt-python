@@ -2,8 +2,8 @@ import click
 import yaml
 
 from ..optimization import optimization_loop
-from ..runs.defaults import ensure_project_exists, get_default_project
-from ..runs.factory import RunFactory
+from ..defaults import ensure_project_exists, get_default_project
+from ..run_factory import RunFactory
 from ..vendored import six
 from .cli import cli
 from .validate import EXPERIMENT_KEY, PROJECT_KEY, validate_experiment_input, validate_sigopt_input
@@ -24,8 +24,7 @@ def create_experiment_from_input(connection, experiment_input):
 
 def run_experiment(run_factory, entrypoint, entrypoint_args, connection, experiment_input):
   project_id = get_default_project()
-  client_id = connection.tokens('self').fetch().client
-  ensure_project_exists(connection, client_id, project_id)
+  ensure_project_exists(connection, project_id)
   experiment_input[PROJECT_KEY] = project_id
   experiment = create_experiment_from_input(connection, experiment_input)
 
