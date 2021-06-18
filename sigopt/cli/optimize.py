@@ -1,8 +1,9 @@
 import click
 import yaml
 
-from ..optimization import optimization_loop
+from ..config import config
 from ..defaults import ensure_project_exists, get_default_project
+from ..experiment_context import create_experiment
 from ..run_factory import RunFactory
 from ..vendored import six
 from .cli import cli
@@ -18,20 +19,6 @@ def get_and_validate_experiment_input(sigopt_input, filename):
   sigopt_input = validate_sigopt_input(sigopt_input, filename)
   experiment_input = validate_experiment_input(sigopt_input.get(EXPERIMENT_KEY), filename)
   return experiment_input
-
-def create_experiment_from_input(connection, experiment_input):
-  return connection.experiments().create(**experiment_input)
-
-def run_experiment(run_factory, entrypoint, entrypoint_args, connection, experiment_input):
-  project_id = get_default_project()
-  ensure_project_exists(connection, project_id)
-  experiment_input[PROJECT_KEY] = project_id
-  experiment = create_experiment_from_input(connection, experiment_input)
-
-  def loop_body(suggestion):
-    run_user_program(run_factory, entrypoint, entrypoint_args, suggestion=suggestion)
-
-  optimization_loop(connection, experiment, loop_body)
 
 @cli.command(context_settings=dict(
   ignore_unknown_options=True,
@@ -50,7 +37,9 @@ def optimize(entrypoint, entrypoint_args, sigopt_file):
   )
   sigopt_input = load_yaml(sigopt_file)
   experiment_input = get_and_validate_experiment_input(sigopt_input, sigopt_file)
-  setup_cli()
-  run_factory = RunFactory()
-  connection = run_factory.connection
-  run_experiment(run_factory, entrypoint, entrypoint_args, connection, experiment_input)
+  setup_cli(config)
+  project_id = get_default_project()
+  experiment = create_experiment(project=project_id, **experiment_input)
+  for run_context in experiment.loop():
+    with run_context:
+      run_user_program(config, run_context, entrypoint, entrypoint_args)

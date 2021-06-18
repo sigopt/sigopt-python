@@ -11,7 +11,6 @@ from .cli.validate import PROJECT_KEY
 from .config import config
 from .interface import Connection
 from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
-from .optimization import optimization_loop
 from .run_context import GlobalRunContext
 from .defaults import ensure_project_exists, get_default_project
 from .vendored import six

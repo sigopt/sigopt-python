@@ -1,6 +1,5 @@
 import contextlib
 import functools
-import threading
 
 import requests
 
@@ -400,7 +399,6 @@ class GlobalRunContext(BaseRunContext):
 
   def __init__(self, run_context):
     self._run_context = run_context
-    self._run_lock = threading.Lock()
 
   @property
   def id(self):
@@ -411,23 +409,6 @@ class GlobalRunContext(BaseRunContext):
   @property
   def run_context(self):
     return self._run_context
-
-  @contextlib.contextmanager
-  def use_run(self, create_run):
-    yield self.set_global_run(create_run)
-    self.unset_global_run()
-
-  def set_global_run(self, create_run):
-    with self._run_lock:
-      if self._run_context is None:
-        self._run_context = create_run()
-      else:
-        raise RunException('A global run already exists')
-    return self._run_context
-
-  def unset_global_run(self):
-    with self._run_lock:
-      self._run_context = None
 
   def to_json(self):
     if self._run_context is None:
