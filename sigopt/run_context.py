@@ -5,10 +5,10 @@ import requests
 
 from .config import config
 from .exception import ApiException, RunException
+from .file_utils import create_api_image_payload, get_blob_properties
 from .interface import get_connection
-from .lib import remove_nones
+from .lib import remove_nones, sanitize_number, validate_name
 from .objects import Suggestion, TrainingRun
-from .runs.utils import sanitize_number, validate_name, create_api_image_payload, get_blob_properties
 
 
 _UNSET = object()
@@ -52,7 +52,7 @@ class BaseRunContext(object):
   def _log_image(self, name, payload):
     raise NotImplementedError
 
-  def _end(self):
+  def _end(self, exception):
     raise NotImplementedError
 
   def get_parameter(self, name, default=_UNSET):
@@ -177,7 +177,9 @@ class BaseRunContext(object):
     payload = create_api_image_payload(image)
     if payload is None:
       return
-    self._log_image(name, payload)
+    image_data = payload[1]
+    with image_data:
+      self._log_image(name, payload)
 
   def end(self, exception=None):
     '''
@@ -188,7 +190,7 @@ class BaseRunContext(object):
     exception: instanceof(Exception)
       The exception that occurred that caused the termination of the run. Not needed if the run ended gracefully.
     '''
-    self._end()
+    self._end(exception=exception)
 
 
 UPDATE = object()
@@ -272,7 +274,7 @@ class RunContext(BaseRunContext):
   def __exit__(self, type, value, tb):
     self._end(exception=value)
 
-  def _end(self, exception=None):
+  def _end(self, exception):
     old_run_state = self.connection.training_runs(self.run.id).fetch().state
     new_run_state = 'failed' if exception else 'completed'
     if allow_state_update(new_run_state, old_run_state):
@@ -363,33 +365,29 @@ class RunContext(BaseRunContext):
   def _log_checkpoint(self, values):
     return values
 
-  def _log_image(self, image, name):
-    payload = create_api_image_payload(image)
-    if payload is None:
-      return
+  def _log_image(self, name, payload):
     filename, image_data, content_type = payload
-    with image_data:
-      content_length, content_md5_base64 = get_blob_properties(image_data)
-      file_info = self._request(
-        method='POST',
-        path='/files',
-        params={
-          "content_length": content_length,
-          "content_md5": content_md5_base64,
-          "content_type": content_type,
-          "name": name,
-          "filename": filename,
-        },
-      )
-      upload_info = file_info["upload"]
-      image_data.seek(0)
-      response = requests.request(
-        upload_info["method"],
-        upload_info["url"],
-        headers=upload_info["headers"],
-        data=image_data,
-      )
-      response.raise_for_status()
+    content_length, content_md5_base64 = get_blob_properties(image_data)
+    file_info = self._request(
+      method='POST',
+      path='/files',
+      params={
+        "content_length": content_length,
+        "content_md5": content_md5_base64,
+        "content_type": content_type,
+        "name": name,
+        "filename": filename,
+      },
+    )
+    upload_info = file_info["upload"]
+    image_data.seek(0)
+    response = requests.request(
+      upload_info["method"],
+      upload_info["url"],
+      headers=upload_info["headers"],
+      data=image_data,
+    )
+    response.raise_for_status()
 
 class GlobalRunContext(BaseRunContext):
   '''

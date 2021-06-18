@@ -59,3 +59,30 @@ def find(lis, predicate):
 
 def remove_nones(mapping):
   return {key: value for key, value in mapping.items() if value is not None}
+
+def safe_format(string, *args, **kwargs):
+  return string.format(*args, **kwargs)
+
+def validate_name(warn, name):
+  if not is_string(name):
+    raise ValueError(safe_format(
+      "The {} must be a string, not {}",
+      warn,
+      type(name).__name__
+    ))
+
+def sanitize_number(warn, name, value):
+  if is_integer(value):
+    return value
+  try:
+    value = float(value)
+    if _math.isinf(value) or _math.isnan(value):
+      raise ValueError(safe_format("`{}` is not an appropriate number", value))
+    return value
+  except (ValueError, TypeError):
+    raise ValueError(safe_format(
+      "The {} logged for `{}` could not be converted to a number: {}",
+      warn,
+      name,
+      repr(value),
+    ))

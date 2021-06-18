@@ -1,3 +1,4 @@
+import io
 import sys
 import yaml
 import IPython
@@ -8,15 +9,13 @@ from IPython.core.magic import (
 )
 
 
-from .cli.validate import PROJECT_KEY
 from .config import config
 from .experiment_context import create_experiment
 from .interface import Connection
 from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
 from .run_context import global_run_context
 from .run_factory import RunFactory
-from .defaults import ensure_project_exists, get_default_project
-from .vendored import six
+from .defaults import get_default_project
 
 
 def get_ns():
@@ -57,7 +56,7 @@ class SigOptMagics(Magics):
     if isinstance(cell_value, dict):
       experiment_body = dict(cell_value)
     else:
-      experiment_body = yaml.safe_load(six.StringIO(cell_value))
+      experiment_body = yaml.safe_load(io.StringIO(cell_value))
     self.setup()
     self._experiment = create_experiment(project=self._run_factory.project, **experiment_body)
     print(

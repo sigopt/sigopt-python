@@ -1,39 +1,11 @@
 import base64
 import hashlib
-import math
+import io
 import mimetypes
-import png
 import warnings
 
-from ..vendored import six
+import png
 
-
-def safe_format(string, *args, **kwargs):
-  return six.text_type(string).format(*args, **kwargs)
-
-def validate_name(warn, name):
-  if not isinstance(name, six.string_types):
-    raise ValueError(safe_format(
-      "The {} must be a string, not {}",
-      warn,
-      type(name).__name__
-    ))
-
-def sanitize_number(warn, name, value):
-  if isinstance(value, six.integer_types):
-    return value
-  try:
-    value = float(value)
-    if math.isinf(value) or math.isnan(value):
-      raise ValueError(safe_format("`{}` is not an appropriate number", value))
-    return value
-  except (ValueError, TypeError):
-    raise ValueError(safe_format(
-      "The {} logged for `{}` could not be converted to a number: {}",
-      warn,
-      name,
-      repr(value),
-    ))
 
 def try_load_pil_image(image):
   try:
@@ -41,7 +13,7 @@ def try_load_pil_image(image):
   except ImportError:
     return None
   if isinstance(image, PILImage):
-    image_data = six.BytesIO()
+    image_data = io.BytesIO()
     image.save(image_data, "PNG")
     image_data.seek(0)
     return getattr(image, "filename", None), image_data, "image/png"
@@ -53,7 +25,7 @@ def try_load_matplotlib_image(image):
   except ImportError:
     return None
   if isinstance(image, MatplotlibFigure):
-    image_data = six.BytesIO()
+    image_data = io.BytesIO()
     image.savefig(image_data, format="svg")
     image_data.seek(0)
     return None, image_data, "image/svg+xml"
@@ -71,28 +43,25 @@ def try_load_numpy_image(image):
     elif len(image.shape) == 3:
       channels = image.shape[2]
     if not channels:
-      raise Exception(six.u(
-        "images provided as numpy arrays must have 2 or 3 dimensions, provided shape: {}"
-      ).format(image.shape))
+      raise Exception(f"images provided as numpy arrays must have 2 or 3 dimensions, provided shape: {image.shape}")
     channels_to_mode = {
       1: "L",
       3: "RGB",
       4: "RGBA",
     }
     if channels not in channels_to_mode:
-      raise Exception(six.u(
-        "images provided as numpy arrays must have 1, 3 or 4 channels, provided channels: {}"
-      ).format(channels))
+      raise Exception(f"images provided as numpy arrays must have 1, 3 or 4 channels, provided channels: {channels}")
     mode = channels_to_mode[channels]
     clipped_image = image.clip(0, 255)
     byte_image = clipped_image.astype(numpy_uint8)
     height, width = image.shape[:2]
     pypng_compatible = byte_image.reshape(height, width * channels)
     writer = png.Writer(width, height, greyscale=(mode == "L"), alpha=(mode == "RGBA"))
-    image_data = six.BytesIO()
+    image_data = io.BytesIO()
     writer.write(image_data, pypng_compatible)
     return None, image_data, "image/png"
   return None
+
 
 MIME_TYPE_REMAP = {
   # the mime type image/x-ms-bmp is returned in some environments
@@ -118,7 +87,7 @@ def create_api_image_payload(image):
     content_type = mimetypes.guess_type(image)
     if content_type is None:
       warnings.warn(
-        six.u("Could not guess image type from provided filename, skipping upload: {}").format(image),
+        f"Could not guess image type from provided filename, skipping upload: {image}",
         RuntimeWarning,
       )
       return None
@@ -127,10 +96,8 @@ def create_api_image_payload(image):
     if content_type not in SUPPORTED_IMAGE_MIME_TYPES:
       friendly_supported_types = ", ".join(sorted(SUPPORTED_IMAGE_MIME_TYPES))
       warnings.warn(
-        six.u("File type `{}` is not supported, please use one of the supported types: {}").format(
-          content_type,
-          friendly_supported_types,
-        ),
+        f"File type `{content_type}` is not supported, please use one of the supported types:"
+        f" {friendly_supported_types}",
         RuntimeWarning,
       )
       return None
@@ -145,10 +112,8 @@ def create_api_image_payload(image):
   if payload is not None:
     return payload
   warnings.warn(
-    six.u(
-      "Image type not supported: {}."
-      " Supported types: str, PIL.Image.Image, matplotlib.figure.Figure, numpy.ndarray"
-    ).format(type(image)),
+    f"Image type not supported: {type(image)}."
+    " Supported types: str, PIL.Image.Image, matplotlib.figure.Figure, numpy.ndarray",
     RuntimeWarning,
   )
   return None

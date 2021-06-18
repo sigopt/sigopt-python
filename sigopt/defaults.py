@@ -11,7 +11,7 @@ def normalize_project_id(project_id):
   project_id = project_id.lower()
   return re.sub(INVALID_PROJECT_ID_STRING_CHARACTERS, '', project_id)
 
-def assert_valid_project_id(project_id, source="provided"):
+def assert_valid_project_id(project_id):
   valid = VALID_PROJECT_ID.match(project_id)
   assert valid, f"The project id is not valid: {project_id}"
 

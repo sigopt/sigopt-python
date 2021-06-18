@@ -122,7 +122,7 @@ def run_notebook(config, entrypoint):
     env=get_subprocess_environment(config),
   )
 
-def run_user_program(config, run_context, entrypoint, entrypoint_args, user_provided_name=None):
+def run_user_program(config, run_context, entrypoint, entrypoint_args):
   if config.code_tracking_enabled:
     source_code = {}
     with open(entrypoint) as entrypoint_fp:

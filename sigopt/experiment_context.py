@@ -65,18 +65,18 @@ class ExperimentContext(BaseRunFactory):
     return run_context
 
 def create_experiment(name, parameters, metrics=None, project=None, budget=None, **kwargs):
-    if project is None:
-      project = get_default_project()
-    else:
-      assert_valid_project_id(project)
-    connection = get_connection()
-    ensure_project_exists(connection, project)
-    experiment = connection.experiments().create(
-      name=name,
-      metrics=metrics,
-      parameters=parameters,
-      project=project,
-      observation_budget=budget,
-      **kwargs,
-    )
-    return ExperimentContext(experiment)
+  if project is None:
+    project = get_default_project()
+  else:
+    assert_valid_project_id(project)
+  connection = get_connection()
+  ensure_project_exists(connection, project)
+  experiment = connection.experiments().create(
+    name=name,
+    metrics=metrics,
+    parameters=parameters,
+    project=project,
+    observation_budget=budget,
+    **kwargs,
+  )
+  return ExperimentContext(experiment)

@@ -2,12 +2,11 @@ import click
 import yaml
 
 from ..config import config
-from ..defaults import ensure_project_exists, get_default_project
+from ..defaults import get_default_project
 from ..experiment_context import create_experiment
-from ..run_factory import RunFactory
 from ..vendored import six
 from .cli import cli
-from .validate import EXPERIMENT_KEY, PROJECT_KEY, validate_experiment_input, validate_sigopt_input
+from .validate import EXPERIMENT_KEY, validate_experiment_input, validate_sigopt_input
 from .utils import check_path, run_user_program, setup_cli
 
 
