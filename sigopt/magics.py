@@ -7,11 +7,14 @@ from IPython.core.magic import (
   magics_class,
 )
 
+
 from .cli.validate import PROJECT_KEY
 from .config import config
+from .experiment_context import create_experiment
 from .interface import Connection
 from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
-from .run_context import GlobalRunContext
+from .run_context import global_run_context
+from .run_factory import RunFactory
 from .defaults import ensure_project_exists, get_default_project
 from .vendored import six
 
@@ -36,17 +39,13 @@ class SigOptMagics(Magics):
     super(SigOptMagics, self).__init__(shell)
     self._connection = Connection()
     self._experiment = None
+    self._run_factory = RunFactory(get_default_project())
 
   def setup(self):
     config.set_user_agent_info([
       'Notebook',
       '/'.join(['IPython', IPython.__version__]),
     ])
-
-  def ensure_project(self):
-    project_id = get_default_project()
-    ensure_project_exists(self._connection, project_id)
-    return project_id
 
   @cell_magic
   def experiment(self, _, cell):
@@ -60,15 +59,14 @@ class SigOptMagics(Magics):
     else:
       experiment_body = yaml.safe_load(six.StringIO(cell_value))
     self.setup()
-    project_id = self.ensure_project()
-    experiment_body[PROJECT_KEY] = project_id
-    self._experiment = self._connection.experiments().create(**experiment_body)
-    print(six.u(
-      'Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/{experiment_id}'
-    ).format(experiment_id=self._experiment.id))
+    self._experiment = create_experiment(project=self._run_factory.project, **experiment_body)
+    print(
+      'Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/{self._experiment.id}'
+    )
 
   def exec_cell(self, run_context, cell, ns):
-    with GlobalRunContext.use_global_run(run_context):
+    global_run_context.set_run_context(run_context)
+    try:
       if config.code_tracking_enabled:
         run_context.log_source_code(content=cell)
       stream_monitor = SystemOutputStreamMonitor() if config.log_collection_enabled else NullStreamMonitor()
@@ -80,6 +78,8 @@ class SigOptMagics(Magics):
       if stream_data:
         stdout, stderr = stream_data
         run_context.update_logs({'stdout': {'content': stdout}, 'stderr': {'content': stderr}})
+    finally:
+      global_run_context.clear_run_context()
 
   @cell_magic
   def run(self, line, cell):
@@ -90,8 +90,9 @@ class SigOptMagics(Magics):
       name = line
 
     self.setup()
-    project_id = self.ensure_project()
-    self.exec_cell(name, cell, ns, project_id)
+    run_context = self._run_factory.create_run(name=name)
+    with run_context:
+      self.exec_cell(run_context, cell, ns)
 
   @cell_magic
   def optimize(self, line, cell):
@@ -105,9 +106,7 @@ class SigOptMagics(Magics):
       name = line
 
     self.setup()
-    project_id = self.ensure_project()
 
-    def loop_body(suggestion):
-      self.exec_cell(name, cell, ns, project_id, suggestion=suggestion)
-
-    self._experiment = optimization_loop(self._connection, self._experiment, loop_body)
+    for run_context in self._experiment.loop(name=name):
+      with run_context:
+        self.exec_cell(run_context, cell, ns)

@@ -26,10 +26,10 @@ class ExperimentContext(BaseRunFactory):
       return False
     return self.budget_consumed >= self.budget
 
-  def loop(self):
+  def loop(self, name=None):
     '''Create runs until the experiment has finished.'''
     while not self.is_finished():
-      yield self.create_run()
+      yield self.create_run(name=name)
 
   @property
   def budget(self):

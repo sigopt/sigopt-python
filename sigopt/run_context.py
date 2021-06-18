@@ -3,6 +3,7 @@ import functools
 
 import requests
 
+from .config import config
 from .exception import ApiException, RunException
 from .interface import get_connection
 from .lib import remove_nones
@@ -410,14 +411,20 @@ class GlobalRunContext(BaseRunContext):
   def run_context(self):
     return self._run_context
 
+  def set_run_context(self, run_context):
+    self._run_context = run_context
+
+  def clear_run_context(self):
+    self._run_context = None
+
   def to_json(self):
     if self._run_context is None:
       return None
     return self._run_context.to_json()
 
   @classmethod
-  def from_config(cls, config):
-    data = config.get_context_data(cls)
+  def from_config(cls, config_):
+    data = config_.get_context_data(cls)
     run_context = None
     if data is not None:
       run_context = RunContext.from_json(data)
@@ -443,3 +450,5 @@ for method_name in [
   "_log_image",
 ]:
   delegate_to_run_context(method_name)
+
+global_run_context = GlobalRunContext.from_config(config)
