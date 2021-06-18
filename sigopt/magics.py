@@ -10,11 +10,10 @@ from IPython.core.magic import (
 
 
 from .config import config
-from .experiment_context import create_experiment
 from .interface import Connection
 from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
 from .run_context import global_run_context
-from .run_factory import RunFactory
+from .factory import SigOptFactory
 from .defaults import get_default_project
 
 
@@ -38,7 +37,7 @@ class SigOptMagics(Magics):
     super(SigOptMagics, self).__init__(shell)
     self._connection = Connection()
     self._experiment = None
-    self._run_factory = RunFactory(get_default_project())
+    self._factory = SigOptFactory(get_default_project())
 
   def setup(self):
     config.set_user_agent_info([
@@ -58,7 +57,7 @@ class SigOptMagics(Magics):
     else:
       experiment_body = yaml.safe_load(io.StringIO(cell_value))
     self.setup()
-    self._experiment = create_experiment(project=self._run_factory.project, **experiment_body)
+    self._experiment = self._factory.create_experiment(**experiment_body)
     print(
       'Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/{self._experiment.id}'
     )
@@ -89,7 +88,7 @@ class SigOptMagics(Magics):
       name = line
 
     self.setup()
-    run_context = self._run_factory.create_run(name=name)
+    run_context = self._factory.create_run(name=name)
     with run_context:
       self.exec_cell(run_context, cell, ns)
 

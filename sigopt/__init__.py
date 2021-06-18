@@ -3,8 +3,7 @@ from .defaults import get_default_project
 from .interface import Connection
 from .magics import SigOptMagics as _Magics
 from .run_context import global_run_context as _global_run_context
-from .experiment_context import create_experiment
-from .run_factory import RunFactory
+from .factory import SigOptFactory
 from .version import VERSION
 
 
@@ -17,8 +16,9 @@ log_metric = _global_run_context.log_metric
 log_model = _global_run_context.log_model
 config.set_context_entry(_global_run_context)
 
-_global_run_factory = RunFactory(get_default_project())
-create_run = _global_run_factory.create_run
+_global_factory = SigOptFactory(get_default_project())
+create_run = _global_factory.create_run
+create_experiment = _global_factory.create_experiment
 
 
 def load_ipython_extension(ipython):

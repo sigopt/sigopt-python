@@ -2,7 +2,7 @@ import click
 
 from ..config import config
 from ..defaults import get_default_project
-from ..run_factory import RunFactory
+from ..factory import SigOptFactory
 from .cli import cli
 from .utils import check_path, run_user_program, setup_cli
 
@@ -19,6 +19,6 @@ def run(entrypoint, entrypoint_args):
   )
   setup_cli(config)
   project_id = get_default_project()
-  factory = RunFactory(project_id)
+  factory = SigOptFactory(project_id)
   with factory.create_run() as run_context:
     run_user_program(config, run_context, entrypoint, entrypoint_args)
