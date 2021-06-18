@@ -1,4 +1,3 @@
-import contextlib
 import functools
 
 import requests
@@ -438,7 +437,7 @@ def delegate_to_run_context(method_name):
   setattr(GlobalRunContext, method_name, func)
 
 
-for method_name in [
+for _method_name in [
   "_log_dataset",
   "_log_failure",
   "_log_metadata",
@@ -447,6 +446,6 @@ for method_name in [
   "_log_checkpoint",
   "_log_image",
 ]:
-  delegate_to_run_context(method_name)
+  delegate_to_run_context(_method_name)
 
 global_run_context = GlobalRunContext.from_config(config)
