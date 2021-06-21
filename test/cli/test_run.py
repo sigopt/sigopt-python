@@ -9,7 +9,7 @@ from sigopt.run_context import RunContext
 
 
 class TestRunCli(object):
-  @pytest.yield_fixture(autouse=True)
+  @pytest.fixture(autouse=True)
   def patch_run_factory(self):
     with mock.patch('sigopt.cli.run.SigOptFactory') as factory:
       run = RunContext(mock.Mock(), mock.Mock(), None)

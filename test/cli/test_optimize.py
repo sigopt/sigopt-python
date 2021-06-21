@@ -5,19 +5,25 @@ import pytest
 from click.testing import CliRunner
 
 from sigopt.cli import cli
+from sigopt.experiment_context import ExperimentContext
+from sigopt.run_context import RunContext
 
 
 class TestRunCli(object):
-  @pytest.yield_fixture(autouse=True)
-  def patch_run_factory(self):
-    with mock.patch('sigopt.cli.optimize.RunFactory') as RunFactory:
-      yield RunFactory
-
-  @pytest.yield_fixture(autouse=True)
-  def patch_optimization_loop(self):
-    with mock.patch('sigopt.cli.optimize.optimization_loop') as optimization_loop:
-      optimization_loop.side_effect = lambda conn, exp, loop_body: loop_body(mock.Mock())
-      yield optimization_loop
+  @pytest.fixture(autouse=True)
+  def patch_factory(self):
+    with mock.patch('sigopt.cli.optimize.SigOptFactory') as factory:
+      run = RunContext(mock.Mock(), mock.Mock(), None)
+      run.to_json = mock.Mock(return_value={"run": {}})
+      run._end = mock.Mock()
+      experiment = ExperimentContext(mock.Mock(project="test-project"))
+      experiment.create_run = mock.Mock(return_value=run)
+      experiment.refresh = mock.Mock()
+      experiment.is_finished = mock.Mock(side_effect=[False, True])
+      instance = mock.Mock()
+      instance.create_experiment.return_value = experiment
+      factory.return_value = instance
+      yield
 
   def test_optimize_command(self):
     runner = CliRunner()
