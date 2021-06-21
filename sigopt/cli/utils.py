@@ -39,23 +39,6 @@ class StreamThread(threading.Thread):
     self.join()
     return self.buffer.getvalue()
 
-def maybe_truncate_log(log_content):
-  # If log content is extremely long, preserve some useful content instead of failing.
-  # TODO(patrick): Support streaming logs to avoid this
-  max_size = 1024 * 1024
-  if len(log_content) >= max_size:
-    truncated_disclaimer = '[ WARNING ] The max size has been reached so these logs have been truncated'
-    half = max_size // 2
-    head = log_content[:half]
-    tail = log_content[-half:]
-    log_content = '\n\n'.join([
-      truncated_disclaimer,
-      head,
-      '... truncated ...',
-      tail,
-    ])
-  return log_content
-
 def get_git_hexsha():
   try:
     import git
@@ -100,9 +83,9 @@ def run_subprocess_command(config, run_context, cmd, env=None):
   finally:
     stdout_content, stderr_content = stdout.stop(), stderr.stop()
     if config.log_collection_enabled:
-      run_context.update_logs({
-        'stdout': {'content': maybe_truncate_log(stdout_content)},
-        'stderr': {'content': maybe_truncate_log(stderr_content)},
+      run_context.set_logs({
+        'stdout': stdout_content,
+        'stderr': stderr_content,
       })
   if return_code > 0:
     raise subprocess.CalledProcessError(return_code, cmd)

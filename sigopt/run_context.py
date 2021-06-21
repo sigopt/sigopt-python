@@ -6,12 +6,29 @@ from .config import config
 from .exception import ApiException, RunException
 from .file_utils import create_api_image_payload, get_blob_properties
 from .interface import get_connection
-from .lib import remove_nones, sanitize_number, validate_name
+from .lib import remove_nones, sanitize_number, validate_name, is_mapping, is_string
 from .objects import Suggestion, TrainingRun
 from .run_params import RunParameters, GlobalRunParameters
 
 
 _UNSET = object()
+
+def maybe_truncate_log(log_content):
+  # If log content is extremely long, preserve some useful content instead of failing.
+  # TODO(patrick): Support streaming logs to avoid this
+  max_size = 1024 * 1024
+  if len(log_content) >= max_size:
+    truncated_disclaimer = '[ WARNING ] The max size has been reached so these logs have been truncated'
+    half = max_size // 2
+    head = log_content[:half]
+    tail = log_content[-half:]
+    log_content = '\n\n'.join([
+      truncated_disclaimer,
+      head,
+      '... truncated ...',
+      tail,
+    ])
+  return log_content
 
 class NoDefaultParameterError(RunException):
   def __init__(self, parameter_name):
@@ -47,7 +64,7 @@ class BaseRunContext(object):
   def _log_source_code(self, source_code):
     raise NotImplementedError
 
-  def _update_logs(self, logs):
+  def _set_logs(self, logs):
     raise NotImplementedError
 
   def _log_checkpoint(self, values):
@@ -146,8 +163,14 @@ class BaseRunContext(object):
   def log_source_code(self, **source_code):
     self._log_source_code(source_code)
 
-  def update_logs(self, logs):
-    self._update_logs(logs)
+  def set_logs(self, logs):
+    if not is_mapping(logs):
+      raise TypeError(f"logs must be a mapping, got {type(logs).__name__}")
+    for stream_name, stream_content in logs.items():
+      validate_name("log stream", stream_name)
+      if not is_string(stream_content):
+        raise TypeError(f"log content must be a string, got {type(logs).__name__}")
+    self._set_logs(logs)
 
   def log_checkpoint(self, values):
     '''
@@ -359,8 +382,11 @@ class RunContext(BaseRunContext):
     return source_code
 
   @updates('logs')
-  def _update_logs(self, logs):
-    return logs
+  def _set_logs(self, logs):
+    return {
+      name: {"content": maybe_truncate_log(content)}
+      for name, content in logs.items()
+    }
 
   @creates_checkpoint()
   def _log_checkpoint(self, values):

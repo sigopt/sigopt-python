@@ -75,7 +75,7 @@ class SigOptMagics(Magics):
       stream_data = stream_monitor.get_stream_data()
       if stream_data:
         stdout, stderr = stream_data
-        run_context.update_logs({'stdout': {'content': stdout}, 'stderr': {'content': stderr}})
+        run_context.set_logs({'stdout': stdout, 'stderr': stderr})
     finally:
       global_run_context.clear_run_context()
 
