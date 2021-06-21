@@ -8,9 +8,9 @@ _set = object.__setattr__
 
 class RunParameters(MutableMapping):
   def __init__(self, run_context, fixed_items):
-    object.__setattr__(self, "__items", dict(fixed_items))
-    object.__setattr__(self, "__run_context", run_context)
-    object.__setattr__(self, "__fixed_keys", set(fixed_items.keys()))
+    _set(self, "__items", dict(fixed_items))
+    _set(self, "__run_context", run_context)
+    _set(self, "__fixed_keys", set(fixed_items.keys()))
 
   def update(self, other=(), /, **kwds):  # pylint: disable=no-method-argument
     # this update is atomic, which reduces the number of calls to set_parameter(s)
