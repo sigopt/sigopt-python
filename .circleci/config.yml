@@ -50,16 +50,10 @@ jobs:
       - image: circleci/python:3.6
     steps:
       - test
-  test-27:
-    docker:
-      - image: circleci/python:2.7
-    steps:
-      - test
 
 workflows:
   main:
     jobs:
-      - test-27
       - test-36
       - test-37
       - test-38
