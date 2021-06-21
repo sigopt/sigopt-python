@@ -9,24 +9,42 @@ class RunParameters(MutableMapping):
     self.__run_context = run_context
     self.__fixed_keys = set(fixed_items.keys())
 
+  def update(self, other=(), /, **kwds):
+    # this update is atomic, which reduces the number of calls to set_parameter(s)
+    # the default implementation of update would result in a partial update if any of the setters failed
+    # ex. (x := {}).update([(1, 2), ({}, 4)]) => raises TypeError and x == {1: 2}
+    tmp = dict()
+    tmp.update(other, **kwds)
+    for key in tmp:
+      self.__check_key_type(key)
+    for key in tmp:
+      self.__check_key_is_not_fixed(key)
+    self.__items.update(tmp)
+    self.__run_context.set_parameters(tmp)
+
+  def __check_key_type(self, key):
+    if not is_string(key):
+      raise TypeError(f"parameter names must be strings, got {type(key).__name__!r}")
+
   def __check_key_is_not_fixed(self, key):
     if key in self.__fixed_keys:
-      raise ValueError(f"The value of {repr(key)} cannot be changed")
+      raise ValueError(f"value of {key!r} cannot be changed")
 
   def __getitem__(self, key):
     return self.__items[key]
 
   def __setitem__(self, key, value):
-    if not is_string(key):
-      raise KeyError("Parameter names must be strings")
+    self.__check_key_type(key)
     self.__check_key_is_not_fixed(key)
+    rval = self.__items.__setitem__(key, value)
     self.__run_context.set_parameter(key, value)
-    return self.__items.__setitem__(key, value)
+    return rval
 
   def __delitem__(self, key):
     self.__check_key_is_not_fixed(key)
+    rval = self.__items.__delitem__(key)
     self.__run_context.set_parameter(key, None)
-    return self.__items.__delitem__(key)
+    return rval
 
   def __iter__(self):
     return self.__items.__iter__()
