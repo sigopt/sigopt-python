@@ -8,7 +8,8 @@ class ExperimentContext(BaseRunFactory):
   '''Wraps the Experiment object and provides extra utility methods.'''
 
   def __init__(self, experiment):
-    assert experiment.project, "The experiment must belong to a project"
+    if experiment.project is None:
+      raise ValueError("experiment does not belong to a project")
     self._experiment = experiment
     self._refresh_lock = threading.Lock()
 

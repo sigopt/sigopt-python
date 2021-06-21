@@ -1,4 +1,4 @@
-from .defaults import assert_valid_project_id, ensure_project_exists
+from .defaults import check_valid_project_id, ensure_project_exists
 from .interface import get_connection
 from .run_factory import BaseRunFactory
 from .experiment_context import ExperimentContext
@@ -8,7 +8,7 @@ class SigOptFactory(BaseRunFactory):
   '''A SigOptFactory creates Runs and Experiments that belong to a specified Project.'''
 
   def __init__(self, project_id):
-    assert_valid_project_id(project_id)
+    check_valid_project_id(project_id)
     self._project_id = project_id
     self._assume_project_exists = False
     self._client_id = None

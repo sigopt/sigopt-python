@@ -11,21 +11,21 @@ def normalize_project_id(project_id):
   project_id = project_id.lower()
   return re.sub(INVALID_PROJECT_ID_STRING_CHARACTERS, '', project_id)
 
-def assert_valid_project_id(project_id):
-  valid = VALID_PROJECT_ID.match(project_id)
-  assert valid, f"The project id is not valid: {project_id}"
+def check_valid_project_id(project_id):
+  if not VALID_PROJECT_ID.match(project_id):
+    raise ValueError(f"project id is invalid: {project_id}")
 
 def get_default_project():
   project_id = os.environ.get('SIGOPT_PROJECT')
   if project_id:
-    assert_valid_project_id(project_id)
+    check_valid_project_id(project_id)
     return project_id
   cwd_project_id = os.path.basename(os.getcwd())
   project_id = normalize_project_id(cwd_project_id)
   try:
-    assert_valid_project_id(project_id)
-  except AssertionError as ae:
-    raise AssertionError(
+    check_valid_project_id(project_id)
+  except ValueError as ae:
+    raise ValueError(
       f"The current directory '{cwd_project_id}' could not be converted into a valid project id."
 
       " Please rename the directory or use the SIGOPT_PROJECT environment variable instead."
