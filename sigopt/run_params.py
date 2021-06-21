@@ -9,7 +9,7 @@ class RunParameters(MutableMapping):
     self.__run_context = run_context
     self.__fixed_keys = set(fixed_items.keys())
 
-  def update(self, other=(), /, **kwds):
+  def update(self, other=(), /, **kwds):  # pylint: disable=no-method-argument
     # this update is atomic, which reduces the number of calls to set_parameter(s)
     # the default implementation of update would result in a partial update if any of the setters failed
     # ex. (x := {}).update([(1, 2), ({}, 4)]) => raises TypeError and x == {1: 2}
