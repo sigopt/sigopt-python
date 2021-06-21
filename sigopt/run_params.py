@@ -12,12 +12,12 @@ class RunParameters(MutableMapping):
     _set(self, "__run_context", run_context)
     _set(self, "__fixed_keys", set(fixed_items.keys()))
 
-  def update(self, other=(), /, **kwds):  # pylint: disable=no-method-argument
+  def update(self, *args, **kwds):  # pylint: disable=arguments-differ
     # this update is atomic, which reduces the number of calls to set_parameter(s)
     # the default implementation of update would result in a partial update if any of the setters failed
     # ex. (x := {}).update([(1, 2), ({}, 4)]) => raises TypeError and x == {1: 2}
     tmp = dict()
-    tmp.update(other, **kwds)
+    tmp.update(*args, **kwds)
     for key in tmp:
       self.__check_key_type(key)
     for key in tmp:
