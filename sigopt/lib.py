@@ -65,11 +65,7 @@ def safe_format(string, *args, **kwargs):
 
 def validate_name(warn, name):
   if not is_string(name):
-    raise ValueError(safe_format(
-      "The {} must be a string, not {}",
-      warn,
-      type(name).__name__
-    ))
+    raise ValueError(f"The {warn} must be a string, not {type(name).__name__}")
 
 def sanitize_number(warn, name, value):
   if is_integer(value):
@@ -77,12 +73,7 @@ def sanitize_number(warn, name, value):
   try:
     value = float(value)
     if _math.isinf(value) or _math.isnan(value):
-      raise ValueError(safe_format("`{}` is not an appropriate number", value))
+      raise ValueError
     return value
   except (ValueError, TypeError):
-    raise ValueError(safe_format(
-      "The {} logged for `{}` could not be converted to a number: {}",
-      warn,
-      name,
-      repr(value),
-    ))
+    raise ValueError(f"The {warn} logged for `{name}` could not be converted to a number: {value!r}")
