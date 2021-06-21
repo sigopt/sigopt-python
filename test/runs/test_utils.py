@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 import xml.etree.ElementTree as ET
 
 from sigopt.vendored import six
-from sigopt.runs.utils import (
+from sigopt.file_utils import (
   create_api_image_payload,
   get_blob_properties,
   try_load_matplotlib_image,
