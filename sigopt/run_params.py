@@ -36,15 +36,13 @@ class RunParameters(MutableMapping):
   def __setitem__(self, key, value):
     self.__check_key_type(key)
     self.__check_key_is_not_fixed(key)
-    rval = self.__items.__setitem__(key, value)
+    self.__items.__setitem__(key, value)
     self.__run_context.set_parameter(key, value)
-    return rval
 
   def __delitem__(self, key):
     self.__check_key_is_not_fixed(key)
-    rval = self.__items.__delitem__(key)
+    self.__items.__delitem__(key)
     self.__run_context.set_parameter(key, None)
-    return rval
 
   def __iter__(self):
     return self.__items.__iter__()
@@ -84,10 +82,10 @@ class GlobalRunParameters(MutableMapping):
     return self.__params.__getitem__(key)
 
   def __setitem__(self, key, value):
-    return self.__params.__setitem__(key, value)
+    self.__params.__setitem__(key, value)
 
   def __delitem__(self, key):
-    return self.__params.__delitem__(key)
+    self.__params.__delitem__(key)
 
   def __iter__(self):
     return self.__params.__iter__()
