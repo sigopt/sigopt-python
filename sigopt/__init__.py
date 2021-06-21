@@ -7,6 +7,7 @@ from .factory import SigOptFactory
 from .version import VERSION
 
 
+params = _global_run_context.params
 log_checkpoint = _global_run_context.log_checkpoint
 log_dataset = _global_run_context.log_dataset
 log_failure = _global_run_context.log_failure

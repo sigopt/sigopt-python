@@ -57,3 +57,46 @@ class RunParameters(MutableMapping):
 
   def __str__(self):
     return self.__items.__str__()
+
+
+class GlobalRunParameters(MutableMapping):
+  def __init__(self, global_run_context):
+    self.__global_run_context = global_run_context
+    self.__global_params = RunParameters(global_run_context, dict())
+
+  @property
+  def __params(self):
+    run_context = self.__global_run_context.run_context
+    if run_context is None:
+      return self.__global_params
+    return run_context.params
+
+  def __getattribute__(self, attr):
+    if attr.startswith("_"):
+      return object.__getattribute__(self, attr)
+    # delegate public (non-underscored) attributes to __params
+    return getattr(self.__params, attr)
+
+  def __dir__(self):
+    return sorted(set(dir(super())) | set(dir(self.__params)))
+
+  def __getitem__(self, key):
+    return self.__params.__getitem__(key)
+
+  def __setitem__(self, key, value):
+    return self.__params.__setitem__(key, value)
+
+  def __delitem__(self, key):
+    return self.__params.__delitem__(key)
+
+  def __iter__(self):
+    return self.__params.__iter__()
+
+  def __len__(self):
+    return self.__params.__len__()
+
+  def __repr__(self):
+    return self.__params.__repr__()
+
+  def __str__(self):
+    return self.__params.__str__()

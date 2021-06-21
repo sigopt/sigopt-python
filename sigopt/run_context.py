@@ -8,7 +8,7 @@ from .file_utils import create_api_image_payload, get_blob_properties
 from .interface import get_connection
 from .lib import remove_nones, sanitize_number, validate_name
 from .objects import Suggestion, TrainingRun
-from .run_params import RunParameters
+from .run_params import RunParameters, GlobalRunParameters
 
 
 _UNSET = object()
@@ -262,7 +262,7 @@ class RunContext(BaseRunContext):
   def from_json(cls, data):
     suggestion = data.get("suggestion")
     if suggestion is not None:
-      suggestion = Suggestion(data)
+      suggestion = Suggestion(suggestion)
     run = TrainingRun(data["run"])
     return cls(get_connection(), run, suggestion)
 
@@ -399,7 +399,7 @@ class GlobalRunContext(BaseRunContext):
 
   def __init__(self, run_context):
     self._run_context = run_context
-    self._global_params = RunParameters(self, dict())
+    self._params = GlobalRunParameters(self)
 
   @property
   def id(self):
@@ -409,9 +409,7 @@ class GlobalRunContext(BaseRunContext):
 
   @property
   def params(self):
-    if self._run_context is None:
-      return self._global_params
-    return self._run_context.params
+    return self._params
 
   @property
   def run_context(self):
