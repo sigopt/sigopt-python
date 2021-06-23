@@ -1,4 +1,4 @@
-from .defaults import check_valid_project_id, ensure_project_exists, get_default_project
+from .defaults import check_valid_project_id, ensure_project_exists
 from .interface import get_connection
 from .logging import print_logger
 from .run_factory import BaseRunFactory
