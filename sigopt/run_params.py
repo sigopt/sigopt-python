@@ -46,7 +46,7 @@ class RunParameters(MutableMapping):
       raise ValueError(f"value of {key!r} cannot be changed")
 
   def __getitem__(self, key):
-    return object.__getattribute__(self, "__items")[key]
+    return _get(self, "__items")[key]
 
   def __setitem__(self, key, value):
     self.__check_key_type(key)
