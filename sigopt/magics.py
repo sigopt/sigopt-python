@@ -58,9 +58,6 @@ class SigOptMagics(Magics):
       experiment_body = yaml.safe_load(io.StringIO(cell_value))
     self.setup()
     self._experiment = self._factory.create_experiment(**experiment_body)
-    print(
-      'Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/{self._experiment.id}'
-    )
 
   def exec_cell(self, run_context, cell, ns):
     global_run_context.set_run_context(run_context)

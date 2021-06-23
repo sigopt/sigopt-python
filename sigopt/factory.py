@@ -47,4 +47,5 @@ class SigOptFactory(BaseRunFactory):
       observation_budget=budget,
       **kwargs,
     )
+    print(f'Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/{experiment.id}')
     return ExperimentContext(experiment)
