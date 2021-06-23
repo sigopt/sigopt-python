@@ -1,9 +1,9 @@
-import logging
 import sys
+from logging import getLogger, INFO, StreamHandler
 
-print_logger = logging.getLogger("sigopt.print")
-print_logger.setLevel(logging.INFO)
+print_logger = getLogger("sigopt.print")
+print_logger.setLevel(INFO)
 
 def enable_print_logging():
   global print_logger
-  print_logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+  print_logger.addHandler(StreamHandler(stream=sys.stdout))
