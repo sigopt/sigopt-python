@@ -15,7 +15,7 @@ from .utils import check_path, run_user_program, setup_cli
 def run(entrypoint, entrypoint_args):
   check_path(
     entrypoint,
-    "Provided entrypoint '{entrypoint}' does not exist",
+    f"Provided entrypoint '{entrypoint}' does not exist",
   )
   setup_cli(config)
   project_id = get_default_project()
