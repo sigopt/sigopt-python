@@ -1,5 +1,6 @@
-from .defaults import check_valid_project_id, ensure_project_exists
+from .defaults import check_valid_project_id, ensure_project_exists, get_default_project
 from .interface import get_connection
+from .logging import print_logger
 from .run_factory import BaseRunFactory
 from .experiment_context import ExperimentContext
 
@@ -12,10 +13,17 @@ class SigOptFactory(BaseRunFactory):
     self._project_id = project_id
     self._assume_project_exists = False
     self._client_id = None
+    self.exp = False
 
   @property
   def project(self):
     return self._project_id
+
+  def _on_experiment_created(self, experiment):
+    print_logger.info(
+      "Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/%s",
+      experiment.id,
+    )
 
   def _ensure_project_exists(self):
     # if we have already ensured that the project exists then we can skip this step in the future
@@ -29,11 +37,6 @@ class SigOptFactory(BaseRunFactory):
     client_id, project_id = self._ensure_project_exists()
     run = connection.clients(client_id).projects(project_id).training_runs().create(name=name)
     run_context = self.run_context_class(connection, run, suggestion=None)
-    print(
-      'Run started, view it on the SigOpt dashboard at https://app.sigopt.com/run/{run_id}'.format(
-        run_id=run.id,
-      )
-    )
     return run_context
 
   def create_experiment(self, name, parameters, metrics=None, budget=None, **kwargs):
@@ -47,5 +50,5 @@ class SigOptFactory(BaseRunFactory):
       observation_budget=budget,
       **kwargs,
     )
-    print(f'Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/{experiment.id}')
+    self._on_experiment_created(experiment)
     return ExperimentContext(experiment)

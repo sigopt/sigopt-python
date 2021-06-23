@@ -7,6 +7,7 @@ from .exception import ApiException, RunException
 from .file_utils import create_api_image_payload, get_blob_properties
 from .interface import get_connection
 from .lib import remove_nones, sanitize_number, validate_name, is_mapping, is_string
+from .logging import print_logger
 from .objects import Suggestion, TrainingRun
 from .run_params import RunParameters, GlobalRunParameters
 
@@ -321,11 +322,7 @@ class RunContext(BaseRunContext):
           )
         else:
           raise
-    print(
-      'Run finished, view it on the SigOpt dashboard at https://app.sigopt.com/run/{run_id}'.format(
-        run_id=self.run.id,
-      )
-    )
+    print_logger.info("Run finished, view it on the SigOpt dashboard at https://app.sigopt.com/run/%s", self.id)
 
   def _request(self, method, path, params, headers=None):
     base_url = self.connection.impl.api_url
