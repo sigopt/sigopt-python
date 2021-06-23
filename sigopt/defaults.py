@@ -24,12 +24,12 @@ def get_default_project():
   project_id = normalize_project_id(cwd_project_id)
   try:
     check_valid_project_id(project_id)
-  except ValueError as ae:
+  except ValueError as ve:
     raise ValueError(
       f"The current directory '{cwd_project_id}' could not be converted into a valid project id."
 
       " Please rename the directory or use the SIGOPT_PROJECT environment variable instead."
-    ) from ae
+    ) from ve
   return project_id
 
 def get_default_name(project):
