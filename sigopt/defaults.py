@@ -1,4 +1,5 @@
 import datetime
+import http
 import re
 import os
 
@@ -41,6 +42,6 @@ def ensure_project_exists(connection, project_id):
   try:
     connection.clients(client_id).projects().create(id=project_id, name=project_id)
   except ApiException as e:
-    if e.status_code != 409:
+    if e.status_code != http.HTTPStatus.CONFLICT:
       raise
   return client_id
