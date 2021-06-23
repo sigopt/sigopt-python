@@ -4,7 +4,7 @@ import subprocess
 import sys
 import threading
 
-from ..logging import enable_print_logger
+from ..logging import enable_print_logging
 from ..run_context import GlobalRunContext
 from ..vendored import six
 
@@ -131,4 +131,4 @@ def check_path(entrypoint, error_msg):
 
 def setup_cli(config):
   config.set_user_agent_info(['CLI'])
-  enable_print_logger()
+  enable_print_logging()
