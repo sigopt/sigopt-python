@@ -85,6 +85,8 @@ class GlobalRunParameters(MutableMapping):
     return run_context.params
 
   def __getattribute__(self, attr):
+    # public methods like update and pop should pass to the underlying __params,
+    # but attributes beginning with "_" should at least attempt to be resolved.
     if attr.startswith("_"):
       try:
         return _get(self, attr)
