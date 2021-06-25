@@ -1,0 +1,15 @@
+provider: aws
+cluster_name: {{CLUSTER_NAME}}
+
+cpu:
+  instance_type: t2.small
+  min_nodes: 1
+  max_nodes: 1
+system:
+  instance_type: t2.small
+  min_nodes: 1
+  max_nodes: 1
+
+aws:
+  additional_policies:
+    - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess

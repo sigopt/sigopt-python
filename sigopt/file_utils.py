@@ -119,7 +119,7 @@ def create_api_image_payload(image):
   return None
 
 def get_blob_properties(image_data):
-  md5 = hashlib.md5()
+  md5 = hashlib.md5()  # nosec
   image_data.seek(0)
   while True:
     chunk = image_data.read(2 ** 20)

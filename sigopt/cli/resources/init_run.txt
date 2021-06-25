@@ -1,0 +1,4 @@
+name: My Run
+# Fill in run command/commands
+run: # python model.py
+image: #[IMAGE]

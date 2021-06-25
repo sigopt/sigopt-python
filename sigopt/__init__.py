@@ -21,6 +21,7 @@ config.set_context_entry(_global_run_context)
 _global_factory = SigOptFactory(get_default_project())
 create_run = _global_factory.create_run
 create_experiment = _global_factory.create_experiment
+get_experiment = _global_factory.get_experiment
 
 
 def load_ipython_extension(ipython):

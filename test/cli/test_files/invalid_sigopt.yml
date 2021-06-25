@@ -1,7 +1,1 @@
-name: top level
-parameters:
-  - name: this is not right
-    type: double
-    bounds:
-      min: 0
-      max: 1
+[]

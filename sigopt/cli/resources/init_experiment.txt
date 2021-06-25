@@ -1,0 +1,11 @@
+name: My Experiment
+metrics:
+ - name: #[METRIC_NAME]
+parameters:
+ - name: #[PARAMETER_NAME]
+   type: #[PARMETER_TYPE]
+   bounds:
+     min: #[MIN_BOUND]
+     max: #[MAX_BOUND]
+parallel_bandwidth: 1
+observation_budget: 10
