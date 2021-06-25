@@ -1,4 +1,4 @@
-from sigopt.cli.utils import maybe_truncate_log
+from sigopt.run_context import maybe_truncate_log
 
 
 def test_short_logs_dont_get_truncated():

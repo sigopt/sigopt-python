@@ -1,0 +1,24 @@
+from .defaults import get_default_name
+from .logging import print_logger
+from .run_context import RunContext
+
+
+class BaseRunFactory(object):
+  run_context_class = RunContext
+
+  def _on_run_created(self, run):
+    print_logger.info("Run started, view it on the SigOpt dashboard at https://app.sigopt.com/run/%s", run.id)
+
+  @property
+  def project(self):
+    raise NotImplementedError
+
+  def _create_run(self, name):
+    raise NotImplementedError
+
+  def create_run(self, name=None):
+    if name is None:
+      name = get_default_name(self.project)
+    run = self._create_run(name)
+    self._on_run_created(run)
+    return run

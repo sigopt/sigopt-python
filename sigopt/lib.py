@@ -56,3 +56,24 @@ def find(lis, predicate):
   Finds the first element in lis satisfying predicate, or else None
   """
   return next((item for item in lis if predicate(item)), None)
+
+def remove_nones(mapping):
+  return {key: value for key, value in mapping.items() if value is not None}
+
+def safe_format(string, *args, **kwargs):
+  return string.format(*args, **kwargs)
+
+def validate_name(warn, name):
+  if not is_string(name):
+    raise ValueError(f"The {warn} must be a string, not {type(name).__name__}")
+
+def sanitize_number(warn, name, value):
+  if is_integer(value):
+    return value
+  try:
+    value = float(value)
+    if _math.isinf(value) or _math.isnan(value):
+      raise ValueError
+    return value
+  except (ValueError, TypeError):
+    raise ValueError(f"The {warn} logged for `{name}` could not be converted to a number: {value!r}")

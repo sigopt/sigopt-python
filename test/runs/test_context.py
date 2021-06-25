@@ -3,7 +3,7 @@ import mock
 import pytest
 import sys
 
-from sigopt.runs.context import allow_state_update, LiveRunContext
+from sigopt.run_context import allow_state_update, RunContext
 
 
 @pytest.mark.parametrize('new_state,old_state,expected', [
@@ -19,7 +19,7 @@ def test_allow_state_update(new_state, old_state, expected):
 
 class TestLiveRunContext(object):
   def make_run_context(self, config):
-    run_context = LiveRunContext(
+    run_context = RunContext(
       connection=mock.Mock(),
       run=mock.Mock(),
       suggestion=mock.Mock(assignments={}),
@@ -36,10 +36,23 @@ class TestLiveRunContext(object):
     1.2345,
     'hello',
   ])
-  def test_assignment_method(self, run_context, test_value):
+  def test_assignment_setitem(self, run_context, test_value):
     test_key = 'assignment_test_key'
-    assignment_value = run_context.get_parameter(test_key, test_value)
-    assert assignment_value == test_value
+    run_context.params[test_key] = test_value
+    assert run_context.params[test_key] == test_value
+    assert getattr(run_context.params, test_key) == test_value
+    run_context._update_run.assert_called_once_with({'assignments': {test_key: test_value}})
+
+  @pytest.mark.parametrize('test_value', [
+    12345,
+    1.2345,
+    'hello',
+  ])
+  def test_assignment_setattr(self, run_context, test_value):
+    test_key = 'assignment_test_key'
+    setattr(run_context.params, test_key, test_value)
+    assert run_context.params[test_key] == test_value
+    assert getattr(run_context.params, test_key) == test_value
     run_context._update_run.assert_called_once_with({'assignments': {test_key: test_value}})
 
   def test_log_failure_method(self, run_context):

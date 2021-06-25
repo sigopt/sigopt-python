@@ -385,3 +385,10 @@ def object_or_paginated_objects(api_object):
       return Pagination(api_object, body, *args, **kwargs)
     return api_object(body, *args, **kwargs)
   return decorator
+
+_global_connection = None
+def get_connection():
+  global _global_connection
+  if _global_connection is None:
+    _global_connection = Connection()
+  return _global_connection

@@ -5,12 +5,19 @@ import pytest
 from click.testing import CliRunner
 
 from sigopt.cli import cli
+from sigopt.run_context import RunContext
 
 
 class TestRunCli(object):
-  @pytest.yield_fixture(autouse=True)
+  @pytest.fixture(autouse=True)
   def patch_run_factory(self):
-    with mock.patch('sigopt.cli.run.RunFactory'):
+    with mock.patch('sigopt.cli.run.SigOptFactory') as factory:
+      run = RunContext(mock.Mock(), mock.Mock(), None)
+      run.to_json = mock.Mock(return_value={"run": {}})
+      run._end = mock.Mock()
+      instance = mock.Mock()
+      instance.create_run.return_value = run
+      factory.return_value = instance
       yield
 
   def test_run_command(self):
