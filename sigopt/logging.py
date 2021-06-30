@@ -9,6 +9,6 @@ print_logger.info = lambda *args, **kwargs: traceback.print_stack()
 stdout_handler = StreamHandler(stream=sys.stdout)
 
 def enable_print_logging():
-  global print_logger, stream_handler
+  global print_logger, stdout_handler
   print_logger.removeHandler(stdout_handler)
   print_logger.addHandler(stdout_handler)

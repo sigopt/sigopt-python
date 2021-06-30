@@ -1,4 +1,4 @@
-from ..lib.types import is_boolean, is_integer, is_mapping, is_sequence, is_string, is_string_sequence
+from ..lib.types import is_boolean, is_integer, is_mapping, is_sequence, is_string
 from ..node_groups import ALL_NODE_GROUP_TYPES, NODE_GROUP_TYPE_CPU, NODE_GROUP_TYPE_GPU, NODE_GROUP_TYPE_SYSTEM
 from ..services.base import Service
 

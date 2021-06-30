@@ -1,9 +1,8 @@
 import json
 
-from sigopt import Connection
 from sigopt.config import config
 from sigopt.exception import ApiException
-from sigopt.defaults import ensure_project_exists, get_default_project
+from sigopt.defaults import get_default_project
 from sigopt.factory import SigOptFactory
 
 from ..exceptions import CheckConnectionError

@@ -9,7 +9,6 @@ import threading
 import click
 
 from ..logging import enable_print_logging, print_logger
-from ..run_context import GlobalRunContext
 from ..vendored import six
 
 
