@@ -1,10 +1,8 @@
 import sys
-import traceback
 from logging import getLogger, INFO, StreamHandler
 
 print_logger = getLogger("sigopt.print")
 print_logger.setLevel(INFO)
-print_logger.info = lambda *args, **kwargs: traceback.print_stack()
 
 stdout_handler = StreamHandler(stream=sys.stdout)
 
