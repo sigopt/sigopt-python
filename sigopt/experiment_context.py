@@ -58,5 +58,4 @@ class ExperimentContext(BaseRunFactory):
     )
     run_context = self.run_context_class(connection, run, suggestion)
     run_context.set_parameters(suggestion.assignments)
-    print(f'Run started, view it on the SigOpt dashboard at https://app.sigopt.com/run/{run_context.id}')
     return run_context
