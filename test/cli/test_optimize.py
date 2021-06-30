@@ -17,7 +17,7 @@ class TestRunCli(object):
       run = RunContext(mock.Mock(), mock.Mock(), None)
       run.to_json = mock.Mock(return_value={"run": {}})
       run._end = mock.Mock()
-      experiment = ExperimentContext(mock.Mock(project="test-project"))
+      experiment = ExperimentContext(mock.Mock(project="test-project"), mock.Mock())
       experiment.create_run = mock.Mock(return_value=run)
       experiment.refresh = mock.Mock()
       experiment.is_finished = mock.Mock(side_effect=[False, True])
