@@ -1,7 +1,7 @@
 from ..services.base import Service
 
 
-RESOURCES_OPTION = 'resources_per_model'
+RESOURCES_OPTION = 'resources'
 
 class GpuOptionsValidatorService(Service):
   def get_resource_options(self, run_options):
