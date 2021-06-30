@@ -165,7 +165,6 @@ class OrchestrateController:
       print(identifier)
     else:
       print(f'Started "{identifier}"')
-      print(f"See more at https://app.sigopt.com/{identifier}")
 
   def test_run_on_cluster(self, command, run_options, dockerfile):
     cluster = self.services.cluster_service.test()
@@ -261,7 +260,6 @@ class OrchestrateController:
       print(identifier)
     else:
       print(f'Started "{identifier}"')
-      print(f"See more at https://app.sigopt.com/{identifier}")
 
   def create_cluster(self, options):
     print('Creating your cluster, this process may take 20-30 minutes or longer...')
