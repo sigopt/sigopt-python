@@ -36,7 +36,7 @@ class JobRunnerService(Service):
     if resource_options.get('gpus'):
       if 'nvidia.com/gpu' in limits:
         raise OrchestrateException(
-          'The value in resources_per_model.gpus will override the value in resources_per_model.limits.nvidia.com/gpu,'
+          'The value in resources.gpus will override the value in resources.limits.nvidia.com/gpu,'
           'please remove one of these fields.'
         )
       limits['nvidia.com/gpu'] = resource_options.pop('gpus')

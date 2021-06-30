@@ -4,13 +4,13 @@ from ..services.base import Service
 
 
 class OptionsValidatorService(Service):
-  def validate_resources_per_model(self, gpus=None, requests=None, limits=None):
+  def validate_resources(self, gpus=None, requests=None, limits=None):
     if gpus is not None:
-      assert is_integer(gpus) and gpus >= 0, f'resources_per_model.gpus is not a non-negative integer: {gpus}'
+      assert is_integer(gpus) and gpus >= 0, f'resources.gpus is not a non-negative integer: {gpus}'
     if requests is not None:
-      assert is_mapping(requests), f'resources_per_model.requests is not a mapping: {requests}'
+      assert is_mapping(requests), f'resources.requests is not a mapping: {requests}'
     if limits is not None:
-      assert is_mapping(limits), f'resources_per_model.limits is not a mapping: {limits}'
+      assert is_mapping(limits), f'resources.limits is not a mapping: {limits}'
 
   def validate_aws_for_orchestrate(
     self,

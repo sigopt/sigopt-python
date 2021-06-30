@@ -10,47 +10,27 @@ class TestOptionsValidatorService(object):
     services = Mock()
     return OptionsValidatorService(services)
 
-  @pytest.fixture()
-  def orchestrate_options(self):
-    return dict(
-      name='test',
-      install='pip install -r requirements.txt',
-      run='python model.py',
-      optimization=dict(
-        metrics=[
-          dict(name='accuracy'),
-        ],
-      ),
-      image='orchestrate/test',
-      resources_per_model=dict(
-        gpus=1,
-      ),
-      sigopt=dict(api_token='q2o3u9kdf'),
-      pythonpath='.',
-      build_image=True,
-    )
-
   @pytest.mark.parametrize('resource', [
     {'requests': {'cpu': 1, 'memory': '200Gi'}, 'gpus': 1},
     {'limits': {'cpu': '200m', 'memory': 200}},
     {'requests': None, 'gpus': 1},
     {'requests': {'cpu': 1, 'memory': '200Gi'}, 'gpus': None},
   ])
-  def test_validate_resources_per_model(self, options_validator_service, resource):
-    options_validator_service.validate_resources_per_model(**resource)
+  def test_validate_resources(self, options_validator_service, resource):
+    options_validator_service.validate_resources(**resource)
 
   @pytest.mark.parametrize('resource', [
     {'requests': {'cpu': 1, 'memory': '200Gi'}, 'gpus': -1},
     {'limits': {'cpu': '200m', 'memory': 200}, 'requests': 55},
   ])
-  def test_orchestrate_resources_per_model_bad(self, options_validator_service, resource):
+  def test_orchestrate_resources_bad(self, options_validator_service, resource):
     with pytest.raises(AssertionError):
-      options_validator_service.validate_resources_per_model(**resource)
+      options_validator_service.validate_resources(**resource)
 
   @pytest.mark.parametrize('gpus', [-1, [], dict()])
-  def test_validate_resources_per_model_wrong_type(self, options_validator_service, gpus):
+  def test_validate_resources_wrong_type(self, options_validator_service, gpus):
     with pytest.raises(AssertionError):
-      options_validator_service.validate_resources_per_model(gpus=gpus)
+      options_validator_service.validate_resources(gpus=gpus)
 
   def test_validate_aws(self, options_validator_service):
     options_validator_service.validate_aws_for_orchestrate(
