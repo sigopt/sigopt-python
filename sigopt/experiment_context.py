@@ -15,7 +15,7 @@ class ExperimentContext(BaseRunFactory):
 
   def refresh(self):
     '''Refresh the state of the Experiment from the SigOpt API.'''
-    connection = self.connection
+    connection = self._connection
     with self._refresh_lock:
       self._experiment = connection.experiments(self.id).fetch()
 
@@ -50,7 +50,7 @@ class ExperimentContext(BaseRunFactory):
   def _create_run(self, name, metadata):
     experiment = self._experiment
     client_id, project_id = experiment.client, experiment.project
-    connection = self.connection
+    connection = self._connection
     suggestion = connection.experiments(experiment.id).suggestions().create()
     run = connection.clients(client_id).projects(project_id).training_runs().create(
       name=name,
