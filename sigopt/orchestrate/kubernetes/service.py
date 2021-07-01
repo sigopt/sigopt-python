@@ -6,6 +6,7 @@ import random
 import shutil
 import tempfile
 import time
+import urllib
 from http import client as http_client
 
 import backoff
@@ -26,6 +27,7 @@ from .http_proxy import KubeProxyHTTPAdapter
 DEFAULT_NAMESPACE = 'default'
 ORCHESTRATE_NAMESPACE = 'orchestrate'
 KUBESYSTEM_NAMESPACE = 'kube-system'
+NVIDIA_DEVICE_PLUGIN_URL = "https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.9.0/nvidia-device-plugin.yml"
 
 # NOTE(dan): monkeypatch for containerd not naming all images (?)
 # https://github.com/kubernetes-client/python/issues/895#issuecomment-515025300
@@ -274,7 +276,8 @@ class KubernetesService(Service):
     return [self._cluster_name_from_config(c) for c in self._get_config_files()]
 
   def ensure_plugins(self, cluster_name, provider):
-    self._ensure_plugin('nvidia-device-plugin.yml', namespace=KUBESYSTEM_NAMESPACE)
+    with urllib.request.urlopen(NVIDIA_DEVICE_PLUGIN_URL) as nvidia_plugin_fp:
+      self._ensure_plugin_fp(nvidia_plugin_fp, namespace=KUBESYSTEM_NAMESPACE)
     self.ensure_orchestrate_namespace()
     self._ensure_plugin('orchestrate-controller-roles.yml', namespace=ORCHESTRATE_NAMESPACE)
     # NOTE(taylor): disabled until remote image builds are working (consistently)
@@ -431,16 +434,19 @@ class KubernetesService(Service):
       if e.status != http_client.CONFLICT:
         raise
 
-  def _ensure_plugin(self, file_name, namespace):
+  def _ensure_plugin_fp(self, fp, namespace):
     with tempfile.NamedTemporaryFile("wb") as temp_fp:
-      with self.services.resource_service.open('plugins', file_name) as file_content:
-        shutil.copyfileobj(file_content, temp_fp)
-        temp_fp.flush()
-        try:
-          utils.create_from_yaml(self._api_client, temp_fp.name)
-        except utils.FailToCreateError as fce:
-          if not all(exc.status == http_client.CONFLICT for exc in fce.api_exceptions):
-            raise
+      shutil.copyfileobj(fp, temp_fp)
+      temp_fp.flush()
+      try:
+        utils.create_from_yaml(self._api_client, temp_fp.name)
+      except utils.FailToCreateError as fce:
+        if not all(exc.status == http_client.CONFLICT for exc in fce.api_exceptions):
+          raise
+
+  def _ensure_plugin(self, file_name, namespace):
+    with self.services.resource_service.open('plugins', file_name) as file_content:
+      self._ensure_plugin_fp(file_content, namespace)
 
   def _cluster_name_from_config(self, config_name):
     basename = os.path.basename(config_name)
