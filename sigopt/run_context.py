@@ -148,6 +148,22 @@ class BaseRunContext(object):
       metric_log['value_stddev'] = sanitize_number('metric stddev', name, stddev)
     self._log_metrics({name: metric_log})
 
+  def log_metrics(self, *args, **metric_kwargs):
+    '''
+    sigopt.log_metrics(metrics_dict)
+    sigopt.log_metrics(**metric_kwargs)
+      Logs multiple metric values for your run. Metrics can be provided as a dictionary or as keyword arguments.
+    metrics_dict: dict
+      A dictionary mapping metric names to their values.
+    '''
+    all_metrics = dict()
+    all_metrics.update(*args, **metric_kwargs)
+    metric_logs = {}
+    for name, value in all_metrics.items():
+      validate_name('metric name', name)
+      metric_logs[name] = {"value": sanitize_number("metric", name, value)}
+    self._log_metrics(metric_logs)
+
   def log_model(self, type=None):
     '''
     sigopt.log_model(type=None)

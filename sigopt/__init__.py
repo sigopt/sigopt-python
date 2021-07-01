@@ -15,6 +15,7 @@ log_failure = _global_run_context.log_failure
 log_image = _global_run_context.log_image
 log_metadata = _global_run_context.log_metadata
 log_metric = _global_run_context.log_metric
+log_metrics = _global_run_context.log_metrics
 log_model = _global_run_context.log_model
 config.set_context_entry(_global_run_context)
 
