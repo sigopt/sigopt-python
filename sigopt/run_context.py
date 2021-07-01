@@ -154,7 +154,7 @@ class BaseRunContext(object):
     sigopt.log_metrics(**metric_kwargs)
       Logs multiple metric values for your run. Metrics can be provided as a dictionary or as keyword arguments.
     metrics_dict: dict
-      A dictionary of metrics to log.
+      A dictionary mapping metric names to their values.
     '''
     all_metrics = dict()
     all_metrics.update(*args, **metric_kwargs)
