@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+VERSION="$(python -m controller.version)"
+docker build . -t "orchestrate/controller:$VERSION"
