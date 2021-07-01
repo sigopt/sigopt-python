@@ -1,11 +1,14 @@
+import errno
 import os
+import shlex
 import signal
-import subprocess
+import subprocess  # nosec
 import sys
 import threading
 
-from ..logging import enable_print_logging
-from ..run_context import GlobalRunContext
+import click
+
+from ..logging import enable_print_logging, print_logger
 from ..vendored import six
 
 
@@ -58,19 +61,37 @@ def get_subprocess_environment(config, env=None):
   ret.update(env or {})
   return ret
 
-def run_subprocess(config, run_context, entrypoint, entrypoint_args, env=None):
-  cmd = [sys.executable, entrypoint] + list(entrypoint_args)
-  return run_subprocess_command(config, run_context, cmd=cmd, env=env)
+def run_subprocess(config, run_context, commands, env=None):
+  return run_subprocess_command(config, run_context, cmd=commands, env=env)
 
 def run_subprocess_command(config, run_context, cmd, env=None):
   env = get_subprocess_environment(config, env)
   proc_stdout, proc_stderr = subprocess.PIPE, subprocess.PIPE
-  proc = subprocess.Popen(
-    cmd,
-    env=env,
-    stdout=proc_stdout,
-    stderr=proc_stderr,
-  )
+  try:
+    proc = subprocess.Popen(
+      cmd,
+      env=env,
+      stdout=proc_stdout,
+      stderr=proc_stderr,
+    )
+  except OSError as ose:
+    msg = str(ose)
+    is_fnfe = isinstance(ose, FileNotFoundError)
+    is_eacces = ose.errno == errno.EACCES
+    if is_fnfe or is_eacces and os.path.exists(ose.filename):
+      is_full_path = ose.filename.startswith("/") or ose.filename.startswith("./")
+      is_executable = os.access(ose.filename, os.X_OK)
+      is_py = ose.filename.endswith(".py")
+      is_sh = ose.filename.endswith(".sh") or ose.filename.endswith(".bash")
+      if is_fnfe and not is_full_path and is_executable:
+        msg += "\nPlease prefix your script with `./`, ex:"
+        msg += "\n$ sigopt SUBCOMMAND -- ./{ose.filename} {shlex.join(cmd[1:])}"
+      elif is_py and not is_executable:
+        msg += "\nPlease include the python executable when running python files, ex:"
+        msg += f"\n$ sigopt SUBCOMMAND -- python {shlex.join(cmd)}"
+      elif is_sh and not is_executable:
+        msg += f"\nPlease make your shell script executable, ex:\n$ chmod +x {ose.filename}"
+    raise click.ClickException(msg) from ose
   stdout, stderr = StreamThread(proc.stdout, sys.stdout), StreamThread(proc.stderr, sys.stderr)
   stdout.start()
   stderr.start()
@@ -88,8 +109,7 @@ def run_subprocess_command(config, run_context, cmd, env=None):
         'stdout': stdout_content,
         'stderr': stderr_content,
       })
-  if return_code > 0:
-    raise subprocess.CalledProcessError(return_code, cmd)
+  return return_code
 
 def run_notebook(config, entrypoint):
   return subprocess.check_output(
@@ -106,28 +126,17 @@ def run_notebook(config, entrypoint):
     env=get_subprocess_environment(config),
   )
 
-def run_user_program(config, run_context, entrypoint, entrypoint_args):
+def run_user_program(config, run_context, commands):
   if config.code_tracking_enabled:
     source_code = {}
-    with open(entrypoint) as entrypoint_fp:
-      source_code['content'] = entrypoint_fp.read()
-      git_hash = get_git_hexsha()
-      if git_hash:
-        source_code['hash'] = git_hash
+    git_hash = get_git_hexsha()
+    if git_hash:
+      source_code['hash'] = git_hash
     run_context.log_source_code(**source_code)
-  global_run_context = GlobalRunContext(run_context)
-  config.set_context_entry(global_run_context)
-  if entrypoint.endswith('.ipynb'):
-    if entrypoint_args:
-      raise Exception('Command line arguments cannot be passed to notebooks')
-    # TODO(patrick): The output of this command should be the tracked code (or logs? It's kind of both)
-    run_notebook(config, entrypoint)
-  else:
-    run_subprocess(config, run_context, entrypoint, entrypoint_args)
-
-def check_path(entrypoint, error_msg):
-  if not os.path.isfile(entrypoint):
-    raise Exception(error_msg)
+  exit_code = run_subprocess(config, run_context, commands)
+  if exit_code != 0:
+    print_logger.error("command exited with non-zero status: %s", exit_code)
+  return exit_code
 
 def setup_cli(config):
   config.set_user_agent_info(['CLI'])

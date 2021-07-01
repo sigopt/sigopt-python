@@ -1,3 +1,4 @@
+import http
 import io
 import sys
 import yaml
@@ -8,13 +9,15 @@ from IPython.core.magic import (
   magics_class,
 )
 
-
 from .config import config
 from .interface import Connection
 from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
 from .run_context import global_run_context
 from .factory import SigOptFactory
 from .defaults import get_default_project
+from .validate import validate_experiment_input, ValidationError
+from .logging import print_logger
+from .exception import ApiException
 
 
 def get_ns():
@@ -57,7 +60,16 @@ class SigOptMagics(Magics):
     else:
       experiment_body = yaml.safe_load(io.StringIO(cell_value))
     self.setup()
-    self._experiment = self._factory.create_experiment(**experiment_body)
+    try:
+      validated = validate_experiment_input(experiment_body)
+    except ValidationError as validation_error:
+      print_logger.error("ValidationError: %s", str(validation_error))
+      return
+    try:
+      self._experiment = self._factory.create_prevalidated_experiment(validated)
+    except ApiException as api_exception:
+      if api_exception.status_code == http.HTTPStatus.BAD_REQUEST:
+        print_logger.error("ApiException: %s", str(api_exception))
 
   def exec_cell(self, run_context, cell, ns):
     global_run_context.set_run_context(run_context)

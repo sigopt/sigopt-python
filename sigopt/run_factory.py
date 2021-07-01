@@ -13,12 +13,12 @@ class BaseRunFactory(object):
   def project(self):
     raise NotImplementedError
 
-  def _create_run(self, name):
+  def _create_run(self, name, metadata):
     raise NotImplementedError
 
-  def create_run(self, name=None):
+  def create_run(self, name=None, metadata=None):
     if name is None:
       name = get_default_name(self.project)
-    run = self._create_run(name)
+    run = self._create_run(name, metadata)
     self._on_run_created(run)
     return run

@@ -66,6 +66,8 @@ def safe_format(string, *args, **kwargs):
 def validate_name(warn, name):
   if not is_string(name):
     raise ValueError(f"The {warn} must be a string, not {type(name).__name__}")
+  if not name:
+    raise ValueError(f"The {warn} cannot be an empty string")
 
 def sanitize_number(warn, name, value):
   if is_integer(value):

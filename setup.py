@@ -3,12 +3,12 @@ import os
 import sys
 import warnings
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
-if sys.version_info < (2, 7):
+if sys.version_info < (3, 6):
   warnings.warn(
-    'Python 2.6 is no longer supported.'
-    ' Please upgrade to Python 2.7 or use version 2 of the sigopt-python client.',
+    'Python versions lower than 3.6 are no longer supported.'
+    ' Please upgrade to Python 3.6 or newer or use an older version of the sigopt-python client.',
     DeprecationWarning
   )
 
@@ -35,13 +35,18 @@ setup(
   author='SigOpt',
   author_email='support@sigopt.com',
   url='https://sigopt.com/',
-  packages=['sigopt', 'sigopt.cli', 'sigopt.examples', 'sigopt.vendored'],
+  packages=find_packages(exclude=['tests*']),
+  package_data={
+    '': ['*.ms', '*.txt', '*.yml', '*.yaml'],
+  },
   install_requires=install_requires,
   extras_require={
     'dev': dev_install_requires,
   },
   entry_points={
-    'console_scripts': ['sigopt=sigopt.cli:cli'],
+    'console_scripts': [
+      'sigopt=sigopt.cli.__main__:sigopt_cli',
+    ],
   },
   classifiers=[
     "Development Status :: 5 - Production/Stable",

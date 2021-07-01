@@ -5,6 +5,8 @@ import errno
 import json
 import os
 
+from .paths import get_root_subdir
+
 
 class UserAgentInfoContext(object):
   CONFIG_CONTEXT_KEY = 'user_agent_info'
@@ -27,8 +29,7 @@ class Config(object):
 
   def __init__(self):
     self._config_json_path = os.path.abspath(os.path.join(
-      os.path.expanduser(os.environ.get('SIGOPT_HOME', os.path.join('~', '.sigopt'))),
-      'client',
+      get_root_subdir('client'),
       'config.json',
     ))
     self._configuration = self._read_config_json()

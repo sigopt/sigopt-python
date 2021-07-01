@@ -13,7 +13,7 @@ class TestRunCli(object):
     runner = CliRunner()
     log_collection_arg = '--enable-log-collection' if opt_into_log_collection else '--no-enable-log-collection'
     code_tracking_arg = '--enable-code-tracking' if opt_into_code_tracking else '--no-enable-code-tracking'
-    with mock.patch('sigopt.cli.config._config.persist_configuration_options') as persist_configuration_options:
+    with mock.patch('sigopt.cli.commands.config._config.persist_configuration_options') as persist_configuration_options:
       result = runner.invoke(cli, [
         'config',
         '--api-token=some_test_token',
