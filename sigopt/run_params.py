@@ -22,7 +22,7 @@ class RunParameters(MutableMapping):
     _get(self, "__items").update(tmp)
     _get(self, "__run_context").set_parameters(tmp)
 
-  def set_defaults(self, *args, **kwds):
+  def setdefaults(self, *args, **kwds):
     tmp = dict()
     tmp.update(*args, **kwds)
     self.__check_dict_for_update(tmp, check_fixed=False)
