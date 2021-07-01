@@ -13,7 +13,7 @@ from sigopt.utils import accept_sigopt_not_found
 from .cluster.errors import AlreadyConnectedException, ClusterError, MultipleClustersConnectionError, NotConnectedError
 from .docker.service import DockerException, DockerService
 from .exceptions import CheckExecutableError, ModelPackingError, OrchestrateException
-from .identifier import IDENTIFIER_TYPE_EXPERIMENT, IDENTIFIER_TYPE_RUN
+from .identifier import IDENTIFIER_TYPE_EXPERIMENT, IDENTIFIER_TYPE_RUN, parse_identifier
 from .kubernetes.service import ORCHESTRATE_NAMESPACE, CleanupFailedException
 from .paths import (
   check_iam_authenticator_executable,
@@ -179,8 +179,8 @@ class OrchestrateController:
       dockerfile=dockerfile,
       command=command,
     )
-    _, run_id = identifier.split("run/")
-    label_selector = f"type=run,run={run_id}"
+    run_identifier = parse_identifier(identifier)
+    label_selector = run_identifier["pod_label_selector"]
     print(f"View your run at https://app.sigopt.com/{identifier}")
     print("waiting for controller to start...")
 
@@ -205,7 +205,7 @@ class OrchestrateController:
           )
 
     self.services.kubernetes_service.wait_for_pod_to_start(
-      label_selector=f"type=controller,run={run_id}",
+      label_selector=run_identifier["controller_label_selector"],
       event_handler=check_pod_condition,
     )
     print("controller started, waiting for run to be created...")
@@ -224,7 +224,7 @@ class OrchestrateController:
     except KeyboardInterrupt:
       print()
       print("Cleaning up")
-      stop_run(identifier, self.services)
+      stop_run(run_identifier, self.services)
 
   def stop_by_identifier(self, identifier):
     identifier_type = identifier["type"]
