@@ -25,7 +25,6 @@ from .provider.constants import PROVIDER_TO_STRING, Provider
 from .services.orchestrate_bag import OrchestrateServiceBag
 from .status import print_status
 from .stop import stop_experiment, stop_run
-from .version import CONTROLLER_IMAGE_URL, CONTROLLER_IMAGE_VERSION, CONTROLLER_REPOSITORY
 
 
 class _ExitException(click.ClickException):
@@ -466,14 +465,6 @@ class OrchestrateController:
     print("Installing required kubernetes resources...")
     self.services.kubernetes_service.ensure_plugins(cluster.name, cluster.provider)
     print("Uploading required images to your registry...")
-    docker_service = DockerService.create(self.services)
-    controller_repo = cluster.generate_image_tag(CONTROLLER_REPOSITORY)
-    docker_login(cluster, docker_service, controller_repo)
-    docker_service.ensure_controller_image(
-      CONTROLLER_IMAGE_URL,
-      controller_repo,
-      CONTROLLER_IMAGE_VERSION,
-    )
     print("Finished installing plugins")
 
   def exec_kubectl(self, arguments):

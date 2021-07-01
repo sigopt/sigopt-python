@@ -202,14 +202,5 @@ class DockerService(Service):
       pass
     return False
 
-  def ensure_controller_image(self, controller_url, controller_repo, controller_tag):
-    if not self.image_exists_in_registry(controller_repo, controller_tag):
-      response = requests.get(controller_url, stream=True)
-      response.raise_for_status()
-      controller_image = self.client.images.load(response.raw)[0]
-      controller_full_path = controller_repo + ":" + controller_tag
-      controller_image.tag(controller_full_path)
-      self.client.images.push(controller_full_path)
-
   def prune(self):
     self.client.images.prune(filters=dict(dangling=False))
