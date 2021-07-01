@@ -124,10 +124,6 @@ class JobRunnerService(Service):
     if not run_command:
       run_command = []
 
-    controller_repo, controller_tag = DockerService.get_repository_and_tag(DEFAULT_CONTROLLER_IMAGE)
-    controller_image_url = cluster.generate_image_tag(repository=controller_repo)
-    controller_image_url += f":{controller_tag}"
-
     self.services.kubernetes_service.start_job({
       'apiVersion': 'batch/v1',
       'kind': 'Job',
@@ -145,7 +141,7 @@ class JobRunnerService(Service):
             'restartPolicy': 'Never',
             'containers': [
               {
-                'image': controller_image_url,
+                'image': DEFAULT_CONTROLLER_IMAGE,
                 'imagePullPolicy': 'Always',
                 'name': 'controller',
                 'env': env_vars,
