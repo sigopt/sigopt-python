@@ -11,12 +11,19 @@ class AwsS3Service(AwsService):
     super().__init__(services, aws_services)
     self._client = boto3.client('s3', **kwargs)
     self.region = boto3.session.Session().region_name
-    self.account_id = boto3.client("sts", **kwargs).get_caller_identity()["Account"]
-    self.orchestrate_bucket_name = f"sigopt.{self.account_id}"
+    self._init_kwargs = kwargs
 
   @property
   def client(self):
     return self._client
+
+  @property
+  def account_id(self):
+    return boto3.client("sts", **self._init_kwargs).get_caller_identity()["Account"]
+
+  @property
+  def orchestrate_bucket_name(self):
+    return f"sigopt.{self.account_id}"
 
   def ensure_orchestrate_bucket(self):
     create_bucket_params = dict(
