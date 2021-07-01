@@ -18,12 +18,20 @@ class RunParameters(MutableMapping):
     # ex. (x := {}).update([(1, 2), ({}, 4)]) => raises TypeError and x == {1: 2}
     tmp = dict()
     tmp.update(*args, **kwds)
-    for key in tmp:
-      self.__check_key_type(key)
-    for key in tmp:
-      self.__check_key_is_not_fixed(key)
+    self.__check_dict_for_update(tmp, check_fixed=True)
     _get(self, "__items").update(tmp)
     _get(self, "__run_context").set_parameters(tmp)
+
+  def set_defaults(self, *args, **kwds):
+    tmp = dict()
+    tmp.update(*args, **kwds)
+    self.__check_dict_for_update(tmp, check_fixed=False)
+    items = _get(self, "__items")
+    unset_keys = set(tmp) - set(items)
+    update = {key: tmp[key] for key in unset_keys}
+    items.update(update)
+    _get(self, "__run_context").set_parameters(update)
+    return self
 
   def __getattr__(self, attr):
     try:
@@ -44,6 +52,13 @@ class RunParameters(MutableMapping):
   def __check_key_is_not_fixed(self, key):
     if key in _get(self, "__fixed_keys"):
       raise ValueError(f"value of {key!r} cannot be changed")
+
+  def __check_dict_for_update(self, update_dict, check_fixed):
+    for key in update_dict:
+      self.__check_key_type(key)
+    if check_fixed:
+      for key in update_dict:
+        self.__check_key_is_not_fixed(key)
 
   def __getitem__(self, key):
     return _get(self, "__items")[key]
