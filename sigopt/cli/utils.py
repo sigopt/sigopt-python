@@ -8,8 +8,9 @@ import threading
 
 import click
 
-from ..logging import enable_print_logging, print_logger
-from ..vendored import six
+from sigopt.logging import enable_print_logging, print_logger
+from sigopt.run_context import GlobalRunContext
+from sigopt.vendored import six
 
 
 class StreamThread(threading.Thread):
@@ -55,7 +56,8 @@ def get_git_hexsha():
   except InvalidGitRepositoryError:
     return None
 
-def get_subprocess_environment(config, env=None):
+def get_subprocess_environment(config, run_context, env=None):
+  config.set_context_entry(GlobalRunContext(run_context))
   ret = os.environ.copy()
   ret.update(config.get_environment_context())
   ret.update(env or {})
@@ -65,7 +67,7 @@ def run_subprocess(config, run_context, commands, env=None):
   return run_subprocess_command(config, run_context, cmd=commands, env=env)
 
 def run_subprocess_command(config, run_context, cmd, env=None):
-  env = get_subprocess_environment(config, env)
+  env = get_subprocess_environment(config, run_context, env)
   proc_stdout, proc_stderr = subprocess.PIPE, subprocess.PIPE
   try:
     proc = subprocess.Popen(
@@ -110,21 +112,6 @@ def run_subprocess_command(config, run_context, cmd, env=None):
         'stderr': stderr_content,
       })
   return return_code
-
-def run_notebook(config, entrypoint):
-  return subprocess.check_output(
-    [
-      'jupyter', 'nbconvert',
-      '--ExecutePreprocessor.timeout=-1',
-      '--execute',
-      '--stdout',
-      '--no-prompt',
-      '--no-input',
-      '--to=python',
-      entrypoint,
-    ],
-    env=get_subprocess_environment(config),
-  )
 
 def run_user_program(config, run_context, commands):
   if config.code_tracking_enabled:
