@@ -496,3 +496,4 @@ for _method_name in [
   delegate_to_run_context(_method_name)
 
 global_run_context = GlobalRunContext.from_config(config)
+print(global_run_context.to_json())
