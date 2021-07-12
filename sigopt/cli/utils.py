@@ -8,7 +8,6 @@ import threading
 
 import click
 
-from sigopt.defaults import get_default_project
 from sigopt.factory import SigOptFactory
 from sigopt.logging import enable_print_logging, print_logger
 from sigopt.run_context import GlobalRunContext
