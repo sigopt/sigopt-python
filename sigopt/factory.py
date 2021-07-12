@@ -1,6 +1,6 @@
 from sigopt.validate import validate_experiment_input
 
-from .defaults import check_valid_project_id, ensure_project_exists
+from .defaults import check_valid_project_id, ensure_project_exists, get_default_project
 from .interface import get_connection
 from .logging import print_logger
 from .run_factory import BaseRunFactory
@@ -9,6 +9,11 @@ from .experiment_context import ExperimentContext
 
 class SigOptFactory(BaseRunFactory):
   '''A SigOptFactory creates Runs and Experiments that belong to a specified Project.'''
+
+  @classmethod
+  def from_default_project(cls):
+    project_id = get_default_project()
+    return cls(project_id)
 
   def __init__(self, project_id, connection=None):
     check_valid_project_id(project_id)

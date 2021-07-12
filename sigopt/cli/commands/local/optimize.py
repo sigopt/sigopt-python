@@ -1,6 +1,6 @@
 from sigopt.config import config
 
-from ...utils import create_experiment_from_validated_data, run_user_program
+from ...utils import create_experiment_from_validated_data, cli_experiment_loop
 from ..base import sigopt_cli
 from ..optimize_base import optimize_command
 
@@ -13,6 +13,4 @@ from ..optimize_base import optimize_command
 def optimize(command, run_options, experiment_file):
   '''Run a SigOpt Experiment.'''
   experiment = create_experiment_from_validated_data(experiment_file)
-  for run_context in experiment.loop(name=run_options.get("name")):
-    with run_context:
-      run_user_program(config, run_context, command)
+  cli_experiment_loop(config, experiment, command, run_options)

@@ -3,6 +3,7 @@ from .cluster_name import cluster_name_option
 from .commands import commands_argument
 from .dockerfile import dockerfile_option
 from .experiment_file import experiment_file_option
+from .experiment_id import experiment_id_argument
 from .identifiers import identifiers_argument, identifiers_help
 from .load_yaml import load_yaml_callback
 from .provider import provider_option

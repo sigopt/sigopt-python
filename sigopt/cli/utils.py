@@ -135,6 +135,10 @@ def setup_cli(config):
 
 def create_experiment_from_validated_data(experiment_file):
   assert isinstance(experiment_file, ValidatedData)
-  project_id = get_default_project()
-  factory = SigOptFactory(project_id)
+  factory = SigOptFactory.from_default_project()
   return factory.create_prevalidated_experiment(experiment_file.data)
+
+def cli_experiment_loop(config, experiment, command, run_options):
+  for run_context in experiment.loop(name=run_options.get("name")):
+    with run_context:
+      run_user_program(config, run_context, command)
