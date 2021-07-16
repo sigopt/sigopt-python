@@ -373,6 +373,7 @@ class Parameter(ApiObject):
   categorical_values = Field(ListOf(CategoricalValue))
   conditions = Field(Conditions)
   default_value = Field(Any)
+  grid = Field(ListOf(float))
   name = Field(six.text_type)
   precision = Field(int)
   prior = Field(ParameterPrior)
