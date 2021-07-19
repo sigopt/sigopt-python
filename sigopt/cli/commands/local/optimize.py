@@ -1,13 +1,7 @@
 from sigopt.config import config
 
-<<<<<<< HEAD
-from ...utils import run_user_program
 from ...arguments import source_file_option
-||||||| 7c15458
-from ...utils import run_user_program
-=======
 from ...utils import create_experiment_from_validated_data, cli_experiment_loop
->>>>>>> sj/main
 from ..base import sigopt_cli
 from ..optimize_base import optimize_command
 
