@@ -42,7 +42,7 @@ class StreamThread(threading.Thread):
 def maybe_truncate_log(log_content):
   # If log content is extremely long, preserve some useful content instead of failing.
   # TODO(patrick): Support streaming logs to avoid this
-  max_size = 1024 * 1024
+  max_size = 1024
   if len(log_content) >= max_size:
     truncated_disclaimer = '[ WARNING ] The max size has been reached so these logs have been truncated'
     half = max_size // 2
