@@ -7,7 +7,7 @@ def test_short_logs_dont_get_truncated():
   assert content == short_logs
 
 def test_long_logs_get_truncated():
-  max_size = 1024 * 1024
+  max_size = 1024
   long_logs = 'a' * (max_size * 2) + '\n'
   content = maybe_truncate_log(long_logs)
   assert max_size < len(content) < max_size * 2
