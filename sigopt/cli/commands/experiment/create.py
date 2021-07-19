@@ -5,7 +5,7 @@ from ...utils import create_experiment_from_validated_data
 from .base import experiment_command
 
 
-def print_help(experiment):
+def print_start_worker_help(experiment):
   msg = f'''
 You can now start workers for this experiment with the following CLI command:
 > sigopt start-worker {experiment.id}
@@ -26,4 +26,4 @@ Or use the python client library:
 def create(experiment_file):
   '''Create a SigOpt Experiment.'''
   experiment = create_experiment_from_validated_data(experiment_file)
-  print_help(experiment)
+  print_start_worker_help(experiment)
