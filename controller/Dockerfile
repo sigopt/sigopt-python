@@ -33,7 +33,7 @@ RUN apk del apk-tools
 
 COPY --from=alpine-src /src/ /
 
-COPY controller /usr/local/lib/python3.6/site-packages/controller
+COPY controller /usr/local/lib/python3.9/site-packages/controller
 
 RUN adduser -S controller
 
