@@ -1,7 +1,7 @@
 import click
 
 
-def file_contents(ctx, param, value):
+def file_contents(ctx, param, value):  # pylint: disable=unused-argument
   if value is None:
     return None
   with open(value, "r") as fp:
