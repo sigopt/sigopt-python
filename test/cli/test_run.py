@@ -18,7 +18,7 @@ class TestRunCli(object):
       run._end = mock.Mock()
       instance = mock.Mock()
       instance.create_run.return_value = run
-      factory.return_value = instance
+      factory.from_default_project = mock.Mock(return_value=instance)
       yield
 
   @pytest.fixture
@@ -67,14 +67,8 @@ class TestRunCli(object):
   def test_run_command_import_sibling(self, runner):
     result = runner.invoke(cli, [
       "run",
-      "ls",
-    ])
-    print(result.output)
-    result = runner.invoke(cli, [
-      "run",
       "python",
       "import_hello.py",
     ])
-    print(result)
     assert result.output == "hello\n"
     assert result.exit_code == 0
