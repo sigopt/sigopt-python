@@ -12,8 +12,8 @@ from sigopt.run_context import RunContext
 
 class TestRunCli(object):
   @pytest.fixture(autouse=True)
-  def patch_factory(self):
-    with mock.patch('sigopt.cli.commands.local.optimize.SigOptFactory') as factory:
+  def patch_experiment(self):
+    with mock.patch('sigopt.cli.commands.local.optimize.create_experiment_from_validated_data') as create_experiment:
       run = RunContext(mock.Mock(), mock.Mock(), None)
       run.to_json = mock.Mock(return_value={"run": {}})
       run._end = mock.Mock()
@@ -21,9 +21,7 @@ class TestRunCli(object):
       experiment.create_run = mock.Mock(return_value=run)
       experiment.refresh = mock.Mock()
       experiment.is_finished = mock.Mock(side_effect=[False, True])
-      instance = mock.Mock()
-      instance.create_prevalidated_experiment.return_value = experiment
-      factory.return_value = instance
+      create_experiment.return_value = experiment
       yield
 
   @pytest.fixture
