@@ -22,7 +22,7 @@ class TestRunCli(object):
       ])
       persist_configuration_options.assert_called_once_with({
         'api_token': 'some_test_token',
-        'cell_tracking_enabled': opt_into_cell_tracking,
+        'code_tracking_enabled': opt_into_cell_tracking,
         'log_collection_enabled': opt_into_log_collection,
       })
     assert result.exit_code == 0
