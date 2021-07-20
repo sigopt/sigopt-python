@@ -117,14 +117,13 @@ def run_subprocess_command(config, run_context, cmd, env=None):
   return return_code
 
 def run_user_program(config, run_context, commands, source_code_content):
-  if config.code_tracking_enabled:
-    source_code = {}
-    git_hash = get_git_hexsha()
-    if git_hash:
-      source_code['hash'] = git_hash
-    if source_code_content is not None:
-      source_code['content'] = source_code_content
-    run_context.log_source_code(**source_code)
+  source_code = {}
+  git_hash = get_git_hexsha()
+  if git_hash:
+    source_code['hash'] = git_hash
+  if source_code_content is not None:
+    source_code['content'] = source_code_content
+  run_context.log_source_code(**source_code)
   exit_code = run_subprocess(config, run_context, commands)
   if exit_code != 0:
     print_logger.error("command exited with non-zero status: %s", exit_code)
