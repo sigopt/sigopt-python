@@ -10,14 +10,19 @@ from sigopt.run_context import RunContext
 
 
 class TestRunCli(object):
+  @pytest.fixture
+  def run_context(self):
+    run = RunContext(mock.Mock(), mock.Mock(), None)
+    run.to_json = mock.Mock(return_value={"run": {}})
+    run._end = mock.Mock()
+    run._log_source_code = mock.Mock()
+    return run
+
   @pytest.fixture(autouse=True)
-  def patch_run_factory(self):
+  def patch_run_factory(self, run_context):
     with mock.patch('sigopt.cli.commands.local.run.SigOptFactory') as factory:
-      run = RunContext(mock.Mock(), mock.Mock(), None)
-      run.to_json = mock.Mock(return_value={"run": {}})
-      run._end = mock.Mock()
       instance = mock.Mock()
-      instance.create_run.return_value = run
+      instance.create_run.return_value = run_context
       factory.from_default_project = mock.Mock(return_value=instance)
       yield
 
@@ -72,3 +77,14 @@ class TestRunCli(object):
     ])
     assert result.output == "hello\n"
     assert result.exit_code == 0
+
+  def test_run_command_track_source_code(self, runner, run_context):
+    runner.invoke(cli, [
+      "run",
+      "--source-file=print_hello.py",
+      "python",
+      "print_hello.py",
+    ])
+    with open("print_hello.py") as fp:
+      content = fp.read()
+    run_context._log_source_code.assert_called_once_with({"content": content})

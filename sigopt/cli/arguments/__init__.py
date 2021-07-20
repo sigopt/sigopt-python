@@ -8,3 +8,4 @@ from .identifiers import identifiers_argument, identifiers_help
 from .load_yaml import load_yaml_callback
 from .provider import provider_option
 from .run_file import run_file_option
+from .source_file import source_file_option

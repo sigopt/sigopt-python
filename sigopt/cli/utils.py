@@ -116,13 +116,14 @@ def run_subprocess_command(config, run_context, cmd, env=None):
       })
   return return_code
 
-def run_user_program(config, run_context, commands):
-  if config.code_tracking_enabled:
-    source_code = {}
-    git_hash = get_git_hexsha()
-    if git_hash:
-      source_code['hash'] = git_hash
-    run_context.log_source_code(**source_code)
+def run_user_program(config, run_context, commands, source_code_content):
+  source_code = {}
+  git_hash = get_git_hexsha()
+  if git_hash:
+    source_code['hash'] = git_hash
+  if source_code_content is not None:
+    source_code['content'] = source_code_content
+  run_context.log_source_code(**source_code)
   exit_code = run_subprocess(config, run_context, commands)
   if exit_code != 0:
     print_logger.error("command exited with non-zero status: %s", exit_code)
@@ -137,7 +138,7 @@ def create_experiment_from_validated_data(experiment_file):
   factory = SigOptFactory.from_default_project()
   return factory.create_prevalidated_experiment(experiment_file.data)
 
-def cli_experiment_loop(config, experiment, command, run_options):
+def cli_experiment_loop(config, experiment, command, run_options, source_code_content):
   for run_context in experiment.loop(name=run_options.get("name")):
     with run_context:
-      run_user_program(config, run_context, command)
+      run_user_program(config, run_context, command, source_code_content)

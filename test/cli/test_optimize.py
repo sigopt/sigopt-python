@@ -11,14 +11,19 @@ from sigopt.run_context import RunContext
 
 
 class TestRunCli(object):
+  @pytest.fixture
+  def run_context(self):
+    run = RunContext(mock.Mock(), mock.Mock(), None)
+    run.to_json = mock.Mock(return_value={"run": {}})
+    run._end = mock.Mock()
+    run._log_source_code = mock.Mock()
+    return run
+
   @pytest.fixture(autouse=True)
-  def patch_experiment(self):
+  def patch_experiment(self, run_context):
     with mock.patch('sigopt.cli.commands.local.optimize.create_experiment_from_validated_data') as create_experiment:
-      run = RunContext(mock.Mock(), mock.Mock(), None)
-      run.to_json = mock.Mock(return_value={"run": {}})
-      run._end = mock.Mock()
       experiment = ExperimentContext(mock.Mock(project="test-project"), mock.Mock())
-      experiment.create_run = mock.Mock(return_value=run)
+      experiment.create_run = mock.Mock(return_value=run_context)
       experiment.refresh = mock.Mock()
       experiment.is_finished = mock.Mock(side_effect=[False, True])
       create_experiment.return_value = experiment
@@ -62,6 +67,18 @@ class TestRunCli(object):
     ])
     assert result.output == "print_args.py\n--kwarg=value\npositional_arg\n--\nafter -- arg\n"
     assert result.exit_code == 0
+
+  def test_optimize_command_track_source_code(self, runner, run_context):
+    runner.invoke(cli, [
+      "optimize",
+      "--experiment-file=valid_sigopt.yml",
+      "--source-file=print_args.py",
+      "python",
+      "print_args.py",
+    ])
+    with open("print_args.py") as fp:
+      content = fp.read()
+    run_context._log_source_code.assert_called_once_with({"content": content})
 
   def test_optimize_command_needs_existing_sigopt_yaml(self, runner):
     runner = CliRunner()

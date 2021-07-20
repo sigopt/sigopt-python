@@ -23,7 +23,7 @@ class UserAgentInfoContext(object):
 
 class Config(object):
   API_TOKEN_KEY = 'api_token'
-  CODE_TRACKING_ENABLED_KEY = 'code_tracking_enabled'
+  CELL_TRACKING_ENABLED_KEY = 'code_tracking_enabled'
   LOG_COLLECTION_ENABLED_KEY = 'log_collection_enabled'
   CONTEXT_ENVIRONMENT_KEY = 'SIGOPT_CONTEXT'
 
@@ -68,8 +68,8 @@ class Config(object):
     return self._configuration.get(self.API_TOKEN_KEY)
 
   @property
-  def code_tracking_enabled(self):
-    return self._configuration.get(self.CODE_TRACKING_ENABLED_KEY, False)
+  def cell_tracking_enabled(self):
+    return self._configuration.get(self.CELL_TRACKING_ENABLED_KEY, False)
 
   @property
   def log_collection_enabled(self):

@@ -74,7 +74,7 @@ class SigOptMagics(Magics):
   def exec_cell(self, run_context, cell, ns):
     global_run_context.set_run_context(run_context)
     try:
-      if config.code_tracking_enabled:
+      if config.cell_tracking_enabled:
         run_context.log_source_code(content=cell)
       stream_monitor = SystemOutputStreamMonitor() if config.log_collection_enabled else NullStreamMonitor()
       with stream_monitor:
