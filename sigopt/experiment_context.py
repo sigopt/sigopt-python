@@ -49,14 +49,11 @@ class ExperimentContext(BaseRunFactory):
 
   def _create_run(self, name, metadata):
     experiment = self._experiment
-    client_id, project_id = experiment.client, experiment.project
     connection = self._connection
-    suggestion = connection.experiments(experiment.id).suggestions().create()
-    run = connection.clients(client_id).projects(project_id).training_runs().create(
+    run = connection.experiments(experiment.id).training_runs().create(
       name=name,
-      suggestion=suggestion.id,
       metadata=metadata,
     )
-    run_context = self.run_context_class(connection, run, suggestion)
-    run_context.set_parameters(suggestion.assignments)
+    run_context = self.run_context_class(connection, run)
+    run_context.set_parameters(run.assignments)
     return run_context

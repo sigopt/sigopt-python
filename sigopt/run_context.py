@@ -3,12 +3,12 @@ import functools
 import requests
 
 from .config import config
-from .exception import ApiException, RunException
+from .exception import RunException
 from .file_utils import create_api_image_payload, get_blob_properties
 from .interface import get_connection
 from .lib import remove_nones, sanitize_number, validate_name, is_mapping, is_string
 from .logging import print_logger
-from .objects import Suggestion, TrainingRun
+from .objects import TrainingRun
 from .run_params import RunParameters, GlobalRunParameters
 
 
@@ -281,30 +281,21 @@ class RunContext(BaseRunContext):
     self,
     connection,
     run,
-    suggestion,
   ):
     super().__init__()
     self.connection = connection
     self.run = run
-    self.suggestion = suggestion
-    fixed_values = {}
-    if self.suggestion is not None:
-      fixed_values.update(self.suggestion.assignments)
+    fixed_values = dict(run.assignments)
     self._params = RunParameters(self, fixed_values)
 
   def to_json(self):
     data = {"run": self.run.to_json()}
-    if self.suggestion is not None:
-      data["suggestion"] = self.suggestion.to_json()
     return data
 
   @classmethod
   def from_json(cls, data):
-    suggestion = data.get("suggestion")
-    if suggestion is not None:
-      suggestion = Suggestion(suggestion)
     run = TrainingRun(data["run"])
-    return cls(get_connection(), run, suggestion)
+    return cls(get_connection(), run)
 
   @property
   def id(self):
@@ -325,19 +316,6 @@ class RunContext(BaseRunContext):
     new_run_state = 'failed' if exception else 'completed'
     if allow_state_update(new_run_state, old_run_state):
       self._update_run({'state': new_run_state})
-    if self.suggestion:
-      try:
-        (self.connection.experiments(self.suggestion.experiment)
-          .observations()
-          .create(training_run=self.run.id))
-      except ApiException as e:
-        if e.status_code == 400:
-          self.connection.experiments(self.suggestion.experiment).observations().create(
-            failed=True,
-            training_run=self.run.id,
-          )
-        else:
-          raise
     print_logger.info("Run finished, view it on the SigOpt dashboard at https://app.sigopt.com/run/%s", self.id)
 
   def _request(self, method, path, params, headers=None):

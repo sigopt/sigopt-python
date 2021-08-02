@@ -506,6 +506,7 @@ class TrainingRun(ApiObject):
   state = Field(str)
   suggestion = Field(str)
   updated = Field(int)
+  assignments = Field(Assignments)
 
 
 class StoppingReasons(_DictWrapper):
