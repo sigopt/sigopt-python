@@ -10,7 +10,7 @@ RUN set -ex \
   ; for pkg in busybox libretls openssl \
     ; do cd /aports/main/$pkg \
     ; abuild -F fetch verify \
-    ; mv /aports/main/$pkg /src/$pkg \
+    ; cp -Lr /aports/main/$pkg /src/$pkg \
     ; done \
   ; :
 
@@ -31,7 +31,7 @@ RUN set -ex \
 
 RUN apk del apk-tools
 
-COPY --from=alpine-src /src/ /
+COPY --from=alpine-src /src/ /src/
 
 COPY controller /usr/local/lib/python3.9/site-packages/controller
 
