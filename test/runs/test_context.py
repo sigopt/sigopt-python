@@ -21,7 +21,7 @@ class TestLiveRunContext(object):
   def make_run_context(self):
     run_context = RunContext(
       connection=mock.Mock(),
-      run=mock.Mock(),
+      run=mock.Mock(assignments={"fixed1": 0, "fixed2": "test"}),
     )
     run_context._update_run = mock.Mock()
     return run_context

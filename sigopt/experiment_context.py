@@ -55,5 +55,4 @@ class ExperimentContext(BaseRunFactory):
       metadata=metadata,
     )
     run_context = self.run_context_class(connection, run)
-    run_context.set_parameters(run.assignments)
     return run_context
