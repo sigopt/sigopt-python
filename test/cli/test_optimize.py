@@ -13,7 +13,7 @@ from sigopt.run_context import RunContext
 class TestRunCli(object):
   @pytest.fixture
   def run_context(self):
-    run = RunContext(mock.Mock(), mock.Mock(), None)
+    run = RunContext(mock.Mock(), mock.Mock(assignments={"fixed1": 0, "fixed2": "test"}))
     run.to_json = mock.Mock(return_value={"run": {}})
     run._end = mock.Mock()
     run._log_source_code = mock.Mock()

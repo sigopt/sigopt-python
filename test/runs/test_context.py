@@ -18,18 +18,17 @@ def test_allow_state_update(new_state, old_state, expected):
   assert allow_state_update(new_state, old_state) == expected
 
 class TestLiveRunContext(object):
-  def make_run_context(self, config):
+  def make_run_context(self):
     run_context = RunContext(
       connection=mock.Mock(),
-      run=mock.Mock(),
-      suggestion=mock.Mock(assignments={}),
+      run=mock.Mock(assignments={"fixed1": 0, "fixed2": "test"}),
     )
     run_context._update_run = mock.Mock()
     return run_context
 
   @pytest.fixture
   def run_context(self):
-    return self.make_run_context(mock.Mock(suggestion=mock.Mock(assignments={})))
+    return self.make_run_context()
 
   @pytest.mark.parametrize('test_value', [
     12345,

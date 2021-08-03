@@ -15,7 +15,9 @@ warnings.simplefilter("always")
 class TestSigOptFactory(object):
   @pytest.fixture
   def api_connection(self):
-    return mock.Mock()
+    conn = mock.Mock()
+    conn.clients().projects().training_runs().create.return_value = mock.Mock(assignments={"fixed1": 0, "fixed2": "test"})
+    return conn
 
   @pytest.fixture(autouse=True)
   def patched_connection(self, api_connection):

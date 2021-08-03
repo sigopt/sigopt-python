@@ -13,7 +13,7 @@ from sigopt.run_context import RunContext
 class TestRunCli(object):
   @pytest.fixture
   def run_context(self):
-    run = RunContext(mock.Mock(), mock.Mock(), None)
+    run = RunContext(mock.Mock(), mock.Mock(assignments={"fixed1": 0, "fixed2": "test"}))
     run.to_json = mock.Mock(return_value={"run": {}})
     run._end = mock.Mock()
     run._log_source_code = mock.Mock()
@@ -21,7 +21,7 @@ class TestRunCli(object):
 
   @pytest.fixture(autouse=True)
   def patch_run_factory(self, run_context):
-    with mock.patch('sigopt.cli.commands.local.run.SigOptFactory') as factory:
+    with mock.patch('sigopt.cli.commands.local.start_worker.SigOptFactory') as factory:
       experiment = ExperimentContext(mock.Mock(project="test-project"), mock.Mock())
       experiment.create_run = mock.Mock(return_value=run_context)
       experiment.refresh = mock.Mock()
@@ -71,8 +71,8 @@ class TestRunCli(object):
   def test_start_worker_command_track_source_code(self, runner, run_context):
     runner.invoke(cli, [
       "start-worker",
-      "1234",
       "--source-file=print_args.py",
+      "1234",
       "python",
       "print_args.py",
     ])
