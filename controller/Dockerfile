@@ -18,7 +18,7 @@ FROM python:3.9.6-alpine3.14
 
 RUN set -ex \
   ; apk update --no-cache \
-  ; apk add --upgrade --no-cache busybox libretls openssl \
+  ; apk add --upgrade --no-cache busybox libretls openssl krb5-libs \
   ; :
 
 RUN set -ex \
