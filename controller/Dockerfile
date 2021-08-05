@@ -7,7 +7,7 @@ RUN git clone --depth=1 --branch=v3.14.0 git://git.alpinelinux.org/aports
 RUN mkdir -p /src
 
 RUN set -ex \
-  ; for pkg in busybox libretls openssl \
+  ; for pkg in busybox libretls openssl krb5-libs \
     ; do cd /aports/main/$pkg \
     ; abuild -F fetch verify \
     ; cp -Lr /aports/main/$pkg /src/$pkg \
@@ -18,7 +18,7 @@ FROM python:3.9.6-alpine3.14
 
 RUN set -ex \
   ; apk update --no-cache \
-  ; apk add --upgrade --no-cache busybox libretls openssl \
+  ; apk add --upgrade --no-cache busybox libretls openssl krb5-libs \
   ; :
 
 RUN set -ex \
