@@ -2,7 +2,7 @@ from sigopt.lib import validate_name, is_string, is_sequence, is_mapping, is_num
 
 from .common import validate_top_level_dict
 from .exceptions import ValidationError
-from .keys import PROJECT_KEY
+from .keys import PROJECT_KEY, RUNS_ONLY_KEY
 
 
 def get_validated_name(experiment_input):
@@ -138,6 +138,8 @@ def validate_experiment_input(experiment_input):
       'The project field is not permitted in the experiment.'
       ' Please set the SIGOPT_PROJECT environment variable instead.'
     )
+  if RUNS_ONLY_KEY in experiment_input:
+    raise ValidationError(f"The {RUNS_ONLY_KEY} field is not allowed for experiments created with this module.")
   experiment_input = dict(experiment_input)
   validated = {}
   validated["name"] = get_validated_name(experiment_input)
