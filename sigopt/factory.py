@@ -56,7 +56,10 @@ class SigOptFactory(BaseRunFactory):
   def create_prevalidated_experiment(self, validated_body):
     connection = self.connection
     client_id, project_id = self.ensure_project_exists()
-    experiment = connection.clients(client_id).experiments().create(**{PROJECT_KEY: project_id, RUNS_ONLY_KEY: True}, **validated_body)
+    experiment = connection.clients(client_id).experiments().create(
+      **{PROJECT_KEY: project_id, RUNS_ONLY_KEY: True},
+      **validated_body,
+    )
     self._on_experiment_created(experiment)
     return ExperimentContext(experiment, connection=connection)
 
