@@ -31,6 +31,11 @@ class ExperimentContext(BaseRunFactory):
     while not self.is_finished():
       yield self.create_run(name=name)
 
+  def archive(self):
+    connection = self._connection
+    connection.experiments(self.id).delete()
+    self.refresh()
+
   @property
   def budget(self):
     return self.observation_budget
