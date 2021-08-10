@@ -10,6 +10,10 @@ from .experiment_context import ExperimentContext
 class SigOptFactory(BaseRunFactory):
   '''A SigOptFactory creates Runs and Experiments that belong to a specified Project.'''
 
+  _project_id = None
+  _assume_project_exists = False
+  _client_id = None
+
   @classmethod
   def from_default_project(cls):
     project_id = get_default_project()
