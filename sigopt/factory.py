@@ -22,6 +22,10 @@ class SigOptFactory(BaseRunFactory):
     self._client_id = None
     self._connection = connection
 
+  def set_project(self, project):
+    check_valid_project_id(project)
+    self._project_id = project
+
   @property
   def connection(self):
     if self._connection is None:
