@@ -16,15 +16,14 @@ class SigOptFactory(BaseRunFactory):
     return cls(project_id)
 
   def __init__(self, project_id, connection=None):
-    check_valid_project_id(project_id)
-    self._project_id = project_id
-    self._assume_project_exists = False
-    self._client_id = None
+    self.set_project(project_id)
     self._connection = connection
 
   def set_project(self, project):
     check_valid_project_id(project)
     self._project_id = project
+    self._assume_project_exists = False
+    self._client_id = None
 
   @property
   def connection(self):
