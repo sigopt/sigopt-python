@@ -10,17 +10,24 @@ from .experiment_context import ExperimentContext
 class SigOptFactory(BaseRunFactory):
   '''A SigOptFactory creates Runs and Experiments that belong to a specified Project.'''
 
+  _project_id = None
+  _assume_project_exists = False
+  _client_id = None
+
   @classmethod
   def from_default_project(cls):
     project_id = get_default_project()
     return cls(project_id)
 
   def __init__(self, project_id, connection=None):
-    check_valid_project_id(project_id)
-    self._project_id = project_id
+    self.set_project(project_id)
+    self._connection = connection
+
+  def set_project(self, project):
+    check_valid_project_id(project)
+    self._project_id = project
     self._assume_project_exists = False
     self._client_id = None
-    self._connection = connection
 
   @property
   def connection(self):
