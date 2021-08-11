@@ -56,6 +56,10 @@ class TestEndpoint(object):
     connection.experiments(1).best_assignments().fetch()
     self.assert_called(requestor, connection, 'get', '/experiments/1/best_assignments')
 
+  def test_experiment_best_training_runs(self, requestor, connection):
+    connection.experiments(1).best_training_runs().fetch()
+    self.assert_called(requestor, connection, 'get', '/experiments/1/best_training_runs')
+
   def test_experiment_importances(self, requestor, connection):
     connection.experiments(1).importances().fetch()
     self.assert_called(requestor, connection, 'get', '/experiments/1/importances')
