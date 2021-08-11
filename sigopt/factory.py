@@ -5,6 +5,7 @@ from .interface import get_connection
 from .logging import print_logger
 from .run_factory import BaseRunFactory
 from .experiment_context import ExperimentContext
+from .validate.keys import PROJECT_KEY, RUNS_ONLY_KEY
 
 
 class SigOptFactory(BaseRunFactory):
@@ -62,7 +63,10 @@ class SigOptFactory(BaseRunFactory):
   def create_prevalidated_experiment(self, validated_body):
     connection = self.connection
     client_id, project_id = self.ensure_project_exists()
-    experiment = connection.clients(client_id).experiments().create(project=project_id, **validated_body)
+    experiment = connection.clients(client_id).experiments().create(
+      **{PROJECT_KEY: project_id, RUNS_ONLY_KEY: True},
+      **validated_body,
+    )
     self._on_experiment_created(experiment)
     return ExperimentContext(experiment, connection=connection)
 
