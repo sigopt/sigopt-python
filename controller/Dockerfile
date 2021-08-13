@@ -8,14 +8,16 @@ RUN set -ex \
 
 FROM deps AS srcs
 
-RUN apk add --no-cache alpine-sdk git
-
 RUN mkdir -p /dist
 
 RUN set -ex \
+  ; apk add --no-cache git \
   ; git clone --depth=1 --branch=v3.14.0 git://git.alpinelinux.org/aports /aports \
   ; cp -r /aports /dist/aports \
+  ; apk del --purge git \
   ; :
+
+RUN apk add --no-cache alpine-sdk
 
 RUN set -ex \
   ; apk list -I -q | awk '{ print $3 }' | sed 's/[{}]//g' | grep -v '^\.' | while read pkg \
