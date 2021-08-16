@@ -118,7 +118,13 @@ class TestEndpoint(object):
 
   def test_queued_suggestion_list_params(self, requestor, connection):
     connection.experiments(1).queued_suggestions().fetch(limit=10, before='1')
-    self.assert_called(requestor, connection, 'get', '/experiments/1/queued_suggestions', {'limit': '10', 'before': '1'})
+    self.assert_called(
+      requestor,
+      connection,
+      'get',
+      '/experiments/1/queued_suggestions',
+      {'limit': '10', 'before': '1'},
+    )
 
   def test_queued_suggestion_detail(self, requestor, connection):
     connection.experiments(1).queued_suggestions(2).fetch()
