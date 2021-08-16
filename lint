@@ -52,5 +52,4 @@ pylint sigopt \
   -d wildcard-import \
   -d wrong-import-order \
   -r n \
-  --ignore six.py \
   --rcfile=.pylintrc
