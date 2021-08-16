@@ -17,10 +17,10 @@ RUN set -ex \
   ; apk del --purge git \
   ; :
 
-RUN apk add --no-cache alpine-sdk
-
 RUN set -ex \
-  ; apk list -I -q | awk '{ print $3 }' | sed 's/[{}]//g' | grep -v '^\.' | while read pkg \
+  ; apk list -I -q | awk '{ print $3 }' | sed 's/[{}]//g' | grep -v '^\.' >/tmp/pkgs.txt \
+  ; apk add --no-cache alpine-sdk \
+  ; for pkg in $(cat /tmp/pkgs.txt) \
     ; do cd /aports/*/$pkg \
     ; abuild -F fetch verify \
     ; cp -Lr src /dist/$pkg \
