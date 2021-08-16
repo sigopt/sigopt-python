@@ -101,7 +101,7 @@ class TestBase(object):
       a.method_that_doesnt_exist_on_dict()
 
     with pytest.raises(KeyError):
-      _ = a['xyz']
+      a['xyz']
     assert a.get('xyz') is None
     assert a.get('xyz', 'fake') == 'fake'
 
