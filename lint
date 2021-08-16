@@ -8,4 +8,4 @@ if [[ $PYTHON_VERSION =~ "Python 2.6" || $PYTHON_VERSION =~ "Python 3.2" ]]; the
   exit 0
 fi
 
-pylint sigopt -r n --rcfile=.pylintrc
+pylint sigopt controller test -r n --rcfile=.pylintrc
