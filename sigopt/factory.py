@@ -96,4 +96,4 @@ class SigOptFactory(BaseRunFactory):
     return ExperimentContext(experiment, connection=connection)
 
   def get_best_runs(self, experiment_id):
-    return self.connection.experiments(experiment_id).best_training_runs().fetch()
+    return self.connection.experiments(experiment_id).best_training_runs().fetch().iterate_pages()
