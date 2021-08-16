@@ -5,7 +5,7 @@ import threading
 
 class MonitorStream(io.IOBase):
   def __init__(self, original_stream):
-    super(MonitorStream, self).__init__()
+    super().__init__()
     self.buffer_lock = threading.Lock()
     self.original_stream = original_stream
     self.buffer_stream = None
@@ -90,7 +90,7 @@ class NullStreamMonitor(BaseStreamMonitor):
 
 class SystemOutputStreamMonitor(BaseStreamMonitor):
   def __init__(self):
-    super(SystemOutputStreamMonitor, self).__init__()
+    super().__init__()
     self.monitor_streams = None
 
   def get_stream_data(self):
