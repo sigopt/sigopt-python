@@ -65,14 +65,14 @@ class Requestor(object):
         timeout=self.timeout,
         cert=self.client_ssl_certs,
       )
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException as rqe:
       message = ['An error occurred connecting to SigOpt.']
       if not url or not url.startswith(DEFAULT_API_URL):
         message.append('The host may be misconfigured or unavailable.')
       message.append('Contact support@sigopt.com for assistance.')
       message.append('')
-      message.append(str(e))
-      raise ConnectionException('\n'.join(message))
+      message.append(str(rqe))
+      raise ConnectionException('\n'.join(message)) from rqe
     return self._handle_response(response)
 
   def _with_default_headers(self, headers, user_agent):

@@ -46,7 +46,6 @@ rsa==4.7.1
 sigopt>=7.4.0
 scikit-learn==0.24.1
 scipy
-six==1.15.0
 sklearn==0.0
 smmap==3.0.5
 tensorboard==2.4.1

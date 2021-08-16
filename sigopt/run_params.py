@@ -36,14 +36,14 @@ class RunParameters(MutableMapping):
   def __getattr__(self, attr):
     try:
       return self[attr]
-    except KeyError:
-      raise AttributeError(f"no parameter with name {attr!r}")
+    except KeyError as ke:
+      raise AttributeError(f"no parameter with name {attr!r}") from ke
 
   def __setattr__(self, attr, value):
     try:
       self[attr] = value
     except KeyError as ke:
-      raise AttributeError(str(ke))
+      raise AttributeError(str(ke)) from ke
 
   def __check_key_type(self, key):
     if not is_string(key):

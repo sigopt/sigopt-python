@@ -2,12 +2,10 @@ import io
 import sys
 import threading
 
-from .vendored import six
-
 
 class MonitorStream(io.IOBase):
   def __init__(self, original_stream):
-    super(MonitorStream, self).__init__()
+    super().__init__()
     self.buffer_lock = threading.Lock()
     self.original_stream = original_stream
     self.buffer_stream = None
@@ -15,7 +13,7 @@ class MonitorStream(io.IOBase):
     self._replace_buffer_stream()
 
   def _replace_buffer_stream(self):
-    self.buffer_stream = six.StringIO()
+    self.buffer_stream = io.StringIO()
 
   def close(self):
     raise IOError('MonitorStream cannot be closed')
@@ -77,7 +75,7 @@ class BaseStreamMonitor(object):
   def __enter__(self):
     raise NotImplementedError()
 
-  def __exit__(self, type, value, trace):
+  def __exit__(self, typ, value, trace):
     raise NotImplementedError()
 
 class NullStreamMonitor(BaseStreamMonitor):
@@ -87,12 +85,12 @@ class NullStreamMonitor(BaseStreamMonitor):
   def __enter__(self):
     return self
 
-  def __exit__(self, type, value, trace):
+  def __exit__(self, typ, value, trace):
     return None
 
 class SystemOutputStreamMonitor(BaseStreamMonitor):
   def __init__(self):
-    super(SystemOutputStreamMonitor, self).__init__()
+    super().__init__()
     self.monitor_streams = None
 
   def get_stream_data(self):
@@ -111,7 +109,7 @@ class SystemOutputStreamMonitor(BaseStreamMonitor):
     sys.stdout, sys.stderr = self.monitor_streams
     return self
 
-  def __exit__(self, type, value, trace):
+  def __exit__(self, typ, value, trace):
     sys.stdout, sys.stderr = (
       monitor_stream.original_stream
       for monitor_stream in self.monitor_streams

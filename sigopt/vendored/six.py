@@ -103,7 +103,7 @@ class _LazyDescr(object):
 class MovedModule(_LazyDescr):
 
     def __init__(self, name, old, new=None):
-        super(MovedModule, self).__init__(name)
+        super().__init__(name)
         if PY3:
             if new is None:
                 new = name
@@ -124,7 +124,7 @@ class MovedModule(_LazyDescr):
 class _LazyModule(types.ModuleType):
 
     def __init__(self, name):
-        super(_LazyModule, self).__init__(name)
+        super().__init__(name)
         self.__doc__ = self.__class__.__doc__
 
     def __dir__(self):
@@ -139,7 +139,7 @@ class _LazyModule(types.ModuleType):
 class MovedAttribute(_LazyDescr):
 
     def __init__(self, name, old_mod, new_mod, old_attr=None, new_attr=None):
-        super(MovedAttribute, self).__init__(name)
+        super().__init__(name)
         if PY3:
             if new_mod is None:
                 new_mod = name

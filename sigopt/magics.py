@@ -37,7 +37,7 @@ def get_ns():
 @magics_class
 class SigOptMagics(Magics):
   def __init__(self, shell):
-    super(SigOptMagics, self).__init__(shell)
+    super().__init__(shell)
     self._connection = Connection()
     self._experiment = None
     self._factory = SigOptFactory(get_default_project())

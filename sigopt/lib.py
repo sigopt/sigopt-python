@@ -1,12 +1,8 @@
 import math as _math
 import numbers as _numbers
 
-try:
-  from collections.abc import Mapping as _Mapping, Sequence as _Sequence
-except ImportError:
-  from collections import Mapping as _Mapping, Sequence as _Sequence
+from collections.abc import Mapping as _Mapping, Sequence as _Sequence
 
-from .vendored import six as _six
 
 def is_numpy_array(val):
   return val.__class__.__name__ == 'ndarray'
@@ -20,8 +16,8 @@ def is_sequence(val):
     return True
   return (
     isinstance(val, _Sequence) and
-      not isinstance(val, _six.string_types) and
-      not isinstance(val, _six.binary_type)
+      not isinstance(val, str) and
+      not isinstance(val, bytes)
   )
 
 def is_mapping(val):
@@ -49,7 +45,7 @@ def is_number(x):
   return isinstance(x, _numbers.Number) or is_integer(x)
 
 def is_string(s):
-  return isinstance(s, _six.string_types)
+  return isinstance(s, str)
 
 def find(lis, predicate):
   """
@@ -77,5 +73,5 @@ def sanitize_number(warn, name, value):
     if _math.isinf(value) or _math.isnan(value):
       raise ValueError
     return value
-  except (ValueError, TypeError):
-    raise ValueError(f"The {warn} logged for `{name}` could not be converted to a number: {value!r}")
+  except (ValueError, TypeError) as e:
+    raise ValueError(f"The {warn} logged for `{name}` could not be converted to a number: {value!r}") from e
