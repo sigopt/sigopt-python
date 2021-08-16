@@ -29,7 +29,7 @@ class Field(object):
 
 class DeprecatedField(Field):
   def __init__(self, type, recommendation=None):
-    super(DeprecatedField, self).__init__(type)
+    super().__init__(type)
     self.recommendation = (' ' + recommendation) if recommendation else ''
 
   def __call__(self, value):
@@ -37,7 +37,7 @@ class DeprecatedField(Field):
       'This field has been deprecated and may be removed in a future version.{0}'.format(self.recommendation),
       DeprecationWarning,
     )
-    return super(DeprecatedField, self).__call__(value)
+    return super().__call__(value)
 
 
 class BaseApiObject(object):
@@ -102,7 +102,7 @@ class BaseApiObject(object):
 
 class ApiObject(BaseApiObject):
   def __init__(self, body, bound_endpoint=None, retrieve_params=None):
-    super(ApiObject, self).__init__()
+    super().__init__()
     object.__setattr__(self, '_body', body)
     object.__setattr__(self, '_bound_endpoint', bound_endpoint)
     object.__setattr__(self, '_retrieve_params', retrieve_params)
@@ -176,7 +176,7 @@ class ApiObject(BaseApiObject):
 
 class _DictWrapper(BaseApiObject, dict):
   def __init__(self, body, bound_endpoint=None, retrieve_params=None):
-    super(_DictWrapper, self).__init__()
+    super().__init__()
     dict.__init__(self, body)
     self._bound_endpoint = bound_endpoint
     self._retrieve_params = retrieve_params
@@ -304,7 +304,7 @@ class Pagination(ApiObject):
   paging = Field(Paging)
 
   def __init__(self, data_cls, body, bound_endpoint=None, retrieve_params=None):
-    super(Pagination, self).__init__(body, bound_endpoint, retrieve_params)
+    super().__init__(body, bound_endpoint, retrieve_params)
     self.data_cls = data_cls
 
   def _repr_keys(self):

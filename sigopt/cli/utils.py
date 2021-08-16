@@ -18,7 +18,7 @@ from .arguments.load_yaml import ValidatedData
 
 class StreamThread(threading.Thread):
   def __init__(self, input_stream, output_stream):
-    super(StreamThread, self).__init__()
+    super().__init__()
     self.input_stream = input_stream
     self.output_stream = output_stream
     self.buffer = six.StringIO()

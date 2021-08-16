@@ -81,7 +81,7 @@ class BaseApiResource(object):
 
 class ApiResource(BaseApiResource):
   def __init__(self, conn, name, endpoints=None, resources=None):
-    super(ApiResource, self).__init__(
+    super().__init__(
       conn=conn,
       name=name,
       version='v1',
