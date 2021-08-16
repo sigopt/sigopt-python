@@ -1,4 +1,3 @@
-import logging
 from sigopt.factory import SigOptFactory
 
 from controller.create_pod import create_run_pod, random_run_name
