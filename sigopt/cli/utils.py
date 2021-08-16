@@ -1,4 +1,5 @@
 import errno
+import io
 import os
 import shlex
 import signal
@@ -11,7 +12,6 @@ import click
 from sigopt.factory import SigOptFactory
 from sigopt.logging import enable_print_logging, print_logger
 from sigopt.run_context import GlobalRunContext
-from sigopt.vendored import six
 
 from .arguments.load_yaml import ValidatedData
 
@@ -21,15 +21,15 @@ class StreamThread(threading.Thread):
     super().__init__()
     self.input_stream = input_stream
     self.output_stream = output_stream
-    self.buffer = six.StringIO()
+    self.buffer = io.StringIO()
     self.lock = threading.Lock()
 
   def read_input_line(self):
     try:
       with self.lock:
         return self.input_stream.readline()
-    except ValueError:
-      raise StopIteration()
+    except ValueError as ve:
+      raise StopIteration() from ve
 
   def run(self):
     for line in iter(self.read_input_line, ''.encode()):

@@ -12,7 +12,7 @@ def validate_run_input(run_input):
     try:
       validate_name("run name", name)
     except ValueError as ve:
-      raise ValidationError(str(ve))
+      raise ValidationError(str(ve)) from ve
   validated["name"] = name
   args = run_input.get("run")
   if args is None:
@@ -32,7 +32,7 @@ def validate_run_input(run_input):
     try:
       validate_name("run image", image)
     except ValueError as ve:
-      raise ValidationError(str(ve))
+      raise ValidationError(str(ve)) from ve
     validated["image"] = image
   resources = run_input.get("resources")
   if resources is None:

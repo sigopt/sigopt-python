@@ -18,10 +18,10 @@ def run_command(f):
     if not commands:
       try:
         commands = run_options["run"]
-      except KeyError:
+      except KeyError as ke:
         raise click.UsageError(
           "Missing command: Please specify your run command via arguments or in the 'run' section of the run file."
-        )
+        ) from ke
     return f(*args, command=commands, run_options=run_options, **kwargs)
 
   return wrapper
