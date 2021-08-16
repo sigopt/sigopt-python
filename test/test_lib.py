@@ -3,7 +3,6 @@ import pytest
 import warnings
 
 from sigopt.lib import *
-from sigopt.vendored import six as _six
 
 LONG_NUMBER = 100000000000000000000000
 
@@ -125,9 +124,7 @@ class TestBase(object):
     assert is_string('abc')
     assert is_string(u'abc')
 
-    if not isinstance('abc', _six.binary_type):
-        assert not is_string(b'abc')
-
+    assert not is_string(b'abc')
     assert not is_string({})
     assert not is_string({'a': 123})
     assert not is_string([])

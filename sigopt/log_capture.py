@@ -2,8 +2,6 @@ import io
 import sys
 import threading
 
-from .vendored import six
-
 
 class MonitorStream(io.IOBase):
   def __init__(self, original_stream):
@@ -15,7 +13,7 @@ class MonitorStream(io.IOBase):
     self._replace_buffer_stream()
 
   def _replace_buffer_stream(self):
-    self.buffer_stream = six.StringIO()
+    self.buffer_stream = io.StringIO()
 
   def close(self):
     raise IOError('MonitorStream cannot be closed')
