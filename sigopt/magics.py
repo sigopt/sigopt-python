@@ -26,10 +26,10 @@ def get_ns():
   stack_depth = 1
   while True:
     frame = sys._getframe(stack_depth)
-    locals = frame.f_locals
+    f_locals = frame.f_locals
     try:
       if isinstance(locals['exit'], IPython.core.autocall.ExitAutocall):
-        return locals
+        return f_locals
     except KeyError:
       pass
     stack_depth += 1
