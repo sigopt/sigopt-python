@@ -1,5 +1,4 @@
 import os
-import pytest
 import mock
 import pytest
 
@@ -11,7 +10,7 @@ from sigopt.resource import ApiResource
 class TestInterface(object):
   @pytest.yield_fixture
   def config_dict(self, autouse=True):
-    with mock.patch.dict(config._configuration, {}) as mock_config_dict:
+    with mock.patch.dict(config._configuration, {}):
       yield config._configuration
 
   def test_create(self):

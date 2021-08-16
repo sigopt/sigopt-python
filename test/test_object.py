@@ -1,5 +1,4 @@
 import os
-import math
 import numpy
 import pytest
 import warnings
@@ -79,7 +78,9 @@ class TestBase(object):
         repr(Bounds({'max': 0.1, 'min': -0.2})) == 'Bounds(\n  max=0.1,\n  min=-0.2,\n)'
         or repr(Bounds({'max': 0.1, 'min': -0.2})) == 'Bounds(\n  min=-0.2,\n  max=0.1,\n)'
     )
-    assert repr(Pagination(Experiment, {'data': [{}]})) == 'Pagination<Experiment>(\n  data=[\n    Experiment(),\n  ],\n)'
+    assert repr(Pagination(Experiment, {'data': [{}]})) == (
+      'Pagination<Experiment>(\n  data=[\n    Experiment(),\n  ],\n)'
+    )
 
   def test_json(self):
     assert Experiment({}).to_json() == {}
