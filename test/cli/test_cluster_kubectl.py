@@ -32,5 +32,4 @@ class TestClusterKubectlCli(object):
         [exec_path, *arguments],
         env=kubectl_env_dict,
       )
-    raise Exception(str(result))
     assert result.exit_code == 0
