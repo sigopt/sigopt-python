@@ -1,6 +1,7 @@
 version: 2.1
 
 commands:
+  setup:
     steps:
       - checkout
       - run: sudo make update
