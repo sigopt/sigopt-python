@@ -77,5 +77,5 @@ def sanitize_number(warn, name, value):
     if _math.isinf(value) or _math.isnan(value):
       raise ValueError
     return value
-  except (ValueError, TypeError):
-    raise ValueError(f"The {warn} logged for `{name}` could not be converted to a number: {value!r}")
+  except (ValueError, TypeError) as e:
+    raise ValueError(f"The {warn} logged for `{name}` could not be converted to a number: {value!r}") from e

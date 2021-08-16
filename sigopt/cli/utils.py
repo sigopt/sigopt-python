@@ -28,8 +28,8 @@ class StreamThread(threading.Thread):
     try:
       with self.lock:
         return self.input_stream.readline()
-    except ValueError:
-      raise StopIteration()
+    except ValueError as ve:
+      raise StopIteration() from ve
 
   def run(self):
     for line in iter(self.read_input_line, ''.encode()):
