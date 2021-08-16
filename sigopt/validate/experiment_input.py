@@ -2,25 +2,25 @@ from sigopt.lib import validate_name, is_string, is_sequence, is_mapping, is_num
 
 from .common import validate_top_level_dict
 from .exceptions import ValidationError
-from .keys import PROJECT_KEY
+from .keys import PROJECT_KEY, RUNS_ONLY_KEY
 
 
 def get_validated_name(experiment_input):
   try:
     name = experiment_input.pop("name")
-  except KeyError:
-    raise ValidationError("name is required")
+  except KeyError as ke:
+    raise ValidationError("name is required") from ke
   try:
     validate_name("experiment name", name)
   except ValueError as ve:
-    raise ValidationError(str(ve))
+    raise ValidationError(str(ve)) from ve
   return name
 
 def get_validated_metrics(experiment_input):
   try:
     metrics = experiment_input.pop("metrics")
-  except KeyError:
-    raise ValidationError("a list of metrics is required")
+  except KeyError as ke:
+    raise ValidationError("a list of metrics is required") from ke
   if not is_sequence(metrics):
     raise ValidationError("metrics must be a non-empty list")
   metrics = list(metrics)
@@ -34,26 +34,26 @@ def get_validated_metrics(experiment_input):
     metric = dict(metric)
     try:
       metric_name = metric["name"]
-    except KeyError:
-      raise ValidationError("all metrics require a name")
+    except KeyError as ke:
+      raise ValidationError("all metrics require a name") from ke
     try:
       validate_name("metric name", metric_name)
     except ValueError as ve:
-      raise ValidationError(str(ve))
+      raise ValidationError(str(ve)) from ve
     validated_metric["name"] = metric_name
     metric_strategy = metric.pop("strategy", None)
     if metric_strategy is not None:
       try:
         validate_name("metric strategy", metric_strategy)
       except ValueError as ve:
-        raise ValidationError(str(ve))
+        raise ValidationError(str(ve)) from ve
       validated_metric["strategy"] = metric_strategy
     metric_objective = metric.pop("objective", None)
     if metric_objective is not None:
       try:
         validate_name("metric objective", metric_objective)
       except ValueError as ve:
-        raise ValidationError(str(ve))
+        raise ValidationError(str(ve)) from ve
       validated_metric["objective"] = metric_objective
     metric_threshold = metric.pop("threshold", None)
     if metric_threshold is not None:
@@ -71,8 +71,8 @@ def get_validated_metrics(experiment_input):
 def get_validated_parameters(experiment_input):
   try:
     parameters = experiment_input.pop("parameters")
-  except KeyError:
-    raise ValidationError("a list of parameters is required")
+  except KeyError as ke:
+    raise ValidationError("a list of parameters is required") from ke
   if not is_sequence(parameters):
     raise ValidationError("parameters must be a non-empty list")
   parameters = list(parameters)
@@ -85,21 +85,21 @@ def get_validated_parameters(experiment_input):
       raise ValidationError("all parameters must be a mapping of keys to values")
     try:
       param_name = param["name"]
-    except KeyError:
-      raise ValidationError("all parameters require a name")
+    except KeyError as ke:
+      raise ValidationError("all parameters require a name") from ke
     try:
       validate_name("parameter name", param_name)
     except ValueError as ve:
-      raise ValidationError(str(ve))
+      raise ValidationError(str(ve)) from ve
     validated_param["name"] = param_name
     try:
       param_type = param["type"]
-    except KeyError:
-      raise ValidationError("all parameters require a type")
+    except KeyError as ke:
+      raise ValidationError("all parameters require a type") from ke
     try:
       validate_name("parameter type", param_type)
     except ValueError as ve:
-      raise ValidationError(str(ve))
+      raise ValidationError(str(ve)) from ve
     validated_param["type"] = param_type
     for key, value in param.items():
       if key not in validated_param:
@@ -138,6 +138,8 @@ def validate_experiment_input(experiment_input):
       'The project field is not permitted in the experiment.'
       ' Please set the SIGOPT_PROJECT environment variable instead.'
     )
+  if RUNS_ONLY_KEY in experiment_input:
+    raise ValidationError(f"The {RUNS_ONLY_KEY} field is not allowed for experiments created with this module.")
   experiment_input = dict(experiment_input)
   validated = {}
   validated["name"] = get_validated_name(experiment_input)

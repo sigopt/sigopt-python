@@ -1,3 +1,5 @@
+import warnings
+
 from .config import config
 from .defaults import get_default_project
 from .interface import Connection
@@ -31,3 +33,12 @@ def load_ipython_extension(ipython):
 
 def get_run_id():
   return _global_run_context.id
+
+def set_project(project):
+  if get_run_id() is not None:
+    warnings.warn(
+      "set_project does nothing when your code is executed with the SigOpt CLI."
+      " Set the SIGOPT_PROJECT environment variable or use the --project CLI option instead.",
+      UserWarning,
+    )
+  return _global_factory.set_project(project)
