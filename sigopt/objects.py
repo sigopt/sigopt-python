@@ -6,8 +6,8 @@ from .lib import is_sequence, is_mapping, is_integer, is_number, is_numpy_array,
 
 
 class ListOf(object):
-  def __init__(self, type):
-    self.type = type
+  def __init__(self, typ):
+    self.type = typ
 
   def __call__(self, value):
     return [self.type(v) for v in value]
@@ -17,8 +17,8 @@ Any = lambda x: x
 
 
 class Field(object):
-  def __init__(self, type):
-    self.type = type
+  def __init__(self, typ):
+    self.type = typ
 
   def __call__(self, value):
     if value is None:
@@ -27,8 +27,8 @@ class Field(object):
 
 
 class DeprecatedField(Field):
-  def __init__(self, type, recommendation=None):
-    super(DeprecatedField, self).__init__(type)
+  def __init__(self, typ, recommendation=None):
+    super(DeprecatedField, self).__init__(typ)
     self.recommendation = (' ' + recommendation) if recommendation else ''
 
   def __call__(self, value):

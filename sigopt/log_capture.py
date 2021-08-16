@@ -75,7 +75,7 @@ class BaseStreamMonitor(object):
   def __enter__(self):
     raise NotImplementedError()
 
-  def __exit__(self, type, value, trace):
+  def __exit__(self, typ, value, trace):
     raise NotImplementedError()
 
 class NullStreamMonitor(BaseStreamMonitor):
@@ -85,7 +85,7 @@ class NullStreamMonitor(BaseStreamMonitor):
   def __enter__(self):
     return self
 
-  def __exit__(self, type, value, trace):
+  def __exit__(self, typ, value, trace):
     return None
 
 class SystemOutputStreamMonitor(BaseStreamMonitor):
@@ -109,7 +109,7 @@ class SystemOutputStreamMonitor(BaseStreamMonitor):
     sys.stdout, sys.stderr = self.monitor_streams
     return self
 
-  def __exit__(self, type, value, trace):
+  def __exit__(self, typ, value, trace):
     sys.stdout, sys.stderr = (
       monitor_stream.original_stream
       for monitor_stream in self.monitor_streams
