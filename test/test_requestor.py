@@ -2,7 +2,6 @@
 
 import pytest
 
-from sigopt.compat import json
 from sigopt.exception import ApiException, ConnectionException
 from sigopt.interface import ConnectionImpl
 from sigopt.objects import Experiment, Pagination, Observation
