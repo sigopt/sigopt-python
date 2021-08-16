@@ -1,12 +1,10 @@
 import copy
-from .vendored import six
 
 
 class SigOptException(Exception):
   pass
 
 
-@six.python_2_unicode_compatible
 class ConnectionException(SigOptException):
   """
   An exception that occurs when the SigOpt API was unavailable.
@@ -16,12 +14,11 @@ class ConnectionException(SigOptException):
     self.message = message
 
   def __str__(self):
-    return six.u('{0}: {1}').format(
+    return '{0}: {1}'.format(
       'ConnectionException',
       self.message if self.message is not None else '',
     )
 
-@six.python_2_unicode_compatible
 class ApiException(SigOptException):
   """
   An exception that occurs when the SigOpt API was contacted successfully, but
@@ -37,7 +34,7 @@ class ApiException(SigOptException):
     self.status_code = status_code
 
   def __str__(self):
-    return six.u('{0} ({1}): {2}').format(
+    return '{0} ({1}): {2}'.format(
       'ApiException',
       self.status_code,
       self.message if self.message is not None else '',
