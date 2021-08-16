@@ -31,6 +31,7 @@ def current_platform():
   )
 
 def retry_with_backoff(func):
+  # pylint: disable=inconsistent-return-statements
   def wrapper(*args, **kwargs):
     NUM_RETRIES = 5
     for i in range(NUM_RETRIES + 1):
@@ -40,4 +41,5 @@ def retry_with_backoff(func):
         time.sleep(2 ** i + random.random())  # nosec
         if i == NUM_RETRIES:
           raise e
+  # pylint: enable=inconsistent-return-statements
   return wrapper
