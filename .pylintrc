@@ -1,3 +1,7 @@
 [FORMAT]
 indent-string='  '
 max-line-length=120
+
+[MESSAGES CONTROL]
+disable=abstract-class-instantiated, abstract-class-little-used, abstract-class-not-used, abstract-method, anomalous-unicode-escape-in-string, bad-continuation, bad-whitespace, broad-except, cell-var-from-loop, duplicate-code, global-statement, invalid-name, locally-disabled, locally-enabled, missing-docstring, no-init, no-self-use, no-value-for-parameter, pointless-string-statement, redefined-outer-name, redefined-variable-type, star-args, superfluous-parens, too-few-instance-attributes, too-few-public-methods, too-many-ancestors, too-many-arguments, too-many-branches, too-many-instance-attributes, too-many-lines, too-many-locals, too-many-nested-blocks, too-many-public-methods, too-many-return-statements, too-many-statements, unused-argument, unused-wildcard-import, wildcard-import, wrong-import-position, wrong-import-order, no-member, len-as-condition, no-else-raise, no-else-return, useless-super-delegation, arguments-differ, keyword-arg-before-vararg, consider-using-ternary, unsubscriptable-object, raising-format-tuple, invalid-unary-operand-type, ungrouped-imports, useless-object-inheritance, wrong-import-order, import-outside-toplevel, invalid-sequence-index, too-many-boolean-expressions, unsupported-assignment-operation, assignment-from-no-return, unsupported-membership-test, consider-using-with
+enable=missing-final-newline
