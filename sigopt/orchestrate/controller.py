@@ -105,7 +105,6 @@ class OrchestrateController:
     cluster,
     docker_service,
     dockerfile,
-    project_id,
     quiet=False,
     optimize=True,
     optimization_options=None,
@@ -138,17 +137,15 @@ class OrchestrateController:
         resource_options=resource_options,
         optimization_options=optimization_options,
         run_command=run_command,
-        project_id=project_id,
       )
     return self.services.job_runner_service.start_cluster_run(
       repository=repository_name,
       tag=tag,
       resource_options=resource_options,
       run_command=run_command,
-      project_id=project_id,
     )
 
-  def run_on_cluster(self, command, run_options, silent, dockerfile, project_id):
+  def run_on_cluster(self, command, run_options, silent, dockerfile):
     cluster = self.services.cluster_service.test()
 
     quiet = silent
@@ -162,14 +159,13 @@ class OrchestrateController:
       command=command,
       run_options=run_options,
       dockerfile=dockerfile,
-      project_id=project_id,
     )
     if quiet:
       print(identifier)
     else:
       print(f'Started "{identifier}"')
 
-  def test_run_on_cluster(self, command, run_options, dockerfile, project_id):
+  def test_run_on_cluster(self, command, run_options, dockerfile):
     cluster = self.services.cluster_service.test()
 
     docker_service = DockerService.create(self.services)
@@ -181,7 +177,6 @@ class OrchestrateController:
       run_options=run_options,
       dockerfile=dockerfile,
       command=command,
-      project_id=project_id,
     )
     run_identifier = parse_identifier(identifier)
     label_selector = run_identifier["pod_label_selector"]
@@ -244,7 +239,7 @@ class OrchestrateController:
     else:
       print(f"{identifier['raw']}: deleted")
 
-  def optimize_on_cluster(self, command, run_options, optimization_options, silent, dockerfile, project_id):
+  def optimize_on_cluster(self, command, run_options, optimization_options, silent, dockerfile):
     cluster = self.services.cluster_service.test()
 
     quiet = silent
@@ -259,7 +254,6 @@ class OrchestrateController:
       run_options=run_options,
       optimization_options=optimization_options,
       dockerfile=dockerfile,
-      project_id=project_id,
     )
     if quiet:
       print(identifier)

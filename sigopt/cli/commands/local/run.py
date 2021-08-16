@@ -2,7 +2,7 @@ from sigopt.config import config
 from sigopt.factory import SigOptFactory
 
 from ...utils import run_user_program
-from ...arguments import project_option, source_file_option
+from ...arguments import source_file_option
 from ..base import sigopt_cli
 from ..run_base import run_command
 
@@ -13,9 +13,8 @@ from ..run_base import run_command
 ))
 @run_command
 @source_file_option
-@project_option
-def run(command, run_options, source_file, project):
+def run(command, run_options, source_file):
   '''Create a SigOpt Run.'''
-  factory = SigOptFactory(project)
+  factory = SigOptFactory.from_default_project()
   with factory.create_run(name=run_options.get("name")) as run_context:
     run_user_program(config, run_context, command, source_file)
