@@ -23,7 +23,7 @@ class TestRunCli(object):
     with mock.patch('sigopt.cli.commands.local.run.SigOptFactory') as factory:
       instance = mock.Mock()
       instance.create_run.return_value = run_context
-      factory.from_default_project = mock.Mock(return_value=instance)
+      factory.return_value = instance
       yield
 
   @pytest.fixture

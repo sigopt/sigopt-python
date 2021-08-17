@@ -2,8 +2,8 @@ import json
 
 from sigopt.config import config
 from sigopt.exception import ApiException
-from sigopt.defaults import get_default_project
 from sigopt.factory import SigOptFactory
+from sigopt.interface import get_connection
 
 from ..exceptions import CheckConnectionError
 from ..services.base import Service
@@ -12,11 +12,11 @@ from ..services.base import Service
 class SigOptService(Service):
   def __init__(self, services):
     super().__init__(services)
-    self._factory = SigOptFactory(get_default_project())
+    self._conn = get_connection()
 
   @property
   def conn(self):
-    return self._factory.connection
+    return self._conn
 
   @property
   def api_token(self):
@@ -39,14 +39,17 @@ class SigOptService(Service):
     except ApiException as e:
       raise CheckConnectionError(f'An error occured while checking your SigOpt connection: {e}') from e
 
-  def create_experiment(self, experiment_body):
-    return self._factory.create_prevalidated_experiment(experiment_body)
+  def create_experiment(self, experiment_body, project_id):
+    factory = SigOptFactory(project_id)
+    return factory.create_prevalidated_experiment(experiment_body)
 
   def fetch_experiment(self, experiment_id):
-    return self._factory.get_experiment(experiment_id)
+    factory = SigOptFactory.from_default_project()
+    return factory.get_experiment(experiment_id)
 
-  def create_run(self, run_name, cluster):
-    return self._factory.create_run(
+  def create_run(self, run_name, cluster, project_id):
+    factory = SigOptFactory(project_id)
+    return factory.create_run(
       name=run_name,
       metadata={'cluster_name': cluster.name},
     )
@@ -54,12 +57,13 @@ class SigOptService(Service):
   def fetch_run(self, run_id):
     return self.conn.training_runs(run_id).fetch()
 
-  def ensure_project_exists(self):
-    return self._factory.ensure_project_exists()
+  def ensure_project_exists(self, project_id):
+    factory = SigOptFactory(project_id)
+    return factory.ensure_project_exists()
 
   def iterate_runs_by_filters(self, filters, project=None, client=None):
     if project is None:
-      client, project = self.ensure_project_exists()
+      client, project = SigOptFactory.from_default_project().ensure_project_exists()
     return (
       self.conn.clients(client)
         .projects(project)

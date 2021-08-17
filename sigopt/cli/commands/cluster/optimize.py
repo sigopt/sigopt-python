@@ -1,6 +1,6 @@
 import click
 
-from ...arguments import dockerfile_option
+from ...arguments import dockerfile_option, project_option
 from ..optimize_base import optimize_command
 from .base import cluster_command
 
@@ -12,7 +12,8 @@ from .base import cluster_command
 @click.pass_context
 @dockerfile_option
 @optimize_command
-def optimize(ctx, command, run_options, experiment_file, dockerfile):
+@project_option
+def optimize(ctx, command, run_options, experiment_file, dockerfile, project):
   '''Run an Experiment on the connected Kubernetes cluster.'''
   ctx.obj.controller.optimize_on_cluster(
     command=command,
@@ -20,4 +21,5 @@ def optimize(ctx, command, run_options, experiment_file, dockerfile):
     optimization_options=experiment_file.data,
     silent=False,
     dockerfile=dockerfile,
+    project_id=project,
   )

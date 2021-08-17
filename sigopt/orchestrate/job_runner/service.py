@@ -18,8 +18,8 @@ class JobRunnerService(Service):
   DEFAULT_EPHEMERAL_STORAGE_REQUEST = "128Mi"
   EXPERIMENT_ENV_KEY = "ORCHESTRATE_EXPERIMENT_ID"
 
-  def sigopt_env_vars(self):
-    client, project = self.services.sigopt_service.ensure_project_exists()
+  def sigopt_env_vars(self, project_id):
+    client, project = self.services.sigopt_service.ensure_project_exists(project_id)
     return format_k8s_env_vars({
       'SIGOPT_API_TOKEN': self.services.sigopt_service.api_token,
       'SIGOPT_API_URL': self.services.sigopt_service.api_url,
@@ -44,7 +44,7 @@ class JobRunnerService(Service):
   def random_id_string(self):
     return "".join(random.choice(string.ascii_lowercase) for _ in range(8))  # nosec
 
-  def create_sigopt_experiment(self, optimization_options):
+  def create_sigopt_experiment(self, optimization_options, project_id):
     data = optimization_options.copy()
 
     metadata = data.pop('metadata', None) or {}
@@ -54,7 +54,7 @@ class JobRunnerService(Service):
 
     data["metadata"] = metadata
 
-    experiment = self.services.sigopt_service.create_experiment(data)
+    experiment = self.services.sigopt_service.create_experiment(data, project_id)
     return experiment.id
 
   def create_controller(
@@ -67,6 +67,7 @@ class JobRunnerService(Service):
     controller_name,
     extra_labels,
     extra_env_vars,
+    project_id,
   ):
     image_name = DockerService.format_image_name(repository, tag)
     cluster = self.services.cluster_service.get_connected_cluster()
@@ -106,7 +107,7 @@ class JobRunnerService(Service):
         "name": "CONTROLLER_MODE",
         "value": controller_mode,
       },
-      *(self.sigopt_env_vars()),
+      *(self.sigopt_env_vars(project_id)),
       *extra_env_vars,
     ]
     if self.services.sigopt_service.log_collection_enabled:
@@ -181,6 +182,7 @@ class JobRunnerService(Service):
     repository,
     tag,
     resource_options,
+    project_id,
     run_command=None,
   ):
     self.services.kubernetes_service.check_nodes_are_ready()
@@ -188,7 +190,7 @@ class JobRunnerService(Service):
 
     random_string = self.random_id_string()
     run_name = "run-" + random_string
-    run = self.services.sigopt_service.create_run(run_name, cluster)
+    run = self.services.sigopt_service.create_run(run_name, cluster, project_id)
     controller_name = f"run-controller-{random_string}"
     labels = {
       "run-name": run_name,
@@ -215,6 +217,7 @@ class JobRunnerService(Service):
       controller_name,
       labels,
       env_vars,
+      project_id,
     )
 
     return f"run/{run.id}"
@@ -225,12 +228,13 @@ class JobRunnerService(Service):
     tag,
     optimization_options,
     resource_options,
+    project_id,
     experiment_id=None,
     run_command=None,
   ):
     self.services.kubernetes_service.check_nodes_are_ready()
 
-    experiment_id = experiment_id or self.create_sigopt_experiment(optimization_options)
+    experiment_id = experiment_id or self.create_sigopt_experiment(optimization_options, project_id)
 
     controller_name = f"experiment-controller-{experiment_id}"
     labels = {"experiment": str(experiment_id)}
@@ -249,6 +253,7 @@ class JobRunnerService(Service):
       controller_name,
       labels,
       env_vars,
+      project_id,
     )
 
     return f"experiment/{experiment_id}"
