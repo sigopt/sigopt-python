@@ -3,7 +3,7 @@ import click
 from sigopt.defaults import check_valid_project_id, get_default_project
 
 
-def validate_project_id_callback(ctx, p, value):
+def validate_project_id_callback(ctx, p, value):  # pylint: disable=unused-argument
   if value is None:
     return get_default_project()
   try:

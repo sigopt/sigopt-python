@@ -2,7 +2,6 @@ import json
 
 from sigopt.config import config
 from sigopt.exception import ApiException
-from sigopt.defaults import get_default_project
 from sigopt.factory import SigOptFactory
 from sigopt.interface import get_connection
 
