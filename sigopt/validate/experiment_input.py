@@ -146,7 +146,7 @@ def validate_experiment_input(experiment_input):
   validated["parameters"] = get_validated_parameters(experiment_input)
   validated["metrics"] = get_validated_metrics(experiment_input)
   try:
-    validated["observation_budget"] = get_validated_budget(experiment_input)
+    validated["budget"] = get_validated_budget(experiment_input)
   except KeyError:
     pass
   try:
