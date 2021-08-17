@@ -34,7 +34,7 @@ class K8sSettings:
     for info_key in "name", "uid":
       with open(os.path.join(self.job_info_path, info_key)) as job_info_fp:
         job_info.append(job_info_fp.read())
-    self.job_name, self.job_uid = job_info
+    self.job_name, self.job_uid = job_info  # pylint: disable=unbalanced-tuple-unpacking
     self.owner_references = [k8s_client.V1OwnerReference(
       name=self.job_name,
       api_version="batch/v1",
