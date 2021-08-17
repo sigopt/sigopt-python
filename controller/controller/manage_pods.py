@@ -75,7 +75,7 @@ class RunPodsManager:
         raise
       sigopt_conn = self.sigopt_settings.conn
       run = sigopt_conn.training_runs(self.run_id).fetch()
-      run_context = RunContext(sigopt_conn, run, suggestion=None)
+      run_context = RunContext(sigopt_conn, run)
       run_state = RunState(run_context, self.sigopt_settings, self.k8s_settings, self.run_name)
       pod = create_run_pod(
         k8s_settings=self.k8s_settings,
