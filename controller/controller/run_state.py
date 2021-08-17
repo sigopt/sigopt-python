@@ -32,14 +32,9 @@ class RunState:
   @classmethod
   def create_from_pod(cls, sigopt_settings, k8s_settings, pod):
     run_id = pod.metadata.labels["run"]
-    experiment_id = pod.metadata.labels.get("experiment")
-    suggestion_id = pod.metadata.labels.get("suggestion")
     sigopt_conn = sigopt_settings.conn
     run = sigopt_conn.training_runs(run_id).fetch()
-    suggestion = None
-    if experiment_id and suggestion_id:
-      suggestion = sigopt_conn.experiments(experiment_id).suggestions(suggestion_id).fetch()
-    run_context = RunContext(sigopt_conn, run, suggestion)
+    run_context = RunContext(sigopt_conn, run)
     return cls(run_context, sigopt_settings, k8s_settings, pod.metadata.name)
 
   def __init__(self, run_context, sigopt_settings, k8s_settings, pod_name):
