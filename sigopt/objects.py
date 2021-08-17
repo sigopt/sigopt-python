@@ -382,11 +382,17 @@ class Parameter(ApiObject):
 
 
 class Progress(ApiObject):
+  # observation progress fields
   best_observation = DeprecatedField(Observation, recommendation='Prefer the `best_assignments` endpoint')
   first_observation = Field(Observation)
   last_observation = Field(Observation)
   observation_count = Field(int)
   observation_budget_consumed = Field(float)
+  # run progress fields
+  active_run_count = Field(int)
+  finished_run_count = Field(int)
+  total_run_count = Field(int)
+  remaining_budget = Field(float)
 
 
 class Suggestion(ApiObject):
@@ -431,6 +437,7 @@ class TrainingMonitor(ApiObject):
   early_stopping_criteria = Field(ListOf(TrainingEarlyStoppingCriteria))
 
 class Experiment(ApiObject):
+  budget = Field(float)
   can_be_deleted = DeprecatedField(bool)
   client = Field(str)
   conditionals = Field(ListOf(Conditional))

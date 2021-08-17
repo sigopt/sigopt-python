@@ -9,8 +9,8 @@ class TestJobStatusService(object):
   def mock_sigopt_experiment(self):
     return Mock(
       name='my experiment',
-      observation_budget=50,
-      progress=Mock(observation_budget_consumed=100.0),
+      budget=50,
+      progress=Mock(total_run_count=100),
     )
 
   @pytest.fixture

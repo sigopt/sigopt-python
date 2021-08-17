@@ -22,7 +22,7 @@ class ExperimentContext(BaseRunFactory):
   def is_finished(self):
     '''Check if the experiment has consumed its entire budget.'''
     self.refresh()
-    return self.remaining_budget is not None and self.remaining_budget <= 0
+    return self.progress.remaining_budget is not None and self.progress.remaining_budget <= 0
 
   def loop(self, name=None):
     '''Create runs until the experiment has finished.'''
@@ -33,14 +33,6 @@ class ExperimentContext(BaseRunFactory):
     connection = self._connection
     connection.experiments(self.id).delete()
     self.refresh()
-
-  @property
-  def budget(self):
-    return self.observation_budget
-
-  @property
-  def remaining_budget(self):
-    return self.progress.to_json()["remaining_budget"]
 
   @property
   def project(self):

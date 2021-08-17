@@ -52,8 +52,6 @@ class TestValidateExperiment:
     (lambda e: e.__setitem__("budget", []), "budget must be a non-negative number"),
     (lambda e: e.__setitem__("budget", -1), "budget must be a non-negative number"),
     (lambda e: e.__setitem__("budget", float("inf")), "budget cannot be infinity"),
-    (lambda e: e.__setitem__("observation_budget", 20), "only one can be used"),
-    (lambda e: e.__setitem__("observation_budget", None), "only one can be used"),
     (lambda e: e.__setitem__("parallel_bandwidth", []), "parallel_bandwidth must be a positive integer"),
     (lambda e: e.__setitem__("parallel_bandwidth", -1), "parallel_bandwidth must be a positive integer"),
     (lambda e: e.__setitem__("parallel_bandwidth", 0), "parallel_bandwidth must be a positive integer"),
@@ -70,15 +68,6 @@ class TestValidateExperiment:
     (lambda e: e, lambda e: e["name"] == "test experiment"),
     (lambda e: e, lambda e: e["parameters"] == [{"name": "p1", "type": "int", "bounds": {"min": 0, "max": 1}}]),
     (lambda e: e, lambda e: e["metrics"] == [{"name": "m1"}]),
-    (lambda e: e, lambda e: e["observation_budget"] == 10 and "budget" not in e),
-    (lambda e: e.__delitem__("budget"), lambda e: "observation_budget" not in e and "budget" not in e),
-    (
-      lambda e: [
-        e.__delitem__("budget"),
-        e.__setitem__("observation_budget", 10),
-      ],
-      lambda e: e["observation_budget"] == 10 and "budget" not in e,
-    ),
     (lambda e: e, lambda e: e["parallel_bandwidth"] == 4),
     # support new features without needing to write new validation
     (lambda e: e.__setitem__("unrecognized_key", []), lambda e: e["unrecognized_key"] == []),

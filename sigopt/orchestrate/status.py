@@ -19,23 +19,23 @@ def print_experiment_status(experiment_identifier, services):
   parsed_job = {}
   parsed_job["experiment_id"] = experiment_id
   parsed_job["experiment_name"] = experiment.name
-  parsed_job["observation_budget"] = (
-    str(float(experiment.observation_budget))
-    if experiment and experiment.observation_budget is not None
+  parsed_job["budget"] = (
+    str(float(experiment.budget))
+    if experiment and experiment.budget is not None
     else 'n/a'
   )
-  parsed_job["observation_budget_consumed"] = (
-    str(experiment.progress.observation_budget_consumed) if experiment else 'n/a'
+  parsed_job["total_run_count"] = (
+    str(experiment.progress.total_run_count) if experiment else 'n/a'
   )
 
   runs = list(services.sigopt_service.iterate_runs(experiment))
   total_failures = sum(v.state == 'failed' for v in runs)
 
   yield 'Experiment Name: {experiment_name}'.format(**parsed_job)
-  yield '{observation_budget_consumed} / {observation_budget} Observation budget'.format(
+  yield '{total_run_count} / {budget} budget'.format(
     **parsed_job
   )
-  yield f'{total_failures} Observation(s) failed'
+  yield f'{total_failures} Run(s) failed'
 
   yield '{:20}\t{:15}\t{:15}\t{:35}'.format(
     "Run Name",
