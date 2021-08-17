@@ -25,8 +25,7 @@ class TestClusterKubectlCli(object):
       patch('os.execvpe') as mock_execvpe, \
       patch('sigopt.orchestrate.kubectl.service.KubectlService.kubectl_env', side_effect=kubectl_env_dict), \
       patch('sigopt.orchestrate.cluster.service.ClusterService.assert_is_connected', return_value='foobar'):
-      result = runner.invoke(cli, ["cluster", "kubectl", *arguments])
-      raise Exception(str(result))
+      result = runner.invoke(cli, ["cluster", "kubectl", *arguments], catch_exceptions=False)
       exec_path = get_executable_path('kubectl')
       assert mock_execvpe.called_once_with(
         exec_path,
