@@ -110,20 +110,12 @@ def get_validated_parameters(experiment_input):
   return validated_parameters
 
 def get_validated_budget(experiment_input):
-  absent = object()
-  budget = experiment_input.pop("budget", absent)
-  observation_budget = experiment_input.pop("observation_budget", absent)
-  provided_budgets = [b for b in (budget, observation_budget) if b is not absent]
-  if len(provided_budgets) > 1:
-    raise ValidationError("both 'budget' and 'observation_budget' were provided, but only one can be used")
-  if provided_budgets:
-    actual_budget = provided_budgets[0]
-    if not (actual_budget is None or is_number(actual_budget) and actual_budget >= 0):
-      raise ValidationError("budget must be a non-negative number")
-    if actual_budget == float("inf"):
-      raise ValidationError("budget cannot be infinity")
-    return actual_budget
-  raise KeyError("budget")
+  budget = experiment_input["budget"]
+  if not (budget is None or is_number(budget) and budget >= 0):
+    raise ValidationError("budget must be a non-negative number")
+  if budget == float("inf"):
+    raise ValidationError("budget cannot be infinity")
+  return budget
 
 def get_validated_parallel_bandwidth(experiment_input):
   parallel_bandwidth = experiment_input.pop("parallel_bandwidth")
@@ -146,7 +138,7 @@ def validate_experiment_input(experiment_input):
   validated["parameters"] = get_validated_parameters(experiment_input)
   validated["metrics"] = get_validated_metrics(experiment_input)
   try:
-    validated["observation_budget"] = get_validated_budget(experiment_input)
+    validated["budget"] = get_validated_budget(experiment_input)
   except KeyError:
     pass
   try:

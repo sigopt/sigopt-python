@@ -26,12 +26,12 @@ class JobStatusService(Service):
       status=job_status,
       experiment_id=experiment_id or '??',
       experiment_name=(experiment.name if experiment else 'unknown'),
-      observation_budget=(
-        str(float(experiment.observation_budget))
-        if experiment and experiment.observation_budget is not None
+      budget=(
+        str(float(experiment.budget))
+        if experiment and experiment.budget is not None
         else 'n/a'
       ),
-      observation_budget_consumed=str(experiment.progress.observation_budget_consumed) if experiment else 'n/a',
+      total_run_count=str(experiment.progress.total_run_count) if experiment else 'n/a',
     )
 
   def get_runs_by_pod(self, experiment):
