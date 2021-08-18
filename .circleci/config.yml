@@ -12,7 +12,7 @@ commands:
   lint:
     steps:
       - setup
-      - run: sudo pip install pylint==2.3.1
+      - run: sudo pip install pylint==2.9.6
       - run: make lint
 
 jobs:

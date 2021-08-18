@@ -101,7 +101,7 @@ class TestBase(object):
       a.method_that_doesnt_exist_on_dict()
 
     with pytest.raises(KeyError):
-      a['xyz']
+      a['xyz']  # pylint: disable=pointless-statement
     assert a.get('xyz') is None
     assert a.get('xyz', 'fake') == 'fake'
 

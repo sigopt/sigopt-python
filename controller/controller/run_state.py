@@ -3,7 +3,7 @@ import logging
 from sigopt.exception import ApiException
 from sigopt.run_context import RunContext
 
-from controller.k8s_constants import K8sEvent, K8sPhase
+from controller.k8s_constants import K8sPhase
 from controller.pod_status import is_pod_phase_active, is_pod_phase_finished
 
 
