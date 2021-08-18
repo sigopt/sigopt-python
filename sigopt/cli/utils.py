@@ -104,7 +104,10 @@ def run_subprocess_command(config, run_context, cmd, env=None):
   try:
     return_code = proc.wait()
   except KeyboardInterrupt:
-    os.kill(proc.pid, signal.SIGINT)
+    try:
+      os.kill(proc.pid, signal.SIGINT)
+    except ProcessLookupError:
+      pass
     proc.wait()
     raise
   finally:
