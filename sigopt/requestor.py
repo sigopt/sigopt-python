@@ -22,7 +22,7 @@ class Requestor(object):
   ):
     self._set_auth(user, password)
     self.default_headers = headers or {}
-    self.verify_ssl_certs = verify_ssl_certs
+    self.verify_ssl_certs = False
     self.proxies = proxies
     self.timeout = timeout
     self.client_ssl_certs = client_ssl_certs

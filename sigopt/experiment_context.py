@@ -51,3 +51,6 @@ class ExperimentContext(BaseRunFactory):
     )
     run_context = self.run_context_class(connection, run)
     return run_context
+
+  def get_best_runs(self):
+    return self._connection.experiments(self.id).best_training_runs().fetch().iterate_pages()
