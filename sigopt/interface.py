@@ -80,7 +80,6 @@ class ConnectionImpl(object):
         ApiEndpoint(None, paginated_objects(TrainingRun), 'GET', 'fetch'),
       ],
     )
-
     importances = ApiResource(
       self,
       'importances',
@@ -153,14 +152,14 @@ class ConnectionImpl(object):
       resources=[
         best_assignments,
         best_training_runs,
+        experiment_tokens,
+        experiment_training_runs,
         importances,
         metric_importances,
         observations,
         queued_suggestions,
         stopping_criteria,
         suggestions,
-        experiment_tokens,
-        experiment_training_runs,
       ],
     )
 

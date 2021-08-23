@@ -41,8 +41,8 @@ def test_load_pil_image(pil_image):
   filename, image_data, content_type = data
   assert filename is None
 
-  loaded_image = Image.open(image_data)
-  assert numpy.all(numpy.array(loaded_image) == numpy.array(pil_image))
+  with Image.open(image_data) as loaded_image:
+    assert numpy.all(numpy.array(loaded_image) == numpy.array(pil_image))
 
   assert content_type == "image/png"
 
@@ -75,8 +75,8 @@ def test_load_HxW_numpy_image():
   assert filename is None
 
   image_data.seek(0)
-  pil_image = Image.open(image_data)
-  loaded_numpy_img = numpy.array(pil_image)
+  with Image.open(image_data) as pil_image:
+    loaded_numpy_img = numpy.array(pil_image)
 
   assert loaded_numpy_img.shape[:2] == (32, 16)
 
@@ -96,8 +96,8 @@ def test_load_HxWxN_numpy_image(N):
   assert filename is None
 
   image_data.seek(0)
-  pil_image = Image.open(image_data)
-  loaded_numpy_img = numpy.array(pil_image)
+  with Image.open(image_data) as pil_image:
+    loaded_numpy_img = numpy.array(pil_image)
 
   assert loaded_numpy_img.shape[:2] == (32, 16)
   loaded_numpy_img = loaded_numpy_img.reshape((32, 16, N))
@@ -118,8 +118,8 @@ def test_load_numpy_image_clipping():
   assert filename is None
 
   image_data.seek(0)
-  pil_image = Image.open(image_data)
-  loaded_numpy_img = numpy.array(pil_image)
+  with Image.open(image_data) as pil_image:
+    loaded_numpy_img = numpy.array(pil_image)
 
   assert loaded_numpy_img.shape[:2] == (32, 16)
 
