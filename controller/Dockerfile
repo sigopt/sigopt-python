@@ -31,6 +31,8 @@ RUN set -ex \
 
 FROM updated-base
 
+# NOTE: the pip install attempts to install pypng==0.0.21 but for some reason that is not available in this container.
+# The sigopt reqs ask for pypng>=0.0.20 so there should theoretically be no issue.
 RUN set -ex \
   ; BUILD_PKGS="cargo git gcc libffi-dev musl-dev openssl-dev rust" \
   ; apk add --no-cache $BUILD_PKGS \
