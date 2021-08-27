@@ -1,4 +1,16 @@
-FROM alpine:3.14.0 AS alpine-src
+FROM python:3.9.6-alpine3.14 AS updated-base
+
+ENV UPDATED_PKGS "busybox krb5-libs libcrypto1.1 libretls libssl1.1 openssl ssl_client"
+
+RUN set -ex \
+  ; apk update --no-cache \
+  ; apk add --upgrade --no-cache $UPDATED_PKGS \
+  ; :
+
+
+FROM updated-base AS alpine-src
+
+RUN apk update --no-cache
 
 RUN apk add --no-cache alpine-sdk git
 
@@ -6,27 +18,26 @@ RUN git clone --depth=1 --branch=v3.14.0 git://git.alpinelinux.org/aports
 
 RUN mkdir -p /src
 
+ENV SRC_PKGS "busybox krb5 libretls openssl"
+
 RUN set -ex \
-  ; for pkg in busybox libretls openssl krb5-libs \
-    ; do cd /aports/main/$pkg \
+  ; for pkg in $SRC_PKGS \
+    ; do cd /aports/*/$pkg \
     ; abuild -F fetch verify \
-    ; cp -Lr /aports/main/$pkg /src/$pkg \
+    ; cp -Lr /aports/*/$pkg /src/$pkg \
     ; done \
   ; :
 
-FROM python:3.9.6-alpine3.14
+
+FROM updated-base
 
 RUN set -ex \
-  ; apk update --no-cache \
-  ; apk add --upgrade --no-cache busybox libretls openssl krb5-libs \
-  ; :
-
-RUN set -ex \
-  ; apk add --no-cache cargo git gcc libffi-dev musl-dev openssl-dev rust \
-  ; pip install --no-cache-dir kubernetes==12.0.1 git+https://github.com/sigopt/sigopt-python.git@sj/main \
+  ; BUILD_PKGS="cargo git gcc libffi-dev musl-dev openssl-dev rust" \
+  ; apk add --no-cache $BUILD_PKGS \
+  ; pip install --upgrade --no-cache-dir git+https://github.com/sigopt/sigopt-python.git@sj/main \
   ; mkdir -p /src \
-  ; pip freeze | grep -v '@' | xargs pip download --no-cache-dir --no-binary=:all: --dest=/src \
-  ; apk del --purge cargo git gcc libffi-dev musl-dev openssl-dev rust \
+  ; pip install --no-cache-dir kubernetes==12.0.1 pypng==0.0.20 git+https://github.com/sigopt/sigopt-python.git@sj/main \
+  ; apk del --purge $BUILD_PKGS \
   ; :
 
 RUN apk del apk-tools
