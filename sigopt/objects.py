@@ -507,6 +507,7 @@ class TrainingRun(ApiObject):
   checkpoint_count = Field(int)
   created = Field(int)
   deleted = Field(bool)
+  experiment = Field(str)
   finished = Field(bool)
   metadata = Field(Metadata)
   observation = Field(str)

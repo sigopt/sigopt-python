@@ -41,6 +41,10 @@ class BaseRunContext(object):
     raise NotImplementedError
 
   @property
+  def experiment(self):
+    return None
+
+  @property
   def params(self):
     raise NotImplementedError
 
@@ -300,6 +304,10 @@ class RunContext(BaseRunContext):
   @property
   def id(self):
     return self.run.id
+
+  @property
+  def experiment(self):
+    return self.run.experiment
 
   @property
   def params(self):
