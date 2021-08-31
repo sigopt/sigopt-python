@@ -78,6 +78,7 @@ def create_run_pod(k8s_settings, run_context):
   volume_mounts = []
   experiment_id = run_context.experiment
   if experiment_id:
+    labels.update({"experiment": experiment_id})
     # NOTE(taylor): highest preference to run on nodes with runs in the same experiment
     pod_affinities.append(k8s_client.V1WeightedPodAffinityTerm(
       weight=100,
