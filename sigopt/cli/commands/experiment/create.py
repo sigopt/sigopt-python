@@ -1,6 +1,6 @@
 from sigopt.logging import print_logger
 
-from ...arguments import experiment_file_option
+from ...arguments import experiment_file_option, project_option
 from ...utils import create_experiment_from_validated_data
 from .base import experiment_command
 
@@ -23,7 +23,8 @@ Or use the python client library:
 
 @experiment_command.command()
 @experiment_file_option
-def create(experiment_file):
+@project_option
+def create(experiment_file, project):
   '''Create a SigOpt Experiment.'''
-  experiment = create_experiment_from_validated_data(experiment_file)
+  experiment = create_experiment_from_validated_data(experiment_file, project)
   print_start_worker_help(experiment)
