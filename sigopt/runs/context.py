@@ -6,7 +6,7 @@ from ..objects import Suggestion, TrainingRun
 from ..vendored import six
 from .defaults import ensure_project_exists, get_default_name, get_default_project
 from .utils import sanitize_number, validate_name, create_api_image_payload, get_blob_properties
-
+from ..lib import get_app_url
 
 def remove_nones(mapping):
   return {key: value for key, value in mapping.items() if value is not None}
@@ -174,7 +174,8 @@ class LiveRunContext(BaseRunContext):
     )
     run_context = cls(connection, run, suggestion)
     print(
-      'Run started, view it on the SigOpt dashboard at https://app.sigopt.com/run/{run_id}'.format(
+      'Run started, view it on the SigOpt dashboard at {app_url}/run/{run_id}'.format(
+        app_url=get_app_url(),
         run_id=run.id,
       )
     )
@@ -245,7 +246,8 @@ class LiveRunContext(BaseRunContext):
         else:
           raise
     print(
-      'Run finished, view it on the SigOpt dashboard at https://app.sigopt.com/run/{run_id}'.format(
+      'Run finished, view it on the SigOpt dashboard at {app_url}/run/{run_id}'.format(
+        app_url=get_app_url(),
         run_id=self.run.id,
       )
     )
