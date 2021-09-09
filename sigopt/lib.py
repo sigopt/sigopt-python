@@ -1,5 +1,6 @@
 import math as _math
 import numbers as _numbers
+import os as _os
 
 try:
   from collections.abc import Mapping as _Mapping, Sequence as _Sequence
@@ -7,6 +8,8 @@ except ImportError:
   from collections import Mapping as _Mapping, Sequence as _Sequence
 
 from .vendored import six as _six
+
+DEFAULT_APP_URL = 'https://app.sigopt.com'
 
 def is_numpy_array(val):
   return val.__class__.__name__ == 'ndarray'
@@ -56,3 +59,6 @@ def find(lis, predicate):
   Finds the first element in lis satisfying predicate, or else None
   """
   return next((item for item in lis if predicate(item)), None)
+
+def get_app_url():
+  return _os.environ.get('SIGOPT_APP_URL') or DEFAULT_APP_URL

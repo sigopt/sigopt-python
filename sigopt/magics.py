@@ -15,7 +15,7 @@ from .optimization import optimization_loop
 from .runs import create_global_run
 from .runs.defaults import ensure_project_exists, get_default_project
 from .vendored import six
-
+from .lib import get_app_url
 
 def get_ns():
   # NOTE(taylor): inspired by https://github.com/ipython/ipython/blob/master/IPython/core/interactiveshell.py
@@ -66,8 +66,10 @@ class SigOptMagics(Magics):
     experiment_body[PROJECT_KEY] = project_id
     self._experiment = self._connection.experiments().create(**experiment_body)
     print(six.u(
-      'Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/{experiment_id}'
-    ).format(experiment_id=self._experiment.id))
+      'Experiment created, view it on the SigOpt dashboard at {app_url}/experiment/{experiment_id}'
+    ).format(
+      app_url=get_app_url(),
+      experiment_id=self._experiment.id))
 
   def exec_cell(self, name, cell, ns, project_id, suggestion=None):
     with create_global_run(name=name, suggestion=suggestion, project=project_id) as run:
