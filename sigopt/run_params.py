@@ -7,8 +7,13 @@ _get = object.__getattribute__
 _set = object.__setattr__
 
 class RunParameters(MutableMapping):
-  def __init__(self, run_context, fixed_items):
-    _set(self, "__items", dict(fixed_items))
+  def __init__(self, run_context, fixed_items, default_items=None):
+    if default_items:
+      items = dict(default_items)
+      items.update(fixed_items)
+    else:
+      items = dict(fixed_items)
+    _set(self, "__items", items)
     _set(self, "__run_context", run_context)
     _set(self, "__fixed_keys", set(fixed_items.keys()))
 
