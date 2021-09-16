@@ -13,6 +13,20 @@ class ListOf(object):
     return [self.type(v) for v in value]
 
 
+class MapOf(object):
+  def __init__(self, value_type, key_type=str):
+    self.value_type = value_type
+    self.key_type = key_type
+
+  def __call__(self, value):
+    d = {self.key_type(k):self.value_type(v) for k, v in value.items()}
+    return d
+
+
+def DictField(name, type=str):
+  return lambda value: type(value[name])
+
+
 Any = lambda x: x
 
 
@@ -501,20 +515,42 @@ class Project(ApiObject):
   metadata = Field(Metadata)
 
 
+class Model(ApiObject):
+  type = Field(str)
+
+
+class SourceCode(ApiObject):
+  content = Field(str)
+  hash = Field(str)
+
+
 class TrainingRun(ApiObject):
-  id = Field(str)
+  assignments = Field(Assignments)
   best_checkpoint = Field(str)
+  client = Field(str)
   checkpoint_count = Field(int)
+  completed = Field(int)
   created = Field(int)
+  datasets = Field(ListOf(str))
   deleted = Field(bool)
   experiment = Field(str)
+  files = Field(ListOf(str))
   finished = Field(bool)
+  id = Field(str)
+  logs = Field(MapOf(DictField('content')))
   metadata = Field(Metadata)
+  model = Field(Model)
+  name = Field(str)
+  object = Field(str)
   observation = Field(str)
+  project = Field(str)
+  source_code = Field(SourceCode)
   state = Field(str)
   suggestion = Field(str)
+  tags = Field(ListOf(str))
   updated = Field(int)
-  assignments = Field(Assignments)
+  user = Field(str)
+  values = Field(MapOf(MetricEvaluation))
 
 
 class StoppingReasons(_DictWrapper):
