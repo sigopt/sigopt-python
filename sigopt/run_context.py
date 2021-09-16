@@ -285,12 +285,13 @@ class RunContext(BaseRunContext):
     self,
     connection,
     run,
+    default_params=None
   ):
     super().__init__()
     self.connection = connection
     self.run = run
     fixed_values = dict(run.assignments)
-    self._params = RunParameters(self, fixed_values, global_run_context.params)
+    self._params = RunParameters(self, fixed_values, default_params)
 
   def to_json(self):
     data = {"run": self.run.to_json()}
