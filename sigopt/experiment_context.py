@@ -1,6 +1,7 @@
 import threading
 
 from .run_factory import BaseRunFactory
+from .run_context import global_run_context
 
 
 class ExperimentContext(BaseRunFactory):
@@ -49,7 +50,7 @@ class ExperimentContext(BaseRunFactory):
       name=name,
       metadata=metadata,
     )
-    run_context = self.run_context_class(connection, run)
+    run_context = self.run_context_class(connection, run, global_run_context.params)
     return run_context
 
   def get_runs(self):
