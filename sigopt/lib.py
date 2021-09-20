@@ -1,8 +1,11 @@
 import math as _math
 import numbers as _numbers
+import os as _os
 
 from collections.abc import Mapping as _Mapping, Sequence as _Sequence
 
+
+DEFAULT_APP_URL = 'https://app.sigopt.com'
 
 def is_numpy_array(val):
   return val.__class__.__name__ == 'ndarray'
@@ -75,3 +78,6 @@ def sanitize_number(warn, name, value):
     return value
   except (ValueError, TypeError) as e:
     raise ValueError(f"The {warn} logged for `{name}` could not be converted to a number: {value!r}") from e
+
+def get_app_url():
+  return _os.environ.get('SIGOPT_APP_URL') or DEFAULT_APP_URL

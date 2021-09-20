@@ -80,6 +80,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, paginated_objects(TrainingRun), 'GET', 'fetch'),
       ],
     )
+
     importances = ApiResource(
       self,
       'importances',
