@@ -1,0 +1,71 @@
+{
+  "assignments": {
+    "m": 1,
+    "n": 2
+  },
+  "best_checkpoint": "cp0",
+  "checkpoint_count": 2,
+  "client": "11674",
+  "completed": 1631654369,
+  "created": 1631654365,
+  "datasets": {
+    "dataset1": {
+      "object": "dataset"
+    },
+    "dataset2": {
+      "object": "dataset"
+    }
+  },
+  "deleted": false,
+  "experiment": "432979",
+  "favorite": false,
+  "files": ["f0", "f1"],
+  "finished": true,
+  "id": "95658",
+  "logs": {
+    "stderr": {
+      "content": "message stderr\n",
+      "object": "log"
+    },
+    "stdout": {
+      "content": "message stdout\n",
+      "object": "log"
+    }
+  },
+  "metadata": {
+    "m0": "v0",
+    "m1": "v1"
+  },
+  "model": {
+    "object": "model",
+    "type": "type0"
+  },
+  "name": "run-examples 2021-09-14 14:19:26",
+  "object": "training_run",
+  "observation": "31818393",
+  "project": "run-examples",
+  "source_code": {
+    "content": "c0",
+    "hash": "h0",
+    "object": "source_code"
+  },
+  "state": "completed",
+  "suggestion": "46227605",
+  "tags": ["t0", "t1"],
+  "updated": 1631654369,
+  "user": "53628",
+  "values": {
+    "accuracy": {
+      "name": "accuracy",
+      "object": "metric_evaluation",
+      "value": 1,
+      "value_stddev": 0.1
+    },
+    "f1": {
+      "name": "f1",
+      "object": "metric_evaluation",
+      "value": 2,
+      "value_stddev": 0.2
+    }
+  }
+}

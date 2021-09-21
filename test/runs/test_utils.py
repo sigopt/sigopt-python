@@ -3,14 +3,14 @@ import pytest
 import matplotlib
 matplotlib.use("Agg")
 
+import io
 import numpy
 import os
 from PIL import Image
 from matplotlib import pyplot as plt
 import xml.etree.ElementTree as ET
 
-from sigopt.vendored import six
-from sigopt.runs.utils import (
+from sigopt.file_utils import (
   create_api_image_payload,
   get_blob_properties,
   try_load_matplotlib_image,
@@ -192,7 +192,7 @@ def test_create_api_image_payload_unsupported_type():
 
 def test_get_blob_properties():
   data = "some\nblob\ndata\n".encode()
-  blob = six.BytesIO(data)
+  blob = io.BytesIO(data)
   expected_b64_md5 = "hlXKMpBfPY7uZV7oFfHr2w=="
   length, b64_md5 = get_blob_properties(blob)
   assert length == len(data)

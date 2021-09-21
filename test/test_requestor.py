@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
-from sigopt.compat import json
 from sigopt.exception import ApiException, ConnectionException
 from sigopt.interface import ConnectionImpl
-from sigopt.objects import Experiment, Pagination, Observation
-import sigopt.vendored.six as six
+from sigopt.objects import Experiment, Observation, Pagination
+
 
 class MockRequestor(object):
   def __init__(self, response):
@@ -22,15 +19,9 @@ class MockRequestor(object):
 
 
 MESSAGE = 'This is an exception message.'
-UNICODE_MESSAGE = six.u('This is a friendly 👬 message')
-UNICODE_STR_MESSAGE = UNICODE_MESSAGE.encode('utf-8')
 
 SAMPLE_EXCEPTION = {
   'message': MESSAGE,
-}
-
-SAMPLE_UNICODE_EXCEPTION = {
-  'message': UNICODE_MESSAGE,
 }
 
 SAMPLE_RESPONSE = {
@@ -99,14 +90,3 @@ class TestRequestor(object):
       connection.experiments(1).fetch()
     e = e.value
     assert str(e) == 'ConnectionException: fake connection exception'
-
-  def test_unicode_json(self):
-    connection = ConnectionImpl(self.returns(ApiException(SAMPLE_UNICODE_EXCEPTION, 500)))
-    with pytest.raises(ApiException) as e:
-      connection.experiments(1).fetch()
-    e = e.value
-    if six.PY2:
-      assert unicode(e) == six.u('ApiException (500): ') + UNICODE_MESSAGE
-      assert str(e) == 'ApiException (500): ' + UNICODE_STR_MESSAGE
-    else:
-      assert str(e) == 'ApiException (500): ' + UNICODE_MESSAGE

@@ -1,6 +1,6 @@
 import pytest
 
-from sigopt.runs.defaults import normalize_project_id
+from sigopt.defaults import normalize_project_id
 
 
 @pytest.mark.parametrize('project_id,expected', [

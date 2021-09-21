@@ -77,7 +77,7 @@ class ConnectionImpl(object):
       self,
       'best_training_runs',
       endpoints=[
-        ApiEndpoint(None, object_or_paginated_objects(TrainingRun), 'GET', 'fetch'),
+        ApiEndpoint(None, paginated_objects(TrainingRun), 'GET', 'fetch'),
       ],
     )
 
@@ -152,15 +152,15 @@ class ConnectionImpl(object):
       ],
       resources=[
         best_assignments,
+        best_training_runs,
+        experiment_tokens,
+        experiment_training_runs,
         importances,
         metric_importances,
         observations,
         queued_suggestions,
         stopping_criteria,
         suggestions,
-        experiment_tokens,
-        experiment_training_runs,
-        best_training_runs,
       ],
     )
 
@@ -394,3 +394,10 @@ def object_or_paginated_objects(api_object):
       return Pagination(api_object, body, *args, **kwargs)
     return api_object(body, *args, **kwargs)
   return decorator
+
+_global_connection = None
+def get_connection():
+  global _global_connection
+  if _global_connection is None:
+    _global_connection = Connection()
+  return _global_connection

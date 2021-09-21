@@ -1,9 +1,8 @@
-import mock
 import pytest
-
 from sigopt.endpoint import BoundApiEndpoint
 from sigopt.interface import ConnectionImpl
 from sigopt.resource import BoundApiResource, PartiallyBoundApiResource
+
 
 class TestResource(object):
   @pytest.fixture

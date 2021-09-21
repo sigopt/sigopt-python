@@ -3,23 +3,36 @@ import warnings
 
 from .compat import json
 from .lib import is_sequence, is_mapping, is_integer, is_number, is_numpy_array, is_string
-from .vendored import six as six
 
 
 class ListOf(object):
-  def __init__(self, type):
-    self.type = type
+  def __init__(self, typ):
+    self.type = typ
 
   def __call__(self, value):
     return [self.type(v) for v in value]
+
+
+class MapOf(object):
+  def __init__(self, value_type, key_type=str):
+    self.value_type = value_type
+    self.key_type = key_type
+
+  def __call__(self, value):
+    d = {self.key_type(k):self.value_type(v) for k, v in value.items()}
+    return d
+
+
+def DictField(name, type=str):
+  return lambda value: type(value[name])
 
 
 Any = lambda x: x
 
 
 class Field(object):
-  def __init__(self, type):
-    self.type = type
+  def __init__(self, typ):
+    self.type = typ
 
   def __call__(self, value):
     if value is None:
@@ -28,8 +41,8 @@ class Field(object):
 
 
 class DeprecatedField(Field):
-  def __init__(self, type, recommendation=None):
-    super(DeprecatedField, self).__init__(type)
+  def __init__(self, typ, recommendation=None):
+    super().__init__(typ)
     self.recommendation = (' ' + recommendation) if recommendation else ''
 
   def __call__(self, value):
@@ -37,7 +50,7 @@ class DeprecatedField(Field):
       'This field has been deprecated and may be removed in a future version.{0}'.format(self.recommendation),
       DeprecationWarning,
     )
-    return super(DeprecatedField, self).__call__(value)
+    return super().__call__(value)
 
 
 class BaseApiObject(object):
@@ -81,15 +94,15 @@ class BaseApiObject(object):
   @staticmethod
   def _emit_repr(object_name, values_mapping):
     if values_mapping:
-      return six.u('{0}(\n{1}\n)').format(
+      return '{0}(\n{1}\n)'.format(
         object_name,
         '\n'.join([
-          six.u('  {}={},').format(key, ApiObject.dumps(value, indent_level=2).lstrip())
+          '  {}={},'.format(key, ApiObject.dumps(value, indent_level=2).lstrip())
           for key, value
           in values_mapping.items()
         ]),
       )
-    return six.u('{0}()').format(object_name)
+    return '{0}()'.format(object_name)
 
   def __repr__(self):
     keys = self._repr_keys()
@@ -102,7 +115,7 @@ class BaseApiObject(object):
 
 class ApiObject(BaseApiObject):
   def __init__(self, body, bound_endpoint=None, retrieve_params=None):
-    super(ApiObject, self).__init__()
+    super().__init__()
     object.__setattr__(self, '_body', body)
     object.__setattr__(self, '_bound_endpoint', bound_endpoint)
     object.__setattr__(self, '_retrieve_params', retrieve_params)
@@ -137,13 +150,13 @@ class ApiObject(BaseApiObject):
     indent = ' ' * indent_level
 
     if isinstance(obj, BaseApiObject):
-      return six.u('{0}{1}'.format(indent, str(obj).replace('\n', '\n{0}'.format(indent))))
+      return '{0}{1}'.format(indent, str(obj).replace('\n', '\n{0}'.format(indent)))
     if is_mapping(obj):
       if obj:
-        return six.u('{0}{\n{1},\n{0}}').format(
+        return '{0}{{\n{1},\n{0}}}'.format(
           indent,
-          six.u(',\n').join([
-            six.u('  {0}"{1}"={2}').format(
+          ',\n'.join([
+            '  {0}"{1}"={2}'.format(
               indent,
               key,
               ApiObject.dumps(obj[key], indent_level=indent_level + 2).lstrip()
@@ -152,31 +165,31 @@ class ApiObject(BaseApiObject):
             in obj
           ])
         )
-      return six.u('{0}{1}'.format(indent, str(obj)))
+      return '{0}{1}'.format(indent, str(obj))
     if is_numpy_array(obj):
       return ApiObject.dumps(obj.tolist(), indent_level=indent_level)
     if is_sequence(obj):
       if obj:
-        return six.u('{0}[\n{1},\n{0}]').format(
+        return '{0}[\n{1},\n{0}]'.format(
           indent,
-          six.u(',\n').join([
+          ',\n'.join([
             ApiObject.dumps(c, indent_level=indent_level + 2)
             for c
             in obj
           ])
         )
-      return six.u('{0}{1}'.format(indent, str(obj)))
+      return '{0}{1}'.format(indent, str(obj))
     if is_integer(obj):
-      return six.u('{0}{1}'.format(indent, str(int(obj))))
+      return '{0}{1}'.format(indent, str(int(obj)))
     if is_number(obj):
-      return six.u('{0}{1}'.format(indent, str(float(obj))))
+      return '{0}{1}'.format(indent, str(float(obj)))
     if is_string(obj):
-      return six.u('{0}"{1}"'.format(indent, obj))
-    return six.u('{0}{1}'.format(indent, obj))
+      return '{0}"{1}"'.format(indent, obj)
+    return '{0}{1}'.format(indent, obj)
 
 class _DictWrapper(BaseApiObject, dict):
   def __init__(self, body, bound_endpoint=None, retrieve_params=None):
-    super(_DictWrapper, self).__init__()
+    super().__init__()
     dict.__init__(self, body)
     self._bound_endpoint = bound_endpoint
     self._retrieve_params = retrieve_params
@@ -198,7 +211,7 @@ class _DictWrapper(BaseApiObject, dict):
     )
 
   def __repr__(self):
-    return six.u('{0}({1})').format(
+    return '{0}({1})'.format(
       self.__class__.__name__,
       json.dumps(
         ApiObject.as_json(self._body),
@@ -214,7 +227,7 @@ class Assignments(_DictWrapper):
 
 class Task(ApiObject):
   cost = Field(float)
-  name = Field(six.text_type)
+  name = Field(str)
 
 
 class Bounds(ApiObject):
@@ -224,19 +237,19 @@ class Bounds(ApiObject):
 
 class CategoricalValue(ApiObject):
   enum_index = Field(int)
-  name = Field(six.text_type)
+  name = Field(str)
 
 
 class Client(ApiObject):
   created = Field(int)
-  id = Field(six.text_type)
-  name = Field(six.text_type)
-  organization = Field(six.text_type)
+  id = Field(str)
+  name = Field(str)
+  organization = Field(str)
 
 
 class Conditional(ApiObject):
-  name = Field(six.text_type)
-  values = Field(ListOf(six.text_type))
+  name = Field(str)
+  values = Field(ListOf(str))
 
 
 class Conditions(_DictWrapper):
@@ -253,7 +266,7 @@ class Importances(ApiObject):
 
 class MetricImportances(ApiObject):
   importances = Field(ImportancesMap)
-  metric = Field(six.text_type)
+  metric = Field(str)
 
 
 class Metadata(_DictWrapper):
@@ -261,26 +274,26 @@ class Metadata(_DictWrapper):
 
 
 class MetricEvaluation(ApiObject):
-  name = Field(six.text_type)
+  name = Field(str)
   value = Field(float)
   value_stddev = Field(float)
 
 
 class Metric(ApiObject):
-  name = Field(six.text_type)
-  objective = Field(six.text_type)
-  strategy = Field(six.text_type)
+  name = Field(str)
+  objective = Field(str)
+  strategy = Field(str)
   threshold = Field(float)
 
 
 class Observation(ApiObject):
   assignments = Field(Assignments)
   created = Field(int)
-  experiment = Field(six.text_type)
+  experiment = Field(str)
   failed = Field(bool)
-  id = Field(six.text_type)
+  id = Field(str)
   metadata = Field(Metadata)
-  suggestion = Field(six.text_type)
+  suggestion = Field(str)
   task = Field(Task)
   value = Field(float)
   value_stddev = Field(float)
@@ -295,8 +308,8 @@ class Organization(ApiObject):
 
 
 class Paging(ApiObject):
-  after = Field(six.text_type)
-  before = Field(six.text_type)
+  after = Field(str)
+  before = Field(str)
 
 
 class Pagination(ApiObject):
@@ -304,7 +317,7 @@ class Pagination(ApiObject):
   paging = Field(Paging)
 
   def __init__(self, data_cls, body, bound_endpoint=None, retrieve_params=None):
-    super(Pagination, self).__init__(body, bound_endpoint, retrieve_params)
+    super().__init__(body, bound_endpoint, retrieve_params)
     self.data_cls = data_cls
 
   def _repr_keys(self):
@@ -362,7 +375,7 @@ class Pagination(ApiObject):
 
 class ParameterPrior(ApiObject):
   mean = Field(float)
-  name = Field(six.text_type)
+  name = Field(str)
   scale = Field(float)
   shape_a = Field(float)
   shape_b = Field(float)
@@ -374,29 +387,35 @@ class Parameter(ApiObject):
   conditions = Field(Conditions)
   default_value = Field(Any)
   grid = Field(ListOf(float))
-  name = Field(six.text_type)
+  name = Field(str)
   precision = Field(int)
   prior = Field(ParameterPrior)
-  transformation = Field(six.text_type)
+  transformation = Field(str)
   tunable = DeprecatedField(bool)
-  type = Field(six.text_type)
+  type = Field(str)
 
 
 class Progress(ApiObject):
+  # observation progress fields
   best_observation = DeprecatedField(Observation, recommendation='Prefer the `best_assignments` endpoint')
   first_observation = Field(Observation)
   last_observation = Field(Observation)
   observation_count = Field(int)
   observation_budget_consumed = Field(float)
+  # run progress fields
+  active_run_count = Field(int)
+  finished_run_count = Field(int)
+  total_run_count = Field(int)
+  remaining_budget = Field(float)
 
 
 class Suggestion(ApiObject):
   assignments = Field(Assignments)
   created = Field(int)
-  experiment = Field(six.text_type)
-  id = Field(six.text_type)
+  experiment = Field(str)
+  id = Field(str)
   metadata = Field(Metadata)
-  state = Field(six.text_type)
+  state = Field(str)
   task = Field(Task)
 
 
@@ -409,22 +428,22 @@ class QueuedSuggestion(ApiObject):
 
 
 class ConstraintTerm(ApiObject):
-  name = Field(six.text_type)
+  name = Field(str)
   weight = Field(float)
 
 
 class LinearConstraint(ApiObject):
   terms = Field(ListOf(ConstraintTerm))
   threshold = Field(float)
-  type = Field(six.text_type)
+  type = Field(str)
 
 
 class TrainingEarlyStoppingCriteria(ApiObject):
   lookback_checkpoints = Field(int)
-  name = Field(six.text_type)
-  metric = Field(six.text_type)
+  name = Field(str)
+  metric = Field(str)
   min_checkpoints = Field(int)
-  type = Field(six.text_type)
+  type = Field(str)
 
 
 class TrainingMonitor(ApiObject):
@@ -432,12 +451,13 @@ class TrainingMonitor(ApiObject):
   early_stopping_criteria = Field(ListOf(TrainingEarlyStoppingCriteria))
 
 class Experiment(ApiObject):
+  budget = Field(float)
   can_be_deleted = DeprecatedField(bool)
-  client = Field(six.text_type)
+  client = Field(str)
   conditionals = Field(ListOf(Conditional))
   created = Field(int)
   development = Field(bool)
-  id = Field(six.text_type)
+  id = Field(str)
   linear_constraints = Field(ListOf(LinearConstraint))
   metadata = Field(Metadata)
   metric = DeprecatedField(
@@ -445,31 +465,31 @@ class Experiment(ApiObject):
     recommendation='Prefer the `metrics` field (see https://sigopt.com/docs/objects/experiment)'
   )
   metrics = Field(ListOf(Metric))
-  name = Field(six.text_type)
+  name = Field(str)
   num_solutions = Field(int)
   observation_budget = Field(int)
   parameters = Field(ListOf(Parameter))
   parallel_bandwidth = Field(int)
   progress = Field(Progress)
-  project = Field(six.text_type)
-  state = Field(six.text_type)
+  project = Field(str)
+  state = Field(str)
   tasks = Field(ListOf(Task))
   training_monitor = Field(TrainingMonitor)
-  type = Field(six.text_type)
+  type = Field(str)
   updated = Field(int)
-  user = Field(six.text_type)
+  user = Field(str)
 
 
 class Token(ApiObject):
   all_experiments = Field(bool)
-  client = Field(six.text_type)
+  client = Field(str)
   development = Field(bool)
-  experiment = Field(six.text_type)
+  experiment = Field(str)
   expires = Field(int)
-  permissions = DeprecatedField(six.text_type)
-  token = Field(six.text_type)
-  token_type = Field(six.text_type)
-  user = Field(six.text_type)
+  permissions = DeprecatedField(str)
+  token = Field(str)
+  token_type = Field(str)
+  user = Field(str)
 
 
 class BestAssignments(ApiObject):
@@ -482,31 +502,55 @@ class BestAssignments(ApiObject):
 
 class StoppingCriteria(ApiObject):
   should_stop = Field(bool)
-  reasons = Field(ListOf(six.text_type))
+  reasons = Field(ListOf(str))
 
 
 class Project(ApiObject):
-  id = Field(six.text_type)
-  client = Field(six.text_type)
-  name = Field(six.text_type)
-  user = Field(six.text_type)
+  id = Field(str)
+  client = Field(str)
+  name = Field(str)
+  user = Field(str)
   created = Field(int)
   updated = Field(int)
   metadata = Field(Metadata)
+
+
+class Model(ApiObject):
+  type = Field(str)
+
+
+class SourceCode(ApiObject):
+  content = Field(str)
+  hash = Field(str)
 
 
 class TrainingRun(ApiObject):
-  id = Field(str)
+  assignments = Field(Assignments)
   best_checkpoint = Field(str)
+  client = Field(str)
   checkpoint_count = Field(int)
+  completed = Field(int)
   created = Field(int)
+  datasets = Field(ListOf(str))
   deleted = Field(bool)
+  experiment = Field(str)
+  files = Field(ListOf(str))
   finished = Field(bool)
+  id = Field(str)
+  logs = Field(MapOf(DictField('content')))
   metadata = Field(Metadata)
+  model = Field(Model)
+  name = Field(str)
+  object = Field(str)
   observation = Field(str)
+  project = Field(str)
+  source_code = Field(SourceCode)
   state = Field(str)
   suggestion = Field(str)
+  tags = Field(ListOf(str))
   updated = Field(int)
+  user = Field(str)
+  values = Field(MapOf(MetricEvaluation))
 
 
 class StoppingReasons(_DictWrapper):

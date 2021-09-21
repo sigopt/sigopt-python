@@ -1,8 +1,9 @@
-experiment:
-  name: e1
-  parameters:
-    - name: p1
-      type: double
-      bound:
-        min: 0
-        max: 1
+name: e1
+parameters:
+  - name: p1
+    type: double
+    bound:
+      min: 0
+      max: 1
+metrics:
+  - name: m1

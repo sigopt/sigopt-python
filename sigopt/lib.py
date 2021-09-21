@@ -2,12 +2,8 @@ import math as _math
 import numbers as _numbers
 import os as _os
 
-try:
-  from collections.abc import Mapping as _Mapping, Sequence as _Sequence
-except ImportError:
-  from collections import Mapping as _Mapping, Sequence as _Sequence
+from collections.abc import Mapping as _Mapping, Sequence as _Sequence
 
-from .vendored import six as _six
 
 DEFAULT_APP_URL = 'https://app.sigopt.com'
 
@@ -23,8 +19,8 @@ def is_sequence(val):
     return True
   return (
     isinstance(val, _Sequence) and
-      not isinstance(val, _six.string_types) and
-      not isinstance(val, _six.binary_type)
+      not isinstance(val, str) and
+      not isinstance(val, bytes)
   )
 
 def is_mapping(val):
@@ -52,13 +48,36 @@ def is_number(x):
   return isinstance(x, _numbers.Number) or is_integer(x)
 
 def is_string(s):
-  return isinstance(s, _six.string_types)
+  return isinstance(s, str)
 
 def find(lis, predicate):
   """
   Finds the first element in lis satisfying predicate, or else None
   """
   return next((item for item in lis if predicate(item)), None)
+
+def remove_nones(mapping):
+  return {key: value for key, value in mapping.items() if value is not None}
+
+def safe_format(string, *args, **kwargs):
+  return string.format(*args, **kwargs)
+
+def validate_name(warn, name):
+  if not is_string(name):
+    raise ValueError(f"The {warn} must be a string, not {type(name).__name__}")
+  if not name:
+    raise ValueError(f"The {warn} cannot be an empty string")
+
+def sanitize_number(warn, name, value):
+  if is_integer(value):
+    return value
+  try:
+    value = float(value)
+    if _math.isinf(value) or _math.isnan(value):
+      raise ValueError
+    return value
+  except (ValueError, TypeError) as e:
+    raise ValueError(f"The {warn} logged for `{name}` could not be converted to a number: {value!r}") from e
 
 def get_app_url():
   return _os.environ.get('SIGOPT_APP_URL') or DEFAULT_APP_URL

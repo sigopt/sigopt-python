@@ -1,5 +1,4 @@
 import os
-import math
 import numpy
 import pytest
 import warnings
@@ -79,7 +78,9 @@ class TestBase(object):
         repr(Bounds({'max': 0.1, 'min': -0.2})) == 'Bounds(\n  max=0.1,\n  min=-0.2,\n)'
         or repr(Bounds({'max': 0.1, 'min': -0.2})) == 'Bounds(\n  min=-0.2,\n  max=0.1,\n)'
     )
-    assert repr(Pagination(Experiment, {'data': [{}]})) == 'Pagination<Experiment>(\n  data=[\n    Experiment(),\n  ],\n)'
+    assert repr(Pagination(Experiment, {'data': [{}]})) == (
+      'Pagination<Experiment>(\n  data=[\n    Experiment(),\n  ],\n)'
+    )
 
   def test_json(self):
     assert Experiment({}).to_json() == {}
@@ -100,7 +101,7 @@ class TestBase(object):
       a.method_that_doesnt_exist_on_dict()
 
     with pytest.raises(KeyError):
-      a['xyz']
+      a['xyz']  # pylint: disable=pointless-statement
     assert a.get('xyz') is None
     assert a.get('xyz', 'fake') == 'fake'
 
@@ -382,3 +383,39 @@ class TestObjects(object):
     assert isinstance(task, Task)
     assert task.name == 'task 1'
     assert task.cost == 0.567
+
+  def test_training_run(self):
+    run = load_and_parse(TrainingRun, 'training_run.json')
+    assert run.assignments['m'] == 1
+    assert run.assignments['n'] == 2
+    assert run.best_checkpoint == 'cp0'
+    assert run.client == '11674'
+    assert run.checkpoint_count == 2
+    assert run.completed == 1631654369
+    assert run.created == 1631654365
+    assert run.datasets == ['dataset1', 'dataset2']
+    assert run.deleted is False
+    assert run.experiment == '432979'
+    assert run.files == ['f0', 'f1']
+    assert run.finished is True
+    assert run.id == '95658'
+    assert run.logs['stderr'] == 'message stderr\n'
+    assert run.logs['stdout'] == 'message stdout\n'
+    assert run.metadata['m0'] == 'v0'
+    assert run.metadata['m1'] == 'v1'
+    assert run.model.type == 'type0'
+    assert run.name == 'run-examples 2021-09-14 14:19:26'
+    assert run.object == 'training_run'
+    assert run.observation == '31818393'
+    assert run.project == 'run-examples'
+    assert run.source_code.content == 'c0'
+    assert run.source_code.hash == 'h0'
+    assert run.state == 'completed'
+    assert run.suggestion == '46227605'
+    assert run.tags == ['t0', 't1']
+    assert run.updated == 1631654369
+    assert run.user == '53628'
+    assert run.values['accuracy'].value == 1
+    assert run.values['accuracy'].value_stddev == 0.1
+    assert run.values['f1'].value == 2
+    assert run.values['f1'].value_stddev == 0.2

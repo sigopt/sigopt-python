@@ -1,0 +1,20 @@
+# This file defines the environment that your model will run in
+# See the Dockerfile reference for more info https://docs.docker.com/engine/reference/builder/#format
+
+# The FROM line defines the starting image.
+FROM python:3.9
+
+RUN mkdir -p /sigopt
+WORKDIR /sigopt
+
+RUN pip install --no-cache-dir --user sigopt
+
+# Uncomment/modify these lines to install your system dependencies.
+# RUN set -ex; apt-get -y update; apt-get -y install gcc
+
+# Uncomment/modify these lines to install your python dependencies.
+# COPY requirements.txt /sigopt/requirements.txt
+# RUN pip install --no-cache-dir --user -r requirements.txt
+
+# copy your code into the Dockerfile
+COPY . /sigopt

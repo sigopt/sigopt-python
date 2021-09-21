@@ -5,7 +5,7 @@ import errno
 import json
 import os
 
-from .objects import Suggestion
+from .paths import get_root_subdir
 
 
 class UserAgentInfoContext(object):
@@ -21,29 +21,15 @@ class UserAgentInfoContext(object):
   def to_json(self):
     return self.info
 
-class WithSuggestion(object):
-  def __init__(self, _config, suggestion):
-    self.config = _config
-    self.suggestion = suggestion
-
-  def __enter__(self):
-    self.config._suggestion = self.suggestion
-
-  def __exit__(self, tp, value, tb):
-    self.config._suggestion = None
-
 class Config(object):
   API_TOKEN_KEY = 'api_token'
-  CODE_TRACKING_ENABLED_KEY = 'code_tracking_enabled'
+  CELL_TRACKING_ENABLED_KEY = 'code_tracking_enabled'
   LOG_COLLECTION_ENABLED_KEY = 'log_collection_enabled'
   CONTEXT_ENVIRONMENT_KEY = 'SIGOPT_CONTEXT'
-  SUGGESTION_KEY = 'suggestion'
 
   def __init__(self):
-    self._suggestion = None
     self._config_json_path = os.path.abspath(os.path.join(
-      os.path.expanduser(os.environ.get('SIGOPT_HOME', os.path.join('~', '.sigopt'))),
-      'client',
+      get_root_subdir('client'),
       'config.json',
     ))
     self._configuration = self._read_config_json()
@@ -55,10 +41,6 @@ class Config(object):
     else:
       decoded = base64.b64decode(encoded_context).decode('utf-8')
       self._json_context = json.loads(decoded)
-    try:
-      self._suggestion = Suggestion(self._json_context[self.SUGGESTION_KEY])
-    except KeyError:
-      pass
     self._object_context = {}
 
   @property
@@ -79,8 +61,6 @@ class Config(object):
     context = dict(self._json_context)
     for key, value in self._object_context.items():
       context[key] = value.to_json()
-    if self._suggestion:
-      context[self.SUGGESTION_KEY] = self._suggestion.to_json()
     return {self.CONTEXT_ENVIRONMENT_KEY: base64.b64encode(json.dumps(context).encode())}
 
   @property
@@ -88,8 +68,8 @@ class Config(object):
     return self._configuration.get(self.API_TOKEN_KEY)
 
   @property
-  def code_tracking_enabled(self):
-    return self._configuration.get(self.CODE_TRACKING_ENABLED_KEY, False)
+  def cell_tracking_enabled(self):
+    return self._configuration.get(self.CELL_TRACKING_ENABLED_KEY, False)
 
   @property
   def log_collection_enabled(self):

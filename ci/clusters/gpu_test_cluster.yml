@@ -1,0 +1,10 @@
+provider: aws
+cluster_name: {{CLUSTER_NAME}}
+cpu:
+  instance_type: t3.xlarge
+  min_nodes: 1
+  max_nodes: 1
+gpu:
+  instance_type: p2.xlarge
+  min_nodes: 1
+  max_nodes: 1
