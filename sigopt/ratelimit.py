@@ -14,8 +14,12 @@ class FailedStatusRateLimit(object):
     with thread_lock:
       global global_failed_status_count
       global_failed_status_count += 1
-    if global_failed_status_count > self.limit:
-      time.sleep(random.random() * 2)
+
+    multiples_over = global_failed_status_count // self.limit
+    if multiples_over:
+      exponential_backoff = multiples_over ** 2
+      jitter = random.random() * 2
+      time.sleep(exponential_backoff + jitter)
 
   def clear(self):
     with thread_lock:
