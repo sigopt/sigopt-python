@@ -29,7 +29,7 @@ class Requestor(object):
     self.client_ssl_certs = client_ssl_certs
     self.session = session
     # NOTE: using second-level granularity for request ratelimiting
-    self._time_ratelimit = RateLimit(100, RateLimit.now())
+    self._time_ratelimit = RateLimit(30, RateLimit.now())
     self._failed_status_ratelimit = RateLimit(5)
 
   def _set_auth(self, username, password):
