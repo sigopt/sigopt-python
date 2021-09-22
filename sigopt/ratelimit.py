@@ -14,9 +14,9 @@ class _FailedStatusRateLimit(object):
       self.count += 1
       multiples_over = self.count // self.limit
     if multiples_over:
-      exponential_backoff = multiples_over ** 2
+      quadratic_backoff = multiples_over ** 2
       jitter = random.random() * 2
-      time.sleep(exponential_backoff + jitter)
+      time.sleep(quadratic_backoff + jitter)
 
   def clear(self):
     with self.thread_lock:
