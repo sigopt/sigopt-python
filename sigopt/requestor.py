@@ -3,7 +3,7 @@ import requests
 from .compat import json as simplejson
 from .config import config
 from .exception import ApiException, ConnectionException
-from .ratelimit import FailedStatusRateLimit
+from .ratelimit import failed_status_rate_limit
 from .version import VERSION
 
 DEFAULT_API_URL = 'https://api.sigopt.com'
@@ -29,7 +29,6 @@ class Requestor(object):
     self.client_ssl_certs = client_ssl_certs
     self.session = session
     # NOTE: using second-level granularity for request ratelimiting
-    self._failed_status_ratelimit = FailedStatusRateLimit(5)
 
   def _set_auth(self, username, password):
     if username is not None:
@@ -111,7 +110,7 @@ class Requestor(object):
         status_code = 500 if is_success else status_code
 
     if is_success:
-      self._failed_status_ratelimit.clear()
+      failed_status_rate_limit.clear()
       return response_json
-    self._failed_status_ratelimit.increment_and_check()
+    failed_status_rate_limit.increment_and_check()
     raise ApiException(response_json, status_code)
