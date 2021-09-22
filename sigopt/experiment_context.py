@@ -1,3 +1,4 @@
+import json
 import threading
 
 from .run_factory import BaseRunFactory
@@ -54,7 +55,11 @@ class ExperimentContext(BaseRunFactory):
     return run_context
 
   def get_runs(self):
-    return self._connection.experiments(self.id).training_runs().fetch().iterate_pages()
+    return self._connection.clients(self.client).projects(self.project).training_runs().fetch(filters=json.dumps([{
+      "field": "experiment",
+      "operator": "==",
+      "value": self.id,
+    }])).iterate_pages()
 
   def get_best_runs(self):
     return self._connection.experiments(self.id).best_training_runs().fetch().iterate_pages()
