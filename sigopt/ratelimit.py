@@ -12,7 +12,6 @@ class _FailedStatusRateLimit(object):
   def increment_and_check(self):
     with self.thread_lock:
       self.count += 1
-    with self.thread_lock:
       multiples_over = self.count // self.limit
     if multiples_over:
       exponential_backoff = multiples_over ** 2
