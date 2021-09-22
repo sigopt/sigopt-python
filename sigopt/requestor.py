@@ -28,7 +28,6 @@ class Requestor(object):
     self.timeout = timeout
     self.client_ssl_certs = client_ssl_certs
     self.session = session
-    # NOTE: using second-level granularity for request ratelimiting
 
   def _set_auth(self, username, password):
     if username is not None:
