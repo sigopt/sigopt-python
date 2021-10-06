@@ -13,7 +13,7 @@ if __name__ == '__main__':
   parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/tokens")
   the_args = parser.parse_args()
 
-  connection = Connection(client_token=the_args.client_token)
+  connection = Connection(client_token=the_args.client_token, _show_deprecation_warning=False)
 
   # Create an experiment with one paramter, x
   experiment = connection.experiments().create(
