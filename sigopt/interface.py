@@ -321,7 +321,7 @@ class Connection(object):
         "You're currently using the old SigOpt Experience."
         " Try out the new and improved SigOpt experience by getting started with the docs today."
         " You have till July 2022 to migrate over without experiencing breaking changes.",
-        DeprecationWarning,
+        UserWarning,
       )
     client_token = client_token or os.environ.get('SIGOPT_API_TOKEN', config.api_token)
     api_url = os.environ.get('SIGOPT_API_URL') or DEFAULT_API_URL
