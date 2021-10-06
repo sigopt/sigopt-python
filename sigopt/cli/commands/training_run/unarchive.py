@@ -1,4 +1,5 @@
 import click
+import sys
 from sigopt.logging import print_logger
 from sigopt.factory import SigOptFactory
 from ...arguments import project_option
@@ -15,4 +16,4 @@ def unarchive(run_id, project):
     factory.connection.training_runs(run_id).update(deleted=False)
   except Exception as e:
     print_logger.error(f'Error: {e}')
-    exit(-1)
+    sys.exit(-1)
