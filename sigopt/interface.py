@@ -1,4 +1,5 @@
 import os
+import warnings
 
 from .compat import json as simplejson
 from .config import config
@@ -314,7 +315,14 @@ class Connection(object):
   Client-facing interface for creating Connections.
   Shouldn't be changed without a major version change.
   """
-  def __init__(self, client_token=None, user_agent=None, session=None):
+  def __init__(self, client_token=None, user_agent=None, session=None, _show_deprecation_warning=True):
+    if _show_deprecation_warning:
+      warnings.warn(
+        "You're currently using the old SigOpt Experience."
+        " Try out the new and improved SigOpt experience by getting started with the docs today."
+        " You have till July 2022 to migrate over without experiencing breaking changes.",
+        DeprecationWarning,
+      )
     client_token = client_token or os.environ.get('SIGOPT_API_TOKEN', config.api_token)
     api_url = os.environ.get('SIGOPT_API_URL') or DEFAULT_API_URL
     # no-verify overrides a passed in path
@@ -399,5 +407,5 @@ _global_connection = None
 def get_connection():
   global _global_connection
   if _global_connection is None:
-    _global_connection = Connection()
+    _global_connection = Connection(_show_deprecation_warning=False)
   return _global_connection
