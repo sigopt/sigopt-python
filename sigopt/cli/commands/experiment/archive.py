@@ -8,7 +8,7 @@ from .base import experiment_command
 @click.argument("EXPERIMENT_ID")
 @project_option
 def archive(experiment_id, project):
-  '''archive a SigOpt Experiment.'''
+  '''Archive a SigOpt Experiment.'''
   try:
     factory = SigOptFactory(project)
     factory.connection.experiments(experiment_id).delete()

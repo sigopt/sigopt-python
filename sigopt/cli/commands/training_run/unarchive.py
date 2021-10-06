@@ -8,7 +8,7 @@ from .base import training_run_command
 @click.argument("RUN_ID")
 @project_option
 def unarchive(run_id, project):
-  '''unarchive a SigOpt Run.'''
+  '''Unarchive a SigOpt Run.'''
   try:
     factory = SigOptFactory(project)
     factory.connection.training_runs(run_id).update(deleted=False)

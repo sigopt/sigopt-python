@@ -8,7 +8,7 @@ from .base import training_run_command
 @click.argument("RUN_ID")
 @project_option
 def archive(run_id, project):
-  '''archive a SigOpt Run.'''
+  '''Archive a SigOpt Run.'''
   try:
     factory = SigOptFactory(project)
     factory.connection.training_runs(run_id).delete()

@@ -8,7 +8,7 @@ from .base import experiment_command
 @click.argument("EXPERIMENT_ID")
 @project_option
 def unarchive(experiment_id, project):
-  '''unarchive a SigOpt Experiment.'''
+  '''Unarchive a SigOpt Experiment.'''
   try:
     factory = SigOptFactory(project)
     factory.connection.experiments(experiment_id).update(state="active")
