@@ -10,10 +10,9 @@ from .base import training_run_command
 @click.argument("RUN_ID")
 @project_option
 def unarchive(run_id, project):
-  '''unarchive a SigOpt TrainingRun.'''
+  '''unarchive a SigOpt Run.'''
   try:
     factory = SigOptFactory(project)
     factory.connection.training_runs(run_id).update(deleted=False)
   except Exception as e:
-    print_logger.error(f'Error: {e}')
-    sys.exit(-1)
+    raise click.ClickException(f'run_id: {run_id}, {e}') from e

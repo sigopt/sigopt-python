@@ -15,5 +15,4 @@ def unarchive(experiment_id, project):
     factory = SigOptFactory(project)
     factory.connection.experiments(experiment_id).update(state="active")
   except Exception as e:
-    print_logger.error(f'Error: {e}')
-    sys.exit(-1)
+    raise click.ClickException(f'experiment_id: {experiment_id}, {e}') from e

@@ -1,6 +1,6 @@
 from ..base import sigopt_cli
 
 
-@sigopt_cli.group("training_run")
+@sigopt_cli.group("runs")
 def training_run_command():
-  '''Commands for managing SigOpt TrainingRuns.'''
+  '''Commands for managing SigOpt Runs.'''
