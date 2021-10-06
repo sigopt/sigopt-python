@@ -320,7 +320,7 @@ class Connection(object):
       warnings.warn(
         "You're currently using the old SigOpt Experience."
         " Try out the new and improved SigOpt experience by getting started with the docs today."
-        " You have till July 2022 to migrate over without experiencing breaking changes.",
+        " You have until July 2022 to migrate over without experiencing breaking changes.",
         UserWarning,
       )
     client_token = client_token or os.environ.get('SIGOPT_API_TOKEN', config.api_token)
