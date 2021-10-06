@@ -1,5 +1,4 @@
 import click
-import sys
 from sigopt.logging import print_logger
 from sigopt.factory import SigOptFactory
 from ...arguments import project_option
