@@ -2,7 +2,7 @@ import xgboost
 from xgboost import DMatrix
 import numpy
 from sklearn.metrics import accuracy_score, classification_report
-
+from ..context import Context
 from .. import create_run
 
 def run(params, D_train, num_boost_round=10, evals=None, run_options=None):
@@ -47,4 +47,4 @@ def run(params, D_train, num_boost_round=10, evals=None, run_options=None):
   #   run.log_metric("recall", other_metrics['recall'])
   #   run.log_metric("precision", other_metrics['precision'])
 
-  return run
+  return Context(run, bst)
