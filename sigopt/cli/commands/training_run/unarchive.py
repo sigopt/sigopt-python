@@ -1,16 +1,16 @@
 import click
 from sigopt.factory import SigOptFactory
 from ...arguments import project_option
-from .base import training_run_command
+from ..base import unarchive_command
 
-
-@training_run_command.command()
-@click.argument("RUN_ID")
+@unarchive_command.command("run")
 @project_option
-def unarchive(run_id, project):
-  '''Unarchive a SigOpt Run.'''
-  try:
-    factory = SigOptFactory(project)
-    factory.connection.training_runs(run_id).update(deleted=False)
-  except Exception as e:
-    raise click.ClickException(f'run_id: {run_id}, {e}') from e
+@click.argument("RUN_IDS", nargs=-1)
+def unarchive(project, run_ids):
+  '''Unarchive SigOpt Runs.'''
+  factory = SigOptFactory(project)
+  for run_id in run_ids:
+    try:
+      factory.unarchive_run(run_id)
+    except Exception as e:
+      raise click.ClickException(f'run_id: {run_id}, {e}') from e

@@ -1,16 +1,17 @@
 import click
 from sigopt.factory import SigOptFactory
 from ...arguments import project_option
-from .base import experiment_command
+from ..base import unarchive_command
 
 
-@experiment_command.command()
-@click.argument("EXPERIMENT_ID")
+@unarchive_command.command("experiment")
 @project_option
-def unarchive(experiment_id, project):
-  '''Unarchive a SigOpt Experiment.'''
-  try:
-    factory = SigOptFactory(project)
-    factory.connection.experiments(experiment_id).update(state="active")
-  except Exception as e:
-    raise click.ClickException(f'experiment_id: {experiment_id}, {e}') from e
+@click.argument("EXPERIMENT_IDS", nargs=-1)
+def unarchive(project, experiment_ids):
+  '''Unarchive SigOpt Experiments.'''
+  factory = SigOptFactory(project)
+  for experiment_id in experiment_ids:
+    try:
+      factory.unarchive_experiment(experiment_id)
+    except Exception as e:
+      raise click.ClickException(f'experiment_id: {experiment_id}, {e}') from e
