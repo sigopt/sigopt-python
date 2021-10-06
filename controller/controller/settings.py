@@ -14,7 +14,7 @@ class SigOptSettings:
     self.api_token = os.environ["SIGOPT_API_TOKEN"]
     self.api_url = os.environ["SIGOPT_API_URL"]
     self.log_collection_enabled = bool(os.environ.get("SIGOPT_LOG_COLLECTION_ENABLED"))
-    self.conn = sigopt.Connection(self.api_token)
+    self.conn = sigopt.Connection(self.api_token, _show_deprectation_warning=False)
     self.conn.set_api_url(self.api_url)
 
 class K8sSettings:

@@ -10,7 +10,7 @@ from IPython.core.magic import (
 )
 
 from .config import config
-from .interface import Connection
+from .interface import get_connection
 from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
 from .run_context import global_run_context
 from .factory import SigOptFactory
@@ -38,7 +38,7 @@ def get_ns():
 class SigOptMagics(Magics):
   def __init__(self, shell):
     super().__init__(shell)
-    self._connection = Connection()
+    self._connection = get_connection()
     self._experiment = None
     self._factory = SigOptFactory(get_default_project())
 
