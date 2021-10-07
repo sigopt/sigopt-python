@@ -1,11 +1,11 @@
 import click
 from sigopt.factory import SigOptFactory
-from ...arguments import project_option
+from ...arguments import project_option, validate_ids
 from ..base import unarchive_command
 
 @unarchive_command.command("run")
 @project_option
-@click.argument("RUN_IDS", nargs=-1)
+@click.argument("RUN_IDS", nargs=-1, callback=validate_ids)
 def unarchive(project, run_ids):
   '''Unarchive SigOpt Runs.'''
   factory = SigOptFactory(project)
