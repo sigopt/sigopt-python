@@ -2,7 +2,7 @@ from sigopt.logging import print_logger
 
 from ...arguments import experiment_file_option, project_option
 from ...utils import create_experiment_from_validated_data
-from .base import experiment_command
+from ..base import create_command
 
 
 def print_start_worker_help(experiment):
@@ -21,7 +21,7 @@ Or use the python client library:
 '''
   print_logger.info(msg)
 
-@experiment_command.command()
+@create_command.command('experiment')
 @experiment_file_option
 @project_option
 def create(experiment_file, project):
