@@ -10,14 +10,14 @@ def sigopt_cli():
 
 @sigopt_cli.group("create")
 def create_command():
-  '''Commands for create SigOpt Objects.'''
+  '''Commands for creating SigOpt Objects.'''
 
 
 @sigopt_cli.group("archive")
 def archive_command():
-  '''Commands for archive SigOpt Objects.'''
+  '''Commands for archiving SigOpt Objects.'''
 
 
 @sigopt_cli.group("unarchive")
 def unarchive_command():
-  '''Commands for unarchive SigOpt Objects.'''
+  '''Commands for unarchiving SigOpt Objects.'''
