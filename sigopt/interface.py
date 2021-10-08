@@ -122,6 +122,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, TrainingRun, 'POST', 'create'),
         ApiEndpoint(None, object_or_paginated_objects(TrainingRun), 'GET', 'fetch'),
         ApiEndpoint(None, TrainingRun, 'PUT', 'update'),
+        ApiEndpoint(None, None, 'DELETE', 'delete'),
       ],
       resources=[checkpoints],
     )

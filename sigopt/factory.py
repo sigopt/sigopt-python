@@ -95,3 +95,15 @@ class SigOptFactory(BaseRunFactory):
         self._project_id,
       )
     return ExperimentContext(experiment, connection=connection)
+
+  def archive_experiment(self, experiment_id):
+    self.connection.experiments(experiment_id).delete()
+
+  def unarchive_experiment(self, experiment_id):
+    self.connection.experiments(experiment_id).update(state="active")
+
+  def archive_run(self, run_id):
+    self.connection.training_runs(run_id).delete()
+
+  def unarchive_run(self, run_id):
+    self.connection.training_runs(run_id).update(deleted=False)
