@@ -16,17 +16,18 @@ XGB_ALIASES = \
   }
 
 
-def compute_classification_metrics(run, bst, D_matrix):
+def compute_classification_metrics(run, bst, D_matrix_pair):
+  D_matrix, D_name = D_matrix_pair
   preds = bst.predict(D_matrix)
   preds = numpy.round(preds)
-  accuracy = accuracy_score(D_matrix.get_labels(), preds)
-  rep = classification_report(D_matrix.get_labels(), preds, output_dict=True, zero_division=0)
+  accuracy = accuracy_score(D_matrix.get_label(), preds)
+  rep = classification_report(D_matrix.get_label(), preds, output_dict=True, zero_division=0)
   other_metrics = rep['weighted avg']
-  run.log_metric("accuracy", accuracy)
-  run.log_metric("f1", other_metrics['f1-score'])
-  run.log_metric("recall", other_metrics['recall'])
-  run.log_metric("precision", other_metrics['precision'])
-
+  run.log_metric(f"{D_name}: accuracy", accuracy)
+  run.log_metric(f"{D_name}: f1", other_metrics['f1-score'])
+  run.log_metric(f"{D_name}: recall", other_metrics['recall'])
+  run.log_metric(f"{D_name}: precision", other_metrics['precision'])
+  #TODO: AUPRC
 
 def compute_regression_metrics(run, bst, D_test):
   pass
@@ -46,6 +47,7 @@ def run(params, D_train, num_boost_round=10, evals=None, run_options=None):
 
   run = create_run()
   run.log_model("XGBoost")
+  run.log_metadata("_IS_XGB", 'True')
   run.log_metadata("Dataset columns", D_train.num_col())
   run.log_metadata("Dataset rows", D_train.num_row())
   run.log_metadata("Objective", params['objective'])
@@ -53,10 +55,10 @@ def run(params, D_train, num_boost_round=10, evals=None, run_options=None):
     run.log_metadata("Number of Test Sets", len(validation_sets))
 
   # check classification or regression
-  if params['Objective'] is None or params['Objective'].split(':')[0] == 'reg':
-    REGRESSION = True
-  else:
-    CLASSIFICATION = True
+  IS_REGRESSION = True  # XGB does regression by default, if flag false XGB does classification
+  if params['objective']:
+    if params['objective'].split(':')[0] != 'reg': # Possibly a more robust way of doing this?
+      IS_REGRESSION = False
 
   # set and log params, making sure to cross-reference XGB aliases
   for key in params:
@@ -72,5 +74,10 @@ def run(params, D_train, num_boost_round=10, evals=None, run_options=None):
   t_train = time.time() - t_start
   run.log_metric("Training time", t_train)
 
+  # record training metrics
+  if IS_REGRESSION:
+    compute_regression_metrics(run, bst, (D_train, 'Training Set'))
+  else:
+    compute_classification_metrics(run, bst, (D_train, 'Training Set'))
 
   return Context(run, bst)
