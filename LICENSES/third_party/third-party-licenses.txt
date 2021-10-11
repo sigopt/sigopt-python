@@ -945,10 +945,6 @@ ________________________________________________________________________________
    jmespath
    Copyright (c) 2013 Amazon.com, Inc. or its affiliates.  All Rights Reserved
 
-   krb5-libs
-   Copyright (C) 1985-2021 by the Massachusetts Institute of Technology
-   and its contributors.  All rights reserved.
-
    parso
    Copyright (c) <2013-2017> <David Halter and others, see AUTHORS.txt>
 
