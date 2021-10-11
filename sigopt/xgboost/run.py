@@ -44,7 +44,7 @@ def compute_regression_metrics(run, bst, D_matrix_pair):
 
 
 
-def run(params, D_train, num_boost_round=10, evals=None, run_options=None):
+def run(params, D_train, num_boost_round=10, evals=None, run_options=None, run=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
@@ -53,10 +53,12 @@ def run(params, D_train, num_boost_round=10, evals=None, run_options=None):
   assert type(D_train) is DMatrix
   assert type(evals) is DMatrix or list
 
-  # Parse evals argument: if DMatrix argument make instead a list of pairs (and will be None by default)
+  # Parse evals argument: if DMatrix argument make instead a list of a singleton pair (and will be None by default)
   validation_sets = [(evals, DEFAULT_EVALS_NAME)] if type(evals) is DMatrix else evals
 
-  run = create_run()
+  if run is not None:
+    run = create_run()
+
   run.log_model("XGBoost")
   run.log_metadata("_IS_XGB", 'True')
   run.log_metadata("Dataset columns", D_train.num_col())
@@ -90,5 +92,12 @@ def run(params, D_train, num_boost_round=10, evals=None, run_options=None):
     compute_regression_metrics(run, bst, (D_train, 'Training Set'))
   else:
     compute_classification_metrics(run, bst, (D_train, 'Training Set'))
+
+  # record validation metrics
+  for validation_set in validation_sets:
+    if IS_REGRESSION:
+      compute_regression_metrics(run, bst, validation_set)
+    else:
+      compute_classification_metrics(run, bst, validation_set)
 
   return Context(run, bst)
