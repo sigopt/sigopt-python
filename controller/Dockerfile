@@ -41,9 +41,8 @@ FROM updated-base
 RUN set -ex \
   ; BUILD_PKGS="cargo git gcc libffi-dev musl-dev openssl-dev rust" \
   ; apk add --no-cache $BUILD_PKGS \
-  ; pip install --upgrade --no-cache-dir git+https://github.com/sigopt/sigopt-python.git@sj/main \
   ; mkdir -p /src \
-  ; pip install --no-cache-dir kubernetes==12.0.1 pypng==0.0.20 git+https://github.com/sigopt/sigopt-python.git@sj/main \
+  ; pip install --upgrade --no-cache-dir kubernetes==12.0.1 pypng==0.0.20 git+https://github.com/sigopt/sigopt-python@d5c71dca6b754405f644e8f89214d823aa2e3f58 \
   ; apk del --purge $BUILD_PKGS \
   ; :
 
