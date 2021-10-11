@@ -44,13 +44,13 @@ def compute_regression_metrics(run, bst, D_matrix_pair):
 
 
 
-def run(params, D_train, num_boost_round=10, evals=None, run_options=None, run=None):
+def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
   and context.model are the resulting run and XGBoost model, respectively.
   """
-  assert type(D_train) is DMatrix
+  assert type(dtrain) is DMatrix
   assert type(evals) is DMatrix or list
 
   # Parse evals argument: if DMatrix argument make instead a list of a singleton pair (and will be None by default)
@@ -61,8 +61,8 @@ def run(params, D_train, num_boost_round=10, evals=None, run_options=None, run=N
 
   run.log_model("XGBoost")
   run.log_metadata("_IS_XGB", 'True')
-  run.log_metadata("Dataset columns", D_train.num_col())
-  run.log_metadata("Dataset rows", D_train.num_row())
+  run.log_metadata("Dataset columns", dtrain.num_col())
+  run.log_metadata("Dataset rows", dtrain.num_row())
   run.log_metadata("Objective", params['objective'])
   if validation_sets:
     run.log_metadata("Number of Test Sets", len(validation_sets))
@@ -83,15 +83,15 @@ def run(params, D_train, num_boost_round=10, evals=None, run_options=None, run=N
 
   # time training
   t_start = time.time()
-  bst = xgboost.train(params, D_train, num_boost_round)
+  bst = xgboost.train(params, dtrain, num_boost_round)
   t_train = time.time() - t_start
   run.log_metric("Training time", t_train)
 
   # record training metrics
   if IS_REGRESSION:
-    compute_regression_metrics(run, bst, (D_train, 'Training Set'))
+    compute_regression_metrics(run, bst, (dtrain, 'Training Set'))
   else:
-    compute_classification_metrics(run, bst, (D_train, 'Training Set'))
+    compute_classification_metrics(run, bst, (dtrain, 'Training Set'))
 
   # record validation metrics
   for validation_set in validation_sets:
