@@ -34,7 +34,7 @@ RUN set -ex \
   ; :
 
 
-FROM updated-base
+FROM updated-base AS pip-reqs
 
 # NOTE: the pip install attempts to install pypng==0.0.21 but for some reason that is not available in this container.
 # The sigopt reqs ask for pypng>=0.0.20 so there should theoretically be no issue.
@@ -46,9 +46,23 @@ RUN set -ex \
   ; apk del --purge $BUILD_PKGS \
   ; :
 
+RUN pip freeze > /pip-reqs.txt
+
+
+FROM python:3.9.6 AS pip-src
+
+COPY --from=pip-reqs /pip-reqs.txt /pip-reqs.txt
+
+RUN cat /pip-reqs.txt | grep -v '@' | xargs -P8 pip download --no-binary=:all: --no-cache-dir -d /src
+
+
+
+FROM pip-reqs
+
 RUN apk del apk-tools
 
 COPY --from=alpine-src /src/ /src/
+COPY --from=pip-src /src/ /src/
 
 COPY controller /usr/local/lib/python3.9/site-packages/controller
 
