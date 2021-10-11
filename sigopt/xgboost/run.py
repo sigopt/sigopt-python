@@ -1,9 +1,8 @@
 import xgboost
 from xgboost import DMatrix
-import numpy
-from sklearn.metrics import accuracy_score, classification_report, \
-  average_precision_score, mean_absolute_error, mean_squared_error
+
 from ..context import Context
+from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 from .. import create_run
 import time
 
@@ -16,45 +15,17 @@ XGB_ALIASES = \
      'reg_alpha': 'alpha'
   }
 
-
-def compute_classification_metrics(run, bst, D_matrix_pair):
-  D_matrix, D_name = D_matrix_pair
-  preds = bst.predict(D_matrix)
-  preds = numpy.round(preds)
-  y_test = D_matrix.get_label()
-  accuracy = accuracy_score(y_test, preds)
-  rep = classification_report(y_test, preds, output_dict=True, zero_division=0)
-  other_metrics = rep['weighted avg']
-
-  run.log_metric(f"{D_name}: accuracy", accuracy)
-  run.log_metric(f"{D_name}: F1", other_metrics['f1-score'])
-  run.log_metric(f"{D_name}: recall", other_metrics['recall'])
-  run.log_metric(f"{D_name}: precision", other_metrics['precision'])
-  run.log_metric(f"{D_name}: AUPRC", average_precision_score(y_test, preds))
-
-
-def compute_regression_metrics(run, bst, D_matrix_pair):
-  D_matrix, D_name = D_matrix_pair
-  preds = bst.predict(D_matrix)
-  preds = numpy.round(preds)
-  y_test = D_matrix.get_label()
-
-  run.log_metric(f"{D_name}: MAE", mean_absolute_error(y_test, preds))
-  run.log_metric(f"{D_name}: MSE", mean_squared_error(y_test, preds))
-
-
-
 def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
   and context.model are the resulting run and XGBoost model, respectively.
   """
-  assert type(dtrain) is DMatrix
-  assert type(evals) is DMatrix or list
+  assert isinstance(evals, DMatrix)
+  assert isinstance(evals, DMatrix) or list
 
   # Parse evals argument: if DMatrix argument make instead a list of a singleton pair (and will be None by default)
-  validation_sets = [(evals, DEFAULT_EVALS_NAME)] if type(evals) is DMatrix else evals
+  validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
 
   if run is not None:
     run = create_run()
