@@ -1,9 +1,10 @@
 FROM python:3.9.6-alpine3.14 AS updated-base
 
+RUN apk del krb5-conf krb5-libs
 
-# NOTE: packages to update are busybox, krb5-libs, libretls and openssl.
+# NOTE: packages to update are busybox, libretls and openssl.
 # all dependencies and exact versions are mentioned here so that we can ensure the correct sources are downloaded for licensing.
-ENV UPDATED_PKGS "busybox=1.33.1-r3 krb5-libs=1.18.4-r0 libcrypto1.1=1.1.1l-r0 libretls=3.3.3p1-r2 libssl1.1=1.1.1l-r0 openssl=1.1.1l-r0 ssl_client=1.33.1-r3"
+ENV UPDATED_PKGS "busybox=1.33.1-r3 libcrypto1.1=1.1.1l-r0 libretls=3.3.3p1-r2 libssl1.1=1.1.1l-r0 openssl=1.1.1l-r0 ssl_client=1.33.1-r3"
 
 RUN set -ex \
   ; apk update --no-cache \
@@ -22,7 +23,7 @@ RUN git clone --depth=1 --branch=v3.14.0 git://git.alpinelinux.org/aports
 RUN mkdir -p /src
 
 # NOTE: https://pkgs.alpinelinux.org/packages shows that for each of the updated packages these source packages are listed as the origin.
-ENV SRC_PKGS "busybox krb5 libretls openssl"
+ENV SRC_PKGS "busybox libretls openssl"
 
 RUN set -ex \
   ; for pkg in $SRC_PKGS \
