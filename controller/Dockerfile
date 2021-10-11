@@ -50,6 +50,8 @@ RUN apk del apk-tools
 
 COPY --from=alpine-src /src/ /src/
 
+RUN pip freeze | grep -v '@' | xargs pip download --no-binary=:all: --no-cache-dir -d /src
+
 COPY controller /usr/local/lib/python3.9/site-packages/controller
 
 RUN adduser -S controller
