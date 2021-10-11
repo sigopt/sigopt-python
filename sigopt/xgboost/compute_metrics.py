@@ -15,7 +15,7 @@ def compute_classification_metrics(run, bst, D_matrix_pair):
   run.log_metric(f"{D_name}: F1", other_metrics['f1-score'])
   run.log_metric(f"{D_name}: recall", other_metrics['recall'])
   run.log_metric(f"{D_name}: precision", other_metrics['precision'])
-  run.log_metric(f"{D_name}: AUPRC", average_precision_score(y_test, preds))
+  # run.log_metric(f"{D_name}: AUPRC", average_precision_score(y_test, preds))
 
 
 def compute_regression_metrics(run, bst, D_matrix_pair):

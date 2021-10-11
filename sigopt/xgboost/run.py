@@ -21,13 +21,12 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=No
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
   and context.model are the resulting run and XGBoost model, respectively.
   """
-  assert isinstance(evals, DMatrix)
-  assert isinstance(evals, DMatrix) or list
+  assert isinstance(evals, DMatrix) or isinstance(evals, list)
 
   # Parse evals argument: if DMatrix argument make instead a list of a singleton pair (and will be None by default)
   validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
 
-  if run is not None:
+  if run is None:
     run = create_run()
 
   run.log_model("XGBoost")
