@@ -1,12 +1,21 @@
+import time
+import sys
+import platform
+import copy
+
 import xgboost
 from xgboost import DMatrix
 
 from ..context import Context
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 from .. import create_run
-import time
 
 DEFAULT_EVALS_NAME = 'Test Set'
+DEFAULT_RUN_OPTIONS = {
+  'log_sys_info': True,
+  'log_stdout': True,
+  'log_stderr': True
+}
 XGB_ALIASES = \
   {
      'learning_rate': 'eta',
@@ -15,19 +24,36 @@ XGB_ALIASES = \
      'reg_alpha': 'alpha'
   }
 
+
+# TODO: (not sure if needed) check that run_option values are all accepted
+def parse_run_options(run_options):
+  if run_options:
+    assert run_options.keys() <= DEFAULT_RUN_OPTIONS.keys(), 'Unsupported argument inside run_options'
+  run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
+  return run_options_parsed
+
+
 def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
   and context.model are the resulting run and XGBoost model, respectively.
   """
-  assert isinstance(evals, DMatrix) or isinstance(evals, list)
+  if evals:
+    assert isinstance(evals, DMatrix) or isinstance(evals, list), 'evals must be a Dmatrix of list of (Dmatrix, string) pairs'
+
+  run_options_parsed = parse_run_options(run_options)
 
   # Parse evals argument: if DMatrix argument make instead a list of a singleton pair (and will be None by default)
   validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
 
   if run is None:
     run = create_run()
+
+  if run_options_parsed['log_sys_info']:
+    python_version = platform.python_version()
+    run.log_metadata("Python Version", python_version)
+    run.log_metadata("XGBoost Version", xgboost.__version__)
 
   run.log_model("XGBoost")
   run.log_metadata("_IS_XGB", 'True')
@@ -37,6 +63,7 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=No
   if validation_sets:
     run.log_metadata("Number of Test Sets", len(validation_sets))
 
+
   # check classification or regression
   IS_REGRESSION = True  # XGB does regression by default, if flag false XGB does classification
   if params['objective']:
@@ -44,11 +71,14 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=No
       IS_REGRESSION = False
 
   # set and log params, making sure to cross-reference XGB aliases
-  for key in params:
+  for key, value in params.items():
+    log_value = copy.deepcopy(value) # overkill for most things but this value may be a list for whatever reason
+    if isinstance(log_value, (list, bool)):
+      log_value = str(log_value)
     if key in XGB_ALIASES.keys():
-      setattr(run.params, XGB_ALIASES[key], params[key])
+      setattr(run.params, XGB_ALIASES[key], log_value)
     else:
-      setattr(run.params, key, params[key])
+      setattr(run.params, key, log_value)
   run.params.num_boost_round = num_boost_round
 
   # time training
@@ -64,10 +94,11 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=No
     compute_classification_metrics(run, bst, (dtrain, 'Training Set'))
 
   # record validation metrics
-  for validation_set in validation_sets:
-    if IS_REGRESSION:
-      compute_regression_metrics(run, bst, validation_set)
-    else:
-      compute_classification_metrics(run, bst, validation_set)
+  if validation_sets:
+    for validation_set in validation_sets:
+      if IS_REGRESSION:
+        compute_regression_metrics(run, bst, validation_set)
+      else:
+        compute_classification_metrics(run, bst, validation_set)
 
   return Context(run, bst)
