@@ -4,6 +4,7 @@ commands:
   setup:
     steps:
       - checkout
+      - run: sudo pip install --upgrade pip setuptools
       - run: sudo make update
   test:
     steps:
