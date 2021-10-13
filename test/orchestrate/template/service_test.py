@@ -32,7 +32,6 @@ class TestTemplateService(object):
     # Ensure that the newline is preceded by a backslash, so Dockerfile doesn't interpret it as a new command
     assert 'ENV SIGOPT_HOME "\\\nCOPY ."' in rendered
 
-  @pytest.mark.skip(reason="chevron doesn't handle quotes gracefully")
   def test_dockerfile_escape_backslash(self, template_service):
     rendered = template_service.render_dockerfile_template_from_file('model_packer/Dockerfile.ms', dict(
       sigopt_home='echo ""\\',
@@ -40,7 +39,6 @@ class TestTemplateService(object):
     # Ensure that the trailing backslash is escaped, and not interpreted as an escape sequence for the newline
     assert 'ENV SIGOPT_HOME "echo ""\\\\"\n' in rendered
 
-  @pytest.mark.skip(reason="chevron doesn't handle quotes gracefully")
   def test_yaml_escape_quotes(self, template_service):
     rendered = template_service.render_yaml_template_from_file('test.yml.ms', dict(
       endpoint_url='"', base64_encoded_ca_cert='"',
