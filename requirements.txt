@@ -9,6 +9,6 @@ ipython>=5.0.0
 kubernetes>=12.0.1,<13.0.0
 pyOpenSSL>=20.0.0
 pypng>=0.0.20
-pystache>=0.5.4,<0.6.0
+chevron>=0.14.0
 requests>=2.25.0,<3.0.0
 rsa>=4.7,<5.0.0

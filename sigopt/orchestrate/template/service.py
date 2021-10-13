@@ -1,4 +1,4 @@
-import pystache
+import chevron
 
 from ..services.base import Service
 
@@ -8,14 +8,14 @@ class TemplateService(Service):
     return s.replace('\\', '\\\\').replace('\n', '\\\n')
 
   def render_dockerfile_template_from_file(self, relative_filename, template_args):
-    renderer = pystache.Renderer(escape=self._dockerfile_escape)
+    renderer = chevron.render
     return self._raw_render_template_from_file(renderer, relative_filename, template_args)
 
   def _yaml_escape(self, s):
     return s.replace('\\', '\\\\').replace('"', '\\"')
 
   def render_yaml_template_from_file(self, relative_filename, template_args):
-    renderer = pystache.Renderer(escape=self._yaml_escape)
+    renderer = chevron.render
     return self._raw_render_template_from_file(renderer, relative_filename, template_args)
 
   def _raw_render_template_from_file(self, renderer, relative_filename, template_args):
