@@ -18,10 +18,8 @@ class TestTemplateService(object):
   def test_config_map(self, template_service):
     role_config_map = template_service.render_yaml_template_from_file('eks/config_map.yml.ms', dict(
       node_instance_role_arn="NODE_ROLE_ARN",
-      cluster_access_role=dict(
-        arn="CLUSTER_ROLE_ARN",
-        name="CLUSTER_ROLE_NAME",
-      ),
+      cluster_access_role_arn="CLUSTER_ROLE_ARN",
+      cluster_access_role_name="CLUSTER_ROLE_NAME",
     ))
     assert re.search(r'\s+(- )?rolearn: "NODE_ROLE_ARN"', role_config_map)
     assert re.search(r'\s+(- )?rolearn: "CLUSTER_ROLE_ARN"', role_config_map)
