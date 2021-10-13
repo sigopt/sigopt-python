@@ -12,5 +12,3 @@ pypng>=0.0.20
 pystache>=0.5.4,<0.6.0
 requests>=2.25.0,<3.0.0
 rsa>=4.7,<5.0.0
-xgboost>1.1.0
-sklearn

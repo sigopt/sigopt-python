@@ -4,6 +4,7 @@ import platform
 import copy
 
 import xgboost
+# pylint: disable=no-name-in-module
 from xgboost import DMatrix
 
 from ..context import Context
@@ -32,17 +33,17 @@ def parse_run_options(run_options):
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed
 
-
 def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
   and context.model are the resulting run and XGBoost model, respectively.
   """
-  if evals:
-    assert isinstance(evals, DMatrix) or isinstance(evals, list), 'evals must be a Dmatrix of list of (Dmatrix, string) pairs'
 
+  if evals:
+    assert isinstance(evals, (DMatrix, list)), 'evals must be a DMatrix or list of (DMatrix, string) pairs'
   run_options_parsed = parse_run_options(run_options)
+
 
   # Parse evals argument: if DMatrix argument make instead a list of a singleton pair (and will be None by default)
   validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
