@@ -20,7 +20,7 @@ class TemplateService(Service):
     return self._raw_render_template_from_file(self._yaml_escape, relative_filename, template_args)
 
   def _raw_render_template_from_file(self, escape, relative_filename, template_args):
-    template = self.services.resource_service.read('template', relative_filename)
+    template = self.services.resource_service.read('template', relative_filename).decode("utf-8")
     return chevron.render(
       template=template,
       data=self._escape_args(template_args, escape),
