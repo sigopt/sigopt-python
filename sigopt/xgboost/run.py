@@ -33,7 +33,6 @@ def parse_run_options(run_options):
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed
 
-
 def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
@@ -42,7 +41,7 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=No
   """
 
   if evals:
-    assert isinstance(evals, (DMatrix, list)), 'evals must be a Dmatrix of list of (Dmatrix, string) pairs'
+    assert isinstance(evals, (DMatrix, list)), 'evals must be a DMatrix or list of (DMatrix, string) pairs'
   run_options_parsed = parse_run_options(run_options)
 
 
