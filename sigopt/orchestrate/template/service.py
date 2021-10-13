@@ -21,7 +21,7 @@ class TemplateService(Service):
 
   def _raw_render_template_from_file(self, escape, relative_filename, template_args):
     template = self.services.resource_service.read('template', relative_filename)
-    return chevron.render({
-      "template": template,
-      "data": self._escape_args(template_args, escape),
-    })
+    return chevron.render(
+      template=template,
+      data=self._escape_args(template_args, escape),
+    )
