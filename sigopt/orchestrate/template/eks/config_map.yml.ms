@@ -10,9 +10,9 @@ data:
       groups:
         - system:bootstrappers
         - system:nodes
-  {{#cluster_access_role}}
-    - rolearn: "{{arn}}"
-      username: "{{name}}"
+  {{#cluster_access_role_arn}}
+    - rolearn: "{{cluster_access_role_arn}}"
+      username: "{{cluster_access_role_name}}"
       groups:
         - system:masters
-  {{/cluster_access_role}}
+  {{/cluster_access_role_arn}}

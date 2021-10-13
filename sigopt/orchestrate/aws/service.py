@@ -167,10 +167,8 @@ class AwsService(ProviderInterface):
       role_name = eks_cluster_stack_outputs["ClusterAccessRoleName"]
       role_config_map = self.services.template_service.render_yaml_template_from_file('eks/config_map.yml.ms', dict(
         node_instance_role_arn=node_instance_role_arn,
-        cluster_access_role=dict(
-          arn=role_arn,
-          name=role_name,
-        ),
+        cluster_access_role_arn=role_arn,
+        cluster_access_role_name=role_name,
       ))
       self.services.kubernetes_service.ensure_config_map(yaml.safe_load(role_config_map))
 
