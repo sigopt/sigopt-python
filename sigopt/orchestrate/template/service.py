@@ -1,4 +1,4 @@
-import chevron
+from sigopt.vendored import chevron
 
 from ..services.base import Service
 
