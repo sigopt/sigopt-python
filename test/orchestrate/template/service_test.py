@@ -1,7 +1,4 @@
-import re
-
 import pytest
-import yaml
 from mock import Mock
 
 from sigopt.orchestrate.resource.service import ResourceService
