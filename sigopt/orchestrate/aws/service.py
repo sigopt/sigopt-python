@@ -54,7 +54,7 @@ def make_role_config_map(node_instance_role_arn, cluster_access_role_arn, cluste
       "namespace": "kube-system",
     },
     "data": {
-      "mapRoles": yaml.dumps(map_roles),
+      "mapRoles": yaml.dump(map_roles),
     },
   }
 
