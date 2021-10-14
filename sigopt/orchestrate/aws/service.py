@@ -40,7 +40,7 @@ def make_role_config_map(node_instance_role_arn, cluster_access_role_arn, cluste
       "username": "system:node:{{EC2PrivateDNSName}}",
       "groups": ["system:bootstrappers", "system:nodes"],
     },
-    }
+    {
       "rolearn": cluster_access_role_arn,
       "username": cluster_access_role_name,
       "groups": ["system:masters"],
