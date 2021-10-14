@@ -33,6 +33,31 @@ def catch_aws_permissions_errors(func):
       raise
   return wrapper
 
+def make_role_config_map(node_instance_role_arn, cluster_access_role_arn, cluster_access_role_name):
+  map_roles = [
+    {
+      "rolearn": node_instance_role_arn,
+      "username": "system:node:{{EC2PrivateDNSName}}",
+      "groups": ["system:bootstrappers", "system:nodes"],
+    },
+    {
+      "rolearn": cluster_access_role_arn,
+      "username": cluster_access_role_name,
+      "groups": ["system:masters"],
+    },
+  ]
+  return {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "aws-auth",
+      "namespace": "kube-system",
+    },
+    "data": {
+      "mapRoles": yaml.dump(map_roles),
+    },
+  }
+
 class AwsService(ProviderInterface):
   def __init__(self, services, aws_services):
     super().__init__(services)
@@ -165,12 +190,12 @@ class AwsService(ProviderInterface):
       # NOTE(taylor): no reason to update the aws-auth config map yet
       role_arn = eks_cluster_stack_outputs["ClusterAccessRoleArn"]
       role_name = eks_cluster_stack_outputs["ClusterAccessRoleName"]
-      role_config_map = self.services.template_service.render_yaml_template_from_file('eks/config_map.yml.ms', dict(
+      role_config_map = make_role_config_map(
         node_instance_role_arn=node_instance_role_arn,
         cluster_access_role_arn=role_arn,
         cluster_access_role_name=role_name,
-      ))
-      self.services.kubernetes_service.ensure_config_map(yaml.safe_load(role_config_map))
+      )
+      self.services.kubernetes_service.ensure_config_map(role_config_map)
 
     self._disconnect_kubernetes_cluster(cluster_name=cluster_name)
 
