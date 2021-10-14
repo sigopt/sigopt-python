@@ -4,14 +4,8 @@ from ..services.base import Service
 
 
 class TemplateService(Service):
-  def _dockerfile_escape(self, s):
-    return s.replace('\\', '\\\\').replace('\n', '\\\n')
-
   def _escape_args(self, args, escape):
     return {k: escape(v) for k, v in args.items()}
-
-  def render_dockerfile_template_from_file(self, relative_filename, template_args):
-    return self._raw_render_template_from_file(self._dockerfile_escape, relative_filename, template_args)
 
   def _yaml_escape(self, s):
     return s.replace('\\', '\\\\').replace('"', '\\"')
