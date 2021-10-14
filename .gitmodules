@@ -1,3 +1,0 @@
-[submodule "sigopt/vendored/chevron"]
-	path = sigopt/vendored/chevron
-	url = https://github.com/taylorjacklespriggs/chevron-1.git
