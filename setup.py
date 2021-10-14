@@ -25,7 +25,6 @@ VERSION = version_contents['VERSION']
 
 with open(os.path.join(here, 'requirements.txt')) as requirements_fp:
   install_requires = requirements_fp.read().split('\n')
-install_requires.append("chevron @ git+https://github.com/taylorjacklespriggs/chevron@support-custom-escaping")
 with open(os.path.join(here, 'requirements-dev.txt')) as requirements_dev_fp:
   dev_install_requires = requirements_dev_fp.read().split('\n')
 
