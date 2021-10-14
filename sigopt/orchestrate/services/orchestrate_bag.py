@@ -11,7 +11,6 @@ from ..options_validator.service import OptionsValidatorService
 from ..provider.broker import ProviderBroker
 from ..resource.service import ResourceService
 from ..sigopt.service import SigOptService
-from ..template.service import TemplateService
 from .bag import ServiceBag
 
 
@@ -30,7 +29,6 @@ class OrchestrateServiceBag(ServiceBag):
     self.model_packer_service = ModelPackerService(self)
     self.options_validator_service = OptionsValidatorService(self)
     self.gpu_options_validator_service = GpuOptionsValidatorService(self)
-    self.template_service = TemplateService(self)
     self.sigopt_service = SigOptService(self)
 
   def _warmup_services(self):
