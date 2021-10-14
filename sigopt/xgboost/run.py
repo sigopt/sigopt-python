@@ -15,7 +15,8 @@ DEFAULT_EVALS_NAME = 'Test Set'
 DEFAULT_RUN_OPTIONS = {
   'log_sys_info': True,
   'log_stdout': True,
-  'log_stderr': True
+  'log_stderr': True,
+  'run': None
 }
 XGB_ALIASES = \
   {
@@ -33,7 +34,7 @@ def parse_run_options(run_options):
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed
 
-def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=None):
+def run(params, dtrain, num_boost_round=10, evals=None, run_options=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
@@ -48,7 +49,9 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None, run=No
   # Parse evals argument: if DMatrix argument make instead a list of a singleton pair (and will be None by default)
   validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
 
-  if run is None:
+  if run_options_parsed['run']:
+    run = run_options_parsed['run']
+  else:
     run = create_run()
 
   if run_options_parsed['log_sys_info']:
