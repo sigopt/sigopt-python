@@ -955,10 +955,6 @@ ________________________________________________________________________________
 
    pypng
 
-   pystache
-   Copyright (C) 2012 Chris Jerdonek.  All rights reserved.
-   Copyright (c) 2009 Chris Wanstrath
-
    PyYAML
    Copyright (c) 2017-2021 Ingy döt Net
    Copyright (c) 2006-2016 Kirill Simonov
