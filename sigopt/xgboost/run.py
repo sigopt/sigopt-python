@@ -9,7 +9,6 @@ from xgboost import DMatrix
 
 from ..context import Context
 from ..log_capture import SystemOutputStreamMonitor
-from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 from .. import create_run
 
 DEFAULT_EVALS_NAME = 'Test Set'
@@ -28,14 +27,13 @@ XGB_ALIASES = \
   }
 
 
-# TODO: (not sure if needed) check that run_option values are all accepted
 def parse_run_options(run_options):
   if run_options:
     assert run_options.keys() <= DEFAULT_RUN_OPTIONS.keys(), 'Unsupported argument inside run_options'
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed
 
-# TODO: add an internal _run class to clean up code?
+
 def run(params, dtrain, num_boost_round=10, evals=None, run_options=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
@@ -56,12 +54,11 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None):
   else:
     run = create_run()
 
+  # Log metadata
   if run_options_parsed['log_sys_info']:
     python_version = platform.python_version()
     run.log_metadata("Python Version", python_version)
     run.log_metadata("XGBoost Version", xgboost.__version__)
-
-
   run.log_model("XGBoost")
   run.log_metadata("_IS_XGB", 'True')
   run.log_metadata("Dataset columns", dtrain.num_col())
@@ -69,12 +66,6 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None):
   run.log_metadata("Objective", params['objective'])
   if validation_sets:
     run.log_metadata("Number of Test Sets", len(validation_sets))
-
-  # check classification or regression
-  IS_REGRESSION = True  # XGB does regression by default, if flag false XGB does classification
-  if params['objective']:
-    if params['objective'].split(':')[0] != 'reg': # Possibly a more robust way of doing this?
-      IS_REGRESSION = False
 
   # set and log params, making sure to cross-reference XGB aliases
   for key, value in params.items():
@@ -87,13 +78,10 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None):
       setattr(run.params, key, log_value)
   run.params.num_boost_round = num_boost_round
 
-  # time training, log stdout and stderr if necessary
+  # train XGB, log stdout/err if necessary
   stream_monitor = SystemOutputStreamMonitor()
   with stream_monitor:
-    t_start = time.time()
     bst = xgboost.train(params, dtrain, num_boost_round)
-    t_train = time.time() - t_start
-    run.log_metric("Training time", t_train)
   stream_data = stream_monitor.get_stream_data()
   if stream_data:
     stdout, stderr = stream_data
@@ -103,19 +91,5 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None):
     if run_options_parsed['log_stderr']:
       log_dict["stderr"] = stderr
     run.set_logs(log_dict)
-
-  # record training metrics
-  if IS_REGRESSION:
-    compute_regression_metrics(run, bst, (dtrain, 'Training Set'))
-  else:
-    compute_classification_metrics(run, bst, (dtrain, 'Training Set'))
-
-  # record validation metrics
-  if validation_sets:
-    for validation_set in validation_sets:
-      if IS_REGRESSION:
-        compute_regression_metrics(run, bst, validation_set)
-      else:
-        compute_classification_metrics(run, bst, validation_set)
 
   return Context(run, bst)
