@@ -45,9 +45,18 @@ jobs:
 
 workflows:
   main:
-    jobs:
+    jobs: &jobs
       - test-36
       - test-37
       - test-38
       - test-39
       - lint
+  rot-check:
+    jobs: *jobs
+    triggers:
+      - schedule:
+          cron: "0 8,16 * * *"
+          filters:
+            branches:
+              only:
+                - master
