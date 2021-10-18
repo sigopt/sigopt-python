@@ -1,11 +1,30 @@
 import os
 import shutil
+import shlex
 
 from sigopt.config import config as sigopt_config
 
 from ..common import TemporaryDirectory
 from ..services.base import Service
 
+
+def create_model_packer_dockerfile(
+  base_image,
+  verify_ssl_certs,
+  no_verify_ssl_certs,
+  sigopt_home,
+):
+  lines = []
+  lines.append(f"FROM {shlex.quote(base_image)}")
+  lines.append("LABEL orchestrate-user-created=true")
+  lines.append("COPY . /")
+  if verify_ssl_certs:
+    lines.append(f"ENV SIGOPT_API_VERIFY_SSL_CERTS {shlex.quote(verify_ssl_certs)}")
+  if no_verify_ssl_certs:
+    lines.append(f"ENV SIGOPT_API_NO_VERIFY_SSL_CERTS {shlex.quote(no_verify_ssl_certs)}")
+  if sigopt_home:
+    lines.append(f"ENV SIGOPT_HOME {shlex.quote(sigopt_home)}")
+  return "".join(f"{l}\n" for l in lines)
 
 class ModelPackerService(Service):
   def build_image(
@@ -59,14 +78,11 @@ class ModelPackerService(Service):
         return docker_service.build(
           tag=docker_service.format_image_name(repository, tag),
           directory=root_dirname,
-          dockerfile_contents=self.services.template_service.render_dockerfile_template_from_file(
-            'model_packer/Dockerfile.ms',
-            dict(
-              base_image=user_image_tag,
-              verify_ssl_certs=verify_ssl_certs,
-              no_verify_ssl_certs=no_verify_ssl_certs,
-              sigopt_home=sigopt_home,
-            ),
+          dockerfile_contents=create_model_packer_dockerfile(
+            base_image=user_image_tag,
+            verify_ssl_certs=verify_ssl_certs,
+            no_verify_ssl_certs=no_verify_ssl_certs,
+            sigopt_home=sigopt_home,
           ),
           quiet=quiet,
           show_all_logs=False,
