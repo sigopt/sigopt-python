@@ -945,10 +945,6 @@ ________________________________________________________________________________
    jmespath
    Copyright (c) 2013 Amazon.com, Inc. or its affiliates.  All Rights Reserved
 
-   krb5-libs
-   Copyright (C) 1985-2021 by the Massachusetts Institute of Technology
-   and its contributors.  All rights reserved.
-
    parso
    Copyright (c) <2013-2017> <David Halter and others, see AUTHORS.txt>
 
@@ -958,10 +954,6 @@ ________________________________________________________________________________
    pyparser
 
    pypng
-
-   pystache
-   Copyright (C) 2012 Chris Jerdonek.  All rights reserved.
-   Copyright (c) 2009 Chris Wanstrath
 
    PyYAML
    Copyright (c) 2017-2021 Ingy döt Net
