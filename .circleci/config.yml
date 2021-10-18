@@ -59,8 +59,7 @@ jobs:
     steps:
       - run:
           name: Success
-          command: |
-            exit 0
+          command: exit 0
 
 workflows:
   main:
