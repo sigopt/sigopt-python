@@ -51,3 +51,10 @@ workflows:
       - test-38
       - test-39
       - lint
+    triggers:
+      - schedule:
+          cron: "5 * * * *"
+          filters:
+            branches:
+              only:
+                - master
