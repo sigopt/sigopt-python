@@ -71,14 +71,14 @@ workflows:
       - test-39
       - lint
       - final-catch-all:
-        context: slack-secret
-        requires:
-          - test-36
-          - test-37
-          - test-38
-          - test-39
-          - lint
-        post-steps: *slack-fail-post-step
+          context: slack-secret
+          requires:
+            - test-36
+            - test-37
+            - test-38
+            - test-39
+            - lint
+          post-steps: *slack-fail-post-step
 
   rot-check:
     jobs: *jobs
