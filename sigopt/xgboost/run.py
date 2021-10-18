@@ -34,6 +34,64 @@ def parse_run_options(run_options):
   return run_options_parsed
 
 
+class XGBRun:
+
+  def __init__(self, params, dtrain, num_boost_round, evals, run_options):
+    self.params = params
+    self.dtrain = dtrain
+    self.num_boost_round = num_boost_round
+    self.evals = evals
+    self.run_options_parsed = parse_run_options(run_options)
+    self.validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
+
+  def make_run(self):
+    if self.run_options_parsed['run']:
+      self.run = self.run_options_parsed['run']
+    else:
+      self.run = create_run()
+
+  def log_metadata(self):
+    if self.run_options_parsed['log_sys_info']:
+      python_version = platform.python_version()
+      self.run.log_metadata("Python Version", python_version)
+      self.run.log_metadata("XGBoost Version", xgboost.__version__)
+    self.run.log_model("XGBoost")
+    self.run.log_metadata("_IS_XGB", 'True')
+    self.run.log_metadata("Dataset columns", self.dtrain.num_col())
+    self.run.log_metadata("Dataset rows", self.dtrain.num_row())
+    self.run.log_metadata("Objective", self.params['objective'])
+    if self.validation_sets:
+      self.run.log_metadata("Number of Test Sets", len(self.validation_sets))
+
+  def log_params(self):
+    # set and log params, making sure to cross-reference XGB aliases
+    for key, value in self.params.items():
+      log_value = copy.deepcopy(value)  # overkill for most things but this value may be a list for whatever reason
+      if isinstance(log_value, (list, bool)):
+        log_value = str(log_value)
+      if key in XGB_ALIASES.keys():
+        setattr(self.run.params, XGB_ALIASES[key], log_value)
+      else:
+        setattr(self.run.params, key, log_value)
+    self.run.params.num_boost_round = self.num_boost_round
+
+  def train_xgb(self):
+    # train XGB, log stdout/err if necessary
+    stream_monitor = SystemOutputStreamMonitor()
+    with stream_monitor:
+      bst = xgboost.train(self.params, self.dtrain, self.num_boost_round)
+    stream_data = stream_monitor.get_stream_data()
+    if stream_data:
+      stdout, stderr = stream_data
+      log_dict = {}
+      if self.run_options_parsed['log_stdout']:
+        log_dict["stdout"] = stdout
+      if self.run_options_parsed['log_stderr']:
+        log_dict["stderr"] = stderr
+      self.run.set_logs(log_dict)
+    return bst
+
+
 def run(params, dtrain, num_boost_round=10, evals=None, run_options=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
@@ -43,53 +101,10 @@ def run(params, dtrain, num_boost_round=10, evals=None, run_options=None):
 
   if evals:
     assert isinstance(evals, (DMatrix, list)), 'evals must be a DMatrix or list of (DMatrix, string) pairs'
-  run_options_parsed = parse_run_options(run_options)
 
-
-  # Parse evals argument: if DMatrix argument make instead a list of a singleton pair (and will be None by default)
-  validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
-
-  if run_options_parsed['run']:
-    run = run_options_parsed['run']
-  else:
-    run = create_run()
-
-  # Log metadata
-  if run_options_parsed['log_sys_info']:
-    python_version = platform.python_version()
-    run.log_metadata("Python Version", python_version)
-    run.log_metadata("XGBoost Version", xgboost.__version__)
-  run.log_model("XGBoost")
-  run.log_metadata("_IS_XGB", 'True')
-  run.log_metadata("Dataset columns", dtrain.num_col())
-  run.log_metadata("Dataset rows", dtrain.num_row())
-  run.log_metadata("Objective", params['objective'])
-  if validation_sets:
-    run.log_metadata("Number of Test Sets", len(validation_sets))
-
-  # set and log params, making sure to cross-reference XGB aliases
-  for key, value in params.items():
-    log_value = copy.deepcopy(value) # overkill for most things but this value may be a list for whatever reason
-    if isinstance(log_value, (list, bool)):
-      log_value = str(log_value)
-    if key in XGB_ALIASES.keys():
-      setattr(run.params, XGB_ALIASES[key], log_value)
-    else:
-      setattr(run.params, key, log_value)
-  run.params.num_boost_round = num_boost_round
-
-  # train XGB, log stdout/err if necessary
-  stream_monitor = SystemOutputStreamMonitor()
-  with stream_monitor:
-    bst = xgboost.train(params, dtrain, num_boost_round)
-  stream_data = stream_monitor.get_stream_data()
-  if stream_data:
-    stdout, stderr = stream_data
-    log_dict = {}
-    if run_options_parsed['log_stdout']:
-      log_dict["stdout"] = stdout
-    if run_options_parsed['log_stderr']:
-      log_dict["stderr"] = stderr
-    run.set_logs(log_dict)
-
-  return Context(run, bst)
+  _run = XGBRun(params, dtrain, num_boost_round, evals, run_options)
+  _run.make_run()
+  _run.log_metadata()
+  _run.log_params()
+  bst = _run.train_xgb()
+  return Context(_run.run, bst)
