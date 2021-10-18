@@ -15,13 +15,6 @@ DEFAULT_RUN_OPTIONS = {
   'log_stderr': True,
   'run': None
 }
-XGB_ALIASES = \
-  {
-     'learning_rate': 'eta',
-     'min_split_loss': 'gamma',
-     'reg_lambda': 'lambda',
-     'reg_alpha': 'alpha'
-  }
 
 
 def parse_run_options(run_options):
