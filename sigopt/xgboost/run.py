@@ -1,5 +1,3 @@
-import time
-import sys
 import platform
 import copy
 
@@ -43,6 +41,7 @@ class XGBRun:
     self.evals = evals
     self.run_options_parsed = parse_run_options(run_options)
     self.validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
+    self.run = None
 
   def make_run(self):
     if self.run_options_parsed['run']:
