@@ -55,8 +55,8 @@ workflows:
     jobs: *jobs
     triggers:
       - schedule:
-          cron: "5 * * * *"
+          cron: "0 8,16 * * *"
           filters:
             branches:
               only:
-                - twice-daily-testing
+                - master
