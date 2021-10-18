@@ -1,5 +1,4 @@
 import platform
-import copy
 
 import xgboost
 # pylint: disable=no-name-in-module
@@ -58,20 +57,18 @@ class XGBRun:
     self.run.log_metadata("_IS_XGB", 'True')
     self.run.log_metadata("Dataset columns", self.dtrain.num_col())
     self.run.log_metadata("Dataset rows", self.dtrain.num_row())
-    self.run.log_metadata("Objective", self.params['objective'])
+    if 'objective' in self.params:
+      self.run.log_metadata("Objective", self.params['objective'])
+    if 'eval_metric' in self.params:
+      self.run.log_metadata("Objective", self.params['eval_metric'])
     if self.validation_sets:
       self.run.log_metadata("Number of Test Sets", len(self.validation_sets))
+      for pair in self.validation_sets:
+        self.run.log_dataset(pair[1])
 
   def log_params(self):
     # set and log params, making sure to cross-reference XGB aliases
-    for key, value in self.params.items():
-      log_value = copy.deepcopy(value)  # overkill for most things but this value may be a list for whatever reason
-      if isinstance(log_value, (list, bool)):
-        log_value = str(log_value)
-      if key in XGB_ALIASES.keys():
-        setattr(self.run.params, XGB_ALIASES[key], log_value)
-      else:
-        setattr(self.run.params, key, log_value)
+    self.run.params.update(self.params)
     self.run.params.num_boost_round = self.num_boost_round
 
   def train_xgb(self):
