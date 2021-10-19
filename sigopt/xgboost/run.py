@@ -16,6 +16,8 @@ DEFAULT_RUN_OPTIONS = {
   'log_checkpoints': True,
   'run': None
 }
+MIN_CHECKPOINT_PERIOD = 5
+MAX_NUM_CHECKPOINTS = 200
 
 
 def parse_run_options(run_options):
@@ -25,23 +27,37 @@ def parse_run_options(run_options):
   return run_options_parsed
 
 
-class SigOptCheckpointCallback(xgboost.callback.EvaluationMonitor):
-  def __init__(self, run, rank=0, period=1):
+class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
+  def __init__(self, run, period=1):
     self.run = run
-    super().__init__(rank, period)
+    self.period = period
+    self._latest = None
+    super().__init__()
 
   def after_iteration(self, model, epoch, evals_log):
-    super().after_iteration(model, epoch, evals_log)
+    if not evals_log:
+      return False
+
     checkpoint_logs = {}
     for data, metric in evals_log.items():
       for metric_name, log in metric.items():
         if isinstance(log[-1], tuple):
-            score = log[-1][0]
+          score = log[-1][0]
         else:
-            score = log[-1]
+          score = log[-1]
         checkpoint_logs.update({'-'.join((data, metric_name)): score})
     if (epoch % self.period) == 0 or self.period == 1:
       self.run.log_checkpoint(checkpoint_logs)
+      self._latest = None
+    else:
+      self._latest = checkpoint_logs
+
+    return False
+
+  def after_training(self, model):
+    if self._latest is not None:
+      self.run.log_checkpoint(self._latest)
+    return model
 
 
 class XGBRun:
@@ -62,7 +78,12 @@ class XGBRun:
 
     if self.callbacks is None:
       self.callbacks = []
-    period = max(5, (self.num_boost_round + 1) // 200)
+    period = MIN_CHECKPOINT_PERIOD
+    if self.callbacks:
+      for cb in self.callbacks:
+        if isinstance(cb, xgboost.callback.EvaluationMonitor):
+          period = cb.period
+    period = max(period, (self.num_boost_round + 1) // MAX_NUM_CHECKPOINTS)
     sigopt_checkpoint_callback = SigOptCheckpointCallback(self.run, period=period)
     self.callbacks.append(sigopt_checkpoint_callback)
 
@@ -102,11 +123,18 @@ class XGBRun:
 
     self.run.params.num_boost_round = self.num_boost_round
 
-  def train_xgb(self):
+  def train_xgb(self, verbose_eval):
     # train XGB, log stdout/err if necessary
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
-      bst = xgboost.train(self.params, self.dtrain, self.num_boost_round, verbose_eval=True)
+      bst = xgboost.train(
+        self.params,
+        self.dtrain,
+        self.num_boost_round,
+        evals=self.validation_sets,
+        verbose_eval=verbose_eval,
+        callbacks=self.callbacks,
+      )
     stream_data = stream_monitor.get_stream_data()
     if stream_data:
       stdout, stderr = stream_data
@@ -119,7 +147,7 @@ class XGBRun:
     return bst
 
 
-def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, run_options=None):
+def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_eval=True, run_options=None):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
@@ -133,5 +161,6 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, run_opti
   _run.make_run()
   _run.log_metadata()
   _run.log_params()
-  bst = _run.train_xgb()
+  _run.combine_callbacks()
+  bst = _run.train_xgb(verbose_eval)
   return Context(_run.run, bst)
