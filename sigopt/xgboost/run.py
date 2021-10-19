@@ -60,7 +60,7 @@ class XGBRun:
         self.run.log_dataset(pair[1])
 
   def log_params(self):
-    # Not logging eval_metric since it's already loggged as meta
+    # Not logging eval_metric since it's already logged as meta
     if 'eval_metric' in self.params:
       eval_metric = self.params['eval_metric']
       self.params.pop('eval_metric')
@@ -75,7 +75,7 @@ class XGBRun:
     # train XGB, log stdout/err if necessary
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
-      bst = xgboost.train(self.params, self.dtrain, self.num_boost_round, verbose_evals=True)
+      bst = xgboost.train(self.params, self.dtrain, self.num_boost_round)
     stream_data = stream_monitor.get_stream_data()
     if stream_data:
       stdout, stderr = stream_data
