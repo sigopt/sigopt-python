@@ -5,6 +5,7 @@ dist/
 *.egg-info/
 *~
 venv/
+tags
 # PyCharm related stuff
 .idea*
 .cache/

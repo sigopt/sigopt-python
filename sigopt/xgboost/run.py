@@ -53,22 +53,29 @@ class XGBRun:
     if 'objective' in self.params:
       self.run.log_metadata("Objective", self.params['objective'])
     if 'eval_metric' in self.params:
-      self.run.log_metadata("Objective", self.params['eval_metric'])
+      self.run.log_metadata("Eval Metric", self.params['eval_metric'])
     if self.validation_sets:
       self.run.log_metadata("Number of Test Sets", len(self.validation_sets))
       for pair in self.validation_sets:
         self.run.log_dataset(pair[1])
 
   def log_params(self):
-    # set and log params, making sure to cross-reference XGB aliases
-    self.run.params.update(self.params)
+    # Not logging eval_metric since it's already loggged as meta
+    if 'eval_metric' in self.params:
+      eval_metric = self.params['eval_metric']
+      self.params.pop('eval_metric')
+      self.run.params.update(self.params)
+      self.params.update({'eval_metric': eval_metric})
+    else:
+      self.run.params.update(self.params)
+
     self.run.params.num_boost_round = self.num_boost_round
 
   def train_xgb(self):
     # train XGB, log stdout/err if necessary
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
-      bst = xgboost.train(self.params, self.dtrain, self.num_boost_round)
+      bst = xgboost.train(self.params, self.dtrain, self.num_boost_round, verbose_evals=True)
     stream_data = stream_monitor.get_stream_data()
     if stream_data:
       stdout, stderr = stream_data
