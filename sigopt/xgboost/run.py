@@ -62,17 +62,18 @@ class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
 
 class XGBRun:
 
-  def __init__(self, params, dtrain, num_boost_round, evals, callbacks, run_options):
+  def __init__(self, params, dtrain, num_boost_round, evals, verbose_eval, callbacks, run_options):
     self.params = params
     self.dtrain = dtrain
     self.num_boost_round = num_boost_round
     self.evals = evals
-    self.run_options_parsed = parse_run_options(run_options)
+    self.verbose_eval = verbose_eval
     self.callbacks = callbacks
     self.validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
+    self.run_options_parsed = parse_run_options(run_options)
     self.run = None
 
-  def combine_callbacks(self):
+  def form_callbacks(self):
     if not self.run_options_parsed['log_checkpoints']:
       return
 
@@ -83,6 +84,8 @@ class XGBRun:
       for cb in self.callbacks:
         if isinstance(cb, xgboost.callback.EvaluationMonitor):
           period = cb.period
+    if self.verbose_eval:
+      period = 1 if self.verbose_eval is True else self.verbose_eval
     period = max(period, (self.num_boost_round + 1) // MAX_NUM_CHECKPOINTS)
     sigopt_checkpoint_callback = SigOptCheckpointCallback(self.run, period=period)
     self.callbacks.append(sigopt_checkpoint_callback)
@@ -123,7 +126,7 @@ class XGBRun:
 
     self.run.params.num_boost_round = self.num_boost_round
 
-  def train_xgb(self, verbose_eval):
+  def train_xgb(self):
     # train XGB, log stdout/err if necessary
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
@@ -132,7 +135,7 @@ class XGBRun:
         self.dtrain,
         self.num_boost_round,
         evals=self.validation_sets,
-        verbose_eval=verbose_eval,
+        verbose_eval=self.verbose_eval,
         callbacks=self.callbacks,
       )
     stream_data = stream_monitor.get_stream_data()
@@ -157,10 +160,10 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   if evals:
     assert isinstance(evals, (DMatrix, list)), 'evals must be a DMatrix or list of (DMatrix, string) pairs'
 
-  _run = XGBRun(params, dtrain, num_boost_round, evals, callbacks, run_options)
+  _run = XGBRun(params, dtrain, num_boost_round, evals, verbose_eval, callbacks, run_options)
   _run.make_run()
   _run.log_metadata()
   _run.log_params()
-  _run.combine_callbacks()
-  bst = _run.train_xgb(verbose_eval)
+  _run.form_callbacks()
+  bst = _run.train_xgb()
   return Context(_run.run, bst)
