@@ -1,5 +1,15 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.4.4
+
+slack-fail-post-step: &slack-fail-post-step
+  - slack/notify:
+      branch_pattern: master
+      channel: eng
+      event: fail
+      template: basic_fail_1
+
 commands:
   setup:
     steps:
@@ -43,6 +53,14 @@ jobs:
     steps:
       - test
 
+  final-catch-all:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Success
+          command: exit 0
+
 workflows:
   main:
     jobs: &jobs
@@ -51,6 +69,16 @@ workflows:
       - test-38
       - test-39
       - lint
+      - final-catch-all:
+          context: slack-secret
+          requires:
+            - test-36
+            - test-37
+            - test-38
+            - test-39
+            - lint
+          post-steps: *slack-fail-post-step
+
   rot-check:
     jobs: *jobs
     triggers:
