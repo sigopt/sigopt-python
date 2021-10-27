@@ -32,8 +32,6 @@ class TestXGBoost(object):
   def test_run(self):
     ctx = sigopt.xgboost.run(**xgb_params)
     run = sigopt.get_run(ctx.run.id)
-    print(run)
-
     assert run.metadata['Dataset columns'] == 4
     assert run.metadata['Dataset rows'] == 120
     assert run.metadata['Eval Metric'] == "['mlogloss', 'merror']"
