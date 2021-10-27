@@ -107,3 +107,6 @@ class SigOptFactory(BaseRunFactory):
 
   def unarchive_run(self, run_id):
     self.connection.training_runs(run_id).update(deleted=False)
+
+  def get_run(self, run_id):
+    return self.connection.training_runs(run_id).fetch()

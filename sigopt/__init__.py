@@ -29,6 +29,7 @@ archive_experiment = _global_factory.archive_experiment
 unarchive_experiment = _global_factory.unarchive_experiment
 archive_run = _global_factory.archive_run
 unarchive_run = _global_factory.unarchive_run
+get_run = _global_factory.get_run
 
 
 def load_ipython_extension(ipython):
