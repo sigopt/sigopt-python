@@ -23,6 +23,8 @@ DEFAULT_RUN_OPTIONS = {
 }
 MIN_CHECKPOINT_PERIOD = 5
 MAX_NUM_CHECKPOINTS = 200
+FEATURE_IMPORTANCE_MAX_NUM_FEATURE = 50
+
 PARAMS_LOGGED_AS_METADATA = [
   'eval_metric',
   'objective',
@@ -193,6 +195,16 @@ class XGBRun:
     for dataset, metric_dict in self.evals_result.items():
       for metric_label, metric_record in metric_dict.items():
         self.run.log_metric(f"{dataset}-{metric_label}", metric_record[-1])
+
+    scores = bst.get_score(importance_type='weight', fmap='')
+    scores = dict(sorted(scores.items(), key=lambda x:-x[1])[:FEATURE_IMPORTANCE_MAX_NUM_FEATURE])
+    fp = {
+      'type': 'weight',
+      'scores': scores
+    }
+    # TODO: remove mode
+    self.run.log_sys_metadata('feature_importance', fp, mode='metadata')
+    return bst
 
 
 def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_eval=True, run_options=None):
