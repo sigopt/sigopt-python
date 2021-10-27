@@ -1552,3 +1552,9 @@ ________________________________________________________________________________
    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
    OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+20.  Docker base images
+
+This Intel software uses the following base image(s):
+  - python:3.9.6-alpine3.14 from https://hub.docker.com/layers/python/library/python/3.9.6-alpine3.14/images/sha256-f624a022976a70f6862ee66bec9b900e097b814086a8057bee4ed96a4bbaa2b5
+  - python:3.9.6 from https://hub.docker.com/layers/python/library/python/3.9.6/images/sha256-736b76eb3f64778646ce0051fb5fed4dfbf67016e51563946230ca8bb40ac687
