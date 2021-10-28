@@ -121,8 +121,6 @@ class XGBRun:
         self.run.log_dataset(pair[1])
 
   def log_params(self):
-    # Not logging eval_metric since it's already logged as meta
-    meta_params = {}
     for name in self.params.keys():
       if name not in PARAMS_LOGGED_AS_METADATA:
         self.run.params.update({name: self.params[name]})
