@@ -1,7 +1,8 @@
 import platform
 import random
 
-from sigopt.xgboost.run import PARAMS_LOGGED_AS_METADATA, run
+import sigopt.xgboost
+from sigopt.xgboost.run import PARAMS_LOGGED_AS_METADATA
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
@@ -39,18 +40,19 @@ def _form_random_run_params():
     dtrain=D_train,
     evals=[(D_test, 'test0')],
     num_boost_round=random.randint(3, 15),
+    verbose_eval=False,
   )
 
 class TestXGBoost(object):
-  def _verify_parameter_logging(self, run, param):
+  def _verify_parameter_logging(self, run, params):
     for p in params.keys():
-      if p in PARAMS_LOGGED_AS_METADATA:
-        assert param[p] == run.assignments[p]
+      if p not in PARAMS_LOGGED_AS_METADATA:
+        assert params[p] == run.assignments[p]
       else:
-        if not instance(param[p], list):
-          assert param[p] == run.metadata[p]
+        if not isinstance(params[p], list):
+          assert params[p] == run.metadata[p]
         else:
-          assert str(param[p]) == run.metadata[p]
+          assert str(params[p]) == run.metadata[p]
 
   def test_run(self):
     xgb_params = _form_random_run_params()
@@ -58,7 +60,8 @@ class TestXGBoost(object):
     run = sigopt.get_run(ctx.run.id)
     assert run.metadata['Dataset columns'] == 4
     assert run.metadata['Dataset rows'] == 120
-    assert run.metadata['Number of Test Sets'] == 2
+    assert run.metadata['Number of Test Sets'] == 1
     assert run.metadata['Python Version'] == platform.python_version()
     assert run.metadata['XGBoost Version'] == xgb.__version__
-    self._verify_parametr_logging()
+    self._verify_parameter_logging(run, xgb_params['params'])
+    assert run.assignments['num_boost_round'] == xgb_params['num_boost_round']
