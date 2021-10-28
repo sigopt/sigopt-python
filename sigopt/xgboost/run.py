@@ -75,7 +75,8 @@ class XGBRun:
     self.run = None
 
   def form_callbacks(self):
-    if not self.run_options_parsed['log_checkpoints']:
+    # if no validation set, checkpointing not possible
+    if not (self.run_options_parsed['log_checkpoints'] and self.validation_sets):
       return
 
     if self.callbacks is None:
@@ -131,22 +132,19 @@ class XGBRun:
     # train XGB, log stdout/err if necessary
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
+      xgb_args = {
+        'params': self.params,
+        'dtrain': self.dtrain,
+        'num_boost_round': self.num_boost_round,
+        'verbose_eval': self.verbose_eval,
+      }
       if self.validation_sets:
-        bst = xgboost.train(
-          self.params,
-          self.dtrain,
-          self.num_boost_round,
-          evals=self.validation_sets,
-          verbose_eval=self.verbose_eval,
-          callbacks=self.callbacks,
-        )
-      else:
-        bst = xgboost.train(
-          self.params,
-          self.dtrain,
-          self.num_boost_round,
-          verbose_eval=self.verbose_eval,
-        )
+        xgb_args['evals'] = self.validation_sets
+      if self.callbacks:
+        xgb_args['callbacks'] = self.callbacks
+      bst = xgboost.train(
+        **xgb_args
+      )
     stream_data = stream_monitor.get_stream_data()
     if stream_data:
       stdout, stderr = stream_data
