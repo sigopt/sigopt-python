@@ -3,6 +3,7 @@ import platform
 import xgboost
 # pylint: disable=no-name-in-module
 from xgboost import DMatrix
+import math
 
 from ..context import Context
 from ..log_capture import SystemOutputStreamMonitor
@@ -74,7 +75,8 @@ class XGBRun:
     self.run = None
 
   def form_callbacks(self):
-    if not self.run_options_parsed['log_checkpoints']:
+    # if no validation set, checkpointing not possible
+    if not (self.run_options_parsed['log_checkpoints'] and self.validation_sets):
       return
 
     if self.callbacks is None:
@@ -86,7 +88,7 @@ class XGBRun:
           period = cb.period
     if self.verbose_eval:
       period = 1 if self.verbose_eval is True else self.verbose_eval
-    period = max(period, (self.num_boost_round + 1) // MAX_NUM_CHECKPOINTS)
+    period = max(period, math.ceil((self.num_boost_round + 1) / MAX_NUM_CHECKPOINTS))
     sigopt_checkpoint_callback = SigOptCheckpointCallback(self.run, period=period)
     self.callbacks.append(sigopt_checkpoint_callback)
 
@@ -130,13 +132,18 @@ class XGBRun:
     # train XGB, log stdout/err if necessary
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
+      xgb_args = {
+        'params': self.params,
+        'dtrain': self.dtrain,
+        'num_boost_round': self.num_boost_round,
+        'verbose_eval': self.verbose_eval,
+      }
+      if self.validation_sets:
+        xgb_args['evals'] = self.validation_sets
+      if self.callbacks:
+        xgb_args['callbacks'] = self.callbacks
       bst = xgboost.train(
-        self.params,
-        self.dtrain,
-        self.num_boost_round,
-        evals=self.validation_sets,
-        verbose_eval=self.verbose_eval,
-        callbacks=self.callbacks,
+        **xgb_args
       )
     stream_data = stream_monitor.get_stream_data()
     if stream_data:
