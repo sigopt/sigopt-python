@@ -88,7 +88,7 @@ class XGBRun:
           period = cb.period
     if self.verbose_eval:
       period = 1 if self.verbose_eval is True else self.verbose_eval
-    period = max(period, math.ceil((self.num_boost_round + 1) / MAX_NUM_CHECKPOINTS))
+    period = max(period, math.ceil((self.num_boost_round) / MAX_NUM_CHECKPOINTS))
     sigopt_checkpoint_callback = SigOptCheckpointCallback(self.run, period=period)
     self.callbacks.append(sigopt_checkpoint_callback)
 
