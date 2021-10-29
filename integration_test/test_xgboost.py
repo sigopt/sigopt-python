@@ -77,6 +77,4 @@ class TestXGBoost(object):
     assert featuer_importance['type'] == 'weight'
     assert saved_scores and len(saved_scores) <= len(real_scores)
     assert [k for k, v in real_scores] == [k for k, v in saved_scores]
-    print(saved_scores)
-    print(real_scores)
     assert np.allclose(np.array([v for k, v in real_scores]), np.array([v for k, v in saved_scores]))
