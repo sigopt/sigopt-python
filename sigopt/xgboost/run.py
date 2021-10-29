@@ -75,6 +75,7 @@ class XGBRun:
     self.verbose_eval = verbose_eval
     self.callbacks = callbacks
     self.validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
+    self.evals_result = None
     self.run_options_parsed = parse_run_options(run_options)
     self.run = None
     self.bst = None
@@ -155,7 +156,9 @@ class XGBRun:
         'verbose_eval': self.verbose_eval,
       }
       if self.validation_sets:
+        self.evals_result = {}
         xgb_args['evals'] = self.validation_sets
+        xgb_args['evals_result'] = self.evals_result
       if self.callbacks:
         xgb_args['callbacks'] = self.callbacks
       t_start = time.time()
@@ -188,6 +191,9 @@ class XGBRun:
           compute_regression_metrics(self.run, self.bst, validation_set)
         else:
           compute_classification_metrics(self.run, self.bst, validation_set)
+    for dataset, metric_dict in self.evals_result.items():
+      for metric_label, metric_record in metric_dict.items():
+        self.run.log_metric(f"{dataset}-{metric_label}", metric_record[-1])
 
 
 def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_eval=True, run_options=None):
