@@ -4,8 +4,11 @@ import xgboost
 # pylint: disable=no-name-in-module
 from xgboost import DMatrix
 import math
+import time
+import json
 
 from ..context import Context
+from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 from ..log_capture import SystemOutputStreamMonitor
 from .. import create_run
 
@@ -15,6 +18,7 @@ DEFAULT_RUN_OPTIONS = {
   'log_stdout': True,
   'log_stderr': True,
   'log_checkpoints': True,
+  'log_metrics': True,
   'run': None
 }
 MIN_CHECKPOINT_PERIOD = 5
@@ -76,8 +80,11 @@ class XGBRun:
     self.verbose_eval = verbose_eval
     self.callbacks = callbacks
     self.validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
+    self.evals_result = None
     self.run_options_parsed = parse_run_options(run_options)
     self.run = None
+    self.bst = None
+    self.is_regression = None
 
   def form_callbacks(self):
     # if no validation set, checkpointing not possible
@@ -127,8 +134,18 @@ class XGBRun:
 
     self.run.params.num_boost_round = self.num_boost_round
 
+  def check_learning_task(self):
+    config = self.bst.save_config()
+    config_dict = json.loads(config)
+    objective = config_dict['learner']['objective']['name']
+    if objective in ['rank', 'count']:
+      self.run_options_parsed['log_metrics'] = False  #don't log metrics if learning task isn't reg or class
+    if objective.split(':')[0] == 'reg':
+      self.is_regression = True
+    else:
+      self.is_regression = False
+
   def train_xgb(self):
-    # train XGB, log stdout/err if necessary
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
       xgb_args = {
@@ -138,12 +155,17 @@ class XGBRun:
         'verbose_eval': self.verbose_eval,
       }
       if self.validation_sets:
+        self.evals_result = {}
         xgb_args['evals'] = self.validation_sets
+        xgb_args['evals_result'] = self.evals_result
       if self.callbacks:
         xgb_args['callbacks'] = self.callbacks
+      t_start = time.time()
       bst = xgboost.train(
         **xgb_args
       )
+      t_train = time.time() - t_start
+      self.run.log_metric("Training time", t_train)
     stream_data = stream_monitor.get_stream_data()
     if stream_data:
       stdout, stderr = stream_data
@@ -153,7 +175,24 @@ class XGBRun:
       if self.run_options_parsed['log_stderr']:
         log_dict["stderr"] = stderr
       self.run.set_logs(log_dict)
-    return bst
+    self.bst = bst
+
+  def log_training_metrics(self):
+    if self.is_regression:
+      compute_regression_metrics(self.run, self.bst, (self.dtrain, 'Training Set'))
+    else:
+      compute_classification_metrics(self.run, self.bst, (self.dtrain, 'Training Set'))
+
+  def log_validation_metrics(self):
+    if self.validation_sets:
+      for validation_set in self.validation_sets:
+        if self.is_regression:
+          compute_regression_metrics(self.run, self.bst, validation_set)
+        else:
+          compute_classification_metrics(self.run, self.bst, validation_set)
+    for dataset, metric_dict in self.evals_result.items():
+      for metric_label, metric_record in metric_dict.items():
+        self.run.log_metric(f"{dataset}-{metric_label}", metric_record[-1])
 
 
 def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_eval=True, run_options=None):
@@ -171,5 +210,10 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   _run.log_metadata()
   _run.log_params()
   _run.form_callbacks()
-  bst = _run.train_xgb()
-  return Context(_run.run, bst)
+  _run.train_xgb()
+  _run.check_learning_task()
+  if _run.run_options_parsed['log_metrics']:
+    _run.log_training_metrics()
+    _run.log_validation_metrics()
+
+  return Context(_run.run, _run.bst)

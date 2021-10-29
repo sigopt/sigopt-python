@@ -54,6 +54,9 @@ class TestXGBoost(object):
         else:
           assert str(params[p]) == run.metadata[p]
 
+  def _verify_metric_logging(self, run, params):
+    pass
+
   def test_run(self):
     xgb_params = _form_random_run_params()
     ctx = sigopt.xgboost.run(**xgb_params)
