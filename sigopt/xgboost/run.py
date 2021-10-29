@@ -137,6 +137,7 @@ class XGBRun:
 
     self.run.params.num_boost_round = self.num_boost_round
 
+<<<<<<< HEAD
   def check_learning_task(self):
     config = self.bst.save_config()
     config_dict = json.loads(config)
@@ -150,7 +151,7 @@ class XGBRun:
 
   def log_feature_importance(self, importance_type='weight', fmap=''):
     scores = self.bst.get_score(importance_type=importance_type, fmap=fmap)
-    scores = dict(sorted(scores.items(), key=lambda x:-x[1])[:FEATURE_IMPORTANCE_MAX_NUM_FEATURE])
+    scores = dict(sorted(scores.items(), key=lambda x:x[1], reverse=True)[:FEATURE_IMPORTANCE_MAX_NUM_FEATURE])
     fp = {
       'type': importance_type,
       'scores': scores
