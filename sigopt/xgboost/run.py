@@ -5,6 +5,7 @@ import xgboost
 from xgboost import DMatrix
 import math
 import time
+import json
 
 from ..context import Context
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
@@ -76,8 +77,7 @@ class XGBRun:
     self.run_options_parsed = parse_run_options(run_options)
     self.run = None
     self.bst = None
-    self.is_regression = True  # XGB does regression by default, if flag false XGB does classification
-
+    self.is_regression = None
 
   def form_callbacks(self):
     # if no validation set, checkpointing not possible
@@ -134,10 +134,13 @@ class XGBRun:
     self.run.params.num_boost_round = self.num_boost_round
 
   def check_learning_task(self):
-    # check classification or regression
-    if self.params['objective']:
-      if self.params['objective'].split(':')[0] != 'reg':  # Possibly a more robust way of doing this?
-        self.is_regression = False
+    config = self.bst.save_config()
+    config_dict = json.loads(config)
+    objective = config_dict['learner']['objective']['name']
+    if objective.split(':')[0] == 'reg':
+      self.is_regression = True
+    else:
+      self.is_regression = False
 
   def train_xgb(self):
     stream_monitor = SystemOutputStreamMonitor()
@@ -199,8 +202,8 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   _run.log_metadata()
   _run.log_params()
   _run.form_callbacks()
-  _run.check_learning_task()
   _run.train_xgb()
+  _run.check_learning_task()
   _run.log_training_metrics()
   _run.log_validation_metrics()
 
