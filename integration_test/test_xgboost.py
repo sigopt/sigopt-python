@@ -6,6 +6,7 @@ from sigopt.xgboost.run import PARAMS_LOGGED_AS_METADATA
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
+import numpy as np
 
 iris = datasets.load_iris()
 X = iris.data
@@ -71,7 +72,11 @@ class TestXGBoost(object):
 
     # TODO: get feature importance from sys_metadata
     featuer_importance = eval(run.metadata['feature_importance'])
-    real_scores = ctx.model.get_score(importance_type='weight')
-    saved_scores = featuer_importance['scores']
+    real_scores = sorted(ctx.model.get_score(importance_type='weight').items(), key=lambda x:x[1], reverse=True)
+    saved_scores = sorted(featuer_importance['scores'].items(), key=lambda x:x[1], reverse=True)
     assert featuer_importance['type'] == 'weight'
-    assert saved_scores and set(saved_scores.items()).issubset(real_scores.items())
+    assert saved_scores and len(saved_scores) <= len(real_scores)
+    assert [k for k, v in real_scores] == [k for k, v in saved_scores]
+    print(saved_scores)
+    print(real_scores)
+    assert np.allclose(np.array([v for k, v in real_scores]), np.array([v for k, v in saved_scores]))
