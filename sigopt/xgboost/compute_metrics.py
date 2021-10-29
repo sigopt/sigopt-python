@@ -34,4 +34,3 @@ def compute_regression_metrics(run, bst, D_matrix_pair):
     f"{D_name}-mean squared error": mean_squared_error(y_test, preds)
   }
   run.log_metrics(regression_metrics)
-
