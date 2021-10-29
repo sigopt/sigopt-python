@@ -16,7 +16,6 @@ D_train = xgb.DMatrix(X_train, label=Y_train)
 D_test = xgb.DMatrix(X_test, label=Y_test)
 
 
-
 POSSIBLE_PARAMETERS = {
   'eta': 10 ** random.uniform(-4, 1),
   'gamma': random.uniform(0, 4),

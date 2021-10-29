@@ -161,7 +161,6 @@ class XGBRun:
     # TODO: remove mode
     self.run.log_sys_metadata('feature_importance', fp, mode='metadata')
 
-
   def train_xgb(self):
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
