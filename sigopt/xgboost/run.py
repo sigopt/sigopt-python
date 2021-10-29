@@ -18,6 +18,7 @@ DEFAULT_RUN_OPTIONS = {
   'log_stdout': True,
   'log_stderr': True,
   'log_checkpoints': True,
+  'log_metrics': True,
   'run': None
 }
 MIN_CHECKPOINT_PERIOD = 5
@@ -137,6 +138,8 @@ class XGBRun:
     config = self.bst.save_config()
     config_dict = json.loads(config)
     objective = config_dict['learner']['objective']['name']
+    if objective in ['rank', 'count']:
+      self.run_options_parsed['log_metrics'] = False  #don't log metrics if learning task isn't reg or class
     if objective.split(':')[0] == 'reg':
       self.is_regression = True
     else:
@@ -204,7 +207,8 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   _run.form_callbacks()
   _run.train_xgb()
   _run.check_learning_task()
-  _run.log_training_metrics()
-  _run.log_validation_metrics()
+  if _run.run_options_parsed['log_metrics']:
+    _run.log_training_metrics()
+    _run.log_validation_metrics()
 
   return Context(_run.run, _run.bst)
