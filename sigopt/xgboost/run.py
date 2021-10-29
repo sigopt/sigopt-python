@@ -23,6 +23,11 @@ DEFAULT_RUN_OPTIONS = {
 }
 MIN_CHECKPOINT_PERIOD = 5
 MAX_NUM_CHECKPOINTS = 200
+PARAMS_LOGGED_AS_METADATA = [
+  'eval_metric',
+  'objective',
+  'updater',
+]
 
 
 def parse_run_options(run_options):
@@ -114,24 +119,18 @@ class XGBRun:
     self.run.log_metadata("_IS_XGB", 'True')
     self.run.log_metadata("Dataset columns", self.dtrain.num_col())
     self.run.log_metadata("Dataset rows", self.dtrain.num_row())
-    if 'objective' in self.params:
-      self.run.log_metadata("Objective", self.params['objective'])
-    if 'eval_metric' in self.params:
-      self.run.log_metadata("Eval Metric", self.params['eval_metric'])
+    for name in PARAMS_LOGGED_AS_METADATA:
+      if name in self.params:
+        self.run.log_metadata(name, self.params[name])
     if self.validation_sets:
       self.run.log_metadata("Number of Test Sets", len(self.validation_sets))
       for pair in self.validation_sets:
         self.run.log_dataset(pair[1])
 
   def log_params(self):
-    # Not logging eval_metric since it's already logged as meta
-    if 'eval_metric' in self.params:
-      eval_metric = self.params['eval_metric']
-      self.params.pop('eval_metric')
-      self.run.params.update(self.params)
-      self.params.update({'eval_metric': eval_metric})
-    else:
-      self.run.params.update(self.params)
+    for name in self.params.keys():
+      if name not in PARAMS_LOGGED_AS_METADATA:
+        self.run.params.update({name: self.params[name]})
 
     self.run.params.num_boost_round = self.num_boost_round
 
