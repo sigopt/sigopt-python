@@ -18,7 +18,10 @@ DEFAULT_RUN_OPTIONS = {
   'log_stdout': True,
   'log_stderr': True,
   'log_checkpoints': True,
+<<<<<<< HEAD
   'log_metrics': True,
+=======
+>>>>>>> Merge run
   'log_feature_importance': True,
   'run': None
 }
@@ -137,7 +140,6 @@ class XGBRun:
 
     self.run.params.num_boost_round = self.num_boost_round
 
-<<<<<<< HEAD
   def check_learning_task(self):
     config = self.bst.save_config()
     config_dict = json.loads(config)
@@ -149,8 +151,8 @@ class XGBRun:
     else:
       self.is_regression = False
 
-  def log_feature_importance(self, importance_type='weight', fmap=''):
-    scores = self.bst.get_score(importance_type=importance_type, fmap=fmap)
+  def log_feature_importance(self, bst, importance_type='weight', fmap=''):
+    scores = bst.get_score(importance_type=importance_type, fmap=fmap)
     scores = dict(sorted(scores.items(), key=lambda x:x[1], reverse=True)[:FEATURE_IMPORTANCE_MAX_NUM_FEATURE])
     fp = {
       'type': importance_type,
