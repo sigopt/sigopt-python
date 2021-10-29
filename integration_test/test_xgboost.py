@@ -1,47 +1,67 @@
-import xgboost as xgb
+import platform
+import random
+
+import sigopt.xgboost
+from sigopt.xgboost.run import PARAMS_LOGGED_AS_METADATA
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-import sigopt.xgboost
-import numpy as np
 import xgboost as xgb
-import platform
 
 iris = datasets.load_iris()
 X = iris.data
 y = iris.target
-num_class = len(np.unique(y))
+num_class = 3
 X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2)
 D_train = xgb.DMatrix(X_train, label=Y_train)
 D_test = xgb.DMatrix(X_test, label=Y_test)
 
-xgb_params = dict(
-  params={
-    'eta': np.random.uniform(0, 1),
-    'max_depth': np.random.choice([2, 3, 4, 5]),
-    'num_class': num_class,
-    'objective': 'multi:softmax',
-    'tree_method': 'hist',
-    'eval_metric': ['mlogloss', 'merror']
-  },
-  dtrain=D_train,
-  evals=[(D_test, 'test0'), (D_test, 'test1')],
-  num_boost_round=10,
-)
+
+POSSIBLE_PARAMETERS = {
+  'eta': 10 ** random.uniform(-4, 1),
+  'gamma': random.uniform(0, 4),
+  'max_depth': random.randint(1, 5),
+  'min_child_weight': random.uniform(0, 3),
+  'num_class': num_class,
+  'lambda': random.uniform(1, 3),
+  'alpha': 10 ** random.uniform(-4, 0),
+  'objective': random.choice(['multi:softmax', 'multi:softprob']),
+  'tree_method': random.choice(['hist', 'exact', 'approx', 'auto']),
+  'eval_metric': ['mlogloss', 'merror'],
+}
+
+def _form_random_run_params():
+  random_subset_size = random.randint(1, len(POSSIBLE_PARAMETERS))
+  subset_keys = random.sample(POSSIBLE_PARAMETERS.keys(), random_subset_size)
+  if 'num_class' not in subset_keys:
+    subset_keys.append('num_class')
+  subset_param = {k: POSSIBLE_PARAMETERS[k] for k in subset_keys}
+  return dict(
+    params=subset_param,
+    dtrain=D_train,
+    evals=[(D_test, 'test0')],
+    num_boost_round=random.randint(3, 15),
+    verbose_eval=False,
+  )
 
 class TestXGBoost(object):
+  def _verify_parameter_logging(self, run, params):
+    for p in params.keys():
+      if p not in PARAMS_LOGGED_AS_METADATA:
+        assert params[p] == run.assignments[p]
+      else:
+        if not isinstance(params[p], list):
+          assert params[p] == run.metadata[p]
+        else:
+          assert str(params[p]) == run.metadata[p]
+
   def test_run(self):
+    xgb_params = _form_random_run_params()
     ctx = sigopt.xgboost.run(**xgb_params)
     run = sigopt.get_run(ctx.run.id)
     assert run.metadata['Dataset columns'] == 4
     assert run.metadata['Dataset rows'] == 120
-    assert run.metadata['Eval Metric'] == "['mlogloss', 'merror']"
-    assert run.metadata['Number of Test Sets'] == 2
-    assert run.metadata['Objective'] == "multi:softmax"
+    assert run.metadata['Number of Test Sets'] == 1
     assert run.metadata['Python Version'] == platform.python_version()
     assert run.metadata['XGBoost Version'] == xgb.__version__
-    assert run.assignments['eta'] == xgb_params['params']['eta']
-    assert run.assignments['max_depth'] == xgb_params['params']['max_depth']
-    assert run.assignments['num_class'] == xgb_params['params']['num_class']
-    assert run.assignments['objective'] == xgb_params['params']['objective']
-    assert run.assignments['tree_method'] == xgb_params['params']['tree_method']
+    self._verify_parameter_logging(run, xgb_params['params'])
     assert run.assignments['num_boost_round'] == xgb_params['num_boost_round']
