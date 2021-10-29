@@ -69,3 +69,10 @@ class TestXGBoost(object):
     assert run.metadata['XGBoost Version'] == xgb.__version__
     self._verify_parameter_logging(run, xgb_params['params'])
     assert run.assignments['num_boost_round'] == xgb_params['num_boost_round']
+
+    # TODO: get feature importance from sys_metadata
+    featuer_importance = eval(run.metadata['feature_importance'])
+    real_scores = ctx.model.get_score(importance_type='weight')
+    saved_scores = featuer_importance['scores']
+    assert featuer_importance['type'] == 'weight'
+    assert saved_scores and set(saved_scores.items()).issubset(real_scores.items())
