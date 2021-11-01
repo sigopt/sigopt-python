@@ -19,10 +19,13 @@ DEFAULT_RUN_OPTIONS = {
   'log_stderr': True,
   'log_checkpoints': True,
   'log_metrics': True,
+  'log_feature_importance': True,
   'run': None
 }
 MIN_CHECKPOINT_PERIOD = 5
 MAX_NUM_CHECKPOINTS = 200
+FEATURE_IMPORTANCE_MAX_NUM_FEATURE = 50
+
 PARAMS_LOGGED_AS_METADATA = [
   'eval_metric',
   'objective',
@@ -145,6 +148,16 @@ class XGBRun:
     else:
       self.is_regression = False
 
+  def log_feature_importance(self, importance_type='weight', fmap=''):
+    scores = self.bst.get_score(importance_type=importance_type, fmap=fmap)
+    scores = dict(sorted(scores.items(), key=lambda x:x[1], reverse=True)[:FEATURE_IMPORTANCE_MAX_NUM_FEATURE])
+    fp = {
+      'type': importance_type,
+      'scores': scores
+    }
+    # TODO: remove mode
+    self.run.log_sys_metadata('feature_importance', fp, mode='metadata')
+
   def train_xgb(self):
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
@@ -215,5 +228,6 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   if _run.run_options_parsed['log_metrics']:
     _run.log_training_metrics()
     _run.log_validation_metrics()
-
+  if _run.run_options_parsed['log_feature_importance']:
+    _run.log_feature_importance()
   return Context(_run.run, _run.bst)

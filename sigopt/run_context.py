@@ -60,6 +60,12 @@ class BaseRunContext(object):
   def _log_metadata(self, metadata):
     raise NotImplementedError
 
+  def _log_sys_metadata(self, metadata):
+    raise NotImplementedError
+
+  def _log_dev_metadata(self, metadata):
+    raise NotImplementedError
+
   def _log_metrics(self, metrics):
     raise NotImplementedError
 
@@ -133,6 +139,25 @@ class BaseRunContext(object):
       except ValueError:
         value = str(value)
     return self._log_metadata({key: value})
+
+
+  def log_dev_metadata(self, key, value):
+    validate_name('metadata key', key)
+    if value is not None and not isinstance(value, str):
+      try:
+        value = sanitize_number('metadata', key, value)
+      except ValueError:
+        value = str(value)
+    return self._log_dev_metadata({key: value})
+
+
+  def log_sys_metadata(self, key, value, mode=None):
+    validate_name('metadata key', key)
+    if mode == 'metadata':
+      return self.log_metadata(key, value)
+    elif mode == 'dev':
+      return self.log_dev_metadata(key, value)
+    return self._log_sys_metadata({key: value})
 
   def log_metric(self, name, value, stddev=None):
     '''
@@ -369,6 +394,14 @@ class RunContext(BaseRunContext):
   def _log_metadata(self, metadata):
     return metadata
 
+  @updates('sys_metadata')
+  def _log_sys_metadata(self, metadata):
+    return metadata
+
+  @updates('dev_metadata')
+  def _log_dev_metadata(self, metadata):
+    return metadata
+
   @updates('values')
   def _log_metrics(self, metrics):
     return metrics
@@ -474,6 +507,8 @@ for _method_name in [
   "_log_dataset",
   "_log_failure",
   "_log_metadata",
+  "_log_sys_metadata",
+  "_log_dev_metadata",
   "_log_metrics",
   "_log_model",
   "_log_checkpoint",
