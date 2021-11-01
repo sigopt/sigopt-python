@@ -6,7 +6,7 @@ try:
     mean_absolute_error,
     mean_squared_error
   )
-  HAS_SKLEARN = False
+  HAS_SKLEARN = True
 except ImportError as e:
   HAS_SKLEARN = False
 
