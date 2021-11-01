@@ -28,7 +28,7 @@ def compute_classification_report(y_true, y_pred):
     'precision': 0
   }
   for class_label in classes:
-    tp, tn, fp, fn = compute_positives_and_negatives(y_true, y_pred, class_label)
+    tp, _, fp, fn = compute_positives_and_negatives(y_true, y_pred, class_label)
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
     f1 = tp / (tp + 0.5 * (fp + fn))
