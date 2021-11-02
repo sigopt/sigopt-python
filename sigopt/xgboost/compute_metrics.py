@@ -1,14 +1,4 @@
 import numpy
-try:
-  from sklearn.metrics import (
-    accuracy_score,
-    classification_report,
-    mean_absolute_error,
-    mean_squared_error
-  )
-  HAS_SKLEARN = True
-except ImportError as e:
-  HAS_SKLEARN = False
 
 
 def compute_positives_and_negatives(y_true, y_pred, class_label):
@@ -24,18 +14,11 @@ def compute_positives_and_negatives(y_true, y_pred, class_label):
 
 
 def compute_accuracy(y_true, y_pred):
-  if HAS_SKLEARN:
-    accuracy = accuracy_score(y_true, y_pred)
-  else:
-    accuracy = _compute_accuracy(y_true, y_pred)
+  accuracy = numpy.count_nonzero(y_true == y_pred) / len(y_true)
   return accuracy
 
 
-def _compute_accuracy(y_true, y_pred):
-  return numpy.count_nonzero(y_true == y_pred) / len(y_true)
-
-
-def _compute_classification_report(y_true, y_pred):
+def compute_classification_report(y_true, y_pred):
   classes = numpy.unique(y_true)
   classification_report = {}
   classification_report['weighted avg'] = {
@@ -45,9 +28,9 @@ def _compute_classification_report(y_true, y_pred):
   }
   for class_label in classes:
     tp, _, fp, fn = compute_positives_and_negatives(y_true, y_pred, class_label)
-    precision = tp / (tp + fp)
-    recall = tp / (tp + fn)
-    f1 = tp / (tp + 0.5 * (fp + fn))
+    precision = tp / (tp + fp) if (tp + fp)!=0 else 0
+    recall = tp / (tp + fn) if (tp + fn)!=0 else 0
+    f1 = tp / (tp + 0.5 * (fp + fn)) if (tp + 0.5 * (fp + fn))!=0 else 0
     support = numpy.count_nonzero(y_true == class_label)
     classification_report[str(class_label)] = {
       'precision': precision,
@@ -60,17 +43,6 @@ def _compute_classification_report(y_true, y_pred):
     classification_report['weighted avg']['f1-score'] += (support / len(y_pred)) * f1
   return classification_report
 
-
-def compute_classification_report(y_true, y_pred):
-  if HAS_SKLEARN:
-    rep = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
-  else:
-    rep = _compute_classification_report(y_true, y_pred)
-  return rep
-
-
-def _compute_regression_metrics(y_true, y_pred):
-  pass
 
 def compute_mae(y_true, y_pred):
   d = y_true - y_pred
@@ -88,12 +60,8 @@ def compute_classification_metrics(run, bst, D_matrix_pair):
   preds = bst.predict(D_matrix)
   preds = numpy.round(preds)
   y_test = D_matrix.get_label()
-  if HAS_SKLEARN:
-    accuracy = accuracy_score(y_test, preds)
-    rep = classification_report(y_test, preds, output_dict=True, zero_division=0)
-  else:
-    accuracy = compute_accuracy(y_test, preds)
-    rep = compute_classification_report(y_test, preds)
+  accuracy = compute_accuracy(y_test, preds)
+  rep = compute_classification_report(y_test, preds)
   other_metrics = rep['weighted avg']
   classification_metrics = {
     f"{D_name}-accuracy" : accuracy,
@@ -109,14 +77,8 @@ def compute_regression_metrics(run, bst, D_matrix_pair):
   preds = bst.predict(D_matrix)
   preds = numpy.round(preds)
   y_test = D_matrix.get_label()
-  if HAS_SKLEARN:
-    regression_metrics = {
-      f"{D_name}-mean absolute error": mean_absolute_error(y_test, preds),
-      f"{D_name}-mean squared error": mean_squared_error(y_test, preds)
-    }
-  else:
-    regression_metrics = {
-      f"{D_name}-mean absolute error": compute_mae(y_test, preds),
-      f"{D_name}-mean squared error": compute_mse(y_test, preds)
-    }
+  regression_metrics = {
+    f"{D_name}-mean absolute error": compute_mae(y_test, preds),
+    f"{D_name}-mean squared error": compute_mse(y_test, preds)
+  }
   run.log_metrics(regression_metrics)
