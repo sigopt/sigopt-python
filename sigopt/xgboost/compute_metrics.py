@@ -12,14 +12,30 @@ except ImportError as e:
 
 
 def compute_positives_and_negatives(y_true, y_pred, class_label):
-  tp = numpy.count_nonzero(numpy.logical_and(y_true == class_label, y_pred == class_label))
-  tn = numpy.count_nonzero(numpy.logical_and(y_true != class_label, y_pred != class_label))
-  fp = numpy.count_nonzero(numpy.logical_and(y_true != class_label, y_pred == class_label))
-  fn = numpy.count_nonzero(numpy.logical_and(y_true == class_label, y_pred != class_label))
+  y_true_equals = y_true == class_label
+  y_true_notequals = y_true != class_label
+  y_pred_equals = y_pred == class_label
+  y_pred_notequals = y_pred != class_label
+  tp = numpy.count_nonzero(numpy.logical_and(y_true_equals, y_pred_equals))
+  tn = numpy.count_nonzero(numpy.logical_and(y_true_notequals, y_pred_notequals))
+  fp = numpy.count_nonzero(numpy.logical_and(y_true_notequals, y_pred_equals))
+  fn = numpy.count_nonzero(numpy.logical_and(y_true_equals, y_pred_notequals))
   return tp, tn, fp, fn
 
 
-def compute_classification_report(y_true, y_pred):
+def compute_accuracy(y_true, y_pred):
+  if HAS_SKLEARN:
+    accuracy = accuracy_score(y_true, y_pred)
+  else:
+    accuracy = _compute_accuracy(y_true, y_pred)
+  return accuracy
+
+
+def _compute_accuracy(y_true, y_pred):
+  return numpy.count_nonzero(y_true == y_pred) / len(y_true)
+
+
+def _compute_classification_report(y_true, y_pred):
   classes = numpy.unique(y_true)
   classification_report = {}
   classification_report['weighted avg'] = {
@@ -32,7 +48,7 @@ def compute_classification_report(y_true, y_pred):
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
     f1 = tp / (tp + 0.5 * (fp + fn))
-    support = numpy.count_nonzero(y_pred == class_label)
+    support = numpy.count_nonzero(y_true == class_label)
     classification_report[str(class_label)] = {
       'precision': precision,
       'recall': recall,
@@ -45,10 +61,16 @@ def compute_classification_report(y_true, y_pred):
   return classification_report
 
 
-def compute_accuracy(y_true, y_pred):
-  accuracy = numpy.count_nonzero(y_true == y_pred) / len(y_true)
-  return accuracy
+def compute_classification_report(y_true, y_pred):
+  if HAS_SKLEARN:
+    rep = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
+  else:
+    rep = _compute_classification_report(y_true, y_pred)
+  return rep
 
+
+def _compute_regression_metrics(y_true, y_pred):
+  pass
 
 def compute_mae(y_true, y_pred):
   d = y_true - y_pred
@@ -60,6 +82,7 @@ def compute_mse(y_true, y_pred):
   return numpy.mean(d ** 2)
 
 
+# TODO: Zero divide
 def compute_classification_metrics(run, bst, D_matrix_pair):
   D_matrix, D_name = D_matrix_pair
   preds = bst.predict(D_matrix)
