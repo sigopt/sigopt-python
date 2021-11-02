@@ -33,18 +33,19 @@ bst = xgb.train(params, D_train)
 preds = bst.predict(D_test)
 preds = np.round(preds)
 
-report_compute = _compute_classification_report(Y_test, preds)
-report_sklearn = classification_report(Y_test, preds, output_dict=True, zero_division=0)
-print(report_compute)
-print('\n')
-print(report_sklearn)
 
-# Check classification metrics
-assert np.abs(report_compute['weighted avg']['precision'] - report_sklearn['weighted avg']['precision']) < 1e-8
-assert np.abs(report_compute['weighted avg']['recall'] - report_sklearn['weighted avg']['recall']) < 1e-8
-assert np.abs(report_compute['weighted avg']['f1-score'] - report_sklearn['weighted avg']['f1-score']) < 1e-8
-assert np.abs(_compute_accuracy(Y_test, preds) - accuracy_score(Y_test, preds)) < 1e-8
+class TestComputeMetrics(object):
+  def test_classification_metrics(self):
+    report_compute = _compute_classification_report(Y_test, preds)
+    report_sklearn = classification_report(Y_test, preds, output_dict=True, zero_division=0)
 
-# Check regression metrics
-assert np.abs(mean_absolute_error(Y_test, preds) - compute_mae(Y_test, preds)) < 1e-8
-assert np.abs(mean_squared_error(Y_test, preds) - compute_mse(Y_test, preds)) < 1e-8
+    # Check classification metrics
+    assert np.abs(report_compute['weighted avg']['precision'] - report_sklearn['weighted avg']['precision']) < 1e-8
+    assert np.abs(report_compute['weighted avg']['recall'] - report_sklearn['weighted avg']['recall']) < 1e-8
+    assert np.abs(report_compute['weighted avg']['f1-score'] - report_sklearn['weighted avg']['f1-score']) < 1e-8
+    assert np.abs(_compute_accuracy(Y_test, preds) - accuracy_score(Y_test, preds)) < 1e-8
+
+  def test_regression_metrics(self):
+    # Check regression metrics
+    assert np.abs(mean_absolute_error(Y_test, preds) - compute_mae(Y_test, preds)) < 1e-8
+    assert np.abs(mean_squared_error(Y_test, preds) - compute_mse(Y_test, preds)) < 1e-8
