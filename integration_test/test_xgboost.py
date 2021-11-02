@@ -71,8 +71,8 @@ class TestXGBoost(object):
     assert run.assignments['num_boost_round'] == xgb_params['num_boost_round']
 
     feature_importances = run.sys_metadata['feature_importances']
-    real_scores = sorted(ctx.model.get_score(importance_type='weight').items(), key=lambda x:x[1], reverse=True)
-    saved_scores = sorted(feature_importances['scores'].items(), key=lambda x:x[1], reverse=True)
+    real_scores = sorted(ctx.model.get_score(importance_type='weight').items(), key=lambda x:(x[1], x[0]), reverse=True)
+    saved_scores = sorted(feature_importances['scores'].items(), key=lambda x:(x[1], x[0]), reverse=True)
     assert feature_importances['type'] == 'weight'
     assert saved_scores and len(saved_scores) <= len(real_scores)
     real_scores = real_scores[:len(saved_scores)]
