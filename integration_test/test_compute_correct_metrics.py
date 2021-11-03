@@ -20,7 +20,7 @@ D_test = xgb.DMatrix(X_test, label=Y_test)
 
 
 class TestComputeMetrics(object):
-  def test_store_classification_metrics(self):
+  def test_compute_classification_metrics(self):
     params = {
       'eta': 0.3,
       'num_class': num_class,
@@ -48,7 +48,7 @@ class TestComputeMetrics(object):
     assert np.abs(run.values['test0-F1'].value - report_sklearn['weighted avg']['f1-score']) < 1e-8
     assert np.abs(run.values['test0-accuracy'].value - accuracy_sklearn) < 1e-8
 
-  def test_store_regression_metrics(self):
+  def test_compute_regression_metrics(self):
     params = {
       'eta': 0.3,
       'objective': 'reg:squarederror'
