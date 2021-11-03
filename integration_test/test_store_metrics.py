@@ -16,8 +16,6 @@ import xgboost as xgb
 import numpy as np
 
 
-
-
 def assert_classification_metrics(y_true, y_pred):
   report_compute = compute_classification_report(y_true, y_pred)
   report_sklearn = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
