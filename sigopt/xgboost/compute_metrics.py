@@ -54,7 +54,6 @@ def compute_mse(y_true, y_pred):
   return numpy.mean(d ** 2)
 
 
-# TODO: Zero divide
 def compute_classification_metrics(run, bst, D_matrix_pair):
   D_matrix, D_name = D_matrix_pair
   preds = bst.predict(D_matrix)

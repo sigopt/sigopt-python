@@ -28,7 +28,7 @@ with open(os.path.join(here, 'requirements.txt')) as requirements_fp:
 with open(os.path.join(here, 'requirements-dev.txt')) as requirements_dev_fp:
   dev_install_requires = requirements_dev_fp.read().split('\n')
 
-xgboost_install_requires = ['xgboost>=1.3.1', 'scikit-learn>=0.23.2', 'numpy>=1.15.0']
+xgboost_install_requires = ['xgboost>=1.3.1', 'numpy>=1.15.0']
 
 setup(
   name='sigopt',
