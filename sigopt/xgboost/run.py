@@ -20,7 +20,8 @@ DEFAULT_RUN_OPTIONS = {
   'log_checkpoints': True,
   'log_metrics': True,
   'log_feature_importance': True,
-  'run': None
+  'run': None,
+  'name': None,
 }
 MIN_CHECKPOINT_PERIOD = 5
 MAX_NUM_CHECKPOINTS = 200
@@ -110,6 +111,8 @@ class XGBRun:
   def make_run(self):
     if self.run_options_parsed['run']:
       self.run = self.run_options_parsed['run']
+    elif self.run_options_parsed['name']:
+      self.run = create_run(name=self.run_options_parsed['name'])
     else:
       self.run = create_run()
 
