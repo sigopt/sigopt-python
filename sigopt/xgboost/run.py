@@ -36,7 +36,11 @@ PARAMS_LOGGED_AS_METADATA = [
 
 def parse_run_options(run_options):
   if run_options:
-    assert run_options.keys() <= DEFAULT_RUN_OPTIONS.keys(), 'Unsupported argument inside run_options'
+    assert run_options.keys() <= DEFAULT_RUN_OPTIONS.keys(), 'Unsupported argument inside run_options.'
+  if {'run', 'name'}.issubset(run_options.keys()):
+    assert not (run_options['run'] and run_options['name']), (
+      'Cannot speicify both `run` and `name` inside run_options.'
+    )
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed
 
