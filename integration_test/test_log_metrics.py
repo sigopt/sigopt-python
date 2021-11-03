@@ -1,14 +1,7 @@
 import sigopt.xgboost
-from sklearn.metrics import (
-  accuracy_score,
-  classification_report,
-  mean_absolute_error,
-  mean_squared_error
-)
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
-import numpy as np
 
 iris = datasets.load_iris()
 X = iris.data
