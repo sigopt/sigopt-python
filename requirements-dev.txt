@@ -12,3 +12,4 @@ pylint==2.9.6
 pytest==6.2.1
 setuptools>=47.3.1
 twine>=3.2.0,<4.0.0
+scikit-learn>=0.23.
