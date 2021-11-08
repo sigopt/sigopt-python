@@ -12,13 +12,14 @@ from .compute_metrics import compute_classification_metrics, compute_regression_
 from ..log_capture import SystemOutputStreamMonitor
 from .. import create_run
 
-DEFAULT_EVALS_NAME = 'Test Set'
+DEFAULT_EVALS_NAME = 'TestSet'
 DEFAULT_RUN_OPTIONS = {
   'log_sys_info': True,
   'log_stdout': True,
   'log_stderr': True,
   'log_checkpoints': True,
   'log_metrics': True,
+  'log_params': True,
   'log_feature_importance': True,
   'run': None
 }
@@ -221,8 +222,10 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   _run = XGBRun(params, dtrain, num_boost_round, evals, verbose_eval, callbacks, run_options)
   _run.make_run()
   _run.log_metadata()
-  _run.log_params()
+  if _run.run_options_parsed['log_params']:
+    _run.log_params()
   _run.form_callbacks()
+  print(_run.validation_sets)
   _run.train_xgb()
   _run.check_learning_task()
   if _run.run_options_parsed['log_metrics']:
