@@ -225,7 +225,6 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   if _run.run_options_parsed['log_params']:
     _run.log_params()
   _run.form_callbacks()
-  print(_run.validation_sets)
   _run.train_xgb()
   _run.check_learning_task()
   if _run.run_options_parsed['log_metrics']:
