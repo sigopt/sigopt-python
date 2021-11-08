@@ -193,9 +193,9 @@ class XGBRun:
 
   def log_training_metrics(self):
     if self.is_regression:
-      compute_regression_metrics(self.run, self.bst, (self.dtrain, 'Training Set'))
+      compute_regression_metrics(self.run, self.bst, (self.dtrain, 'TrainingSet'))
     else:
-      compute_classification_metrics(self.run, self.bst, (self.dtrain, 'Training Set'))
+      compute_classification_metrics(self.run, self.bst, (self.dtrain, 'TrainingSet'))
 
   def log_validation_metrics(self):
     if self.validation_sets:
