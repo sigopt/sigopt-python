@@ -134,9 +134,8 @@ class XGBRun:
   def log_params(self):
     for name in self.params.keys():
       if name not in PARAMS_LOGGED_AS_METADATA:
-        self.run.params.update({name: self.params[name]})
-
-    self.run.params.num_boost_round = self.num_boost_round
+        self.run.params.setdefaults(self.params)
+    self.run.params.setdefaults({'num_boost_round': self.num_boost_round})
 
   def check_learning_task(self):
     config = self.bst.save_config()
