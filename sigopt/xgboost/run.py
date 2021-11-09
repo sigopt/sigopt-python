@@ -19,13 +19,13 @@ DEFAULT_RUN_OPTIONS = {
   'log_stderr': True,
   'log_checkpoints': True,
   'log_metrics': True,
-  'log_feature_importance': True,
+  'log_feature_importances': True,
   'run': None,
   'name': None,
 }
 MIN_CHECKPOINT_PERIOD = 5
 MAX_NUM_CHECKPOINTS = 200
-FEATURE_IMPORTANCE_MAX_NUM_FEATURE = 50
+FEATURE_IMPORTANCES_MAX_NUM_FEATURE = 50
 
 PARAMS_LOGGED_AS_METADATA = [
   'eval_metric',
@@ -37,10 +37,10 @@ PARAMS_LOGGED_AS_METADATA = [
 def parse_run_options(run_options):
   if run_options:
     assert run_options.keys() <= DEFAULT_RUN_OPTIONS.keys(), 'Unsupported argument inside run_options.'
-  if {'run', 'name'}.issubset(run_options.keys()):
-    assert not (run_options['run'] and run_options['name']), (
-      'Cannot speicify both `run` and `name` inside run_options.'
-    )
+    if {'run', 'name'}.issubset(run_options.keys()):
+      assert not (run_options['run'] and run_options['name']), (
+        'Cannot speicify both `run` and `name` inside run_options.'
+      )
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed
 
@@ -155,15 +155,14 @@ class XGBRun:
     else:
       self.is_regression = False
 
-  def log_feature_importance(self, importance_type='weight', fmap=''):
+  def log_feature_importances(self, importance_type='weight', fmap=''):
     scores = self.bst.get_score(importance_type=importance_type, fmap=fmap)
-    scores = dict(sorted(scores.items(), key=lambda x:x[1], reverse=True)[:FEATURE_IMPORTANCE_MAX_NUM_FEATURE])
+    scores = dict(sorted(scores.items(), key=lambda x:x[1], reverse=True)[:FEATURE_IMPORTANCES_MAX_NUM_FEATURE])
     fp = {
       'type': importance_type,
       'scores': scores
     }
-    # TODO: remove mode
-    self.run.log_sys_metadata('feature_importance', fp, mode='metadata')
+    self.run.log_sys_metadata('feature_importances', fp)
 
   def train_xgb(self):
     stream_monitor = SystemOutputStreamMonitor()
@@ -221,7 +220,6 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
   and context.model are the resulting run and XGBoost model, respectively.
   """
-
   if evals:
     assert isinstance(evals, (DMatrix, list)), 'evals must be a DMatrix or list of (DMatrix, string) pairs'
 
@@ -235,6 +233,6 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   if _run.run_options_parsed['log_metrics']:
     _run.log_training_metrics()
     _run.log_validation_metrics()
-  if _run.run_options_parsed['log_feature_importance']:
-    _run.log_feature_importance()
+  if _run.run_options_parsed['log_feature_importances']:
+    _run.log_feature_importances()
   return Context(_run.run, _run.bst)
