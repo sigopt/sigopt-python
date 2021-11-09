@@ -19,7 +19,7 @@ DEFAULT_RUN_OPTIONS = {
   'log_stderr': True,
   'log_checkpoints': True,
   'log_metrics': True,
-  'log_feature_importance': True,
+  'log_feature_importances': True,
   'run': None,
   'name': None,
 }
@@ -37,10 +37,10 @@ PARAMS_LOGGED_AS_METADATA = [
 def parse_run_options(run_options):
   if run_options:
     assert run_options.keys() <= DEFAULT_RUN_OPTIONS.keys(), 'Unsupported argument inside run_options.'
-  if {'run', 'name'}.issubset(run_options.keys()):
-    assert not (run_options['run'] and run_options['name']), (
-      'Cannot speicify both `run` and `name` inside run_options.'
-    )
+    if {'run', 'name'}.issubset(run_options.keys()):
+      assert not (run_options['run'] and run_options['name']), (
+        'Cannot speicify both `run` and `name` inside run_options.'
+      )
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed
 
@@ -220,7 +220,6 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
   and context.model are the resulting run and XGBoost model, respectively.
   """
-
   if evals:
     assert isinstance(evals, (DMatrix, list)), 'evals must be a DMatrix or list of (DMatrix, string) pairs'
 
