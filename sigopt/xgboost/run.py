@@ -157,7 +157,7 @@ class XGBRun:
 
   def log_feature_importances(self, importance_type='weight', fmap=''):
     scores = self.bst.get_score(importance_type=importance_type, fmap=fmap)
-    scores = dict(sorted(scores.items(), key=lambda x:x[1], reverse=True)[:FEATURE_IMPORTANCES_MAX_NUM_FEATURE])
+    scores = dict(sorted(scores.items(), key=lambda x:(x[1], x[0]), reverse=True)[:FEATURE_IMPORTANCES_MAX_NUM_FEATURE])
     fp = {
       'type': importance_type,
       'scores': scores
