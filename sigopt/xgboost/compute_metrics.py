@@ -28,9 +28,9 @@ def compute_classification_report(y_true, y_pred):
   }
   for class_label in classes:
     tp, _, fp, fn = compute_positives_and_negatives(y_true, y_pred, class_label)
-    precision = tp / (tp + fp) if (tp + fp)!=0 else 0
-    recall = tp / (tp + fn) if (tp + fn)!=0 else 0
-    f1 = tp / (tp + 0.5 * (fp + fn)) if (tp + 0.5 * (fp + fn))!=0 else 0
+    precision = tp / (tp + fp) if (tp + fp) != 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) != 0 else 0
+    f1 = tp / (tp + 0.5 * (fp + fn)) if (tp + 0.5 * (fp + fn)) != 0 else 0
     support = numpy.count_nonzero(y_true == class_label)
     classification_report[str(class_label)] = {
       'precision': precision,
