@@ -90,6 +90,21 @@ class BaseRunContext(object):
       The value of the parameter.
     '''
     return self._set_parameters({name: value})
+  
+  def set_parameter_meta(self, name, value):
+    return self._set_parameters_meta({name: value})
+
+  def set_parameters_meta(self, parameters_meta):
+    return self._set_parameters_meta(parameters_meta)
+
+  def set_parameter_source(self, name, source):
+    return self._set_parameters_meta({name: {"source": source}})
+
+  def set_parameters_source(self, parameters, source):
+    return self._set_parameters_meta({key: {"source": source} for key in parameters.keys()})
+
+  def set_parameters_sources_meta(self, source_name, sort, default_show):
+    return self._set_parameters_sources({source_name: {"sort": sort, "default_show": default_show}})
 
   def set_parameters(self, parameters):
     '''
@@ -356,6 +371,14 @@ class RunContext(BaseRunContext):
   @updates('assignments')
   def _set_parameters(self, parameters):
     return parameters
+
+  @updates('assignments_meta')
+  def _set_parameters_meta(self, parameters_meta):
+    return parameters_meta
+
+  @updates('assignments_sources')
+  def _set_parameters_sources(self, assignments_sources):
+    return assignments_sources
 
   @updates('datasets')
   def _log_dataset(self, name):
