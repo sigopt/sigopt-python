@@ -64,7 +64,7 @@ class XGBExperiment:
         for name in self.params.keys():
           if name not in PARAMS_LOGGED_AS_METADATA:
             run.params.update({name: self.params[name]})
-        if not run.params.num_boost_round:
+        if 'num_boost_round' not in run.params:
             run.params.update({'num_boost_round': num_boost_round_run})
 
 

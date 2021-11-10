@@ -20,6 +20,8 @@ params = {
   'num_class': num_class,
   'lambda': 1,
 }
+
+
 experiment_config = dict(
   name="Single metric optimization",
   type="offline",
@@ -33,14 +35,6 @@ experiment_config = dict(
       )
     ),
     dict(
-      name="num_round",
-      type="int",
-      bounds=dict(
-        min=2,
-        max=20
-      )
-    ),
-    dict(
       name="max_depth",
       type="int",
       bounds=dict(
@@ -51,7 +45,7 @@ experiment_config = dict(
   ],
   metrics=[
     dict(
-      name="Test Set-accuracy",
+      name="accuracy",
       strategy="optimize",
       objective="maximize"
     )
