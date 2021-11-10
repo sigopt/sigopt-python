@@ -28,9 +28,9 @@ def compute_classification_report(y_true, y_pred):
   }
   for class_label in classes:
     tp, _, fp, fn = compute_positives_and_negatives(y_true, y_pred, class_label)
-    precision = tp / (tp + fp) if (tp + fp)!=0 else 0
-    recall = tp / (tp + fn) if (tp + fn)!=0 else 0
-    f1 = tp / (tp + 0.5 * (fp + fn)) if (tp + 0.5 * (fp + fn))!=0 else 0
+    precision = tp / (tp + fp) if (tp + fp) != 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) != 0 else 0
+    f1 = tp / (tp + 0.5 * (fp + fn)) if (tp + 0.5 * (fp + fn)) != 0 else 0
     support = numpy.count_nonzero(y_true == class_label)
     classification_report[str(class_label)] = {
       'precision': precision,
@@ -57,7 +57,11 @@ def compute_mse(y_true, y_pred):
 def compute_classification_metrics(run, bst, D_matrix_pair):
   D_matrix, D_name = D_matrix_pair
   preds = bst.predict(D_matrix)
-  preds = numpy.round(preds)
+  # Check shape of preds
+  if len(preds.shape) == 2:
+    preds = numpy.argmax(preds, axis=1)
+  else:
+    preds = numpy.round(preds)
   y_test = D_matrix.get_label()
   accuracy = compute_accuracy(y_test, preds)
   rep = compute_classification_report(y_test, preds)
