@@ -143,7 +143,6 @@ class TestXGBoost(object):
 
     assert run.values['Training time'].value > 0
 
-
   def _verify_metadata_logging(self, run):
     assert run.metadata['Dataset columns'] == self.run_params['dtrain'].num_col()
     assert run.metadata['Dataset rows'] == self.run_params['dtrain'].num_row()
@@ -162,14 +161,15 @@ class TestXGBoost(object):
     self._verify_parameter_logging(run)
     self._verify_metric_logging(run)
 
-    feature_importances = run.sys_metadata['feature_importances']
-    real_scores = sorted(ctx.model.get_score(importance_type='weight').items(), key=lambda x:(x[1], x[0]), reverse=True)
-    saved_scores = sorted(feature_importances['scores'].items(), key=lambda x:(x[1], x[0]), reverse=True)
-    assert feature_importances['type'] == 'weight'
-    assert saved_scores and len(saved_scores) <= len(real_scores)
-    real_scores = real_scores[:len(saved_scores)]
-    assert [k for k, v in real_scores] == [k for k, v in saved_scores]
-    assert numpy.allclose(
-      numpy.array([v for k, v in real_scores]),
-      numpy.array([v for k, v in saved_scores]),
-    )
+    real_scores = sorted(ctx.model.get_score(importance_type='weight').items(), key=lambda x: (x[1], x[0]), reverse=True)
+    if real_scores:
+      feature_importances = run.sys_metadata['feature_importances']
+      saved_scores = sorted(feature_importances['scores'].items(), key=lambda x: (x[1], x[0]), reverse=True)
+      assert feature_importances['type'] == 'weight'
+      assert saved_scores and len(saved_scores) <= len(real_scores)
+      real_scores = real_scores[:len(saved_scores)]
+      assert [k for k, v in real_scores] == [k for k, v in saved_scores]
+      assert numpy.allclose(
+        numpy.array([v for k, v in real_scores]),
+        numpy.array([v for k, v in saved_scores]),
+      )
