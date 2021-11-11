@@ -80,7 +80,7 @@ def experiment(experiment_config, dtrain, evals, params, num_boost_round=None, r
   xgb_experiment.parse_and_create_parameter_space()
   xgb_experiment.parse_and_create_experiment()
   xgb_experiment.run_experiment()
-
+  return xgb_experiment.sigopt_experiment
 
 
 
