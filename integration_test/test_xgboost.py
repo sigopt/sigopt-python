@@ -84,36 +84,35 @@ def _create_random_metric_objective(task='binary'):
     }
 
 
+def _form_random_run_params(task):
+  X, y = _create_random_dataset(task)
+  X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2)
+  D_train = xgb.DMatrix(X_train, label=Y_train)
+  D_test = xgb.DMatrix(X_test, label=Y_test)
+
+  possible_params = POSSIBLE_PARAMETERS
+  random_subset_size = random.randint(1, len(possible_params))
+  subset_keys = random.sample(possible_params.keys(), random_subset_size)
+  subset_params = {k: possible_params[k] for k in subset_keys}
+  subset_params.update(_create_random_metric_objective(task))
+  if task == 'multiclass':
+    subset_params.update({'num_class': len(numpy.unique(y))})
+
+  run_options = {
+    'name': 'dev-integration-test'
+  }
+
+  return dict(
+    params=subset_params,
+    dtrain=D_train,
+    evals=[(D_test, 'test0')],
+    num_boost_round=random.randint(3, 15),
+    verbose_eval=False,
+    run_options=run_options,
+  )
+
+
 class TestXGBoost(object):
-  def _form_random_run_params(self, task):
-    self.task = task
-    self.is_classification = True if self.task in ('binary', 'multiclass') else False
-    X, y = _create_random_dataset(self.task)
-    X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2)
-    D_train = xgb.DMatrix(X_train, label=Y_train)
-    D_test = xgb.DMatrix(X_test, label=Y_test)
-
-    possible_params = POSSIBLE_PARAMETERS
-    random_subset_size = random.randint(1, len(possible_params))
-    subset_keys = random.sample(possible_params.keys(), random_subset_size)
-    subset_params = {k: possible_params[k] for k in subset_keys}
-    subset_params.update(_create_random_metric_objective(self.task))
-    if self.task == 'multiclass':
-      subset_params.update({'num_class': len(numpy.unique(y))})
-
-    run_options = {
-      'name': 'dev-integration-test'
-    }
-
-    self.run_params = dict(
-      params=subset_params,
-      dtrain=D_train,
-      evals=[(D_test, 'test0')],
-      num_boost_round=random.randint(3, 15),
-      verbose_eval=False,
-      run_options=run_options,
-    )
-
   def _verify_parameter_logging(self, run):
     params = self.run_params['params']
     for p in params.keys():
@@ -152,7 +151,8 @@ class TestXGBoost(object):
 
   @pytest.mark.parametrize("task", ['binary', 'multiclass', 'regression'])
   def test_run(self, task):
-    self._form_random_run_params(task)
+    self.is_classification = True if task in ('binary', 'multiclass') else False
+    self.run_params = _form_random_run_params(task)
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
     if 'name' in self.run_params['run_options']:
