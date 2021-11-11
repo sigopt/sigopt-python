@@ -13,6 +13,7 @@ from ..log_capture import SystemOutputStreamMonitor
 from .. import create_run
 
 DEFAULT_EVALS_NAME = 'TestSet'
+XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
 DEFAULT_RUN_OPTIONS = {
   'log_sys_info': True,
   'log_stdout': True,
@@ -127,7 +128,7 @@ class XGBRun:
       self.run.log_metadata("Python Version", python_version)
       self.run.log_metadata("XGBoost Version", xgboost.__version__)
     self.run.log_model("XGBoost")
-    self.run.log_metadata("_IS_XGB", 'True')
+    self.run.log_dev_metadata(XGB_INTEGRATION_KEYWORD, True)
     self.run.log_metadata("Dataset columns", self.dtrain.num_col())
     self.run.log_metadata("Dataset rows", self.dtrain.num_row())
     for name in PARAMS_LOGGED_AS_METADATA:
