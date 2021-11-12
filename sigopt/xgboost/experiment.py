@@ -19,8 +19,12 @@ class XGBExperiment:
     self.run_options = run_options
     self.sigopt_experiment = None
 
-  def parse_and_create_parameter_space(self):
-    # TODO: deal with later
+  def parse_and_create_experiment_config(self):
+    experiment_config_parsed = copy.deepcopy(self.experiment_config)
+    if 'metrics' not in experiment_config_parsed:
+      is_metric_to_optimize = False
+    else:
+      is_metric_to_optimize = any([metric['strategy'] == 'optimize' for metric in experiment_config_parsed['metrics']])
     pass
 
   def parse_and_create_experiment(self):
