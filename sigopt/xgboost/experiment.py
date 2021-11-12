@@ -1,6 +1,5 @@
 from .run import run as XGBRun
 from .run import parse_run_options, PARAMS_LOGGED_AS_METADATA, DEFAULT_EVALS_NAME
-from xgboost import DMatrix
 import copy
 
 from .. import create_experiment
@@ -29,7 +28,7 @@ class XGBExperiment:
 
     # Check experiment config optimization metric
     for metric in experiment_config_parsed['metrics']:
-      if metric['strategy'] is 'optimize':
+      if metric['strategy'] == 'optimize':
         assert metric['name'] in DEFAULT_CLASSIFICATION_METRICS or metric['name'] in DEFAULT_REGRESSION_METRICS
 
         # change optimized metric to reflect updated name
@@ -65,7 +64,7 @@ class XGBExperiment:
           if name not in PARAMS_LOGGED_AS_METADATA:
             run.params.update({name: self.params[name]})
         if 'num_boost_round' not in run.params:
-            run.params.update({'num_boost_round': num_boost_round_run})
+          run.params.update({'num_boost_round': num_boost_round_run})
 
 
         XGBRun(
@@ -81,6 +80,3 @@ def experiment(experiment_config, dtrain, evals, params, num_boost_round=None, r
   xgb_experiment.parse_and_create_experiment()
   xgb_experiment.run_experiment()
   return xgb_experiment.sigopt_experiment
-
-
-
