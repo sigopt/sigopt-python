@@ -6,7 +6,16 @@ from .. import create_experiment
 
 DEFAULT_CLASSIFICATION_METRICS = ['accuracy', 'precision', 'recall', 'F1']
 DEFAULT_REGRESSION_METRICS = ['mean absolute error', 'mean squared error']
+SUPORTED_METRICS_TO_OPTIMIZE = DEFAULT_CLASSIFICATION_METRICS + DEFAULT_REGRESSION_METRICS
 DEFAULT_NUM_BOOST_ROUND = 10
+DEFAULT_SEARCH_SPACE = [
+  {'name': 'num_boost_round',  'type': 'int',     'bounds': {'min': 1,     'max': 200}},
+  {'name': 'eta',              'type': 'double',  'bounds': {'min': -2,    'max': 1  }},
+  {'name': 'gamma',            'type': 'double',  'bounds': {'min': 0,     'max': 5  }},
+  {'name': 'max_depth',        'type': 'int',     'bounds': {'min': 1,     'max': 16 }},
+  {'name': 'min_child_weight', 'type': 'double',  'bounds': {'min': 1,     'max': 5  }}
+]
+DEFAULT_BO_ITERATIONS = 50
 
 
 class XGBExperiment:
@@ -19,13 +28,46 @@ class XGBExperiment:
     self.run_options = run_options
     self.sigopt_experiment = None
 
-  def parse_and_create_experiment_config(self):
-    experiment_config_parsed = copy.deepcopy(self.experiment_config)
-    if 'metrics' not in experiment_config_parsed:
-      is_metric_to_optimize = False
+  def parse_and_create_metrics(self):
+    has_metrics_to_optimize = True if 'metrics' in self.experiment_config_parsed else False
+    if has_metrics_to_optimize:
+      if isinstance(self.experiment_config_parsed['metrics'], str):
+        assert self.experiment_config_parsed['metrics'] in SUPORTED_METRICS_TO_OPTIMIZE
+        metric_to_optimize = self.experiment_config_parsed['metrics']
+        self.experiment_config_parsed['metrics'] = {
+          'metrics': [{
+            'name': metric_to_optimize,
+            'strategy': 'optimize',
+            'objective': 'maximize'
+          }],
+        }
+      elif isinstance(self.experiment_config_parsed['metrics'], dict):
+        pass
+      else:
+        pass  #TODO ... do we need to check here in the metrics config is correct?
     else:
-      is_metric_to_optimize = any([metric['strategy'] == 'optimize' for metric in experiment_config_parsed['metrics']])
-    pass
+      pass  #TODO ... do we autodetect the metric to optimize?
+
+  def parse_and_create_params(self):
+    # Set defaults as needed
+    if 'budget' not in self.experiment_config_parsed:
+      self.experiment_config_parsed['budget'] = 50
+    if 'parallel_bandwidth' not in self.experiment_config_parsed:
+      self.experiment_config_parsed['parallel_bandwidth'] = 1
+    if 'type' not in self.experiment_config_parsed:
+      self.experiment_config_parsed['type'] = 'offline'
+
+    # Parse params
+    if 'params' not in self.experiment_config_parsed:
+      self.experiment_config_parsed['params'] = DEFAULT_SEARCH_SPACE
+    else:
+      for param in self.experiment_config_parsed['params']:
+        pass
+
+  def parse_and_create_experiment_config(self):
+    self.experiment_config_parsed = copy.deepcopy(self.experiment_config)
+    self.parse_and_create_metrics()
+    self.parse_and_create_params()
 
   def parse_and_create_experiment(self):
     experiment_config_parsed = copy.deepcopy(self.experiment_config)
