@@ -3,20 +3,16 @@ from .run import parse_run_options, PARAMS_LOGGED_AS_METADATA, DEFAULT_EVALS_NAM
 import copy
 
 from .. import create_experiment
-
-DEFAULT_CLASSIFICATION_METRICS = ['accuracy', 'precision', 'recall', 'F1']
-DEFAULT_REGRESSION_METRICS = ['mean absolute error', 'mean squared error']
-SUPORTED_METRICS_TO_OPTIMIZE = DEFAULT_CLASSIFICATION_METRICS + DEFAULT_REGRESSION_METRICS
-DEFAULT_NUM_BOOST_ROUND = 10
-DEFAULT_SEARCH_SPACE = [
-  {'name': 'num_boost_round',  'type': 'int',     'bounds': {'min': 1,     'max': 200}},
-  {'name': 'eta',              'type': 'double',  'bounds': {'min': -2,    'max': 1  }},
-  {'name': 'gamma',            'type': 'double',  'bounds': {'min': 0,     'max': 5  }},
-  {'name': 'max_depth',        'type': 'int',     'bounds': {'min': 1,     'max': 16 }},
-  {'name': 'min_child_weight', 'type': 'double',  'bounds': {'min': 1,     'max': 5  }}
-]
-DEFAULT_BO_ITERATIONS = 50
-
+from .defaults import (
+  SEARCH_BOUNDS,
+  SEARCH_PARAMS,
+  DEFAULT_SEARCH_PARAMS,
+  DEFAULT_BO_ITERATIONS,
+  DEFAULT_NUM_BOOST_ROUND,
+  DEFAULT_REGRESSION_METRICS,
+  DEFAULT_CLASSIFICATION_METRICS,
+  SUPORTED_METRICS_TO_OPTIMIZE
+)
 
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
@@ -48,32 +44,40 @@ class XGBExperiment:
     else:
       pass  #TODO ... do we autodetect the metric to optimize?
 
-  def parse_and_create_params(self):
+  def parse_and_create_parameters(self):
     # Set defaults as needed
     if 'budget' not in self.experiment_config_parsed:
-      self.experiment_config_parsed['budget'] = 50
+      self.experiment_config_parsed['budget'] = DEFAULT_BO_ITERATIONS
     if 'parallel_bandwidth' not in self.experiment_config_parsed:
       self.experiment_config_parsed['parallel_bandwidth'] = 1
     if 'type' not in self.experiment_config_parsed:
       self.experiment_config_parsed['type'] = 'offline'
 
     # Parse params
-    if 'params' not in self.experiment_config_parsed:
-      self.experiment_config_parsed['params'] = DEFAULT_SEARCH_SPACE
+    if 'parameters' not in self.experiment_config_parsed:
+      self.experiment_config_parsed['parameters'] = [
+        SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)] for param_name in DEFAULT_SEARCH_PARAMS
+      ]
     else:
-      for param in self.experiment_config_parsed['params']:
-        pass
+      for param in self.experiment_config_parsed['parameters']:
+        if 'bounds' not in param:
+          param_name = param['name']
+          assert param_name in SEARCH_PARAMS, f'We do not support autoselection of bounds for {param_name}'
+          search_bound = SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)]
+          param['bounds'] = search_bound['bounds']
+          param['type'] = search_bound['type']
+          if 'transformation' in search_bound:
+            param['transformation'] = search_bound['transformation']
 
   def parse_and_create_experiment_config(self):
     self.experiment_config_parsed = copy.deepcopy(self.experiment_config)
     self.parse_and_create_metrics()
-    self.parse_and_create_params()
+    self.parse_and_create_parameters()
 
   def parse_and_create_experiment(self):
-    experiment_config_parsed = copy.deepcopy(self.experiment_config)
 
     # Check experiment config optimization metric
-    for metric in experiment_config_parsed['metrics']:
+    for metric in self.experiment_config_parsed['metrics']:
       if metric['strategy'] == 'optimize':
         assert metric['name'] in DEFAULT_CLASSIFICATION_METRICS or metric['name'] in DEFAULT_REGRESSION_METRICS
 
@@ -82,15 +86,17 @@ class XGBExperiment:
           DEFAULT_EVALS_NAME + '-' + metric['name']
 
     # Check key overlap between parameters to be optimized and parameters that are set
-    params_optimized = [param['name'] for param in self.experiment_config['parameters']]
+    params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
     assert len(set(params_optimized) & set(self.params.keys())) == 0, \
       'There is overlap between optimized params and user-set params'
 
     # Check that num_boost_round is not set by both sigopt experiment and user
     if self.num_boost_round:
-      assert 'num_boost_round' not in params_optimized
+      assert 'num_boost_round' not in params_optimized, \
+        'We are optimizing num_boost_round, and right now it is fixed. Please remove it from either the search space' \
+        ' or the input arguments. '
 
-    self.sigopt_experiment = create_experiment(**experiment_config_parsed)
+    self.sigopt_experiment = create_experiment(**self.experiment_config_parsed)
 
   def run_experiment(self):
     for run in self.sigopt_experiment.loop():
@@ -122,7 +128,7 @@ class XGBExperiment:
 def experiment(experiment_config, dtrain, evals, params, num_boost_round=None, run_options=None):
   run_options_parsed = parse_run_options(run_options)
   xgb_experiment = XGBExperiment(experiment_config, dtrain, evals, params, num_boost_round, run_options_parsed)
-  xgb_experiment.parse_and_create_parameter_space()
+  xgb_experiment.parse_and_create_experiment_config()
   xgb_experiment.parse_and_create_experiment()
   xgb_experiment.run_experiment()
   return xgb_experiment.sigopt_experiment
