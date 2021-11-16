@@ -7,7 +7,14 @@ from .. import create_experiment
 DEFAULT_CLASSIFICATION_METRICS = ['accuracy', 'precision', 'recall', 'F1']
 DEFAULT_REGRESSION_METRICS = ['mean absolute error', 'mean squared error']
 DEFAULT_NUM_BOOST_ROUND = 10
-
+XGB_EVAL_METRICS_FIXED = [
+  'rmse', 'rmsle', 'mae', 'mape', 'mphe', 'logloss', 'error', 'error', 'merror', 'mlogloss', 'auc', 'aucpr',
+  'ndcg', 'map', 'poisson-nloglik', 'gamma-nloglik', 'cox-nloglik', 'gamma-deviance', 'tweedie-nloglik',
+  'aft-nloglik', 'interval-regression-accuracy'
+]
+XGB_EVAL_METRICS_STAR = [  # metrics which have the form 'metric*' where * can be an integer or something else
+  'error', 'ndcg', 'map'
+]
 
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
@@ -29,7 +36,26 @@ class XGBExperiment:
     # Check experiment config optimization metric
     for metric in experiment_config_parsed['metrics']:
       if metric['strategy'] == 'optimize':
-        assert metric['name'] in DEFAULT_CLASSIFICATION_METRICS or metric['name'] in DEFAULT_REGRESSION_METRICS
+        metric_name = metric['name']
+        is_default = metric_name in DEFAULT_CLASSIFICATION_METRICS or metric_name in DEFAULT_REGRESSION_METRICS
+        is_eval_metric = metric_name in XGB_EVAL_METRICS_FIXED or \
+               any([metric_name in eval_metric for eval_metric in XGB_EVAL_METRICS_STAR])
+        assert is_default or is_eval_metric, f'Requested metric {metric_name} not supported for optimization'
+        if is_eval_metric:
+          if 'eval_metric' in self.params:
+            eval_metric = self.params['eval_metric']
+            if isinstance(eval_metric, str):
+              if eval_metric == metric_name:
+                pass
+              else:
+                self.params['eval_metric'] = [eval_metric, metric_name]
+            else:  # assume is list
+              if metric_name in eval_metric:
+                pass
+              else:
+                eval_metric.append(metric_name)
+          else:
+            self.params['eval_metric'] = metric_name
 
         # change optimized metric to reflect updated name
         metric['name'] = self.evals[0][1] + '-' + metric['name'] if isinstance(self.evals, list) else \
