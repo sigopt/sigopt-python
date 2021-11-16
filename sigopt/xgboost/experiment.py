@@ -8,7 +8,6 @@ DEFAULT_CLASSIFICATION_METRICS = ['accuracy', 'precision', 'recall', 'F1']
 DEFAULT_REGRESSION_METRICS = ['mean absolute error', 'mean squared error']
 DEFAULT_NUM_BOOST_ROUND = 10
 
-
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
     self.experiment_config = experiment_config
@@ -32,13 +31,16 @@ class XGBExperiment:
         assert metric['name'] in DEFAULT_CLASSIFICATION_METRICS or metric['name'] in DEFAULT_REGRESSION_METRICS
 
         # change optimized metric to reflect updated name
-        metric['name'] = self.evals[0][1] + '-' + metric['name'] if isinstance(self.evals, list) else \
-          DEFAULT_EVALS_NAME + '-' + metric['name']
+        if isinstance(self.evals, list):
+          metric['name'] = self.evals[0][1] + '-' + metric['name']
+        else:
+          metric['name'] = DEFAULT_EVALS_NAME + '-' + metric['name']
 
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config['parameters']]
-    assert len(set(params_optimized) & set(self.params.keys())) == 0, \
-      'There is overlap between optimized params and user-set params'
+    assert len(set(params_optimized) & set(self.params.keys())) == 0, (
+      'There is overlap between optimized params and user-set params'  #TODO: more descriptive error message
+    )
 
     # Check that num_boost_round is not set by both sigopt experiment and user
     if self.num_boost_round:
@@ -68,8 +70,11 @@ class XGBExperiment:
 
 
         XGBRun(
-          all_params, self.dtrain, num_boost_round=num_boost_round_run,
-          evals=self.evals, run_options=self.run_options
+          all_params,
+          self.dtrain,
+          num_boost_round=num_boost_round_run,
+          evals=self.evals,
+          run_options=self.run_options
         )
 
 
