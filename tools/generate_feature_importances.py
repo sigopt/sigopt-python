@@ -9,7 +9,8 @@ def rand_str(n, chars=string.ascii_letters + string.digits):
   return ''.join(chars[idx])
 
 def generate_feature_importances(num_feature=50, max_feature_len=100, score_type='exp'):
-  features = [rand_str(n) for n in range(1, num_feature)]
+  lens = np.random.choice(np.arange(1, max_feature_len + 1), num_feature)
+  features = [rand_str(n) for n in lens]
   scores = np.random.uniform(size=num_feature)
   if score_type == 'exp':
     scores = np.exp((scores - 0.5) * 10)
