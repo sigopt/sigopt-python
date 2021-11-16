@@ -44,16 +44,10 @@ class XGBExperiment:
         if is_eval_metric:
           if 'eval_metric' in self.params:
             eval_metric = self.params['eval_metric']
-            if isinstance(eval_metric, str):
-              if eval_metric == metric_name:
-                pass
-              else:
-                self.params['eval_metric'] = [eval_metric, metric_name]
-            else:  # assume is list
-              if metric_name in eval_metric:
-                pass
-              else:
-                eval_metric.append(metric_name)
+            if isinstance(eval_metric, str) and eval_metric != metric_name:
+              self.params['eval_metric'] = [eval_metric, metric_name]
+            elif metric_name not in eval_metric:  # assume eval_metric is a list of strings
+              eval_metric.append(metric_name)
           else:
             self.params['eval_metric'] = metric_name
 
