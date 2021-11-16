@@ -37,12 +37,6 @@ class XGBExperiment:
             'objective': 'maximize'
           }],
         }
-      elif isinstance(self.experiment_config_parsed['metrics'], dict):
-        pass
-      else:
-        pass  #TODO ... do we need to check here in the metrics config is correct?
-    else:
-      pass  #TODO ... do we autodetect the metric to optimize?
 
   def parse_and_create_parameters(self):
     # Set defaults as needed
