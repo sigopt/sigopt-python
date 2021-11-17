@@ -12,14 +12,16 @@ from .compute_metrics import compute_classification_metrics, compute_regression_
 from ..log_capture import SystemOutputStreamMonitor
 from .. import create_run
 
+DEFAULT_EVALS_NAME = 'TestSet'
+DEFAULT_TRAINING_NAME = 'TrainingSet'
 XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
-DEFAULT_EVALS_NAME = 'Test Set'
 DEFAULT_RUN_OPTIONS = {
   'log_sys_info': True,
   'log_stdout': True,
   'log_stderr': True,
   'log_checkpoints': True,
   'log_metrics': True,
+  'log_params': True,
   'log_feature_importances': True,
   'run': None,
   'name': None,
@@ -204,9 +206,9 @@ class XGBRun:
 
   def log_training_metrics(self):
     if self.is_regression:
-      compute_regression_metrics(self.run, self.bst, (self.dtrain, 'Training Set'))
+      compute_regression_metrics(self.run, self.bst, (self.dtrain, DEFAULT_TRAINING_NAME))
     else:
-      compute_classification_metrics(self.run, self.bst, (self.dtrain, 'Training Set'))
+      compute_classification_metrics(self.run, self.bst, (self.dtrain, DEFAULT_TRAINING_NAME))
 
   def log_validation_metrics(self):
     if self.validation_sets:
@@ -232,7 +234,8 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   _run = XGBRun(params, dtrain, num_boost_round, evals, verbose_eval, callbacks, run_options)
   _run.make_run()
   _run.log_metadata()
-  _run.log_params()
+  if _run.run_options_parsed['log_params']:
+    _run.log_params()
   _run.form_callbacks()
   _run.train_xgb()
   _run.check_learning_task()
