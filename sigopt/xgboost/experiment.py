@@ -11,7 +11,7 @@ from .defaults import (
   DEFAULT_NUM_BOOST_ROUND,
   DEFAULT_REGRESSION_METRICS,
   DEFAULT_CLASSIFICATION_METRICS,
-  SUPORTED_METRICS_TO_OPTIMIZE
+  SUPPORTED_METRICS_TO_OPTIMIZE
 )
 
 class XGBExperiment:
@@ -28,15 +28,14 @@ class XGBExperiment:
     has_metrics_to_optimize = True if 'metrics' in self.experiment_config_parsed else False
     if has_metrics_to_optimize:
       if isinstance(self.experiment_config_parsed['metrics'], str):
-        assert self.experiment_config_parsed['metrics'] in SUPORTED_METRICS_TO_OPTIMIZE
+        assert self.experiment_config_parsed['metrics'] in SUPPORTED_METRICS_TO_OPTIMIZE
         metric_to_optimize = self.experiment_config_parsed['metrics']
-        self.experiment_config_parsed['metrics'] = {
-          'metrics': [{
+        self.experiment_config_parsed['metrics'] = [{
             'name': metric_to_optimize,
             'strategy': 'optimize',
             'objective': 'maximize'
-          }],
-        }
+        }]
+
 
   def parse_and_create_parameters(self):
     # Set defaults as needed
@@ -63,6 +62,7 @@ class XGBExperiment:
           if 'transformation' in search_bound:
             param['transformation'] = search_bound['transformation']
 
+  # TODO rename better
   def parse_and_create_experiment_config(self):
     self.experiment_config_parsed = copy.deepcopy(self.experiment_config)
     self.parse_and_create_metrics()
@@ -72,6 +72,7 @@ class XGBExperiment:
 
     # Check experiment config optimization metric
     for metric in self.experiment_config_parsed['metrics']:
+      print(self.experiment_config_parsed['metrics'])
       if metric['strategy'] == 'optimize':
         assert metric['name'] in DEFAULT_CLASSIFICATION_METRICS or metric['name'] in DEFAULT_REGRESSION_METRICS
 
@@ -83,10 +84,12 @@ class XGBExperiment:
 
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
-    # TODO: more descriptive error message
-    assert len(set(params_optimized) & set(self.params.keys())) == 0, (
-      'There is overlap between optimized params and user-set params'
+    params_overlap = list(set(params_optimized) & set(self.params.keys()))
+    assert len(params_overlap) == 0, (
+      f'There is overlap between tuned parameters and user-set parameters: {params_overlap}. '
+      f'Parameter names cannot be defined in both locations'
     )
+
     # Check that num_boost_round is not set by both sigopt experiment and user
     if self.num_boost_round:
       assert 'num_boost_round' not in params_optimized, \

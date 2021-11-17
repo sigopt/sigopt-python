@@ -1,3 +1,4 @@
+import copy
 import pytest
 import random
 
@@ -8,13 +9,9 @@ from .test_xgboost import _form_random_run_params
 SEARCH_SPACES = [
   {
     'name': 'eta',
-    'type': 'double',
-    'bounds': {'min': 0.1, 'max': 0.5}
   },
   {
     'name': 'min_child_weight',
-    'type': 'double',
-    'bounds': {'min': 0.0, 'max': 0.3}
   },
   {
     'name': 'max_depth',
@@ -30,14 +27,25 @@ SEARCH_SPACES = [
 
 
 class TestXGBoostExperiment:
+  def _generate_randomized_search_space(self):
+    search_space = copy.deepcopy(SEARCH_SPACES)
+    if random.randint(0, 1) == 1:  # add bounds and type to eta randomly
+      search_space[0]['type'] = 'double'
+      search_space[0]['bounds'] = {'min': 0.1, 'max': 0.5}
+    if random.randint(0, 1) == 1:   # add bounds and type to min_child_weight randomly
+      search_space[1]['type'] = 'double'
+      search_space[1]['bounds'] = {'min': 0.0, 'max': 0.3}
+    random_subset_size = random.randint(1, len(SEARCH_SPACES))
+    search_space = random.sample(SEARCH_SPACES, random_subset_size)
+    return search_space
+
   def _form_random_experiment_config(self, task):
     experiment_params = _form_random_run_params(task)
     is_classification = True if task in ('binary', 'multiclass') else False
     metric_to_optimize = random.choice(DEFAULT_CLASSIFICATION_METRICS) if is_classification \
       else random.choice(DEFAULT_REGRESSION_METRICS)
+    search_space = self._generate_randomized_search_space()
 
-    random_subset_size = random.randint(1, len(SEARCH_SPACES))
-    search_space = random.sample(SEARCH_SPACES, random_subset_size)
     for param in search_space:
       experiment_params['params'].pop(param['name'], None)
       if param['name'] == 'num_boost_round':
