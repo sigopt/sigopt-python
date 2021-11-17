@@ -26,7 +26,7 @@ DEFAULT_RUN_OPTIONS = {
   'run': None,
   'name': None,
 }
-MIN_CHECKPOINT_PERIOD = 5
+DEFAULT_CHECKPOINT_PERIOD = 5
 MAX_NUM_CHECKPOINTS = 200
 FEATURE_IMPORTANCES_MAX_NUM_FEATURE = 50
 
@@ -60,13 +60,13 @@ class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
       return False
 
     checkpoint_logs = {}
-    for data, metric in evals_log.items():
-      for metric_name, log in metric.items():
-        if isinstance(log[-1], tuple):
-          score = log[-1][0]
+    for dataset, metric_dict in evals_log.items():
+      for metric_label, metric_record in metric_dict.items():
+        if isinstance(metric_record[-1], tuple):
+          chkpt_value = metric_record[-1][0]
         else:
-          score = log[-1]
-        checkpoint_logs.update({'-'.join((data, metric_name)): score})
+          chkpt_value = metric_record[-1]
+        checkpoint_logs.update({'-'.join((dataset, metric_label)): chkpt_value})
     if (epoch % self.period) == 0 or self.period == 1:
       self.run.log_checkpoint(checkpoint_logs)
       self._latest = None
@@ -104,7 +104,7 @@ class XGBRun:
 
     if self.callbacks is None:
       self.callbacks = []
-    period = MIN_CHECKPOINT_PERIOD
+    period = DEFAULT_CHECKPOINT_PERIOD
     if self.callbacks:
       for cb in self.callbacks:
         if isinstance(cb, xgboost.callback.EvaluationMonitor):
@@ -124,12 +124,13 @@ class XGBRun:
       self.run = create_run()
 
   def log_metadata(self):
+    self.run.log_dev_metadata(XGB_INTEGRATION_KEYWORD, True)
+
     if self.run_options_parsed['log_sys_info']:
       python_version = platform.python_version()
       self.run.log_metadata("Python Version", python_version)
       self.run.log_metadata("XGBoost Version", xgboost.__version__)
     self.run.log_model("XGBoost")
-    self.run.log_dev_metadata(XGB_INTEGRATION_KEYWORD, True)
     self.run.log_metadata("Dataset columns", self.dtrain.num_col())
     self.run.log_metadata("Dataset rows", self.dtrain.num_row())
     for name in PARAMS_LOGGED_AS_METADATA:
@@ -180,17 +181,14 @@ class XGBRun:
         'dtrain': self.dtrain,
         'num_boost_round': self.num_boost_round,
         'verbose_eval': self.verbose_eval,
+        'callbacks': self.callbacks,
       }
       if self.validation_sets:
         self.evals_result = {}
         xgb_args['evals'] = self.validation_sets
         xgb_args['evals_result'] = self.evals_result
-      if self.callbacks:
-        xgb_args['callbacks'] = self.callbacks
       t_start = time.time()
-      bst = xgboost.train(
-        **xgb_args
-      )
+      bst = xgboost.train(**xgb_args)
       t_train = time.time() - t_start
       self.run.log_metric("Training time", t_train)
     stream_data = stream_monitor.get_stream_data()
