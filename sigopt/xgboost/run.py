@@ -13,6 +13,7 @@ from ..log_capture import SystemOutputStreamMonitor
 from .. import create_run
 
 DEFAULT_EVALS_NAME = 'TestSet'
+DEFAULT_TRAINING_NAME = 'TrainingSet'
 XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
 DEFAULT_RUN_OPTIONS = {
   'log_sys_info': True,
@@ -205,9 +206,9 @@ class XGBRun:
 
   def log_training_metrics(self):
     if self.is_regression:
-      compute_regression_metrics(self.run, self.bst, (self.dtrain, 'TrainingSet'))
+      compute_regression_metrics(self.run, self.bst, (self.dtrain, DEFAULT_TRAINING_NAME))
     else:
-      compute_classification_metrics(self.run, self.bst, (self.dtrain, 'TrainingSet'))
+      compute_classification_metrics(self.run, self.bst, (self.dtrain, DEFAULT_TRAINING_NAME))
 
   def log_validation_metrics(self):
     if self.validation_sets:

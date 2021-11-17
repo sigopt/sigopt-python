@@ -68,7 +68,7 @@ class XGBExperiment:
     self.parse_and_create_metrics()
     self.parse_and_create_parameters()
 
-  def parse_and_create_experiment(self):
+  def parse_and_create_sigopt_experiment(self):
 
     # Check experiment config optimization metric
     for metric in self.experiment_config_parsed['metrics']:
@@ -76,14 +76,17 @@ class XGBExperiment:
         assert metric['name'] in DEFAULT_CLASSIFICATION_METRICS or metric['name'] in DEFAULT_REGRESSION_METRICS
 
         # change optimized metric to reflect updated name
-        metric['name'] = self.evals[0][1] + '-' + metric['name'] if isinstance(self.evals, list) else \
-          DEFAULT_EVALS_NAME + '-' + metric['name']
+        if isinstance(self.evals, list):
+          metric['name'] = self.evals[0][1] + '-' + metric['name']
+        else:
+          metric['name'] = DEFAULT_EVALS_NAME + '-' + metric['name']
 
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
-    assert len(set(params_optimized) & set(self.params.keys())) == 0, \
+    # TODO: more descriptive error message
+    assert len(set(params_optimized) & set(self.params.keys())) == 0, (
       'There is overlap between optimized params and user-set params'
-
+    )
     # Check that num_boost_round is not set by both sigopt experiment and user
     if self.num_boost_round:
       assert 'num_boost_round' not in params_optimized, \
@@ -114,8 +117,11 @@ class XGBExperiment:
 
 
         XGBRun(
-          all_params, self.dtrain, num_boost_round=num_boost_round_run,
-          evals=self.evals, run_options=self.run_options
+          all_params,
+          self.dtrain,
+          num_boost_round=num_boost_round_run,
+          evals=self.evals,
+          run_options=self.run_options
         )
 
 
@@ -123,6 +129,6 @@ def experiment(experiment_config, dtrain, evals, params, num_boost_round=None, r
   run_options_parsed = parse_run_options(run_options)
   xgb_experiment = XGBExperiment(experiment_config, dtrain, evals, params, num_boost_round, run_options_parsed)
   xgb_experiment.parse_and_create_experiment_config()
-  xgb_experiment.parse_and_create_experiment()
+  xgb_experiment.parse_and_create_sigopt_experiment()
   xgb_experiment.run_experiment()
   return xgb_experiment.sigopt_experiment

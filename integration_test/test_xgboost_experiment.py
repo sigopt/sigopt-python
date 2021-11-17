@@ -1,16 +1,15 @@
-import random
 import pytest
+import random
 
 import sigopt.xgboost
-from .test_xgboost import (
-  _form_random_run_params
-)
+from sigopt.xgboost.experiment import DEFAULT_CLASSIFICATION_METRICS, DEFAULT_REGRESSION_METRICS
+from .test_xgboost import _form_random_run_params
 
 SEARCH_SPACES = [
   {
-      'name': 'eta',
-      'type': 'double',
-      'bounds': {'min': 0.1, 'max': 0.5}
+    'name': 'eta',
+    'type': 'double',
+    'bounds': {'min': 0.1, 'max': 0.5}
   },
   {
     'name': 'min_child_weight',
@@ -29,7 +28,6 @@ SEARCH_SPACES = [
   },
 ]
 
-from sigopt.xgboost.experiment import DEFAULT_CLASSIFICATION_METRICS, DEFAULT_REGRESSION_METRICS
 
 class TestXGBoostExperiment:
   def _form_random_experiment_config(self, task):
