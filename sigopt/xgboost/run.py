@@ -1,48 +1,60 @@
+import math
+import json
 import platform
+import time
 
 import xgboost
 # pylint: disable=no-name-in-module
 from xgboost import DMatrix
-import math
-import time
-import json
 
 from ..context import Context
-from .compute_metrics import compute_classification_metrics, compute_regression_metrics
+from ..interface import TrainingRun
 from ..log_capture import SystemOutputStreamMonitor
 from .. import create_run
+from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 
 DEFAULT_EVALS_NAME = 'TestSet'
 DEFAULT_TRAINING_NAME = 'TrainingSet'
-XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
 DEFAULT_RUN_OPTIONS = {
-  'log_sys_info': True,
+  'log_checkpoints': True,
+  'log_feature_importances': True,
+  'log_params': True,
+  'log_sigopt_metrics': True,
   'log_stdout': True,
   'log_stderr': True,
-  'log_checkpoints': True,
-  'log_metrics': True,
-  'log_params': True,
-  'log_feature_importances': True,
-  'run': None,
+  'log_sys_info': True,
   'name': None,
+  'run': None,
 }
 DEFAULT_CHECKPOINT_PERIOD = 5
 MAX_NUM_CHECKPOINTS = 200
 FEATURE_IMPORTANCES_MAX_NUM_FEATURE = 50
+XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
 
 PARAMS_LOGGED_AS_METADATA = [
   'eval_metric',
   'objective',
   'updater',
 ]
+SUPPORTED_OBJECTIVE_PREFIXES = [
+  'binary',
+  'multi',
+  'reg',
+]
 
 
 def parse_run_options(run_options):
   if run_options:
-    assert run_options.keys() <= DEFAULT_RUN_OPTIONS.keys(), 'Unsupported argument inside run_options.'
+    assert run_options.keys() <= DEFAULT_RUN_OPTIONS.keys(), (
+      f"Unsupported keys {run_options.keys() - DEFAULT_RUN_OPTIONS.keys()} inside run_options."
+    )
     if {'run', 'name'}.issubset(run_options.keys()):
       assert not (run_options['run'] and run_options['name']), (
-        'Cannot speicify both `run` and `name` inside run_options.'
+        "Cannot speicify both `run` and `name` keys inside run_options."
+      )
+    if 'run' in run_options.keys():
+      assert isinstance(run_options['run'], TrainingRun), (
+        "`run` must be an instance of SigOpt TrainingRun object."
       )
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed
@@ -94,7 +106,7 @@ class XGBRun:
     self.evals_result = None
     self.run_options_parsed = parse_run_options(run_options)
     self.run = None
-    self.bst = None
+    self.model = None
     self.is_regression = None
 
   def form_callbacks(self):
@@ -149,18 +161,19 @@ class XGBRun:
     self.run.params.num_boost_round = self.num_boost_round
 
   def check_learning_task(self):
-    config = self.bst.save_config()
+    config = self.model.save_config()
     config_dict = json.loads(config)
     objective = config_dict['learner']['objective']['name']
-    if objective in ['rank', 'count']:
-      self.run_options_parsed['log_metrics'] = False  #don't log metrics if learning task isn't reg or class
+    # NOTE: do not log metrics if learning task isn't regression or classification
+    if not any(s in config_dict['learner']['objective']['name'] for s in SUPPORTED_OBJECTIVE_PREFIXES):
+      self.run_options_parsed['log_sigopt_metrics'] = False
     if objective.split(':')[0] == 'reg':
       self.is_regression = True
     else:
       self.is_regression = False
 
   def log_feature_importances(self, importance_type='weight', fmap=''):
-    scores = self.bst.get_score(importance_type=importance_type, fmap=fmap)
+    scores = self.model.get_score(importance_type=importance_type, fmap=fmap)
     # NOTE: do not log importances if there is no split at all.
     if not scores:
       return
@@ -200,24 +213,35 @@ class XGBRun:
       if self.run_options_parsed['log_stderr']:
         log_dict["stderr"] = stderr
       self.run.set_logs(log_dict)
-    self.bst = bst
+    self.model = bst
 
   def log_training_metrics(self):
-    if self.is_regression:
-      compute_regression_metrics(self.run, self.bst, (self.dtrain, DEFAULT_TRAINING_NAME))
-    else:
-      compute_classification_metrics(self.run, self.bst, (self.dtrain, DEFAULT_TRAINING_NAME))
+    if self.run_options_parsed['log_sigopt_metrics']:
+      if self.is_regression:
+        self.run.log_metrics(
+          compute_regression_metrics(self.model, (self.dtrain, DEFAULT_TRAINING_NAME))
+        )
+      else:
+        self.run.log_metrics(
+          compute_classification_metrics(self.model, (self.dtrain, DEFAULT_TRAINING_NAME))
+        )
 
   def log_validation_metrics(self):
-    if self.validation_sets:
-      for validation_set in self.validation_sets:
-        if self.is_regression:
-          compute_regression_metrics(self.run, self.bst, validation_set)
-        else:
-          compute_classification_metrics(self.run, self.bst, validation_set)
     for dataset, metric_dict in self.evals_result.items():
       for metric_label, metric_record in metric_dict.items():
         self.run.log_metric(f"{dataset}-{metric_label}", metric_record[-1])
+
+    if self.run_options_parsed['log_sigopt_metrics']:
+      if self.validation_sets:
+        for validation_set in self.validation_sets:
+          if self.is_regression:
+            self.run.log_metrics(
+              compute_regression_metrics(self.model, (validation_set))
+            )
+          else:
+            self.run.log_metrics(
+              compute_classification_metrics(self.model, (validation_set))
+            )
 
 
 def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_eval=True, run_options=None):
@@ -227,7 +251,9 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   and context.model are the resulting run and XGBoost model, respectively.
   """
   if evals:
-    assert isinstance(evals, (DMatrix, list)), 'evals must be a DMatrix or list of (DMatrix, string) pairs'
+    assert isinstance(evals, (DMatrix, list)), (
+      '`evals` must be a xgboost.core.DMatrix or list of (xgboost.core.DMatrix, str) tuples.'
+    )
 
   _run = XGBRun(params, dtrain, num_boost_round, evals, verbose_eval, callbacks, run_options)
   _run.make_run()
@@ -237,9 +263,8 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   _run.form_callbacks()
   _run.train_xgb()
   _run.check_learning_task()
-  if _run.run_options_parsed['log_metrics']:
-    _run.log_training_metrics()
-    _run.log_validation_metrics()
+  _run.log_training_metrics()
+  _run.log_validation_metrics()
   if _run.run_options_parsed['log_feature_importances']:
     _run.log_feature_importances()
-  return Context(_run.run, _run.bst)
+  return Context(_run.run, _run.model)
