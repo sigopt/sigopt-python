@@ -27,8 +27,7 @@ class XGBExperiment:
     self.sigopt_experiment = None
 
   def parse_and_create_metrics(self):
-    has_metrics_to_optimize = True if 'metrics' in self.experiment_config_parsed else False
-    if has_metrics_to_optimize and isinstance(self.experiment_config_parsed['metrics'], str):
+    if 'metrics' in self.experiment_config_parsed and isinstance(self.experiment_config_parsed['metrics'], str):
       assert self.experiment_config_parsed['metrics'] in SUPPORTED_METRICS_TO_OPTIMIZE
       metric_to_optimize = self.experiment_config_parsed['metrics']
       self.experiment_config_parsed['metrics'] = [{
