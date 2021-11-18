@@ -18,6 +18,7 @@ from .defaults import (
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
     self.experiment_config = experiment_config
+    self.experiment_config_parsed = None
     self.dtrain = dtrain
     self.evals = evals
     self.params = params
@@ -27,15 +28,14 @@ class XGBExperiment:
 
   def parse_and_create_metrics(self):
     has_metrics_to_optimize = True if 'metrics' in self.experiment_config_parsed else False
-    if has_metrics_to_optimize:
-      if isinstance(self.experiment_config_parsed['metrics'], str):
-        assert self.experiment_config_parsed['metrics'] in SUPPORTED_METRICS_TO_OPTIMIZE
-        metric_to_optimize = self.experiment_config_parsed['metrics']
-        self.experiment_config_parsed['metrics'] = [{
-            'name': metric_to_optimize,
-            'strategy': 'optimize',
-            'objective': 'maximize'
-        }]
+    if has_metrics_to_optimize and isinstance(self.experiment_config_parsed['metrics'], str):
+      assert self.experiment_config_parsed['metrics'] in SUPPORTED_METRICS_TO_OPTIMIZE
+      metric_to_optimize = self.experiment_config_parsed['metrics']
+      self.experiment_config_parsed['metrics'] = [{
+        'name': metric_to_optimize,
+        'strategy': 'optimize',
+        'objective': 'maximize'
+      }]
 
     # Check experiment config optimization metric
     for metric in self.experiment_config_parsed['metrics']:
