@@ -80,6 +80,10 @@ class TestExperimentConfig:
     xgb_experiment.parse_and_create_sigopt_experiment()
     verify_experiment_config_integrity(xgb_experiment.experiment_config_parsed)
 
+  def test_base(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    self.verify_integrity(experiment_config)
+
   def test_config_no_search_space(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
     del experiment_config['parameters']
@@ -92,8 +96,22 @@ class TestExperimentConfig:
       del parameter['bounds']
     self.verify_integrity(experiment_config)
 
+  def test_config_search_space_mixed(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    del experiment_config['parameters'][2]['type']
+    del experiment_config['parameters'][2]['bounds']
+
   def test_config_metric_string(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
     del experiment_config['metrics']
     experiment_config['metrics'] = 'accuracy'
+    self.verify_integrity(experiment_config)
+
+  def test_config_metric_list(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    experiment_config['metrics'].append(dict(
+      name='f1',
+      strategy='store',
+      objective='maximize'
+    ))
     self.verify_integrity(experiment_config)

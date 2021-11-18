@@ -14,6 +14,7 @@ from .defaults import (
   SUPPORTED_METRICS_TO_OPTIMIZE
 )
 
+
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
     self.experiment_config = experiment_config
@@ -36,6 +37,16 @@ class XGBExperiment:
             'objective': 'maximize'
         }]
 
+    # Check experiment config optimization metric
+    for metric in self.experiment_config_parsed['metrics']:
+      if metric['strategy'] == 'optimize':
+        assert metric['name'] in DEFAULT_CLASSIFICATION_METRICS or metric['name'] in DEFAULT_REGRESSION_METRICS
+
+        # change optimized metric to reflect updated name
+        if isinstance(self.evals, list):
+          metric['name'] = self.evals[0][1] + '-' + metric['name']
+        else:
+          metric['name'] = DEFAULT_EVALS_NAME + '-' + metric['name']
 
   def parse_and_create_parameters(self):
     # Set defaults as needed
@@ -62,26 +73,12 @@ class XGBExperiment:
           if 'transformation' in search_bound:
             param['transformation'] = search_bound['transformation']
 
-  # TODO rename better
   def parse_and_create_experiment_config(self):
     self.experiment_config_parsed = copy.deepcopy(self.experiment_config)
     self.parse_and_create_metrics()
     self.parse_and_create_parameters()
 
   def parse_and_create_sigopt_experiment(self):
-
-    # Check experiment config optimization metric
-    for metric in self.experiment_config_parsed['metrics']:
-      print(self.experiment_config_parsed['metrics'])
-      if metric['strategy'] == 'optimize':
-        assert metric['name'] in DEFAULT_CLASSIFICATION_METRICS or metric['name'] in DEFAULT_REGRESSION_METRICS
-
-        # change optimized metric to reflect updated name
-        if isinstance(self.evals, list):
-          metric['name'] = self.evals[0][1] + '-' + metric['name']
-        else:
-          metric['name'] = DEFAULT_EVALS_NAME + '-' + metric['name']
-
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
     params_overlap = list(set(params_optimized) & set(self.params.keys()))
