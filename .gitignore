@@ -10,7 +10,7 @@ venv/
 tags
 
 #vim related
-.swp
+*.swp
 
 # PyCharm related stuff
 .idea*
