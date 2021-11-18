@@ -1,15 +1,16 @@
 import numpy
 from sigopt.xgboost.compute_metrics import (
+  compute_accuracy,
   compute_classification_report,
   compute_mae,
   compute_mse,
-  compute_accuracy
+  compute_positives_and_negatives,
 )
 from sklearn.metrics import (
   accuracy_score,
   classification_report,
   mean_absolute_error,
-  mean_squared_error
+  mean_squared_error,
 )
 
 def verify_classification_metrics_against_sklearn(y_true, y_pred):
@@ -27,6 +28,25 @@ def verify_classification_metrics_against_sklearn(y_true, y_pred):
     assert numpy.isclose(report_compute[label]['f1-score'], report_sklearn[label]['f1-score'])
 
 class TestComputeMetrics(object):
+  def test_compute_positives_and_negatives(self):
+    y_true = numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0])
+    y_pred = numpy.array([1, 0, 0, 0, 0, 0, 0, 1, 0, 0])
+    tp, tn, fp, fn = compute_positives_and_negatives(y_true, y_pred, 1)
+    assert sum([tp, tn, fp, fn]) == len(y_true)
+    assert tp == 1
+    assert tn == 6
+    assert fp == 1
+    assert fn == 2
+
+    y_true = numpy.array([1, 1, 1, 2, 2, 2, 0, 0, 0, 0])
+    y_pred = numpy.array([1, 0, 0, 0, 0, 0, 1, 1, 0, 0])
+    tp, tn, fp, fn = compute_positives_and_negatives(y_true, y_pred, 2)
+    assert sum([tp, tn, fp, fn]) == len(y_true)
+    assert tp == 0
+    assert tn == 7
+    assert fp == 0
+    assert fn == 3
+
   def test_binary_classification_one_true_label(self):
     y_true = numpy.zeros(10, dtype=int)
     y_pred = numpy.ones(10, dtype=int)
