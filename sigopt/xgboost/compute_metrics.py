@@ -1,5 +1,7 @@
 import numpy
+# pylint: disable=no-name-in-module
 from xgboost import Booster
+# pylint: enable=no-name-in-module
 
 
 def compute_positives_and_negatives(y_true, y_pred, class_label):

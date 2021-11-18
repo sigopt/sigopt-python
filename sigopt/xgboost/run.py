@@ -6,6 +6,7 @@ import time
 import xgboost
 # pylint: disable=no-name-in-module
 from xgboost import DMatrix
+# pylint: enable=no-name-in-module
 
 from ..context import Context
 from ..interface import TrainingRun
