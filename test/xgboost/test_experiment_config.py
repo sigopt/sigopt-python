@@ -77,7 +77,6 @@ class TestExperimentConfig:
     run_options = None
     xgb_experiment = XGBExperiment(experiment_config, D_train, D_test, params, num_boost_round, run_options)
     xgb_experiment.parse_and_create_experiment_config()
-    xgb_experiment.parse_and_create_sigopt_experiment()
     verify_experiment_config_integrity(xgb_experiment.experiment_config_parsed)
 
   def test_base(self):
