@@ -104,14 +104,12 @@ def _form_random_run_params(task):
   if task == 'multiclass':
     subset_params.update({'num_class': len(numpy.unique(y))})
 
-  run_options = {
-    'name': 'dev-integration-test'
-  }
+  run_options = {'name': f'dev-integration-test-{task}'}
 
   return dict(
     params=subset_params,
     dtrain=D_train,
-    evals=[(D_test, 'test0')],
+    evals=[(D_test, 'test0')] * random.randint(1, 3),
     num_boost_round=random.randint(3, 15),
     verbose_eval=random.choice([True, False]),
     run_options=run_options,
@@ -202,7 +200,6 @@ class TestXGBoost(object):
           self.run_params['num_boost_round'] % self.run_params['verbose_evals'] > 0
         )
       )
-
 
   @pytest.mark.parametrize("task", ['binary', 'multiclass', 'regression'])
   def test_run(self, task):
