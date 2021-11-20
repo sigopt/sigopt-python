@@ -1,4 +1,5 @@
 import itertools
+from mock import Mock
 import platform
 import pytest
 import random
@@ -213,3 +214,29 @@ class TestXGBoost(object):
     self._verify_metric_logging(run)
     self._verify_feature_importances_logging(run, ctx.model)
     self._verify_miscs_data_logging(run)
+
+  def test_run_options_no_logging(self):
+    self.run_params = _form_random_run_params(task='binary')
+    self.run_params['run_options'].update({
+      'log_checkpoints': False,
+      'log_feature_importances': False,
+      'log_metrics': False,
+      'log_params': False,
+    })
+    ctx = sigopt.xgboost.run(**self.run_params)
+    run = sigopt.get_run(ctx.run.id)
+
+    assert run.checkpoint_count == 0
+    assert 'feature_importances' not in run.sys_metadata
+    assert set(run.values.keys()) == set(
+      '-'.join((data_name, metric_name)) for data_name, metric_name in itertools.product(
+        self.run_params['evals'], self.run_params['params']['eval_metric']
+      )
+    )
+    assert not run.assignments
+
+  def test_wrong_dtrain_type(self):
+    self.run_params = _form_random_run_params(task='regression')
+    self.run_params['evals'] = numpy.random.random((5, 3))
+    with pytest.raises(AssertionError):
+      sigopt.xgboost.run(**self.run_params)

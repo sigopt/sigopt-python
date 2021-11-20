@@ -19,8 +19,8 @@ DEFAULT_TRAINING_NAME = 'TrainingSet'
 DEFAULT_RUN_OPTIONS = {
   'log_checkpoints': True,
   'log_feature_importances': True,
+  'log_metrics': True,
   'log_params': True,
-  'log_sigopt_metrics': True,
   'log_stdout': True,
   'log_stderr': True,
   'log_sys_info': True,
@@ -167,7 +167,7 @@ class XGBRun:
     objective = config_dict['learner']['objective']['name']
     # NOTE: do not log metrics if learning task isn't regression or classification
     if not any(s in config_dict['learner']['objective']['name'] for s in SUPPORTED_OBJECTIVE_PREFIXES):
-      self.run_options_parsed['log_sigopt_metrics'] = False
+      self.run_options_parsed['log_metrics'] = False
     if objective.split(':')[0] == 'reg':
       self.is_regression = True
     else:
@@ -217,7 +217,7 @@ class XGBRun:
     self.model = bst
 
   def log_training_metrics(self):
-    if self.run_options_parsed['log_sigopt_metrics']:
+    if self.run_options_parsed['log_metrics']:
       if self.is_regression:
         self.run.log_metrics(
           compute_regression_metrics(self.model, (self.dtrain, DEFAULT_TRAINING_NAME))
@@ -228,11 +228,12 @@ class XGBRun:
         )
 
   def log_validation_metrics(self):
+    # Always log xgb-default eval_metric
     for dataset, metric_dict in self.evals_result.items():
       for metric_label, metric_record in metric_dict.items():
         self.run.log_metric(f"{dataset}-{metric_label}", metric_record[-1])
 
-    if self.run_options_parsed['log_sigopt_metrics']:
+    if self.run_options_parsed['log_metrics']:
       if self.validation_sets:
         for validation_set in self.validation_sets:
           if self.is_regression:
@@ -251,7 +252,7 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
   and context.model are the resulting run and XGBoost model, respectively.
   """
-  if evals:
+  if evals is not None:
     assert isinstance(evals, (DMatrix, list)), (
       '`evals` must be a xgboost.core.DMatrix or list of (xgboost.core.DMatrix, str) tuples.'
     )
