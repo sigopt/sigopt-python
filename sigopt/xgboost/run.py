@@ -8,11 +8,12 @@ import xgboost
 from xgboost import DMatrix
 # pylint: enable=no-name-in-module
 
-from ..context import Context
-from ..interface import TrainingRun
-from ..log_capture import SystemOutputStreamMonitor
 from .. import create_run
+from ..context import Context
+from ..log_capture import SystemOutputStreamMonitor
+from ..run_context import RunContext
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
+
 
 DEFAULT_EVALS_NAME = 'TestSet'
 DEFAULT_TRAINING_NAME = 'TrainingSet'
@@ -53,9 +54,9 @@ def parse_run_options(run_options):
       assert not (run_options['run'] and run_options['name']), (
         "Cannot speicify both `run` and `name` keys inside run_options."
       )
-    if 'run' in run_options.keys():
-      assert isinstance(run_options['run'], TrainingRun), (
-        "`run` must be an instance of SigOpt TrainingRun object."
+    if 'run' in run_options.keys() and run_options['run'] is not None:
+      assert isinstance(run_options['run'], RunContext), (
+        "`run` must be an instance of RunContext object."
       )
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed

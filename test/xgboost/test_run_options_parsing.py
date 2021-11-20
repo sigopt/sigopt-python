@@ -2,6 +2,7 @@ from mock import Mock
 import pytest
 import random
 
+from sigopt.objects import TrainingRun
 from sigopt.run_context import RunContext
 from sigopt.xgboost.run import DEFAULT_RUN_OPTIONS, parse_run_options
 
@@ -15,7 +16,7 @@ class TestRunOptionsParsing(object):
     with pytest.raises(AssertionError):
       parse_run_options(run_options)
 
-  def test_run_options_conflict_run_name(self):
+  def test_run_options_run_and_name_keys(self):
     run_options = {
       'name': 'test-run',
       'run': Mock(),
@@ -23,12 +24,35 @@ class TestRunOptionsParsing(object):
     with pytest.raises(AssertionError):
       parse_run_options(run_options)
 
-  def test_run_options_wrong_run_object(self):
     run_options = {
-      'run': RunContext(Mock(), Mock(assignments={'a': 1}))
+      'name': None,
+      'run': None,
+    }
+    assert parse_run_options(run_options)
+
+    run_options = {
+      'name': "",
+      'run': None,
+    }
+    assert parse_run_options(run_options)
+
+    run_options = {
+      'name': "",
+      'run': RunContext(Mock(), Mock(assignments={'a': 1})),
+    }
+    assert parse_run_options(run_options)
+
+  def test_run_options_run_context_object(self):
+    run_options = {
+      'run': TrainingRun(Mock())
     }
     with pytest.raises(AssertionError):
       parse_run_options(run_options)
+
+    run_options = {
+      'run': RunContext(Mock(), Mock(assignments={'a': 1})),
+    }
+    assert parse_run_options(run_options)
 
   def test_run_options_fully_parsed(self):
     num_of_options = random.randint(1, len(DEFAULT_RUN_OPTIONS))
