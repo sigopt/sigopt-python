@@ -27,7 +27,7 @@ def compute_classification_report(y_true, y_pred):
   classification_report['weighted avg'] = {
     'f1-score': 0,
     'recall': 0,
-    'precision': 0
+    'precision': 0,
   }
   for class_label in classes:
     tp, _, fp, fn = compute_positives_and_negatives(y_true, y_pred, class_label)
@@ -39,7 +39,7 @@ def compute_classification_report(y_true, y_pred):
       'precision': precision,
       'recall': recall,
       'f1-score': f1,
-      'support': support
+      'support': support,
     }
     classification_report['weighted avg']['precision'] += (support / len(y_pred)) * precision
     classification_report['weighted avg']['recall'] += (support / len(y_pred)) * recall
@@ -74,7 +74,7 @@ def compute_classification_metrics(model, D_matrix_pair):
     f"{D_name}-accuracy" : accuracy,
     f"{D_name}-F1" : other_metrics['f1-score'],
     f"{D_name}-recall": other_metrics['recall'],
-    f"{D_name}-precision": other_metrics['precision']
+    f"{D_name}-precision": other_metrics['precision'],
   }
 
 
@@ -86,5 +86,5 @@ def compute_regression_metrics(model, D_matrix_pair):
   y_test = D_matrix.get_label()
   return {
     f"{D_name}-mean absolute error": compute_mae(y_test, preds),
-    f"{D_name}-mean squared error": compute_mse(y_test, preds)
+    f"{D_name}-mean squared error": compute_mse(y_test, preds),
   }

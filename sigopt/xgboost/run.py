@@ -183,7 +183,7 @@ class XGBRun:
     )
     fp = {
       'type': importance_type,
-      'scores': scores
+      'scores': scores,
     }
     self.run.log_sys_metadata('feature_importances', fp)
 

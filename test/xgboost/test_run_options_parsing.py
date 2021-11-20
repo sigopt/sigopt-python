@@ -3,10 +3,8 @@ import pytest
 import random
 
 from sigopt.run_context import RunContext
-from sigopt.xgboost.run import (
-  DEFAULT_RUN_OPTIONS,
-  parse_run_options,
-)
+from sigopt.xgboost.run import DEFAULT_RUN_OPTIONS, parse_run_options
+
 
 class TestRunOptionsParsing(object):
   def test_run_options_wrong_keys(self):
