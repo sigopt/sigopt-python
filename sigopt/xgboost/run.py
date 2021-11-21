@@ -47,17 +47,23 @@ SUPPORTED_OBJECTIVE_PREFIXES = [
 
 def parse_run_options(run_options):
   if run_options:
-    assert run_options.keys() <= DEFAULT_RUN_OPTIONS.keys(), (
-      f"Unsupported keys {run_options.keys() - DEFAULT_RUN_OPTIONS.keys()} inside run_options."
-    )
+    if run_options.keys() - DEFAULT_RUN_OPTIONS.keys():
+      raise ValueError(
+        f"Unsupported keys {run_options.keys() - DEFAULT_RUN_OPTIONS.keys()} in run_options."
+      )
+
     if {'run', 'name'}.issubset(run_options.keys()):
-      assert not (run_options['run'] and run_options['name']), (
-        "Cannot speicify both `run` and `name` keys inside run_options."
-      )
+      if run_options['run'] and run_options['name']:
+        raise ValueError(
+          "Cannot speicify both `run` and `name` keys inside run_options."
+        )
+
     if 'run' in run_options.keys() and run_options['run'] is not None:
-      assert isinstance(run_options['run'], RunContext), (
-        "`run` must be an instance of RunContext object."
-      )
+      if not isinstance(run_options['run'], RunContext):
+        raise ValueError(
+          "`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
+        )
+
   run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
   return run_options_parsed
 
@@ -251,12 +257,14 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
-  and context.model are the resulting run and XGBoost model, respectively.
+  and context.model are the resulting RunContext and XGBoost model, respectively.
   """
   if evals is not None:
-    assert isinstance(evals, (DMatrix, list)), (
-      '`evals` must be a xgboost.core.DMatrix or list of (xgboost.core.DMatrix, str) tuples.'
-    )
+    if not isinstance(evals, (DMatrix, list)):
+      dmatrix_module_name = '.'.join((DMatrix.__module__, DMatrix.__name__))
+      raise ValueError(
+        f"`evals` must be a {dmatrix_module_name} object or list of ({dmatrix_module_name}, str) tuples."
+      )
 
   _run = XGBRun(params, dtrain, num_boost_round, evals, verbose_eval, callbacks, run_options)
   _run.make_run()

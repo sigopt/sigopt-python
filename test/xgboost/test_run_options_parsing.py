@@ -13,7 +13,7 @@ class TestRunOptionsParsing(object):
       'log_metric': True,
       'log_params': True,
     }
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
       parse_run_options(run_options)
 
   def test_run_options_run_and_name_keys(self):
@@ -21,7 +21,7 @@ class TestRunOptionsParsing(object):
       'name': 'test-run',
       'run': Mock(),
     }
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
       parse_run_options(run_options)
 
     run_options = {
@@ -46,7 +46,7 @@ class TestRunOptionsParsing(object):
     run_options = {
       'run': TrainingRun(Mock())
     }
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
       parse_run_options(run_options)
 
     run_options = {
