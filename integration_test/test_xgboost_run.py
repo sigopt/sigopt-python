@@ -1,5 +1,4 @@
 import itertools
-from mock import Mock
 import platform
 import pytest
 import random
@@ -238,5 +237,5 @@ class TestXGBoost(object):
   def test_wrong_dtrain_type(self):
     self.run_params = _form_random_run_params(task='regression')
     self.run_params['evals'] = numpy.random.random((5, 3))
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
       sigopt.xgboost.run(**self.run_params)
