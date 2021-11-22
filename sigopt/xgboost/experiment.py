@@ -3,7 +3,7 @@ from .run import parse_run_options, PARAMS_LOGGED_AS_METADATA, DEFAULT_EVALS_NAM
 import copy
 
 from .. import create_experiment
-from .defaults import (
+from .constants import (
   SEARCH_BOUNDS,
   SEARCH_PARAMS,
   DEFAULT_SEARCH_PARAMS,
@@ -17,8 +17,7 @@ from .defaults import (
 
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
-    self.experiment_config = experiment_config
-    self.experiment_config_parsed = None
+    self.experiment_config_parsed = copy.deepcopy(experiment_config)
     self.dtrain = dtrain
     self.evals = evals
     self.params = params
@@ -72,12 +71,6 @@ class XGBExperiment:
           if 'transformation' in search_bound:
             param['transformation'] = search_bound['transformation']
 
-  def parse_and_create_experiment_config(self):
-    self.experiment_config_parsed = copy.deepcopy(self.experiment_config)
-    self.parse_and_create_metrics()
-    self.parse_and_create_parameters()
-
-  def parse_and_create_sigopt_experiment(self):
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
     params_overlap = list(set(params_optimized) & set(self.params.keys()))
@@ -92,6 +85,9 @@ class XGBExperiment:
         'We are optimizing num_boost_round, and right now it is fixed. Please remove it from either the search space' \
         ' or the input arguments. '
 
+  def parse_and_create_experiment(self):
+    self.parse_and_create_metrics()
+    self.parse_and_create_parameters()
     self.sigopt_experiment = create_experiment(**self.experiment_config_parsed)
 
   def run_experiment(self):
@@ -126,7 +122,6 @@ class XGBExperiment:
 def experiment(experiment_config, dtrain, evals, params, num_boost_round=None, run_options=None):
   run_options_parsed = parse_run_options(run_options)
   xgb_experiment = XGBExperiment(experiment_config, dtrain, evals, params, num_boost_round, run_options_parsed)
-  xgb_experiment.parse_and_create_experiment_config()
-  xgb_experiment.parse_and_create_sigopt_experiment()
+  xgb_experiment.parse_and_create_experiment()
   xgb_experiment.run_experiment()
   return xgb_experiment.sigopt_experiment
