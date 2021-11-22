@@ -99,6 +99,7 @@ class TestExperimentConfig:
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
     del experiment_config['parameters'][2]['type']
     del experiment_config['parameters'][2]['bounds']
+    self.verify_integrity(experiment_config)
 
   def test_config_metric_string(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)

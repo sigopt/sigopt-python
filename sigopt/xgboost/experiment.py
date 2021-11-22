@@ -114,7 +114,6 @@ class XGBExperiment:
         if 'num_boost_round' not in run.params:
           run.params.update({'num_boost_round': num_boost_round_run})
 
-
         XGBRun(
           all_params,
           self.dtrain,

@@ -1,5 +1,5 @@
 SEARCH_BOUNDS = [
-  {'name': 'num_boost_round',   'type': 'int',                              'bounds': {'min': 1, 'max': 2}},
+  {'name': 'num_boost_round',   'type': 'int',                              'bounds': {'min': 10, 'max': 200}},
   {'name': 'eta',               'type': 'double', 'transformation': 'log',  'bounds': {'min': 0.001, 'max': 1}},
   {'name': 'gamma',             'type': 'double',                           'bounds': {'min': 0, 'max': 5}},
   {'name': 'max_depth',         'type': 'int',                              'bounds': {'min': 1, 'max': 16}},

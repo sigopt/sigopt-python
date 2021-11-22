@@ -35,8 +35,8 @@ class TestXGBoostExperiment:
     if random.randint(0, 1) == 1:   # add bounds and type to min_child_weight randomly
       search_space[1]['type'] = 'double'
       search_space[1]['bounds'] = {'min': 0.0, 'max': 0.3}
-    random_subset_size = random.randint(1, len(SEARCH_SPACES))
-    search_space = random.sample(SEARCH_SPACES, random_subset_size)
+    random_subset_size = random.randint(1, len(search_space))
+    search_space = random.sample(search_space, random_subset_size)
     return search_space
 
   def _form_random_experiment_config(self, task):
