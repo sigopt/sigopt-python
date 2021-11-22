@@ -2,10 +2,10 @@ import warnings
 
 from .config import config
 from .defaults import get_default_project
-from .interface import Connection, get_connection
+from .interface import Connection
 from .logging import enable_print_logging
 from .magics import SigOptMagics as _Magics
-from .run_context import global_run_context as _global_run_context, RunContext
+from .run_context import global_run_context as _global_run_context
 from .factory import SigOptFactory
 from .version import VERSION
 
@@ -19,7 +19,6 @@ log_metadata = _global_run_context.log_metadata
 log_metric = _global_run_context.log_metric
 log_metrics = _global_run_context.log_metrics
 log_model = _global_run_context.log_model
-log_sys_metadata = _global_run_context.log_sys_metadata
 config.set_context_entry(_global_run_context)
 
 _global_factory = SigOptFactory(get_default_project())
@@ -48,12 +47,3 @@ def set_project(project):
       UserWarning,
     )
   return _global_factory.set_project(project)
-
-def switch_run_context(run_id):
-  if get_run_id() == run_id:
-    return
-
-  context = RunContext(
-    connection = get_connection(),
-    run = get_run(run_id))
-  _global_run_context._run_context = context
