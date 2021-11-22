@@ -3,7 +3,7 @@ import random
 
 import sigopt.xgboost
 from sigopt.xgboost.experiment import DEFAULT_CLASSIFICATION_METRICS, DEFAULT_REGRESSION_METRICS
-from .test_xgboost import _form_random_run_params
+from .test_xgboost_run import _form_random_run_params
 
 SEARCH_SPACES = [
   {
