@@ -236,9 +236,10 @@ class XGBRun:
 
   def log_validation_metrics(self):
     # Always log xgb-default eval_metric
-    for dataset, metric_dict in self.evals_result.items():
-      for metric_label, metric_record in metric_dict.items():
-        self.run.log_metric(f"{dataset}-{metric_label}", metric_record[-1])
+    if self.evals_result is not None:
+      for dataset, metric_dict in self.evals_result.items():
+        for metric_label, metric_record in metric_dict.items():
+          self.run.log_metric(f"{dataset}-{metric_label}", metric_record[-1])
 
     if self.run_options_parsed['log_metrics']:
       if self.validation_sets:

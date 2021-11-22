@@ -109,7 +109,7 @@ def _form_random_run_params(task):
   return dict(
     params=subset_params,
     dtrain=D_train,
-    evals=[(D_test, 'test0')] * random.randint(1, 3),
+    evals=[(D_test, f'test{n}') for n in range(random.randint(0, 2))],
     num_boost_round=random.randint(3, 15),
     verbose_eval=random.choice([True, False]),
     run_options=run_options,
@@ -227,11 +227,13 @@ class TestXGBoost(object):
 
     assert run.checkpoint_count == 0
     assert 'feature_importances' not in run.sys_metadata
-    assert set(run.values.keys()) == set(
-      '-'.join((data_name, metric_name)) for data_name, metric_name in itertools.product(
-        self.run_params['evals'], self.run_params['params']['eval_metric']
+    if self.run_params['evals']:
+      assert set(run.values.keys()) == set([
+        '-'.join((data_name[1], metric_name)) for data_name, metric_name in itertools.product(
+          self.run_params['evals'], self.run_params['params']['eval_metric']
+        )
+      ] + ['Training time']
       )
-    )
     assert not run.assignments
 
   def test_wrong_dtrain_type(self):
