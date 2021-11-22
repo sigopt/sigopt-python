@@ -1,3 +1,4 @@
+import copy
 import math
 import json
 import platform
@@ -64,8 +65,9 @@ def parse_run_options(run_options):
           "`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
         )
 
-  run_options_parsed = {**DEFAULT_RUN_OPTIONS, **run_options} if run_options else DEFAULT_RUN_OPTIONS
-  return run_options_parsed
+    return {**DEFAULT_RUN_OPTIONS, **run_options}
+
+  return copy.deepcopy(DEFAULT_RUN_OPTIONS)
 
 
 class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
