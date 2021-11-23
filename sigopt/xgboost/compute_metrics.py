@@ -1,4 +1,7 @@
 import numpy
+# pylint: disable=no-name-in-module
+from xgboost import Booster
+# pylint: enable=no-name-in-module
 
 
 def compute_positives_and_negatives(y_true, y_pred, class_label):
@@ -24,7 +27,7 @@ def compute_classification_report(y_true, y_pred):
   classification_report['weighted avg'] = {
     'f1-score': 0,
     'recall': 0,
-    'precision': 0
+    'precision': 0,
   }
   for class_label in classes:
     tp, _, fp, fn = compute_positives_and_negatives(y_true, y_pred, class_label)
@@ -36,7 +39,7 @@ def compute_classification_report(y_true, y_pred):
       'precision': precision,
       'recall': recall,
       'f1-score': f1,
-      'support': support
+      'support': support,
     }
     classification_report['weighted avg']['precision'] += (support / len(y_pred)) * precision
     classification_report['weighted avg']['recall'] += (support / len(y_pred)) * recall
@@ -54,9 +57,10 @@ def compute_mse(y_true, y_pred):
   return numpy.mean(d ** 2)
 
 
-def compute_classification_metrics(run, bst, D_matrix_pair):
+def compute_classification_metrics(model, D_matrix_pair):
+  assert isinstance(model, Booster)
   D_matrix, D_name = D_matrix_pair
-  preds = bst.predict(D_matrix)
+  preds = model.predict(D_matrix)
   # Check shape of preds
   if len(preds.shape) == 2:
     preds = numpy.argmax(preds, axis=1)
@@ -66,22 +70,21 @@ def compute_classification_metrics(run, bst, D_matrix_pair):
   accuracy = compute_accuracy(y_test, preds)
   rep = compute_classification_report(y_test, preds)
   other_metrics = rep['weighted avg']
-  classification_metrics = {
+  return {
     f"{D_name}-accuracy" : accuracy,
     f"{D_name}-F1" : other_metrics['f1-score'],
     f"{D_name}-recall": other_metrics['recall'],
-    f"{D_name}-precision": other_metrics['precision']
+    f"{D_name}-precision": other_metrics['precision'],
   }
-  run.log_metrics(classification_metrics)
 
 
-def compute_regression_metrics(run, bst, D_matrix_pair):
+def compute_regression_metrics(model, D_matrix_pair):
+  assert isinstance(model, Booster)
   D_matrix, D_name = D_matrix_pair
-  preds = bst.predict(D_matrix)
+  preds = model.predict(D_matrix)
   preds = numpy.round(preds)
   y_test = D_matrix.get_label()
-  regression_metrics = {
+  return {
     f"{D_name}-mean absolute error": compute_mae(y_test, preds),
-    f"{D_name}-mean squared error": compute_mse(y_test, preds)
+    f"{D_name}-mean squared error": compute_mse(y_test, preds),
   }
-  run.log_metrics(regression_metrics)

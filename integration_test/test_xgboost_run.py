@@ -4,7 +4,13 @@ import pytest
 import random
 
 import sigopt.xgboost
-from sigopt.xgboost.run import PARAMS_LOGGED_AS_METADATA
+from sigopt.xgboost.run import (
+  DEFAULT_CHECKPOINT_PERIOD,
+  DEFAULT_EVALS_NAME,
+  DEFAULT_TRAINING_NAME,
+  PARAMS_LOGGED_AS_METADATA,
+  XGB_INTEGRATION_KEYWORD,
+)
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 import numpy
@@ -98,16 +104,14 @@ def _form_random_run_params(task):
   if task == 'multiclass':
     subset_params.update({'num_class': len(numpy.unique(y))})
 
-  run_options = {
-    'name': 'dev-integration-test'
-  }
+  run_options = {'name': f'dev-integration-test-{task}'}
 
   return dict(
     params=subset_params,
     dtrain=D_train,
-    evals=[(D_test, 'test0')],
+    evals=[(D_test, f'test{n}') for n in range(random.randint(1, 3))],
     num_boost_round=random.randint(3, 15),
-    verbose_eval=False,
+    verbose_eval=random.choice([True, False]),
     run_options=run_options,
   )
 
@@ -126,7 +130,7 @@ class TestXGBoost(object):
     assert run.assignments['num_boost_round'] == self.run_params['num_boost_round']
 
   def _verify_metric_logging(self, run):
-    data_names = ['Training Set']
+    data_names = [DEFAULT_TRAINING_NAME]
     if self.run_params['evals']:
       data_names.extend([e[-1] for e in self.run_params['evals']])
     if self.is_classification:
@@ -145,9 +149,57 @@ class TestXGBoost(object):
   def _verify_metadata_logging(self, run):
     assert run.metadata['Dataset columns'] == self.run_params['dtrain'].num_col()
     assert run.metadata['Dataset rows'] == self.run_params['dtrain'].num_row()
-    assert run.metadata['Number of Test Sets'] == len(self.run_params['evals'])
+    if 'evals' in self.run_params:
+      if isinstance(self.run_params['evals'], list):
+        assert run.metadata['Number of Test Sets'] == len(self.run_params['evals'])
+      else:
+        assert run.metadata['Number of Test Sets'] == 1
     assert run.metadata['Python Version'] == platform.python_version()
     assert run.metadata['XGBoost Version'] == xgb.__version__
+
+  def _verify_feature_importances_logging(self, run, model):
+    real_scores = sorted(model.get_score(importance_type='weight').items(), key=lambda x: (x[1], x[0]), reverse=True)
+    if real_scores:
+      feature_importances = run.sys_metadata['feature_importances']
+      saved_scores = sorted(feature_importances['scores'].items(), key=lambda x: (x[1], x[0]), reverse=True)
+      assert feature_importances['type'] == 'weight'
+      assert saved_scores and len(saved_scores) <= len(real_scores)
+      real_scores = real_scores[:len(saved_scores)]
+      assert [feature_name for feature_name, _ in real_scores] == [feature_name for feature_name, _ in saved_scores]
+      assert numpy.allclose(
+        numpy.array([feature_importance for _, feature_importance in real_scores]),
+        numpy.array([feature_importance for _, feature_importance in saved_scores]),
+      )
+
+  def _verify_miscs_data_logging(self, run):
+    if 'name' in self.run_params['run_options']:
+      assert run.name == self.run_params['run_options']['name']
+
+    if 'evals' in self.run_params:
+      if isinstance(self.run_params['evals'], list):
+        assert set(run.datasets) == set([e[1] for e in self.run_params['evals']])
+      else:
+        assert len(run.datasets) == 1
+        assert run.datasets[0] == DEFAULT_EVALS_NAME
+
+    assert XGB_INTEGRATION_KEYWORD in run.dev_metadata
+    assert run.dev_metadata[XGB_INTEGRATION_KEYWORD]
+
+  def _verify_checkpoint_logging(self, run):
+    if not self.run_params['verbose_evals']:
+      assert run.checkpoint_count == (
+        self.run_params['num_boost_round'] // DEFAULT_CHECKPOINT_PERIOD + 1 * (
+          self.run_params['num_boost_round'] % DEFAULT_CHECKPOINT_PERIOD > 0
+        )
+      )
+    elif self.run_params['verbose_evals'] is True:
+      assert run.checkpoint_count == self.run_params['num_boost_round']
+    else:
+      assert run.checkpoint_count == (
+        self.run_params['num_boost_round'] // self.run_params['verbose_evals'] + 1 * (
+          self.run_params['num_boost_round'] % self.run_params['verbose_evals'] > 0
+        )
+      )
 
   @pytest.mark.parametrize("task", ['binary', 'multiclass', 'regression'])
   def test_run(self, task):
@@ -155,21 +207,37 @@ class TestXGBoost(object):
     self.run_params = _form_random_run_params(task)
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
-    if 'name' in self.run_params['run_options']:
-      assert run.name == self.run_params['run_options']['name']
+
     self._verify_metadata_logging(run)
     self._verify_parameter_logging(run)
     self._verify_metric_logging(run)
+    self._verify_feature_importances_logging(run, ctx.model)
+    self._verify_miscs_data_logging(run)
 
-    real_scores = sorted(ctx.model.get_score(importance_type='weight').items(), key=lambda x: (x[1], x[0]), reverse=True)
-    if real_scores:
-      feature_importances = run.sys_metadata['feature_importances']
-      saved_scores = sorted(feature_importances['scores'].items(), key=lambda x: (x[1], x[0]), reverse=True)
-      assert feature_importances['type'] == 'weight'
-      assert saved_scores and len(saved_scores) <= len(real_scores)
-      real_scores = real_scores[:len(saved_scores)]
-      assert [k for k, v in real_scores] == [k for k, v in saved_scores]
-      assert numpy.allclose(
-        numpy.array([v for k, v in real_scores]),
-        numpy.array([v for k, v in saved_scores]),
+  def test_run_options_no_logging(self):
+    self.run_params = _form_random_run_params(task='binary')
+    self.run_params['run_options'].update({
+      'log_checkpoints': False,
+      'log_feature_importances': False,
+      'log_metrics': False,
+      'log_params': False,
+    })
+    ctx = sigopt.xgboost.run(**self.run_params)
+    run = sigopt.get_run(ctx.run.id)
+
+    assert run.checkpoint_count == 0
+    assert 'feature_importances' not in run.sys_metadata
+    if self.run_params['evals']:
+      assert set(run.values.keys()) == set([
+        '-'.join((data_name[1], metric_name)) for data_name, metric_name in itertools.product(
+          self.run_params['evals'], self.run_params['params']['eval_metric']
+        )
+      ] + ['Training time']
       )
+    assert not run.assignments
+
+  def test_wrong_dtrain_type(self):
+    self.run_params = _form_random_run_params(task='regression')
+    self.run_params['evals'] = numpy.random.random((5, 3))
+    with pytest.raises(ValueError):
+      sigopt.xgboost.run(**self.run_params)
