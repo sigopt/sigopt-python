@@ -1,20 +1,9 @@
 import pytest
+from mock import Mock
 import copy
-
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-import xgboost as xgb
-import numpy as np
 
 from sigopt.xgboost.experiment import XGBExperiment
 
-iris = datasets.load_iris()
-X = iris.data
-y = iris.target
-num_class = 3
-X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2)
-D_train = xgb.DMatrix(X_train, label=Y_train)
-D_test = xgb.DMatrix(X_test, label=Y_test)
 EXPERIMENT_CONFIG_BASE = dict(
   name='Single metric optimization',
   type='offline',
@@ -46,7 +35,7 @@ EXPERIMENT_CONFIG_BASE = dict(
   budget=2
 )
 params = {
-  'num_class': num_class,
+  'num_class': 3,
   'lambda': 1,
 }
 
@@ -75,7 +64,9 @@ class TestExperimentConfig:
   def verify_integrity(self, experiment_config):
     num_boost_round = None
     run_options = None
-    xgb_experiment = XGBExperiment(experiment_config, D_train, D_test, params, num_boost_round, run_options)
+    d_train = Mock()
+    evals = Mock()
+    xgb_experiment = XGBExperiment(experiment_config, d_train, evals, params, num_boost_round, run_options)
     xgb_experiment.parse_and_create_metrics()
     xgb_experiment.parse_and_create_parameters()
     verify_experiment_config_integrity(xgb_experiment.experiment_config_parsed)
