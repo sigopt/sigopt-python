@@ -9,10 +9,15 @@ from .constants import (
   DEFAULT_SEARCH_PARAMS,
   DEFAULT_BO_ITERATIONS,
   DEFAULT_NUM_BOOST_ROUND,
+  DEFAULT_REGRESSION_METRIC,
+  DEFAULT_CLASSIFICATION_METRIC,
   REGRESSION_METRIC_CHOICES,
   CLASSIFICATION_METRIC_CHOICES,
   SUPPORTED_METRICS_TO_OPTIMIZE
 )
+
+def check_experiment_config(experiment_config):
+  pass
 
 
 class XGBExperiment:
@@ -26,17 +31,27 @@ class XGBExperiment:
     self.sigopt_experiment = None
 
   def parse_and_create_metrics(self):
-    if 'metrics' in self.experiment_config_parsed and isinstance(self.experiment_config_parsed['metrics'], str):
-      assert self.experiment_config_parsed['metrics'] in SUPPORTED_METRICS_TO_OPTIMIZE
-      metric_to_optimize = self.experiment_config_parsed['metrics']
+    if 'metrics' in self.experiment_config_parsed and isinstance(self.experiment_config_parsed['metrics'], list):
+      pass  # do nothing
+    else:
+      if 'metrics' not in self.experiment_config_parsed:
+        # pick a default metric
+        if 'objective' in self.params:
+          objective = self.params['objective']
+          if objective.split(':')[0] in ['binary', 'multi']:
+            metric_to_optimize = DEFAULT_CLASSIFICATION_METRIC
+          else:
+            metric_to_optimize = DEFAULT_REGRESSION_METRIC  # do regression if anything else (including ranking)
+        else:
+          metric_to_optimize = DEFAULT_REGRESSION_METRIC
+      else:
+        assert self.experiment_config_parsed['metrics'] in SUPPORTED_METRICS_TO_OPTIMIZE
+        metric_to_optimize = self.experiment_config_parsed['metrics']
       self.experiment_config_parsed['metrics'] = [{
         'name': metric_to_optimize,
         'strategy': 'optimize',
         'objective': 'maximize'
       }]
-    else:
-      # use a default metric
-      pass
 
     # Check experiment config optimization metric
     for metric in self.experiment_config_parsed['metrics']:

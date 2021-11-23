@@ -63,6 +63,9 @@ class TestXGBoostExperiment:
       'parallel_bandwidth': 1,
       'budget': random.randint(1, 3)
     }
+    if random.randint(0, 1) == 0:
+      del experiment_config['metrics']
+
     experiment_params['experiment_config'] = experiment_config
     experiment_params['run_options'].pop('name', None)
     experiment_params.pop('verbose_eval', None)
