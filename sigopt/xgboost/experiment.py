@@ -47,15 +47,6 @@ class XGBExperiment:
           metric['name'] = DEFAULT_EVALS_NAME + '-' + metric['name']
 
   def parse_and_create_parameters(self):
-    # Set defaults as needed
-    if 'budget' not in self.experiment_config_parsed:
-      self.experiment_config_parsed['budget'] = DEFAULT_BO_ITERATIONS
-    if 'parallel_bandwidth' not in self.experiment_config_parsed:
-      self.experiment_config_parsed['parallel_bandwidth'] = 1
-    if 'type' not in self.experiment_config_parsed:
-      self.experiment_config_parsed['type'] = 'offline'
-
-    # Parse params
     if 'parameters' not in self.experiment_config_parsed:
       self.experiment_config_parsed['parameters'] = [
         SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)] for param_name in DEFAULT_SEARCH_PARAMS
@@ -88,6 +79,12 @@ class XGBExperiment:
   def parse_and_create_experiment(self):
     self.parse_and_create_metrics()
     self.parse_and_create_parameters()
+    if 'budget' not in self.experiment_config_parsed:
+      self.experiment_config_parsed['budget'] = DEFAULT_BO_ITERATIONS
+    if 'parallel_bandwidth' not in self.experiment_config_parsed:
+      self.experiment_config_parsed['parallel_bandwidth'] = 1
+    if 'type' not in self.experiment_config_parsed:
+      self.experiment_config_parsed['type'] = 'offline'
     self.sigopt_experiment = create_experiment(**self.experiment_config_parsed)
 
   def run_experiment(self):
