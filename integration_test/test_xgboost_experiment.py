@@ -38,6 +38,9 @@ class TestXGBoostExperiment:
 
     random_subset_size = random.randint(1, len(SEARCH_SPACES))
     search_space = random.sample(SEARCH_SPACES, random_subset_size)
+    if not any([p['type'] == 'double' for p in search_space]):
+      search_space.append(SEARCH_SPACES[0])
+
     for param in search_space:
       experiment_params['params'].pop(param['name'], None)
       if param['name'] == 'num_boost_round':
