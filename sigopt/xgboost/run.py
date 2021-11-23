@@ -52,7 +52,7 @@ def parse_run_options(run_options):
     if not isinstance(run_options, dict):
       # TODO(Harvey): change to actual doc url when it's online
       doc_url = "https://app.sigopt.com/docs/intro/overview"
-      raise ValueError(
+      raise TypeError(
         f"run_options should be a dictonary. Refer to the sigopt.xgboost.run documentation {doc_url}"
       )
 
@@ -69,7 +69,7 @@ def parse_run_options(run_options):
 
     if 'run' in run_options.keys() and run_options['run'] is not None:
       if not isinstance(run_options['run'], RunContext):
-        raise ValueError(
+        raise TypeError(
           "`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
         )
 
@@ -278,7 +278,7 @@ def run(
   if evals is not None:
     if not isinstance(evals, (DMatrix, list)):
       dmatrix_module_name = '.'.join((DMatrix.__module__, DMatrix.__name__))
-      raise ValueError(
+      raise TypeError(
         f"`evals` must be a {dmatrix_module_name} object or list of ({dmatrix_module_name}, str) tuples."
       )
 
