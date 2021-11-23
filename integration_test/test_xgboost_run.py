@@ -109,7 +109,7 @@ def _form_random_run_params(task):
   return dict(
     params=subset_params,
     dtrain=D_train,
-    evals=[(D_test, f'test{n}') for n in range(random.randint(0, 2))],
+    evals=[(D_test, f'test{n}') for n in range(random.randint(1, 3))],
     num_boost_round=random.randint(3, 15),
     verbose_eval=random.choice([True, False]),
     run_options=run_options,
