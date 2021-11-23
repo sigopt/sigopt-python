@@ -3,7 +3,7 @@ import pytest
 import random
 
 import sigopt.xgboost
-from sigopt.xgboost.experiment import DEFAULT_CLASSIFICATION_METRICS, DEFAULT_REGRESSION_METRICS
+from sigopt.xgboost.experiment import CLASSIFICATION_METRIC_CHOICES, REGRESSION_METRIC_CHOICES
 from .test_xgboost import _form_random_run_params
 
 SEARCH_SPACES = [
@@ -42,8 +42,8 @@ class TestXGBoostExperiment:
   def _form_random_experiment_config(self, task):
     experiment_params = _form_random_run_params(task)
     is_classification = True if task in ('binary', 'multiclass') else False
-    metric_to_optimize = random.choice(DEFAULT_CLASSIFICATION_METRICS) if is_classification \
-      else random.choice(DEFAULT_REGRESSION_METRICS)
+    metric_to_optimize = random.choice(CLASSIFICATION_METRIC_CHOICES) if is_classification \
+      else random.choice(REGRESSION_METRIC_CHOICES)
     search_space = self._generate_randomized_search_space()
 
     for param in search_space:

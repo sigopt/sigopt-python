@@ -9,8 +9,8 @@ from .constants import (
   DEFAULT_SEARCH_PARAMS,
   DEFAULT_BO_ITERATIONS,
   DEFAULT_NUM_BOOST_ROUND,
-  DEFAULT_REGRESSION_METRICS,
-  DEFAULT_CLASSIFICATION_METRICS,
+  REGRESSION_METRIC_CHOICES,
+  CLASSIFICATION_METRIC_CHOICES,
   SUPPORTED_METRICS_TO_OPTIMIZE
 )
 
@@ -34,11 +34,14 @@ class XGBExperiment:
         'strategy': 'optimize',
         'objective': 'maximize'
       }]
+    else:
+      # use a default metric
+      pass
 
     # Check experiment config optimization metric
     for metric in self.experiment_config_parsed['metrics']:
       if metric['strategy'] == 'optimize':
-        assert metric['name'] in DEFAULT_CLASSIFICATION_METRICS or metric['name'] in DEFAULT_REGRESSION_METRICS
+        assert metric['name'] in CLASSIFICATION_METRIC_CHOICES or metric['name'] in REGRESSION_METRIC_CHOICES
 
         # change optimized metric to reflect updated name
         if isinstance(self.evals, list):
