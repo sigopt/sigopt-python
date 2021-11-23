@@ -53,7 +53,7 @@ def parse_run_options(run_options):
       # TODO(Harvey): change to actual doc url when it's online
       doc_url = "https://app.sigopt.com/docs/intro/overview"
       raise ValueError(
-        f"run_options should be a dictonary. Refer to the sigopt.xgboost.run documentation. {doc_rul}"
+        f"run_options should be a dictonary. Refer to the sigopt.xgboost.run documentation {doc_url}"
       )
 
     if run_options.keys() - DEFAULT_RUN_OPTIONS.keys():
