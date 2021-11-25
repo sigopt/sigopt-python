@@ -117,7 +117,7 @@ def _form_random_run_params(task):
     run_options=run_options,
   )
 
-class TestXGBoostRunWrapper(object):
+class TestXGBoostRun(object):
   def _verify_parameter_logging(self, run):
     params = self.run_params['params']
     for p in params.keys():
@@ -244,7 +244,7 @@ class TestXGBoostRunWrapper(object):
       sigopt.xgboost.run(**self.run_params)
 
 
-class TestXGBRun(object):
+class TestFormCallbacks(object):
   @pytest.mark.parametrize("verbose_eval", [True, False, 1, 3, 23])
   def test_xgbrun_form_callbacks(self, verbose_eval):
     self.run_params = _form_random_run_params(task="multiclass")
