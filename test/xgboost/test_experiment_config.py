@@ -3,6 +3,7 @@ from mock import Mock
 import copy
 
 from sigopt.xgboost.experiment import XGBExperiment
+from sigopt.xgboost.constants import DEFAULT_REGRESSION_METRIC, DEFAULT_CLASSIFICATION_METRIC
 
 EXPERIMENT_CONFIG_BASE = dict(
   name='Single metric optimization',
@@ -34,7 +35,7 @@ EXPERIMENT_CONFIG_BASE = dict(
   parallel_bandwidth=1,
   budget=2
 )
-params = {
+PARAMS_BASE = {
   'num_class': 3,
   'lambda': 1,
 }
@@ -60,44 +61,84 @@ def verify_experiment_config_integrity(experiment_config):
     assert 'objective' in metric
 
 
+def parse_and_create_experiment_config(experiment_config, params):
+  num_boost_round = None
+  run_options = None
+  d_train = Mock()
+  evals = Mock()
+  xgb_experiment = XGBExperiment(experiment_config, d_train, evals, params, num_boost_round, run_options)
+  xgb_experiment.parse_and_create_metrics()
+  xgb_experiment.parse_and_create_parameters()
+  return xgb_experiment
+
+
 class TestExperimentConfig:
-  def verify_integrity(self, experiment_config):
-    num_boost_round = None
-    run_options = None
-    d_train = Mock()
-    evals = Mock()
-    xgb_experiment = XGBExperiment(experiment_config, d_train, evals, params, num_boost_round, run_options)
-    xgb_experiment.parse_and_create_metrics()
-    xgb_experiment.parse_and_create_parameters()
+  def verify_integrity(self, experiment_config, params):
+    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
     verify_experiment_config_integrity(xgb_experiment.experiment_config_parsed)
 
   def test_base(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
-    self.verify_integrity(experiment_config)
+    params = copy.deepcopy(PARAMS_BASE)
+    self.verify_integrity(experiment_config, params)
 
   def test_config_no_search_space(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
     del experiment_config['parameters']
-    self.verify_integrity(experiment_config)
+    self.verify_integrity(experiment_config, params)
 
-  def test_config_search_space_string_only(self):
+  def test_config_search_space_name_only(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
     for parameter in experiment_config['parameters']:
       del parameter['type']
       del parameter['bounds']
-    self.verify_integrity(experiment_config)
+    self.verify_integrity(experiment_config, params)
+
+  def test_config_detect_log_transformation(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    experiment_config['parameters'] = [dict(name='eta')]
+    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
+    assert xgb_experiment.experiment_config_parsed['parameters'][0]['transformation'] == 'log'
 
   def test_config_search_space_mixed(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
     del experiment_config['parameters'][2]['type']
     del experiment_config['parameters'][2]['bounds']
-    self.verify_integrity(experiment_config)
+    self.verify_integrity(experiment_config, params)
 
-  def test_config_metric_string(self):
+  def test_config_no_supported_bounds(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    experiment_config['parameters'].append(dict(name='max_leaves'))
+    params = copy.deepcopy(PARAMS_BASE)
+    with pytest.raises(ValueError):
+      self.verify_integrity(experiment_config, params)
+
+  def test_autodetect_metric_from_objective(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
     del experiment_config['metrics']
+    params = copy.deepcopy(PARAMS_BASE)
+
+    params['objective'] = 'binary:logistic'
+    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
+    assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == 'TestSet-' + DEFAULT_CLASSIFICATION_METRIC
+
+    params['objective'] = 'multi:softmax'
+    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
+    assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == 'TestSet-' + DEFAULT_CLASSIFICATION_METRIC
+
+    params['objective'] = 'reg:squarederror'
+    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
+    assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == 'TestSet-' + DEFAULT_REGRESSION_METRIC
+
+  def test_config_metric_string_only(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
     experiment_config['metrics'] = 'accuracy'
-    self.verify_integrity(experiment_config)
+    self.verify_integrity(experiment_config, params)
 
   def test_config_metric_list(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
@@ -106,4 +147,34 @@ class TestExperimentConfig:
       strategy='store',
       objective='maximize'
     ))
-    self.verify_integrity(experiment_config)
+    params = copy.deepcopy(PARAMS_BASE)
+    self.verify_integrity(experiment_config, params)
+
+  def test_config_param_defined_twice(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    params['eta'] = 0.1
+    with pytest.raises(ValueError):
+      self.verify_integrity(experiment_config, params)
+
+  def test_config_num_boost_round_defined_twice(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    params['num_boost_round'] = 10
+    with pytest.raises(ValueError):
+      self.verify_integrity(experiment_config, params)
+
+  def test_config_wrong_metric_string(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    experiment_config['metrics'] = 'NOT_A_METRIC_SUPPORTED'
+    params = copy.deepcopy(PARAMS_BASE)
+    with pytest.raises(ValueError):
+      self.verify_integrity(experiment_config, params)
+
+  def test_config_wrong_metric_list(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    experiment_config['metrics'][0]['name'] = 'NOT_A_METRIC_SUPPORTED'
+    params = copy.deepcopy(PARAMS_BASE)
+    with pytest.raises(ValueError):
+      self.verify_integrity(experiment_config, params)
+
