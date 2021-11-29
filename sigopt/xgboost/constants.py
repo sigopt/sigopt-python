@@ -22,3 +22,7 @@ DEFAULT_SEARCH_PARAMS = ['eta', 'gamma', 'max_depth', 'min_child_weight', 'num_b
 CLASSIFICATION_METRIC_CHOICES = ['accuracy', 'F1', 'precision', 'recall']
 REGRESSION_METRIC_CHOICES = ['mean absolute error', 'mean squared error']
 SUPPORTED_METRICS_TO_OPTIMIZE = CLASSIFICATION_METRIC_CHOICES + REGRESSION_METRIC_CHOICES
+METRICS_OPTIMIZATION_STRATEGY = {
+  **dict(zip(CLASSIFICATION_METRIC_CHOICES, ['maximize']*len(CLASSIFICATION_METRIC_CHOICES))),
+  **dict(zip(REGRESSION_METRIC_CHOICES, ['minimize']*len(REGRESSION_METRIC_CHOICES))),
+}

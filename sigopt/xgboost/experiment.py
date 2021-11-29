@@ -4,20 +4,16 @@ import copy
 
 from .. import create_experiment
 from .constants import (
-  SEARCH_BOUNDS,
-  SEARCH_PARAMS,
-  DEFAULT_SEARCH_PARAMS,
   DEFAULT_BO_ITERATIONS,
+  DEFAULT_CLASSIFICATION_METRIC,
   DEFAULT_NUM_BOOST_ROUND,
   DEFAULT_REGRESSION_METRIC,
-  DEFAULT_CLASSIFICATION_METRIC,
-  REGRESSION_METRIC_CHOICES,
-  CLASSIFICATION_METRIC_CHOICES,
-  SUPPORTED_METRICS_TO_OPTIMIZE
+  DEFAULT_SEARCH_PARAMS,
+  SEARCH_BOUNDS,
+  SEARCH_PARAMS,
+  SUPPORTED_METRICS_TO_OPTIMIZE,
+  METRICS_OPTIMIZATION_STRATEGY,
 )
-
-def check_experiment_config(experiment_config):
-  pass
 
 
 class XGBExperiment:
@@ -32,10 +28,9 @@ class XGBExperiment:
 
   def parse_and_create_metrics(self):
     if 'metrics' in self.experiment_config_parsed and isinstance(self.experiment_config_parsed['metrics'], list):
-      pass  # do nothing
+      pass  # do nothing; assume the experiment config metrics list is well-specified.
     else:
-      if 'metrics' not in self.experiment_config_parsed:
-        # pick a default metric
+      if 'metrics' not in self.experiment_config_parsed:  # pick a default metric
         if 'objective' in self.params:
           objective = self.params['objective']
           if objective.split(':')[0] in ['binary', 'multi']:
@@ -45,22 +40,30 @@ class XGBExperiment:
         else:
           metric_to_optimize = DEFAULT_REGRESSION_METRIC
       else:
-        assert self.experiment_config_parsed['metrics'] in SUPPORTED_METRICS_TO_OPTIMIZE
+        if self.experiment_config_parsed['metrics'] not in SUPPORTED_METRICS_TO_OPTIMIZE:
+          raise ValueError(
+            f"The chosen metric to optimize, {self.experiment_config_parsed['metrics']}, is not supported."
+          )
         metric_to_optimize = self.experiment_config_parsed['metrics']
+
+      optimization_strategy = METRICS_OPTIMIZATION_STRATEGY[metric_to_optimize]
       self.experiment_config_parsed['metrics'] = [{
         'name': metric_to_optimize,
         'strategy': 'optimize',
-        'objective': 'maximize'
+        'objective': optimization_strategy
       }]
 
     # Check experiment config optimization metric
     for metric in self.experiment_config_parsed['metrics']:
       if metric['strategy'] == 'optimize':
-        assert metric['name'] in CLASSIFICATION_METRIC_CHOICES or metric['name'] in REGRESSION_METRIC_CHOICES
+        if metric['name'] not in SUPPORTED_METRICS_TO_OPTIMIZE:
+          raise ValueError(
+            f"The chosen metric to optimize, {metric['name']}, is not supported."
+          )
 
         # change optimized metric to reflect updated name
         if isinstance(self.evals, list):
-          metric['name'] = self.evals[0][1] + '-' + metric['name']
+          metric['name'] = self.evals[0][1] + '-' + metric['name']  # optimize metric on first eval set by default
         else:
           metric['name'] = DEFAULT_EVALS_NAME + '-' + metric['name']
 
@@ -73,7 +76,8 @@ class XGBExperiment:
       for param in self.experiment_config_parsed['parameters']:
         if 'bounds' not in param:
           param_name = param['name']
-          assert param_name in SEARCH_PARAMS, f'We do not support autoselection of bounds for {param_name}'
+          if param_name not in SEARCH_PARAMS:
+            raise ValueError('We do not support autoselection of bounds for {param_name}')
           search_bound = SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)]
           param['bounds'] = search_bound['bounds']
           param['type'] = search_bound['type']
@@ -82,17 +86,19 @@ class XGBExperiment:
 
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
-    params_overlap = list(set(params_optimized) & set(self.params.keys()))
-    assert len(params_overlap) == 0, (
-      f'There is overlap between tuned parameters and user-set parameters: {params_overlap}. '
-      f'Parameter names cannot be defined in both locations'
-    )
+    params_overlap = set(params_optimized) & set(self.params.keys())
+    if len(params_overlap) != 0:
+      raise ValueError(
+        f'There is overlap between tuned parameters and user-set parameters: {params_overlap}.'
+        'Parameter names cannot be defined in both locations'
+      )
 
     # Check that num_boost_round is not set by both sigopt experiment and user
-    if self.num_boost_round:
-      assert 'num_boost_round' not in params_optimized, \
-        'We are optimizing num_boost_round, and right now it is fixed. Please remove it from either the search space' \
-        ' or the input arguments. '
+    if self.num_boost_round and 'num_boost_round' in params_optimized:
+      raise ValueError(
+        'num_boost_round has been denoted as an optimization parameter, but also has been fixed in the input arguments'
+        f'to have value {self.num_boost_round}. Please remove it from either the search space or the input arguments.'
+      )
 
   def parse_and_create_experiment(self):
     self.parse_and_create_metrics()
