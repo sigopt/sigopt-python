@@ -10,6 +10,8 @@ from sigopt.xgboost.run import (
   DEFAULT_TRAINING_NAME,
   PARAMS_LOGGED_AS_METADATA,
   XGB_INTEGRATION_KEYWORD,
+  SigOptCheckpointCallback,
+  XGBRun,
 )
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
@@ -115,8 +117,7 @@ def _form_random_run_params(task):
     run_options=run_options,
   )
 
-
-class TestXGBoost(object):
+class TestXGBoostRun(object):
   def _verify_parameter_logging(self, run):
     params = self.run_params['params']
     for p in params.keys():
@@ -241,3 +242,69 @@ class TestXGBoost(object):
     self.run_params['evals'] = numpy.random.random((5, 3))
     with pytest.raises(ValueError):
       sigopt.xgboost.run(**self.run_params)
+
+
+class TestFormCallbacks(object):
+  @pytest.mark.parametrize("verbose_eval", [True, False, 1, 3, 23])
+  def test_xgbrun_form_callbacks(self, verbose_eval):
+    self.run_params = _form_random_run_params(task="multiclass")
+    self.run_params['verbose_eval'] = verbose_eval
+    self.run_params['num_boost_round'] = 35
+    self.run_params['callbacks'] = None
+    xgbrun = XGBRun(**self.run_params)
+    xgbrun.form_callbacks()
+    assert len(xgbrun.callbacks) == 1
+    callback = xgbrun.callbacks[0]
+    assert isinstance(callback, SigOptCheckpointCallback)
+    if verbose_eval is False:
+      assert callback.period == DEFAULT_CHECKPOINT_PERIOD
+    else:
+      assert callback.period == int(verbose_eval)
+
+  def test_xgbrun_checkpoint_period_high_num_boost_round(self):
+    self.run_params = _form_random_run_params(task="multiclass")
+    self.run_params['verbose_eval'] = False
+    self.run_params['num_boost_round'] = 200
+    self.run_params['callbacks'] = None
+    xgbrun = XGBRun(**self.run_params)
+    xgbrun.form_callbacks()
+    assert len(xgbrun.callbacks) == 1
+    callback = xgbrun.callbacks[0]
+    assert callback.period == DEFAULT_CHECKPOINT_PERIOD
+
+    self.run_params['verbose_eval'] = True
+    self.run_params['num_boost_round'] = 999
+    xgbrun = XGBRun(**self.run_params)
+    xgbrun.form_callbacks()
+    callback = xgbrun.callbacks[0]
+    assert callback.period == DEFAULT_CHECKPOINT_PERIOD
+
+    self.run_params['num_boost_round'] = 1000
+    xgbrun = XGBRun(**self.run_params)
+    xgbrun.form_callbacks()
+    callback = xgbrun.callbacks[0]
+    assert callback.period == 6
+
+    self.run_params['num_boost_round'] = 3000
+    xgbrun = XGBRun(**self.run_params)
+    xgbrun.form_callbacks()
+    callback = xgbrun.callbacks[0]
+    assert callback.period == 16
+
+  def test_xgbrun_callbacks_appending(self):
+    self.run_params = _form_random_run_params(task="multiclass")
+    self.run_params['verbose_eval'] = False
+    self.run_params['callbacks'] = [xgb.callback.EvaluationMonitor(period=3)]
+    xgbrun = XGBRun(**self.run_params)
+    xgbrun.form_callbacks()
+    assert len(xgbrun.callbacks) == 2
+    assert xgbrun.callbacks[0].period == xgbrun.callbacks[1].period
+
+  def test_xgbrun_callbacks_no_appending(self):
+    self.run_params = _form_random_run_params(task="multiclass")
+    self.run_params['callbacks'] = [xgb.callback.EarlyStopping(rounds=3)]
+    self.run_params['evals'] = None
+    xgbrun = XGBRun(**self.run_params)
+    xgbrun.form_callbacks()
+    assert len(xgbrun.callbacks) == 1
+    assert isinstance(xgbrun.callbacks[0], xgb.callback.EarlyStopping)
