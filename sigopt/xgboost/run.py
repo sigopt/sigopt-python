@@ -5,18 +5,13 @@ import platform
 import time
 
 from .. import create_run
-from ..compat import XGBOOST_INSTALLED, DMatrix, xgboost
 from ..context import Context
 from ..log_capture import SystemOutputStreamMonitor
 from ..run_context import RunContext
 from .checkpoint_callback import SigOptCheckpointCallback
+from .compat import DMatrix, xgboost
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 
-if not XGBOOST_INSTALLED:
-  raise ImportError(
-    "xgboost needs to be installed in order to use sigopt.xgboost.run functionality. "
-    "Try running `pip install sigopt [xgboost]`."
-  )
 
 DEFAULT_EVALS_NAME = 'TestSet'
 DEFAULT_TRAINING_NAME = 'TrainingSet'

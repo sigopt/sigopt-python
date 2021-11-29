@@ -1,6 +1,6 @@
 import numpy
 
-from ..compat import Booster
+from .compat import Booster
 
 def compute_positives_and_negatives(y_true, y_pred, class_label):
   y_true_equals = y_true == class_label
