@@ -1,4 +1,4 @@
-import warnings
+# pylint: disable=unused-import
 
 try:
   import xgboost
