@@ -28,7 +28,7 @@ except ImportError as ie_packaging:
     raise ImportError(
       f"sigopt.xgboost.run is compatible with xgboost>={MIN_REQUIRED_XGBOOST_VERSION}. "
       f"You have version {xgboost.__version__} installed."
-    )
+    ) from None
 
 if parse(xgboost.__version__) < parse(MIN_REQUIRED_XGBOOST_VERSION):
   raise ImportError(
