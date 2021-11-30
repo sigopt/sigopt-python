@@ -28,7 +28,12 @@ class XGBExperiment:
 
   def parse_and_create_metrics(self):
     if 'metrics' in self.experiment_config_parsed and isinstance(self.experiment_config_parsed['metrics'], list):
-      pass  # do nothing; assume the experiment config metrics list is well-specified.
+      for metric in self.experiment_config_parsed['metrics']:
+        if metric['strategy'] == 'optimize' and metric['name'] not in SUPPORTED_METRICS_TO_OPTIMIZE:
+            raise ValueError(
+              f"The chosen metric to optimize, {metric['name']}, is not supported."
+            )
+
     else:
       if 'metrics' not in self.experiment_config_parsed:  # pick a default metric
         if 'objective' in self.params:
@@ -53,15 +58,9 @@ class XGBExperiment:
         'objective': optimization_strategy
       }]
 
-    # Check experiment config optimization metric
+    # change optimized metric to reflect updated name
     for metric in self.experiment_config_parsed['metrics']:
       if metric['strategy'] == 'optimize':
-        if metric['name'] not in SUPPORTED_METRICS_TO_OPTIMIZE:
-          raise ValueError(
-            f"The chosen metric to optimize, {metric['name']}, is not supported."
-          )
-
-        # change optimized metric to reflect updated name
         if isinstance(self.evals, list):
           metric['name'] = self.evals[0][1] + '-' + metric['name']  # optimize metric on first eval set by default
         else:
@@ -79,10 +78,7 @@ class XGBExperiment:
           if param_name not in SEARCH_PARAMS:
             raise ValueError('We do not support autoselection of bounds for {param_name}')
           search_bound = SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)]
-          param['bounds'] = search_bound['bounds']
-          param['type'] = search_bound['type']
-          if 'transformation' in search_bound:
-            param['transformation'] = search_bound['transformation']
+          param.update(search_bound)
 
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
