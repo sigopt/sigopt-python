@@ -150,7 +150,7 @@ class TestXGBoostRun(object):
   def _verify_metadata_logging(self, run):
     assert run.metadata['Dataset columns'] == self.run_params['dtrain'].num_col()
     assert run.metadata['Dataset rows'] == self.run_params['dtrain'].num_row()
-    if 'evals' in self.run_params:
+    if 'evals' in self.run_params and self.run_params['evals'] is not None:
       if isinstance(self.run_params['evals'], list):
         assert run.metadata['Number of Test Sets'] == len(self.run_params['evals'])
       else:
@@ -222,6 +222,8 @@ class TestXGBoostRun(object):
       'log_feature_importances': False,
       'log_metrics': False,
       'log_params': False,
+      'log_stderr': False,
+      'log_stdout': False,
     })
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
@@ -233,14 +235,14 @@ class TestXGBoostRun(object):
         '-'.join((data_name[1], metric_name)) for data_name, metric_name in itertools.product(
           self.run_params['evals'], self.run_params['params']['eval_metric']
         )
-      ] + ['Training time']
-      )
+      ])
     assert not run.assignments
+    assert not run.logs
 
   def test_wrong_dtrain_type(self):
     self.run_params = _form_random_run_params(task='regression')
     self.run_params['evals'] = numpy.random.random((5, 3))
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
       sigopt.xgboost.run(**self.run_params)
 
 

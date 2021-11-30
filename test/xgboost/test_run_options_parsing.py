@@ -8,6 +8,11 @@ from sigopt.xgboost.run import DEFAULT_RUN_OPTIONS, parse_run_options
 
 
 class TestRunOptionsParsing(object):
+  def test_run_options_wrong_type(self):
+    run_options = Mock(log_params=True)
+    with pytest.raises(TypeError):
+      parse_run_options(run_options)
+
   def test_run_options_wrong_keys(self):
     run_options = {
       'log_metric': True,
@@ -46,7 +51,7 @@ class TestRunOptionsParsing(object):
     run_options = {
       'run': TrainingRun(Mock())
     }
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
       parse_run_options(run_options)
 
     run_options = {

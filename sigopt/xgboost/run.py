@@ -13,6 +13,7 @@ from .. import create_run
 from ..context import Context
 from ..log_capture import SystemOutputStreamMonitor
 from ..run_context import RunContext
+from .checkpoint_callback import SigOptCheckpointCallback
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 
 
@@ -47,7 +48,14 @@ SUPPORTED_OBJECTIVE_PREFIXES = [
 
 
 def parse_run_options(run_options):
-  if run_options:
+  if run_options is not None:
+    if not isinstance(run_options, dict):
+      # TODO(Harvey): change to actual doc url when it's online
+      doc_url = "https://app.sigopt.com/docs/intro/overview"
+      raise TypeError(
+        f"run_options should be a dictonary. Refer to the sigopt.xgboost.run documentation {doc_url}"
+      )
+
     if run_options.keys() - DEFAULT_RUN_OPTIONS.keys():
       raise ValueError(
         f"Unsupported keys {run_options.keys() - DEFAULT_RUN_OPTIONS.keys()} in run_options."
@@ -61,7 +69,7 @@ def parse_run_options(run_options):
 
     if 'run' in run_options.keys() and run_options['run'] is not None:
       if not isinstance(run_options['run'], RunContext):
-        raise ValueError(
+        raise TypeError(
           "`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
         )
 
@@ -70,53 +78,38 @@ def parse_run_options(run_options):
   return copy.deepcopy(DEFAULT_RUN_OPTIONS)
 
 
-class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
-  def __init__(self, run, period=1):
-    self.run = run
-    self.period = period
-    self._latest = None
-    super().__init__()
-
-  def after_iteration(self, model, epoch, evals_log):
-    if not evals_log:
-      return False
-
-    checkpoint_logs = {}
-    for dataset, metric_dict in evals_log.items():
-      for metric_label, metric_record in metric_dict.items():
-        if isinstance(metric_record[-1], tuple):
-          chkpt_value = metric_record[-1][0]
-        else:
-          chkpt_value = metric_record[-1]
-        checkpoint_logs.update({'-'.join((dataset, metric_label)): chkpt_value})
-    if (epoch % self.period) == 0 or self.period == 1:
-      self.run.log_checkpoint(checkpoint_logs)
-      self._latest = None
-    else:
-      self._latest = checkpoint_logs
-
-    return False
-
-  def after_training(self, model):
-    if self._latest is not None:
-      self.run.log_checkpoint(self._latest)
-    return model
-
-
 class XGBRun:
 
-  def __init__(self, params, dtrain, num_boost_round, evals, verbose_eval, callbacks, run_options):
+  def __init__(
+    self,
+    params,
+    dtrain,
+    num_boost_round,
+    obj,
+    feval,
+    maximize,
+    evals,
+    early_stopping_rounds,
+    evals_result,
+    verbose_eval,
+    xgb_model,
+    callbacks,
+    run_options,
+  ):
     self.params = params
     self.dtrain = dtrain
     self.num_boost_round = num_boost_round
-    self.evals = evals
+    self.obj = obj
+    self.feval = feval
+    self.maximize = maximize
+    self.early_stopping_rounds = early_stopping_rounds
     self.verbose_eval = verbose_eval
     self.callbacks = callbacks
     self.validation_sets = [(evals, DEFAULT_EVALS_NAME)] if isinstance(evals, DMatrix) else evals
-    self.evals_result = None
+    self.evals_result = evals_result
     self.run_options_parsed = parse_run_options(run_options)
     self.run = None
-    self.model = None
+    self.model = xgb_model
     self.is_regression = None
 
   def form_callbacks(self):
@@ -138,9 +131,9 @@ class XGBRun:
     self.callbacks.append(sigopt_checkpoint_callback)
 
   def make_run(self):
-    if self.run_options_parsed['run']:
+    if self.run_options_parsed['run'] is not None:
       self.run = self.run_options_parsed['run']
-    elif self.run_options_parsed['name']:
+    elif self.run_options_parsed['name'] is not None:
       self.run = create_run(name=self.run_options_parsed['name'])
     else:
       self.run = create_run()
@@ -158,7 +151,7 @@ class XGBRun:
     for name in PARAMS_LOGGED_AS_METADATA:
       if name in self.params:
         self.run.log_metadata(name, self.params[name])
-    if self.validation_sets:
+    if self.validation_sets is not None:
       self.run.log_metadata("Number of Test Sets", len(self.validation_sets))
       for pair in self.validation_sets:
         self.run.log_dataset(pair[1])
@@ -203,17 +196,23 @@ class XGBRun:
         'params': self.params,
         'dtrain': self.dtrain,
         'num_boost_round': self.num_boost_round,
+        'obj': self.obj,
+        'feval': self.feval,
+        'maximize': self.maximize,
+        'early_stopping_rounds': self.early_stopping_rounds,
         'verbose_eval': self.verbose_eval,
+        'xgb_model': self.model,
         'callbacks': self.callbacks,
       }
-      if self.validation_sets:
-        self.evals_result = {}
+      if self.validation_sets is not None:
+        self.evals_result = {} if self.evals_result is None else self.evals_result
         xgb_args['evals'] = self.validation_sets
         xgb_args['evals_result'] = self.evals_result
       t_start = time.time()
       bst = xgboost.train(**xgb_args)
       t_train = time.time() - t_start
-      self.run.log_metric("Training time", t_train)
+      if self.run_options_parsed['log_metrics']:
+        self.run.log_metric("Training time", t_train)
     stream_data = stream_monitor.get_stream_data()
     if stream_data:
       stdout, stderr = stream_data
@@ -256,7 +255,21 @@ class XGBRun:
             )
 
 
-def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_eval=True, run_options=None):
+def run(
+  params,
+  dtrain,
+  num_boost_round=10,
+  obj=None,
+  feval=None,
+  maximize=None,
+  evals=None,
+  early_stopping_rounds=None,
+  evals_result=None,
+  verbose_eval=True,
+  callbacks=None,
+  xgb_model=None,
+  run_options=None,
+):
   """
   Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
   for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
@@ -265,17 +278,32 @@ def run(params, dtrain, num_boost_round=10, evals=None, callbacks=None, verbose_
   if evals is not None:
     if not isinstance(evals, (DMatrix, list)):
       dmatrix_module_name = '.'.join((DMatrix.__module__, DMatrix.__name__))
-      raise ValueError(
+      raise TypeError(
         f"`evals` must be a {dmatrix_module_name} object or list of ({dmatrix_module_name}, str) tuples."
       )
 
-  _run = XGBRun(params, dtrain, num_boost_round, evals, verbose_eval, callbacks, run_options)
+  _run = XGBRun(
+    params=params,
+    dtrain=dtrain,
+    num_boost_round=num_boost_round,
+    obj=obj,
+    feval=feval,
+    maximize=maximize,
+    evals=evals,
+    early_stopping_rounds=early_stopping_rounds,
+    evals_result=evals_result,
+    verbose_eval=verbose_eval,
+    xgb_model=xgb_model,
+    callbacks=callbacks,
+    run_options=run_options,
+  )
+
   _run.make_run()
+  _run.form_callbacks()
+  _run.train_xgb()
   _run.log_metadata()
   if _run.run_options_parsed['log_params']:
     _run.log_params()
-  _run.form_callbacks()
-  _run.train_xgb()
   _run.check_learning_task()
   _run.log_training_metrics()
   _run.log_validation_metrics()
