@@ -1,3 +1,7 @@
+DEFAULT_EVALS_NAME = 'TestSet'
+DEFAULT_TRAINING_NAME = 'TrainingSet'
+USER_SOURCE_NAME = 'User Specified'
+
 # search space
 SEARCH_BOUNDS = [
   {'name': 'alpha',             'type': 'double',                           'bounds': {'min': 0, 'max': 10}},

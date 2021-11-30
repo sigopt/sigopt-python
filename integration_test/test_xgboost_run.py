@@ -1,23 +1,31 @@
 from inspect import signature
 import itertools
+import os
 import platform
 import pytest
 import random
 
+os.environ['SIGOPT_PROJECT'] = "dev-sigopt-xgb-integration-test"
+
+import numpy
 import sigopt.xgboost
-from sigopt.xgboost.run import (
-  DEFAULT_CHECKPOINT_PERIOD,
+from sigopt.xgboost.checkpoint_callback import SigOptCheckpointCallback
+from sigopt.xgboost.constants import (
+  CLASSIFICATION_METRIC_CHOICES,
   DEFAULT_EVALS_NAME,
   DEFAULT_TRAINING_NAME,
+  REGRESSION_METRIC_CHOICES,
+)
+from sigopt.xgboost.run import (
+  DEFAULT_CHECKPOINT_PERIOD,
   PARAMS_LOGGED_AS_METADATA,
   XGB_INTEGRATION_KEYWORD,
-  SigOptCheckpointCallback,
   XGBRun,
 )
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-import numpy
 import xgboost as xgb
+
 
 POSSIBLE_PARAMETERS = {
   'eta': 10 ** random.uniform(-4, 1),
@@ -29,16 +37,6 @@ POSSIBLE_PARAMETERS = {
   'tree_method': random.choice(['hist', 'exact', 'approx', 'auto']),
 }
 
-CLASSIFICATION_METRIC_NAMES = (
-  'accuracy',
-  'F1',
-  'precision',
-  'recall',
-)
-REGRESSION_METRIC_NAMES = (
-  'mean absolute error',
-  'mean squared error',
-)
 
 def _create_random_dataset(task='binary'):
   if task == 'binary':
@@ -136,10 +134,10 @@ class TestXGBoostRun(object):
     if self.run_params['evals']:
       data_names.extend([e[-1] for e in self.run_params['evals']])
     if self.is_classification:
-      for d_name, m_name in itertools.product(data_names, CLASSIFICATION_METRIC_NAMES):
+      for d_name, m_name in itertools.product(data_names, CLASSIFICATION_METRIC_CHOICES):
         assert 0 <= run.values['-'.join((d_name, m_name))].value <= 1
     else:
-      for d_name, m_name in itertools.product(data_names, REGRESSION_METRIC_NAMES):
+      for d_name, m_name in itertools.product(data_names, REGRESSION_METRIC_CHOICES):
         assert run.values['-'.join((d_name, m_name))].value >= 0
 
     if self.run_params['params']['eval_metric']:
@@ -205,7 +203,7 @@ class TestXGBoostRun(object):
 
   @pytest.mark.parametrize("task", ['binary', 'multiclass', 'regression'])
   def test_run(self, task):
-    self.is_classification = True if task in ('binary', 'multiclass') else False
+    self.is_classification = bool(task in ('binary', 'multiclass'))
     self.run_params = _form_random_run_params(task)
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
@@ -215,6 +213,7 @@ class TestXGBoostRun(object):
     self._verify_metric_logging(run)
     self._verify_feature_importances_logging(run, ctx.model)
     self._verify_miscs_data_logging(run)
+    ctx.run.end()
 
   def test_run_options_no_logging(self):
     self.run_params = _form_random_run_params(task='binary')
@@ -239,6 +238,7 @@ class TestXGBoostRun(object):
       ])
     assert not run.assignments
     assert not run.logs
+    ctx.run.end()
 
   def test_wrong_dtrain_type(self):
     self.run_params = _form_random_run_params(task='regression')

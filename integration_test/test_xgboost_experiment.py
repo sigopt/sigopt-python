@@ -38,12 +38,12 @@ class TestXGBoostExperiment:
     random_subset_size = random.randint(1, len(search_space))
     search_space = random.sample(search_space, random_subset_size)
     if not any([p['name'] in ['eta', 'min_child_weight'] for p in search_space]):
-       search_space.append(SEARCH_SPACES[0])
+      search_space.append(SEARCH_SPACES[0])
     return search_space
 
   def _form_random_experiment_config(self, task):
     experiment_params = _form_random_run_params(task)
-    is_classification = True if task in ('binary', 'multiclass') else False
+    is_classification = bool(task in ('binary', 'multiclass'))
     if is_classification:
       metric_to_optimize = random.choice(CLASSIFICATION_METRIC_CHOICES)
     else:
@@ -56,7 +56,7 @@ class TestXGBoostExperiment:
         experiment_params.pop('num_boost_round', None)
 
     experiment_config = {
-      'name': 'Integration test',
+      'name': f"xgboost-experiment-integration-test-{task}",
       'type': 'offline',
       'parameters': search_space,
       'metrics': [{

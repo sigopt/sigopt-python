@@ -11,13 +11,12 @@ from ..run_context import RunContext
 from .checkpoint_callback import SigOptCheckpointCallback
 from .compat import DMatrix, xgboost
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
+from .constants import DEFAULT_EVALS_NAME, DEFAULT_TRAINING_NAME, USER_SOURCE_NAME
 from .utils import get_all_run_params
 
 
-DEFAULT_EVALS_NAME = 'TestSet'
-DEFAULT_TRAINING_NAME = 'TrainingSet'
-
 XGBOOST_DEFAULTS_SOURCE = 'XGBoost Defaults'
+
 
 DEFAULT_RUN_OPTIONS = {
   'log_checkpoints': True,
@@ -133,6 +132,10 @@ class XGBRun:
   def make_run(self):
     if self.run_options_parsed['run'] is not None:
       self.run = self.run_options_parsed['run']
+      if self.run.params:
+        self.params.update(self.run.params)
+        if 'num_boost_round' in self.params:
+          self.num_boost_round = self.params.pop('num_boost_round')
     elif self.run_options_parsed['name'] is not None:
       self.run = create_run(name=self.run_options_parsed['name'])
     else:
@@ -156,12 +159,17 @@ class XGBRun:
       for pair in self.validation_sets:
         self.run.log_dataset(pair[1])
 
+  def _log_param_by_source(self, param_name, value, source_name):
+    self.run.params.update({param_name: value})
+    self.run.set_parameter_source(param_name, source_name)
+
   def log_params(self):
     for name in self.params.keys():
-      if name not in PARAMS_LOGGED_AS_METADATA:
-        self.run.params.update({name: self.params[name]})
+      if name not in self.run.params.keys() and name not in PARAMS_LOGGED_AS_METADATA:
+        self._log_param_by_source(name, self.params[name], USER_SOURCE_NAME)
 
-    self.run.params.num_boost_round = self.num_boost_round
+    if 'num_boost_round' not in self.run.params.keys():
+      self._log_param_by_source('num_boost_round', self.num_boost_round, USER_SOURCE_NAME)
     self.log_default_params()
 
   def log_default_params(self):
@@ -173,7 +181,6 @@ class XGBRun:
     self.run.set_parameters(params)
     self.run.set_parameters_sources_meta(source, sort=40, default_show=False)
     self.run.set_parameters_source(params, source)
-
 
   def check_learning_task(self):
     config = self.model.save_config()
