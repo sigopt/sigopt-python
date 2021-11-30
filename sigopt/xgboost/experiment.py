@@ -30,9 +30,9 @@ class XGBExperiment:
     if 'metrics' in self.experiment_config_parsed and isinstance(self.experiment_config_parsed['metrics'], list):
       for metric in self.experiment_config_parsed['metrics']:
         if metric['strategy'] == 'optimize' and metric['name'] not in SUPPORTED_METRICS_TO_OPTIMIZE:
-            raise ValueError(
-              f"The chosen metric to optimize, {metric['name']}, is not supported."
-            )
+          raise ValueError(
+            f"The chosen metric to optimize, {metric['name']}, is not supported."
+          )
 
     else:
       if 'metrics' not in self.experiment_config_parsed:  # pick a default metric
