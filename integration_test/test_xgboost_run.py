@@ -1,3 +1,4 @@
+from inspect import signature
 import itertools
 import platform
 import pytest
@@ -247,12 +248,19 @@ class TestXGBoostRun(object):
 
 
 class TestFormCallbacks(object):
+  def _append_xgbrun_param_none_values(self):
+    all_xgbrun_params_names = signature(XGBRun).parameters.keys()
+    for p_name in all_xgbrun_params_names:
+      if p_name not in self.run_params:
+        self.run_params[p_name] = None
+
   @pytest.mark.parametrize("verbose_eval", [True, False, 1, 3, 23])
   def test_xgbrun_form_callbacks(self, verbose_eval):
     self.run_params = _form_random_run_params(task="multiclass")
     self.run_params['verbose_eval'] = verbose_eval
     self.run_params['num_boost_round'] = 35
     self.run_params['callbacks'] = None
+    self._append_xgbrun_param_none_values()
     xgbrun = XGBRun(**self.run_params)
     xgbrun.form_callbacks()
     assert len(xgbrun.callbacks) == 1
@@ -268,6 +276,7 @@ class TestFormCallbacks(object):
     self.run_params['verbose_eval'] = False
     self.run_params['num_boost_round'] = 200
     self.run_params['callbacks'] = None
+    self._append_xgbrun_param_none_values()
     xgbrun = XGBRun(**self.run_params)
     xgbrun.form_callbacks()
     assert len(xgbrun.callbacks) == 1
@@ -297,6 +306,7 @@ class TestFormCallbacks(object):
     self.run_params = _form_random_run_params(task="multiclass")
     self.run_params['verbose_eval'] = False
     self.run_params['callbacks'] = [xgb.callback.EvaluationMonitor(period=3)]
+    self._append_xgbrun_param_none_values()
     xgbrun = XGBRun(**self.run_params)
     xgbrun.form_callbacks()
     assert len(xgbrun.callbacks) == 2
@@ -306,6 +316,7 @@ class TestFormCallbacks(object):
     self.run_params = _form_random_run_params(task="multiclass")
     self.run_params['callbacks'] = [xgb.callback.EarlyStopping(rounds=3)]
     self.run_params['evals'] = None
+    self._append_xgbrun_param_none_values()
     xgbrun = XGBRun(**self.run_params)
     xgbrun.form_callbacks()
     assert len(xgbrun.callbacks) == 1
