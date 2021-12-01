@@ -9,7 +9,7 @@ try:
 except ImportError as ie_xgb:
   raise ImportError(
     "xgboost needs to be installed in order to use sigopt.xgboost.run functionality. "
-    "Try running `pip install sigopt[xgboost]`."
+    "Try running `pip install 'sigopt[xgboost]'`."
   ) from ie_xgb
 
 if parse(xgboost.__version__) < parse(MIN_REQUIRED_XGBOOST_VERSION):
