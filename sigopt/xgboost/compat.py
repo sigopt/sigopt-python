@@ -1,5 +1,6 @@
 # pylint: disable=unused-import
 from packaging.version import parse
+
 MIN_REQUIRED_XGBOOST_VERSION = "1.3.0"
 
 try:
