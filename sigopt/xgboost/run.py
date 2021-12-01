@@ -4,16 +4,12 @@ import json
 import platform
 import time
 
-import xgboost
-# pylint: disable=no-name-in-module
-from xgboost import DMatrix
-# pylint: enable=no-name-in-module
-
 from .. import create_run
 from ..context import Context
 from ..log_capture import SystemOutputStreamMonitor
 from ..run_context import RunContext
 from .checkpoint_callback import SigOptCheckpointCallback
+from .compat import DMatrix, xgboost
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 
 

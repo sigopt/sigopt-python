@@ -1,4 +1,4 @@
-import xgboost
+from .compat import xgboost
 
 class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
   def __init__(self, run, period=1):
