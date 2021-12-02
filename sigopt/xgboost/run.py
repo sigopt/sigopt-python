@@ -15,11 +15,14 @@ from ..log_capture import SystemOutputStreamMonitor
 from ..run_context import RunContext
 from .checkpoint_callback import SigOptCheckpointCallback
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
-from .utils import get_all_run_params, log_default_params
+from .utils import get_all_run_params
 
 
 DEFAULT_EVALS_NAME = 'TestSet'
 DEFAULT_TRAINING_NAME = 'TrainingSet'
+
+XGBOOST_DEFAULTS_SOURCE = 'XGBoost Defaults'
+
 DEFAULT_RUN_OPTIONS = {
   'log_checkpoints': True,
   'log_feature_importances': True,
@@ -163,8 +166,18 @@ class XGBRun:
         self.run.params.update({name: self.params[name]})
 
     self.run.params.num_boost_round = self.num_boost_round
-    all_params = get_all_run_params(self.model, num_boost_round=self.num_boost_round, **self.params)
-    log_default_params(self.run, all_params)
+    self.log_default_params()
+
+  def log_default_params(self):
+    params = get_all_run_params(self.model, num_boost_round=self.num_boost_round, **self.params)
+    source = XGBOOST_DEFAULTS_SOURCE
+    reported = self.run.params.keys()
+    params = {k:v if v is not None else 'None' for k, v in params.items()
+              if k not in reported and k not in PARAMS_LOGGED_AS_METADATA}
+    self.run.set_parameters(params)
+    self.run.set_parameters_sources_meta(source, sort=40, default_show=False)
+    self.run.set_parameters_source(params, source)
+
 
   def check_learning_task(self):
     config = self.model.save_config()

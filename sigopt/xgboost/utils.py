@@ -75,11 +75,3 @@ def get_all_run_params(booster, **train_params):
   params = get_train_params(**train_params)
   params.update(get_booster_params(booster))
   return params
-
-
-def log_default_params(run, params, source='XGBoost Defaults', sort=40, default_show=False):
-  reported = dict(run.params.items())
-  params = {k:v if v is not None else 'None' for k, v in params.items() if k not in reported}
-  run.set_parameters(params)
-  run.set_parameters_sources_meta(source, sort, default_show)
-  run.set_parameters_source(params, source)
