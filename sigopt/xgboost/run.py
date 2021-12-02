@@ -15,6 +15,7 @@ from ..log_capture import SystemOutputStreamMonitor
 from ..run_context import RunContext
 from .checkpoint_callback import SigOptCheckpointCallback
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
+from .utils import get_all_run_params, log_default_params
 
 
 DEFAULT_EVALS_NAME = 'TestSet'
@@ -162,6 +163,8 @@ class XGBRun:
         self.run.params.update({name: self.params[name]})
 
     self.run.params.num_boost_round = self.num_boost_round
+    all_params = get_all_run_params(self.model, num_boost_round=self.num_boost_round, **self.params)
+    log_default_params(self.run, all_params)
 
   def check_learning_task(self):
     config = self.model.save_config()
