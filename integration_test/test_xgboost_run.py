@@ -246,6 +246,18 @@ class TestXGBoostRun(object):
     with pytest.raises(TypeError):
       sigopt.xgboost.run(**self.run_params)
 
+  def test_log_default_params(self):
+    self.run_params = _form_random_run_params(task="multiclass")
+    self.run_params['params'] = POSSIBLE_PARAMETERS.copy()
+    del self.run_params['params']['eta']
+    del self.run_params['params']['gamma']
+    del self.run_params['params']['lambda']
+    ctx = sigopt.xgboost.run(**self.run_params)
+    run = sigopt.get_run(ctx.run.id)
+    assert numpy.isclose(run.assignments['eta'], 0.3)
+    assert run.assignments['gamma'] == 0
+    assert run.assignments['lambda'] == 1
+
 
 class TestFormCallbacks(object):
   def _append_xgbrun_param_none_values(self):
