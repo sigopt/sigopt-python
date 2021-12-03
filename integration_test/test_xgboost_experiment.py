@@ -1,6 +1,9 @@
 import copy
+import os
 import pytest
 import random
+
+os.environ['SIGOPT_PROJECT'] = "dev-sigopt-xgb-integration-test"
 
 import sigopt.xgboost
 from sigopt.xgboost.constants import CLASSIFICATION_METRIC_CHOICES, REGRESSION_METRIC_CHOICES
