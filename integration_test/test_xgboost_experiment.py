@@ -80,3 +80,70 @@ class TestXGBoostExperiment:
     self._form_random_experiment_config(task)
     experiment = sigopt.xgboost.experiment(**self.experiment_params)
     assert experiment.is_finished()
+    sigopt_suggested_runs = list(experiment.get_runs())
+    assert len(sigopt_suggested_runs) == self.experiment_params['experiment_config']['budget']
+    experiment.archive()
+
+  def test_experiment_with_custom_loop(self):
+    run_params = _form_random_run_params('binary')
+    if len(run_params['evals']) > 1:
+      run_params['evals'] = run_params['evals'][:1]
+
+    fixed_params = {
+      'alpha': 0.2,
+      'objective': 'binary:logistic',
+      'eval_metric': ['logloss', 'auc'],
+    }
+    experiment_config=dict(
+      name="xgboost a la carte",
+      type="offline",
+      parameters=[
+        dict(name="eta", type="double", bounds=dict(min=1e-4, max=10), transformation='log'),
+        dict(name="num_boost_round", type="int", bounds=dict(min=10, max=50)),
+        dict(name="max_depth", type="int", bounds=dict(min=3, max=11)),
+      ],
+      metrics=[
+        dict(name="test0-F1"),
+        dict(name="Training time", strategy="optimize", objective="minimize"),
+        dict(name="test0-recall", strategy="store", objective="maximize"),
+      ],
+      budget=5,
+    )
+    experiment_config['parameters'] = [
+      {
+        'name': 'eta',
+        'type': 'double',
+        'bounds': {'min': 1e-3, 'max': 1},
+        'transformation': 'log',
+      },
+      {
+        'name': 'max_depth',
+        'type': 'int',
+        'bounds': {'min': 2, 'max': 5},
+      },
+    ]
+    experiment = sigopt.create_experiment(**experiment_config)
+    custom_run = experiment.create_run()
+
+    ctx = sigopt.xgboost.run(
+      params=fixed_params,
+      dtrain=run_params['dtrain'],
+      num_boost_round=run_params['num_boost_round'],
+      evals=run_params['evals'],
+      verbose_eval=False,
+      run_options={'run': custom_run},
+    )
+
+    run_obj = sigopt.get_run(ctx.run.id)
+    assert run_obj.assignments['alpha'] == fixed_params['alpha']
+    assert run_obj.metadata['objective'] == fixed_params['objective']
+    assert run_obj.metadata['eval_metric'] == str(fixed_params['eval_metric'])
+    assert run_obj.assignments['eta']  == custom_run.params['eta']
+    assert run_obj.assignments['max_depth'] == custom_run.params['max_depth']
+    assert 0 < run_obj.values['test0-F1'].value < 1
+    assert 0 < run_obj.values['test0-recall'].value < 1
+    assert run_obj.values['Training time'].value > 0
+    ctx.run.end()
+    assert not experiment.is_finished()
+    assert len(list(experiment.get_runs())) == 1
+    experiment.archive()
