@@ -178,7 +178,7 @@ class TestXGBoostRun(object):
 
     if 'evals' in self.run_params:
       if isinstance(self.run_params['evals'], list):
-        assert set(run.datasets) == set([e[1] for e in self.run_params['evals']])
+        assert set(run.datasets) == {e[1] for e in self.run_params['evals']}
       else:
         assert len(run.datasets) == 1
         assert run.datasets[0] == DEFAULT_EVALS_NAME
@@ -232,11 +232,11 @@ class TestXGBoostRun(object):
     assert run.checkpoint_count == 0
     assert 'feature_importances' not in run.sys_metadata
     if self.run_params['evals']:
-      assert set(run.values.keys()) == set([
+      assert set(run.values.keys()) == {
         '-'.join((data_name[1], metric_name)) for data_name, metric_name in itertools.product(
           self.run_params['evals'], self.run_params['params']['eval_metric']
         )
-      ])
+      }
     assert not run.assignments
     assert not run.logs
     ctx.run.end()
