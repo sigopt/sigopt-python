@@ -1,5 +1,6 @@
 from inspect import signature
 import itertools
+import json
 import os
 import platform
 import pytest
@@ -257,6 +258,30 @@ class TestXGBoostRun(object):
     assert numpy.isclose(run.assignments['eta'], 0.3)
     assert run.assignments['gamma'] == 0
     assert run.assignments['lambda'] == 1
+
+  def test_provided_run(self):
+    self.run_params = _form_random_run_params(task="binary")
+    run = sigopt.create_run(name="placeholder-run-with-max-depth-already-logged")
+    run.params.update({'max_depth': 3})
+
+    self.run_params['run_options'].update({
+      'log_checkpoints': False,
+      'log_feature_importances': False,
+      'log_metrics': False,
+      'log_stderr': False,
+      'log_stdout': False,
+      'run': run,
+      'name': None,
+    })
+    self.run_params['params'] = {'max_depth': 7}
+    ctx = sigopt.xgboost.run(**self.run_params)
+    booster = ctx.model
+    params = json.loads(booster.save_config())
+    trained_max_depth = params['learner']['gradient_booster']['updater']['grow_colmaker']['train_param']['max_depth']
+    assert int(trained_max_depth) == 3
+    run = sigopt.get_run(ctx.run.id)
+    assert run.assignments['max_depth'] == 3
+    ctx.run.end()
 
 
 class TestFormCallbacks(object):
