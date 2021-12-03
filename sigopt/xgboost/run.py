@@ -11,11 +11,13 @@ from ..run_context import RunContext
 from .checkpoint_callback import SigOptCheckpointCallback
 from .compat import DMatrix, xgboost
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
-from .constants import DEFAULT_EVALS_NAME, DEFAULT_TRAINING_NAME, USER_SOURCE_NAME
+from .constants import (
+  DEFAULT_EVALS_NAME,
+  DEFAULT_TRAINING_NAME,
+  USER_SOURCE_NAME,
+  XGBOOST_DEFAULTS_SOURCE_NAME,
+)
 from .utils import get_all_run_params
-
-
-XGBOOST_DEFAULTS_SOURCE = 'XGBoost Defaults'
 
 
 DEFAULT_RUN_OPTIONS = {
@@ -164,23 +166,26 @@ class XGBRun:
     self.run.set_parameter_source(param_name, source_name)
 
   def log_params(self):
-    for name in self.params.keys():
-      if name not in self.run.params.keys() and name not in PARAMS_LOGGED_AS_METADATA:
-        self._log_param_by_source(name, self.params[name], USER_SOURCE_NAME)
+    for p_name, p_value in self.params.items():
+      if p_name not in self.run.params.keys() and p_name not in PARAMS_LOGGED_AS_METADATA:
+        self._log_param_by_source(p_name, p_value, USER_SOURCE_NAME)
 
     if 'num_boost_round' not in self.run.params.keys():
       self._log_param_by_source('num_boost_round', self.num_boost_round, USER_SOURCE_NAME)
     self.log_default_params()
 
   def log_default_params(self):
-    params = get_all_run_params(self.model, num_boost_round=self.num_boost_round, **self.params)
-    source = XGBOOST_DEFAULTS_SOURCE
-    reported = self.run.params.keys()
-    params = {k:v if v is not None else 'None' for k, v in params.items()
-              if k not in reported and k not in PARAMS_LOGGED_AS_METADATA}
-    self.run.set_parameters(params)
-    self.run.set_parameters_sources_meta(source, sort=40, default_show=False)
-    self.run.set_parameters_source(params, source)
+    all_xgb_params = get_all_run_params(self.model, num_boost_round=self.num_boost_round, **self.params)
+    reported_params = self.run.params.keys()
+
+    xgb_default_params = {}
+    self.run.set_parameters_sources_meta(XGBOOST_DEFAULTS_SOURCE_NAME, sort=40, default_show=False)
+    for p_name, p_value in all_xgb_params.items():
+      if p_name not in reported_params and p_name not in PARAMS_LOGGED_AS_METADATA:
+        if p_value is not None:
+          xgb_default_params.update({p_name: p_value})
+    self.run.set_parameters(xgb_default_params)
+    self.run.set_parameters_source(xgb_default_params, XGBOOST_DEFAULTS_SOURCE_NAME)
 
   def check_learning_task(self):
     config = self.model.save_config()
