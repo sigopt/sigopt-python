@@ -40,7 +40,7 @@ class TestXGBoostExperiment:
       search_space[1]['bounds'] = {'min': 0.0, 'max': 0.3}
     random_subset_size = random.randint(1, len(search_space))
     search_space = random.sample(search_space, random_subset_size)
-    if not any([p['name'] in ['eta', 'min_child_weight'] for p in search_space]):
+    if not any(p['name'] in ['eta', 'min_child_weight'] for p in search_space):
       search_space.append(SEARCH_SPACES[0])
     return search_space
 
