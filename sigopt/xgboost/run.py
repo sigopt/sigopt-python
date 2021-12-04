@@ -140,6 +140,8 @@ class XGBRun:
         self.params.update(self.run.params)
         if 'num_boost_round' in self.params:
           self.num_boost_round = self.params.pop('num_boost_round')
+        if 'early_stopping_rounds' in self.params:
+          self.early_stopping_rounds = self.params.pop('early_stopping_rounds')
     elif self.run_options_parsed['name'] is not None:
       self.run = create_run(name=self.run_options_parsed['name'])
     else:
@@ -174,6 +176,9 @@ class XGBRun:
 
     if 'num_boost_round' not in self.run.params.keys():
       self._log_param_by_source('num_boost_round', self.num_boost_round, USER_SOURCE_NAME)
+
+    if self.early_stopping_rounds is not None and 'early_stopping_rounds' not in self.run.params.keys():
+      self._log_param_by_source('early_stopping_rounds', self.early_stopping_rounds, USER_SOURCE_NAME)
 
     if self.run_options_parsed['log_xgboost_defaults']:
       self.log_default_params()
