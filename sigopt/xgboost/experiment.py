@@ -1,20 +1,20 @@
-from .run import run as XGBRun
-from .run import parse_run_options, PARAMS_LOGGED_AS_METADATA, DEFAULT_EVALS_NAME
 import copy
 
 from .. import create_experiment
 from .constants import (
   DEFAULT_BO_ITERATIONS,
   DEFAULT_CLASSIFICATION_METRIC,
+  DEFAULT_EVALS_NAME,
   DEFAULT_NUM_BOOST_ROUND,
   DEFAULT_REGRESSION_METRIC,
   DEFAULT_SEARCH_PARAMS,
+  METRICS_OPTIMIZATION_STRATEGY,
   SEARCH_BOUNDS,
   SEARCH_PARAMS,
   SUPPORTED_METRICS_TO_OPTIMIZE,
-  METRICS_OPTIMIZATION_STRATEGY,
 )
-
+from .run import parse_run_options
+from .run import run as XGBRunWrapper
 
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
@@ -119,15 +119,7 @@ class XGBExperiment:
         all_params = {**run.params, **self.params, 'num_boost_round': num_boost_round_run}
         self.run_options['run'] = run
 
-        # Separately log params that aren't experiment params TODO: change when param sources is good to go
-        self.run_options['log_params'] = False
-        for name in self.params.keys():
-          if name not in PARAMS_LOGGED_AS_METADATA:
-            run.params.update({name: self.params[name]})
-        if 'num_boost_round' not in run.params:
-          run.params.update({'num_boost_round': num_boost_round_run})
-
-        XGBRun(
+        XGBRunWrapper(
           all_params,
           self.dtrain,
           num_boost_round=num_boost_round_run,

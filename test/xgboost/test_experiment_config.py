@@ -1,9 +1,13 @@
-import pytest
-from mock import Mock
 import copy
+from mock import Mock
+import pytest
 
+from sigopt.xgboost.constants import (
+  DEFAULT_CLASSIFICATION_METRIC,
+  DEFAULT_EVALS_NAME,
+  DEFAULT_REGRESSION_METRIC,
+)
 from sigopt.xgboost.experiment import XGBExperiment
-from sigopt.xgboost.constants import DEFAULT_REGRESSION_METRIC, DEFAULT_CLASSIFICATION_METRIC
 
 EXPERIMENT_CONFIG_BASE = dict(
   name='Single metric optimization',
@@ -124,15 +128,21 @@ class TestExperimentConfig:
 
     params['objective'] = 'binary:logistic'
     xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
-    assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == 'TestSet-' + DEFAULT_CLASSIFICATION_METRIC
+    assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == '-'.join(
+      (DEFAULT_EVALS_NAME, DEFAULT_CLASSIFICATION_METRIC)
+    )
 
     params['objective'] = 'multi:softmax'
     xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
-    assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == 'TestSet-' + DEFAULT_CLASSIFICATION_METRIC
+    assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == '-'.join(
+      (DEFAULT_EVALS_NAME, DEFAULT_CLASSIFICATION_METRIC)
+    )
 
     params['objective'] = 'reg:squarederror'
     xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
-    assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == 'TestSet-' + DEFAULT_REGRESSION_METRIC
+    assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == '-'.join(
+      (DEFAULT_EVALS_NAME, DEFAULT_REGRESSION_METRIC)
+    )
 
   def test_config_metric_string_only(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)

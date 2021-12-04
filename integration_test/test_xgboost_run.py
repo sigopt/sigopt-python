@@ -1,23 +1,32 @@
 from inspect import signature
 import itertools
+import json
+import os
 import platform
 import pytest
 import random
 
+os.environ['SIGOPT_PROJECT'] = "dev-sigopt-xgb-integration-test"
+
+import numpy
 import sigopt.xgboost
-from sigopt.xgboost.run import (
-  DEFAULT_CHECKPOINT_PERIOD,
+from sigopt.xgboost.checkpoint_callback import SigOptCheckpointCallback
+from sigopt.xgboost.constants import (
+  CLASSIFICATION_METRIC_CHOICES,
   DEFAULT_EVALS_NAME,
   DEFAULT_TRAINING_NAME,
+  REGRESSION_METRIC_CHOICES,
+)
+from sigopt.xgboost.run import (
+  DEFAULT_CHECKPOINT_PERIOD,
   PARAMS_LOGGED_AS_METADATA,
   XGB_INTEGRATION_KEYWORD,
-  SigOptCheckpointCallback,
   XGBRun,
 )
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-import numpy
 import xgboost as xgb
+
 
 POSSIBLE_PARAMETERS = {
   'eta': 10 ** random.uniform(-4, 1),
@@ -29,16 +38,6 @@ POSSIBLE_PARAMETERS = {
   'tree_method': random.choice(['hist', 'exact', 'approx', 'auto']),
 }
 
-CLASSIFICATION_METRIC_NAMES = (
-  'accuracy',
-  'F1',
-  'precision',
-  'recall',
-)
-REGRESSION_METRIC_NAMES = (
-  'mean absolute error',
-  'mean squared error',
-)
 
 def _create_random_dataset(task='binary'):
   if task == 'binary':
@@ -136,10 +135,10 @@ class TestXGBoostRun(object):
     if self.run_params['evals']:
       data_names.extend([e[-1] for e in self.run_params['evals']])
     if self.is_classification:
-      for d_name, m_name in itertools.product(data_names, CLASSIFICATION_METRIC_NAMES):
+      for d_name, m_name in itertools.product(data_names, CLASSIFICATION_METRIC_CHOICES):
         assert 0 <= run.values['-'.join((d_name, m_name))].value <= 1
     else:
-      for d_name, m_name in itertools.product(data_names, REGRESSION_METRIC_NAMES):
+      for d_name, m_name in itertools.product(data_names, REGRESSION_METRIC_CHOICES):
         assert run.values['-'.join((d_name, m_name))].value >= 0
 
     if self.run_params['params']['eval_metric']:
@@ -179,7 +178,7 @@ class TestXGBoostRun(object):
 
     if 'evals' in self.run_params:
       if isinstance(self.run_params['evals'], list):
-        assert set(run.datasets) == set([e[1] for e in self.run_params['evals']])
+        assert set(run.datasets) == {e[1] for e in self.run_params['evals']}
       else:
         assert len(run.datasets) == 1
         assert run.datasets[0] == DEFAULT_EVALS_NAME
@@ -205,7 +204,7 @@ class TestXGBoostRun(object):
 
   @pytest.mark.parametrize("task", ['binary', 'multiclass', 'regression'])
   def test_run(self, task):
-    self.is_classification = True if task in ('binary', 'multiclass') else False
+    self.is_classification = bool(task in ('binary', 'multiclass'))
     self.run_params = _form_random_run_params(task)
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
@@ -215,6 +214,7 @@ class TestXGBoostRun(object):
     self._verify_metric_logging(run)
     self._verify_feature_importances_logging(run, ctx.model)
     self._verify_miscs_data_logging(run)
+    ctx.run.end()
 
   def test_run_options_no_logging(self):
     self.run_params = _form_random_run_params(task='binary')
@@ -232,13 +232,14 @@ class TestXGBoostRun(object):
     assert run.checkpoint_count == 0
     assert 'feature_importances' not in run.sys_metadata
     if self.run_params['evals']:
-      assert set(run.values.keys()) == set([
+      assert set(run.values.keys()) == {
         '-'.join((data_name[1], metric_name)) for data_name, metric_name in itertools.product(
           self.run_params['evals'], self.run_params['params']['eval_metric']
         )
-      ])
+      }
     assert not run.assignments
     assert not run.logs
+    ctx.run.end()
 
   def test_wrong_dtrain_type(self):
     self.run_params = _form_random_run_params(task='regression')
@@ -257,6 +258,30 @@ class TestXGBoostRun(object):
     assert numpy.isclose(run.assignments['eta'], 0.3)
     assert run.assignments['gamma'] == 0
     assert run.assignments['lambda'] == 1
+
+  def test_provided_run(self):
+    self.run_params = _form_random_run_params(task="binary")
+    run = sigopt.create_run(name="placeholder-run-with-max-depth-already-logged")
+    run.params.update({'max_depth': 3})
+
+    self.run_params['run_options'].update({
+      'log_checkpoints': False,
+      'log_feature_importances': False,
+      'log_metrics': False,
+      'log_stderr': False,
+      'log_stdout': False,
+      'run': run,
+      'name': None,
+    })
+    self.run_params['params'] = {'max_depth': 7}
+    ctx = sigopt.xgboost.run(**self.run_params)
+    booster = ctx.model
+    params = json.loads(booster.save_config())
+    trained_max_depth = params['learner']['gradient_booster']['updater']['grow_colmaker']['train_param']['max_depth']
+    assert int(trained_max_depth) == 3
+    run = sigopt.get_run(ctx.run.id)
+    assert run.assignments['max_depth'] == 3
+    ctx.run.end()
 
 
 class TestFormCallbacks(object):

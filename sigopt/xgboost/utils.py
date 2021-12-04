@@ -1,6 +1,7 @@
-import xgboost as xgb
 import inspect
 import json
+
+from .compat import xgboost
 
 def get_default_args(func):
   signature = inspect.signature(func)
@@ -12,7 +13,7 @@ def get_default_args(func):
 TRAIN_PARAMETERS = ['num_boost_round', 'early_stopping_rounds']
 
 def get_train_defaults():
-  train_default_args = get_default_args(xgb.train)
+  train_default_args = get_default_args(xgboost.train)
   defaults = {k: train_default_args[k] for k in TRAIN_PARAMETERS}
   return defaults
 
