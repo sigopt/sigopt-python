@@ -24,10 +24,10 @@ DEFAULT_RUN_OPTIONS = {
   'log_checkpoints': True,
   'log_feature_importances': True,
   'log_metrics': True,
-  'log_params': True,
   'log_stdout': True,
   'log_stderr': True,
   'log_sys_info': True,
+  'log_xgboost_defaults': True,
   'name': None,
   'run': None,
 }
@@ -174,7 +174,9 @@ class XGBRun:
 
     if 'num_boost_round' not in self.run.params.keys():
       self._log_param_by_source('num_boost_round', self.num_boost_round, USER_SOURCE_NAME)
-    self.log_default_params()
+
+    if self.run_options_parsed['log_xgboost_defaults']:
+      self.log_default_params()
 
   def log_default_params(self):
     all_xgb_params = get_booster_params(self.model)
@@ -328,8 +330,7 @@ def run(
   _run.form_callbacks()
   _run.train_xgb()
   _run.log_metadata()
-  if _run.run_options_parsed['log_params']:
-    _run.log_params()
+  _run.log_params()
   _run.check_learning_task()
   _run.log_training_metrics()
   _run.log_validation_metrics()
