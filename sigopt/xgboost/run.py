@@ -38,7 +38,7 @@ XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
 
 PARAMS_LOGGED_AS_METADATA = [
   'eval_metric',
-  'interaction_constraints'
+  'interaction_constraints',
   'monotone_constraints',
   'objective',
   'updater',
