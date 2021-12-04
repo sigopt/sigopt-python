@@ -253,11 +253,13 @@ class TestXGBoostRun(object):
     del self.run_params['params']['eta']
     del self.run_params['params']['gamma']
     del self.run_params['params']['lambda']
+    del self.run_params['num_boost_round']
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
     assert numpy.isclose(run.assignments['eta'], 0.3)
     assert run.assignments['gamma'] == 0
     assert run.assignments['lambda'] == 1
+    assert run.assignments['num_boost_round'] == 10
 
   def test_provided_run(self):
     self.run_params = _form_random_run_params(task="binary")

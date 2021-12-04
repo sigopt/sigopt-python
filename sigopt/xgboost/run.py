@@ -17,7 +17,7 @@ from .constants import (
   USER_SOURCE_NAME,
   XGBOOST_DEFAULTS_SOURCE_NAME,
 )
-from .utils import get_all_run_params
+from .utils import get_booster_params
 
 
 DEFAULT_RUN_OPTIONS = {
@@ -38,6 +38,8 @@ XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
 
 PARAMS_LOGGED_AS_METADATA = [
   'eval_metric',
+  'interaction_constraints'
+  'monotone_constraints',
   'objective',
   'updater',
 ]
@@ -175,7 +177,7 @@ class XGBRun:
     self.log_default_params()
 
   def log_default_params(self):
-    all_xgb_params = get_all_run_params(self.model, num_boost_round=self.num_boost_round, **self.params)
+    all_xgb_params = get_booster_params(self.model)
     reported_params = self.run.params.keys()
 
     xgb_default_params = {}
