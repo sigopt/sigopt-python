@@ -78,6 +78,21 @@ class TestXGBoostExperiment:
     experiment_params.pop('verbose_eval', None)
     self.experiment_params = experiment_params
 
+  def _verify_parameter_assignments_for_all_runs(self, all_runs, parameters_list):
+    for ssr in all_runs:
+      for param in parameters_list:
+        if param.type in ('double', 'int'):
+          assert param.bounds.min <= ssr.assignments[param.name] <= param.bounds.max
+        else:
+          categories = [c.name for c in param.categorical_values]
+          assert ssr.assignments[param.name] in categories
+
+  def _verify_metrics_for_all_runs(self, all_runs, metrics_list):
+    for ssr in all_runs:
+      if ssr.state != 'failed':
+        for metric in metrics_list:
+          assert ssr.values[metric.name]
+
   @pytest.mark.parametrize('task', ['binary', 'multiclass', 'regression'])
   def test_experiment(self, task):
     self._form_random_experiment_config(task)
@@ -85,6 +100,8 @@ class TestXGBoostExperiment:
     assert experiment.is_finished()
     sigopt_suggested_runs = list(experiment.get_runs())
     assert len(sigopt_suggested_runs) == self.experiment_params['experiment_config']['budget']
+    self._verify_parameter_assignments_for_all_runs(sigopt_suggested_runs, experiment.parameters)
+    self._verify_metrics_for_all_runs(sigopt_suggested_runs, experiment.metrics)
     experiment.archive()
 
   def test_experiment_with_custom_loop(self):
@@ -103,7 +120,7 @@ class TestXGBoostExperiment:
       parameters=[
         dict(name="eta", type="double", bounds=dict(min=1e-4, max=10), transformation='log'),
         dict(name="num_boost_round", type="int", bounds=dict(min=10, max=50)),
-        dict(name="max_depth", type="int", bounds=dict(min=3, max=11)),
+        dict(name="booster", type="categorical", categorical_values=(['gbtree', 'gblinear'])),
       ],
       metrics=[
         dict(name="test0-F1"),
@@ -112,19 +129,6 @@ class TestXGBoostExperiment:
       ],
       budget=5,
     )
-    experiment_config['parameters'] = [
-      {
-        'name': 'eta',
-        'type': 'double',
-        'bounds': {'min': 1e-3, 'max': 1},
-        'transformation': 'log',
-      },
-      {
-        'name': 'max_depth',
-        'type': 'int',
-        'bounds': {'min': 2, 'max': 5},
-      },
-    ]
     experiment = sigopt.create_experiment(**experiment_config)
     custom_run = experiment.create_run()
 
@@ -141,10 +145,13 @@ class TestXGBoostExperiment:
     assert run_obj.metadata['objective'] == fixed_params['objective']
     assert run_obj.metadata['eval_metric'] == str(fixed_params['eval_metric'])
     assert run_obj.assignments['eta']  == custom_run.params['eta']
-    assert run_obj.assignments['max_depth'] == custom_run.params['max_depth']
-    assert 0 <= run_obj.values['test0-F1'].value <= 1
+    assert run_obj.assignments['num_boost_round'] == custom_run.params['num_boost_round']
+    assert run_obj.assignments['booster'] in ('gbtree', 'gblinear')
+    assert 0 <= run_obj.values['test0-f1'].value <= 1
     assert 0 <= run_obj.values['test0-recall'].value <= 1
     assert run_obj.values['Training time'].value > 0
+    self._verify_parameter_assignments_for_all_runs([run_obj], experiment.parameters)
+    self._verify_metrics_for_all_runs([run_obj], experiment.metrics)
     ctx.run.end()
     assert not experiment.is_finished()
     assert len(list(experiment.get_runs())) == 1
