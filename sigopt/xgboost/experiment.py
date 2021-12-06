@@ -17,6 +17,16 @@ from .constants import (
 from .run import parse_run_options
 from .run import run as XGBRunWrapper
 
+
+def check_if_bounds_in_limits(bounds, limits):  #TODO move to utils, don't want to deal with merge conflict atm
+  min_limit_type = limits[0]
+  max_limit_type = limits[-1]
+  min_limit, max_limit = [float(f) for f in limits[1:-1].split(',')]
+  IN_BOUNDS_MIN = min_limit < bounds['min'] if min_limit_type == '(' else min_limit <= bounds['min']
+  IN_BOUNDS_MAX = max_limit > bounds['min'] if max_limit_type == ')' else max_limit >= bounds['min']
+  return all([IN_BOUNDS_MIN, IN_BOUNDS_MAX])
+
+
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
     self.experiment_config_parsed = copy.deepcopy(experiment_config)
@@ -75,7 +85,7 @@ class XGBExperiment:
         if 'type' in parameter:
           experiment_config_parameter_type = parameter['type']
           if experiment_config_parameter_type != proper_parameter_type:
-            raise ValueError(f'Parameter {parameter_name} type listed incorrectly as {experiment_config_parameter_type} '
+            raise ValueError(f'Parameter {parameter_name} type listed incorrectly as {experiment_config_parameter_type}'
                              f'in experiment config, and should be listed as having type {proper_parameter_type}.')
         else:
           parameter['type'] = proper_parameter_type
@@ -85,11 +95,24 @@ class XGBExperiment:
       parameter_name = parameter['name']
       if 'bounds' not in parameter:  # autofill bound if necessary
         if parameter_name not in SEARCH_PARAMS:
-          raise ValueError('We do not support autoselection of bounds for {param_name}')
+          raise ValueError('We do not support autoselection of bounds for {param_name}.')
         search_bound = SEARCH_BOUNDS[SEARCH_PARAMS.index(parameter_name)]
         parameter.update(search_bound)
       else:  # check that bounds are correct
-        pass  # TODO
+        parameter_bounds = parameter['bounds']
+        if parameter_name in PARAMETER_INFORMATION:
+
+          if parameter['type'] in ['double', 'int']:
+            limits = PARAMETER_INFORMATION[parameter_name]['limits']
+            if not check_if_bounds_in_limits(parameter_bounds, limits):
+              raise ValueError(f'The min and max for {parameter_name} must be within the interval {limits}.')
+
+          if parameter['type'] == 'categorical':
+            proper_parameter_values = PARAMETER_INFORMATION['values']
+            config_parameter_values = parameter['categorical_values']
+            if set(proper_parameter_values) < set(config_parameter_values):
+              raise ValueError(f'The set of possible categorical values {config_parameter_values} is not a subset of'
+                               f'the permissible categorical values {proper_parameter_values}.')
 
   def parse_and_create_parameters(self):
     if 'parameters' not in self.experiment_config_parsed:

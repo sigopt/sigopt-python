@@ -34,33 +34,33 @@ METRICS_OPTIMIZATION_STRATEGY = {
 }
 
 # Note: only the XGB general params. Omitted monotone_constraints and interaction_constraints b/c more complex.
+# Also omitting refresh_leaf b/c it's a boolean value
 PARAMETER_INFORMATION = {
 
   # Numerical Values
-  'alpha':              {'type': 'double', 'limits':        [0, float("inf")],  'limits_type': ['closed', 'closed']},
-  'colsample_bylevel':  {'type': 'double', 'limits':        [0, 1],             'limits_type': ['open', 'closed']},
-  'colsample_bynode':   {'type': 'double', 'limits':        [0, 1],             'limits_type': ['open', 'closed']},
-  'colsample_bytree':   {'type': 'double', 'limits':        [0, 1],             'limits_type': ['open', 'closed']},
-  'eta':                {'type': 'double', 'limits':        [0, 1],             'limits_type': ['open', 'closed']},
-  'gamma':              {'type': 'double', 'limits':        [0, float("inf")],  'limits_type': ['closed', 'closed']},
-  'lambda':             {'type': 'double', 'limits':        [0, float("inf")],  'limits_type': ['closed', 'closed']},
-  'max_delta_step':     {'type': 'int',    'limits':        [0, float("inf")],  'limits_type': ['closed', 'closed']},
-  'max_depth':          {'type': 'int',    'limits':        [1, float("inf")],  'limits_type': ['closed', 'closed']},
-  'max_leaves':         {'type': 'int',    'limits':        [1, float("inf")],  'limits_type': ['closed', 'closed']},
-  'num_boost_round':    {'type': 'int',    'limits':        [1, float("inf")],  'limits_type': ['closed', 'closed']},
-  'num_parallel_tree':  {'type': 'int',    'limits':        [1, float("inf")],  'limits_type': ['closed', 'closed']},
-  'scale_pos_weight':   {'type': 'int',    'limits':        [0, float("inf")],  'limits_type': ['open', 'closed']},
-  'sketch_eps':         {'type': 'double', 'limits':        [0, 1],             'limits_type': ['open', 'open']},
-  'subsample':          {'type': 'double', 'limits':        [0, 1],             'limits_type': ['open', 'closed']},
-  'refresh_leaf':       {'type': 'grid',   'grid_values':   [0, 1]},
+  'alpha':              {'type': 'double', 'limits': '[0, Inf]'},
+  'colsample_bylevel':  {'type': 'double', 'limits': '(0, 1]'},
+  'colsample_bynode':   {'type': 'double', 'limits': '(0, 1]'},
+  'colsample_bytree':   {'type': 'double', 'limits': '(0, 1]'},
+  'eta':                {'type': 'double', 'limits': '(0, 1]'},
+  'gamma':              {'type': 'double', 'limits': '[0, Inf]'},
+  'lambda':             {'type': 'double', 'limits': '[0, Inf]'},
+  'max_delta_step':     {'type': 'int',    'limits': '[0, Inf]'},
+  'max_depth':          {'type': 'int',    'limits': '[1, Inf]'},
+  'max_leaves':         {'type': 'int',    'limits': '[1, Inf]'},
+  'num_boost_round':    {'type': 'int',    'limits': '[1, Inf]'},
+  'num_parallel_tree':  {'type': 'int',    'limits': '[1, Inf]'},
+  'scale_pos_weight':   {'type': 'int',    'limits': '[0, Inf]'},
+  'sketch_eps':         {'type': 'double', 'limits': '(0, 1)'},
+  'subsample':          {'type': 'double', 'limits': '(0, 1]'},
 
   # String values
-  'grow_policy':        {'type': 'string', 'string_values': ['depthwise', 'lossguide']},
-  'predictor':          {'type': 'string', 'string_values': ['auto', 'cpu_predictor', 'gpu_predictor']},
-  'process_type':       {'type': 'string', 'string_values': ['default', 'update']},
-  'sampling_method':    {'type': 'string', 'string_values': ['uniform', 'gradient_based']},
-  'tree_method':        {'type': 'string', 'string_values': ['auto', 'exact', 'approx', 'hist', 'gpu_hist']},
-  'updater':            {'type': 'string', 'string_values': ['grow_colmaker', 'grow_histmaker', 'grow_local_histmaker',
-                                                             'grow_quantile_histmaker', 'grow_gpu_hist', 'sync',
-                                                             'refresh', 'prune']},
+  'grow_policy':        {'type': 'categorical', 'values': ['depthwise', 'lossguide']},
+  'predictor':          {'type': 'categorical', 'values': ['auto', 'cpu_predictor', 'gpu_predictor']},
+  'process_type':       {'type': 'categorical', 'values': ['default', 'update']},
+  'sampling_method':    {'type': 'categorical', 'values': ['uniform', 'gradient_based']},
+  'tree_method':        {'type': 'categorical', 'values': ['auto', 'exact', 'approx', 'hist', 'gpu_hist']},
+  'updater':            {'type': 'categorical', 'values': ['grow_colmaker', 'grow_histmaker', 'grow_local_histmaker',
+                                                           'grow_quantile_histmaker', 'grow_gpu_hist', 'sync',
+                                                           'refresh', 'prune']},
 }
