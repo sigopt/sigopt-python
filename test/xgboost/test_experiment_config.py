@@ -187,4 +187,3 @@ class TestExperimentConfig:
     params = copy.deepcopy(PARAMS_BASE)
     with pytest.raises(ValueError):
       self.verify_integrity(experiment_config, params)
-
