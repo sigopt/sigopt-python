@@ -9,6 +9,7 @@ from .constants import (
   DEFAULT_REGRESSION_METRIC,
   DEFAULT_SEARCH_PARAMS,
   METRICS_OPTIMIZATION_STRATEGY,
+  PARAMETER_INFORMATION,
   SEARCH_BOUNDS,
   SEARCH_PARAMS,
   SUPPORTED_METRICS_TO_OPTIMIZE,
@@ -66,19 +67,39 @@ class XGBExperiment:
         else:
           metric['name'] = DEFAULT_EVALS_NAME + '-' + metric['name']
 
+  def check_parameter_types(self):
+    for parameter in self.experiment_config_parsed['parameters']:
+      parameter_name = parameter['name']
+      if parameter_name in PARAMETER_INFORMATION:  # TODO: if parameter_name isn't here, probably should throw warning
+        proper_parameter_type = PARAMETER_INFORMATION[parameter_name]['type']
+        if 'type' in parameter:
+          experiment_config_parameter_type = parameter['type']
+          if experiment_config_parameter_type != proper_parameter_type:
+            raise ValueError(f'Parameter {parameter_name} type listed incorrectly as {experiment_config_parameter_type} '
+                             f'in experiment config, and should be listed as having type {proper_parameter_type}.')
+        else:
+          parameter['type'] = proper_parameter_type
+
+  def check_parameter_bounds(self):
+    for parameter in self.experiment_config_parsed['parameters']:
+      parameter_name = parameter['name']
+      if 'bounds' not in parameter:  # autofill bound if necessary
+        if parameter_name not in SEARCH_PARAMS:
+          raise ValueError('We do not support autoselection of bounds for {param_name}')
+        search_bound = SEARCH_BOUNDS[SEARCH_PARAMS.index(parameter_name)]
+        parameter.update(search_bound)
+      else:  # check that bounds are correct
+        pass  # TODO
+
   def parse_and_create_parameters(self):
     if 'parameters' not in self.experiment_config_parsed:
       self.experiment_config_parsed['parameters'] = [
         SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)] for param_name in DEFAULT_SEARCH_PARAMS
       ]
     else:
-      for param in self.experiment_config_parsed['parameters']:
-        if 'bounds' not in param:
-          param_name = param['name']
-          if param_name not in SEARCH_PARAMS:
-            raise ValueError('We do not support autoselection of bounds for {param_name}')
-          search_bound = SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)]
-          param.update(search_bound)
+      self.check_parameter_types()
+      self.check_parameter_bounds()
+
 
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
