@@ -222,9 +222,9 @@ class TestXGBoostRun(object):
       'log_checkpoints': False,
       'log_feature_importances': False,
       'log_metrics': False,
-      'log_params': False,
       'log_stderr': False,
       'log_stdout': False,
+      'log_xgboost_defaults': False,
     })
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
@@ -237,7 +237,8 @@ class TestXGBoostRun(object):
           self.run_params['evals'], self.run_params['params']['eval_metric']
         )
       }
-    assert not run.assignments
+    assert len(run.assignments) <= len(self.run_params['params']) + 1
+    self._verify_miscs_data_logging(run)
     assert not run.logs
     ctx.run.end()
 
@@ -253,11 +254,13 @@ class TestXGBoostRun(object):
     del self.run_params['params']['eta']
     del self.run_params['params']['gamma']
     del self.run_params['params']['lambda']
+    del self.run_params['num_boost_round']
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
     assert numpy.isclose(run.assignments['eta'], 0.3)
     assert run.assignments['gamma'] == 0
     assert run.assignments['lambda'] == 1
+    assert run.assignments['num_boost_round'] == 10
 
   def test_provided_run(self):
     self.run_params = _form_random_run_params(task="binary")

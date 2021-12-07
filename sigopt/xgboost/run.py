@@ -17,17 +17,17 @@ from .constants import (
   USER_SOURCE_NAME,
   XGBOOST_DEFAULTS_SOURCE_NAME,
 )
-from .utils import get_all_run_params
+from .utils import get_booster_params
 
 
 DEFAULT_RUN_OPTIONS = {
   'log_checkpoints': True,
   'log_feature_importances': True,
   'log_metrics': True,
-  'log_params': True,
   'log_stdout': True,
   'log_stderr': True,
   'log_sys_info': True,
+  'log_xgboost_defaults': True,
   'name': None,
   'run': None,
 }
@@ -38,6 +38,8 @@ XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
 
 PARAMS_LOGGED_AS_METADATA = [
   'eval_metric',
+  'interaction_constraints',
+  'monotone_constraints',
   'objective',
   'updater',
 ]
@@ -138,6 +140,8 @@ class XGBRun:
         self.params.update(self.run.params)
         if 'num_boost_round' in self.params:
           self.num_boost_round = self.params.pop('num_boost_round')
+        if 'early_stopping_rounds' in self.params:
+          self.early_stopping_rounds = self.params.pop('early_stopping_rounds')
     elif self.run_options_parsed['name'] is not None:
       self.run = create_run(name=self.run_options_parsed['name'])
     else:
@@ -172,10 +176,15 @@ class XGBRun:
 
     if 'num_boost_round' not in self.run.params.keys():
       self._log_param_by_source('num_boost_round', self.num_boost_round, USER_SOURCE_NAME)
-    self.log_default_params()
+
+    if self.early_stopping_rounds is not None and 'early_stopping_rounds' not in self.run.params.keys():
+      self._log_param_by_source('early_stopping_rounds', self.early_stopping_rounds, USER_SOURCE_NAME)
+
+    if self.run_options_parsed['log_xgboost_defaults']:
+      self.log_default_params()
 
   def log_default_params(self):
-    all_xgb_params = get_all_run_params(self.model, num_boost_round=self.num_boost_round, **self.params)
+    all_xgb_params = get_booster_params(self.model)
     reported_params = self.run.params.keys()
 
     xgb_default_params = {}
@@ -326,8 +335,7 @@ def run(
   _run.form_callbacks()
   _run.train_xgb()
   _run.log_metadata()
-  if _run.run_options_parsed['log_params']:
-    _run.log_params()
+  _run.log_params()
   _run.check_learning_task()
   _run.log_training_metrics()
   _run.log_validation_metrics()
