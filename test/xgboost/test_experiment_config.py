@@ -7,7 +7,7 @@ from sigopt.xgboost.constants import (
   DEFAULT_EVALS_NAME,
   DEFAULT_REGRESSION_METRIC,
   PARAMETER_INFORMATION,
-  SEARCH_PARAMS,
+  SUPPORTED_AUTOBOUND_PARAMS,
 )
 from sigopt.xgboost.experiment import XGBExperiment
 
@@ -87,7 +87,7 @@ class TestExperimentConfig:
     verify_experiment_config_integrity(xgb_experiment.experiment_config_parsed)
 
   def test_check_supported_params(self):
-    assert set(PARAMETER_INFORMATION.keys()) > set(SEARCH_PARAMS)
+    assert set(PARAMETER_INFORMATION.keys()) > set(SUPPORTED_AUTOBOUND_PARAMS)
 
   def test_base(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)

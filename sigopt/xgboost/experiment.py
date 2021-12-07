@@ -11,7 +11,7 @@ from .constants import (
   METRICS_OPTIMIZATION_STRATEGY,
   PARAMETER_INFORMATION,
   SEARCH_BOUNDS,
-  SEARCH_PARAMS,
+  SUPPORTED_AUTOBOUND_PARAMS,
   SUPPORTED_METRICS_TO_OPTIMIZE,
 )
 from .run import parse_run_options
@@ -96,9 +96,9 @@ class XGBExperiment:
     for parameter in params_to_check:
       parameter_name = parameter['name']
       if 'bounds' not in parameter and PARAMETER_INFORMATION[parameter_name]['type'] in ['double', 'int']:
-        if parameter_name not in SEARCH_PARAMS:
+        if parameter_name not in SUPPORTED_AUTOBOUND_PARAMS:
           raise ValueError('We do not support autoselection of bounds for {param_name}.')
-        search_bound = SEARCH_BOUNDS[SEARCH_PARAMS.index(parameter_name)]
+        search_bound = SEARCH_BOUNDS[SUPPORTED_AUTOBOUND_PARAMS.index(parameter_name)]
         parameter.update(search_bound)
       else:  # check that bounds are correct
         if parameter['type'] in ['double', 'int']:
@@ -117,7 +117,7 @@ class XGBExperiment:
   def parse_and_create_parameters(self):
     if 'parameters' not in self.experiment_config_parsed:
       self.experiment_config_parsed['parameters'] = [
-        SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)] for param_name in DEFAULT_SEARCH_PARAMS
+        SEARCH_BOUNDS[SUPPORTED_AUTOBOUND_PARAMS.index(param_name)] for param_name in DEFAULT_SEARCH_PARAMS
       ]
     else:
       self.check_and_fill_parameter_types()

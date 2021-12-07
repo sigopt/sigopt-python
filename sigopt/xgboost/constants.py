@@ -15,7 +15,7 @@ SEARCH_BOUNDS = [
   {'name': 'min_child_weight',  'type': 'double',                           'bounds': {'min': 0, 'max': 10}},
   {'name': 'num_boost_round',   'type': 'int',                              'bounds': {'min': 10, 'max': 200}},
 ]
-SEARCH_PARAMS = [param['name'] for param in SEARCH_BOUNDS]
+SUPPORTED_AUTOBOUND_PARAMS = [param['name'] for param in SEARCH_BOUNDS]
 
 # defaults
 DEFAULT_BO_ITERATIONS = 50
