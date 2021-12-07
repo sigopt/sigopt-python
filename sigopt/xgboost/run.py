@@ -136,12 +136,6 @@ class XGBRun:
   def make_run(self):
     if self.run_options_parsed['run'] is not None:
       self.run = self.run_options_parsed['run']
-      if self.run.params:
-        self.params.update(self.run.params)
-        if 'num_boost_round' in self.params:
-          self.num_boost_round = self.params.pop('num_boost_round')
-        if 'early_stopping_rounds' in self.params:
-          self.early_stopping_rounds = self.params.pop('early_stopping_rounds')
     elif self.run_options_parsed['name'] is not None:
       self.run = create_run(name=self.run_options_parsed['name'])
     else:
@@ -171,7 +165,7 @@ class XGBRun:
 
   def log_params(self):
     for p_name, p_value in self.params.items():
-      if p_name not in self.run.params.keys() and p_name not in PARAMS_LOGGED_AS_METADATA:
+      if p_name not in self.run.params and p_name not in PARAMS_LOGGED_AS_METADATA:
         self._log_param_by_source(p_name, p_value, USER_SOURCE_NAME)
 
     if 'num_boost_round' not in self.run.params.keys():
@@ -225,8 +219,15 @@ class XGBRun:
   def train_xgb(self):
     stream_monitor = SystemOutputStreamMonitor()
     with stream_monitor:
+      params = copy.deepcopy(self.params)
+      if self.run.params:
+        params.update(self.run.params)
+        if 'num_boost_round' in self.params:
+          self.num_boost_round = params.pop('num_boost_round')
+        if 'early_stopping_rounds' in self.params:
+          self.early_stopping_rounds = params.pop('early_stopping_rounds')
       xgb_args = {
-        'params': self.params,
+        'params': params,
         'dtrain': self.dtrain,
         'num_boost_round': self.num_boost_round,
         'obj': self.obj,
