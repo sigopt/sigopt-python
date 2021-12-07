@@ -56,7 +56,10 @@ def verify_experiment_config_integrity(experiment_config):
   for parameter in parameters:
     assert 'name' in parameter
     assert 'type' in parameter
-    assert 'bounds' in parameter
+    if parameter['type'] in ['int', 'double']:
+      assert 'bounds' in parameter
+    if parameter['type'] == 'categorical':
+      assert 'categorical_values' in parameter
 
   metrics = experiment_config['metrics']
   for metric in metrics:
@@ -113,6 +116,54 @@ class TestExperimentConfig:
     del experiment_config['parameters'][2]['type']
     del experiment_config['parameters'][2]['bounds']
     self.verify_integrity(experiment_config, params)
+
+  def test_config_search_space_wrong_type(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    experiment_config['parameters'][0]['type'] = 'int'
+    del experiment_config['parameters'][0]['bounds']
+    with pytest.raises(ValueError):
+      self.verify_integrity(experiment_config, params)
+
+  def test_config_search_space_no_type(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    del experiment_config['parameters'][0]['type']
+    del experiment_config['parameters'][1]['type']
+    del experiment_config['parameters'][2]['type']
+    self.verify_integrity(experiment_config, params)
+
+  def test_config_search_space_wrong_categories(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    experiment_config['parameters'].append(
+      dict(
+        name='tree_method',
+        type='categorical',
+        categorical_values=['auto', 'exact', 'hist', 'gpu_hist', 'WrongCategory'],
+      )
+    )
+    with pytest.raises(ValueError):
+      self.verify_integrity(experiment_config, params)
+
+  def test_config_search_space_fake_categories(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    experiment_config['parameters'].append(
+      dict(
+        name='foo',
+        type='categorical',
+        categorical_values=['auto', 'exact', 'hist', 'gpu_hist', 'WrongCategory'],
+      )
+    )
+    self.verify_integrity(experiment_config, params)
+
+  def test_config_search_space_wrong_bounds(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    experiment_config['parameters'][0]['bounds'] = {'min': -0.1, 'max': 5.0}
+    with pytest.raises(ValueError):
+      self.verify_integrity(experiment_config, params)
 
   def test_config_no_supported_bounds(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
