@@ -6,6 +6,8 @@ from sigopt.xgboost.constants import (
   DEFAULT_CLASSIFICATION_METRIC,
   DEFAULT_EVALS_NAME,
   DEFAULT_REGRESSION_METRIC,
+  PARAMETER_INFORMATION,
+  SEARCH_PARAMS,
 )
 from sigopt.xgboost.experiment import XGBExperiment
 
@@ -84,6 +86,9 @@ class TestExperimentConfig:
     xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
     verify_experiment_config_integrity(xgb_experiment.experiment_config_parsed)
 
+  def test_check_supported_params(self):
+    assert set(PARAMETER_INFORMATION.keys()) > set(SEARCH_PARAMS)
+
   def test_base(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
     params = copy.deepcopy(PARAMS_BASE)
@@ -131,6 +136,17 @@ class TestExperimentConfig:
     del experiment_config['parameters'][0]['type']
     del experiment_config['parameters'][1]['type']
     del experiment_config['parameters'][2]['type']
+    self.verify_integrity(experiment_config, params)
+
+  def test_config_search_space_categories_no_type(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    experiment_config['parameters'].append(
+      dict(
+        name='tree_method',
+        categorical_values=['auto', 'exact', 'hist', 'gpu_hist'],
+      )
+    )
     self.verify_integrity(experiment_config, params)
 
   def test_config_search_space_wrong_categories(self):
