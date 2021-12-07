@@ -1,4 +1,3 @@
-
 DEFAULT_EVALS_NAME = 'TestSet'
 DEFAULT_TRAINING_NAME = 'TrainingSet'
 USER_SOURCE_NAME = 'User Specified'
@@ -42,17 +41,17 @@ PARAMETER_INFORMATION = {
   'colsample_bylevel':  {'type': 'double', 'limits': '(0, 1]'},
   'colsample_bynode':   {'type': 'double', 'limits': '(0, 1]'},
   'colsample_bytree':   {'type': 'double', 'limits': '(0, 1]'},
-  'eta':                {'type': 'double', 'limits': '(0, 1]'},
+  'eta':                {'type': 'double', 'limits': '(0, Inf]'},
   'gamma':              {'type': 'double', 'limits': '[0, Inf]'},
   'lambda':             {'type': 'double', 'limits': '[0, Inf]'},
-  'max_delta_step':     {'type': 'int',    'limits': '[0, Inf]'},
+  'max_delta_step':     {'type': 'double', 'limits': '[0, Inf]'},
   'max_bin':            {'type': 'int',    'limits': '[1, Inf]'},
   'max_depth':          {'type': 'int',    'limits': '[1, Inf]'},
   'max_leaves':         {'type': 'int',    'limits': '[1, Inf]'},
-  'min_child_weight':   {'type': 'int',    'limits': '[0, Inf]'},
+  'min_child_weight':   {'type': 'double', 'limits': '[0, Inf]'},
   'num_boost_round':    {'type': 'int',    'limits': '[1, Inf]'},
   'num_parallel_tree':  {'type': 'int',    'limits': '[1, Inf]'},
-  'scale_pos_weight':   {'type': 'int',    'limits': '[0, Inf]'},
+  'scale_pos_weight':   {'type': 'double', 'limits': '[0, Inf]'},
   'sketch_eps':         {'type': 'double', 'limits': '(0, 1)'},
   'subsample':          {'type': 'double', 'limits': '(0, 1]'},
 

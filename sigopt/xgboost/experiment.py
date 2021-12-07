@@ -81,15 +81,16 @@ class XGBExperiment:
     params_to_check = [p for p in self.experiment_config_parsed['parameters'] if p['name'] in PARAMETER_INFORMATION]
     for parameter in params_to_check:
       parameter_name = parameter['name']
-      if parameter_name in PARAMETER_INFORMATION:  # TODO: if parameter_name isn't here, probably should throw warning
-        proper_parameter_type = PARAMETER_INFORMATION[parameter_name]['type']
-        if 'type' in parameter:
-          experiment_config_parameter_type = parameter['type']
-          if experiment_config_parameter_type != proper_parameter_type:
-            raise ValueError(f'Parameter {parameter_name} type listed incorrectly as {experiment_config_parameter_type}'
-                             f'in experiment config, and should be listed as having type {proper_parameter_type}.')
-        else:
-          parameter['type'] = proper_parameter_type
+      proper_parameter_type = PARAMETER_INFORMATION[parameter_name]['type']
+      if 'type' in parameter:
+        experiment_config_parameter_type = parameter['type']
+        if experiment_config_parameter_type != proper_parameter_type:
+          raise ValueError(
+            f'Parameter {parameter_name} type listed incorrectly as {experiment_config_parameter_type} '
+            f'in experiment config, and should be listed as having type {proper_parameter_type}.'
+          )
+      else:
+        parameter['type'] = proper_parameter_type
 
   def check_and_fill_parameter_bounds(self):
     params_to_check = [p for p in self.experiment_config_parsed['parameters'] if p['name'] in PARAMETER_INFORMATION]
@@ -107,12 +108,17 @@ class XGBExperiment:
           if not check_if_bounds_in_limits(parameter_bounds, limits):
             raise ValueError(f'The min and max for {parameter_name} must be within the interval {limits}.')
 
-        if parameter['type'] == 'categorical':
+        elif parameter['type'] == 'categorical':
           proper_parameter_values = PARAMETER_INFORMATION[parameter_name]['values']
           config_parameter_values = parameter['categorical_values']
           if not set(proper_parameter_values) > set(config_parameter_values):
-            raise ValueError(f'The set of possible categorical values {config_parameter_values} is not a subset of'
-                             f'the permissible categorical values {proper_parameter_values}.')
+            raise ValueError(
+              f'The set of possible categorical values {config_parameter_values} is not a subset of '
+              f'the permissible categorical values {proper_parameter_values}.'
+            )
+
+        else:
+          pass  # in case there are grid parameters (which there are, just not general params) this needs updating
 
   def parse_and_create_parameters(self):
     if 'parameters' not in self.experiment_config_parsed:
