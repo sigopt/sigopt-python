@@ -100,7 +100,7 @@ class XGBExperiment:
           raise ValueError('We do not support autoselection of bounds for {param_name}.')
         search_bound = SEARCH_BOUNDS[SUPPORTED_AUTOBOUND_PARAMS.index(parameter_name)]
         parameter.update(search_bound)
-      else:  # check that bounds are correct
+      else:
         if parameter['type'] in ['double', 'int']:
           parameter_bounds = parameter['bounds']
           limits = PARAMETER_INFORMATION[parameter_name]['limits']
