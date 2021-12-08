@@ -131,7 +131,6 @@ class TestXGBoostExperiment:
     ctx = sigopt.xgboost.run(
       params=fixed_params,
       dtrain=run_params['dtrain'],
-      num_boost_round=run_params['num_boost_round'],
       evals=run_params['evals'],
       verbose_eval=False,
       run_options={'run': custom_run},
@@ -143,8 +142,8 @@ class TestXGBoostExperiment:
     assert run_obj.metadata['eval_metric'] == str(fixed_params['eval_metric'])
     assert run_obj.assignments['eta']  == custom_run.params['eta']
     assert run_obj.assignments['max_depth'] == custom_run.params['max_depth']
-    assert 0 < run_obj.values['test0-F1'].value < 1
-    assert 0 < run_obj.values['test0-recall'].value < 1
+    assert 0 <= run_obj.values['test0-F1'].value <= 1
+    assert 0 <= run_obj.values['test0-recall'].value <= 1
     assert run_obj.values['Training time'].value > 0
     ctx.run.end()
     assert not experiment.is_finished()

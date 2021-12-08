@@ -182,11 +182,10 @@ class XGBExperiment:
           num_boost_round_run = run.params['num_boost_round']
         else:
           num_boost_round_run = DEFAULT_NUM_BOOST_ROUND
-        all_params = {**run.params, **self.params, 'num_boost_round': num_boost_round_run}
         self.run_options['run'] = run
 
         XGBRunWrapper(
-          all_params,
+          self.params,
           self.dtrain,
           num_boost_round=num_boost_round_run,
           evals=self.evals,
