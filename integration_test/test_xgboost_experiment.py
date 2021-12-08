@@ -147,7 +147,7 @@ class TestXGBoostExperiment:
     assert run_obj.assignments['eta']  == custom_run.params['eta']
     assert run_obj.assignments['num_boost_round'] == custom_run.params['num_boost_round']
     assert run_obj.assignments['booster'] in ('gbtree', 'gblinear')
-    assert 0 <= run_obj.values['test0-f1'].value <= 1
+    assert 0 <= run_obj.values['test0-F1'].value <= 1
     assert 0 <= run_obj.values['test0-recall'].value <= 1
     assert run_obj.values['Training time'].value > 0
     self._verify_parameter_assignments_for_all_runs([run_obj], experiment.parameters)
