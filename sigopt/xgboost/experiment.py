@@ -17,15 +17,6 @@ from .run import parse_run_options
 from .run import run as XGBRunWrapper
 
 
-def check_if_bounds_in_limits(bounds, limits):  #TODO move to utils, don't want to deal with merge conflict atm
-  min_limit_type = limits[0]
-  max_limit_type = limits[-1]
-  min_limit, max_limit = [float(f) for f in limits[1:-1].split(',')]
-  IN_BOUNDS_MIN = min_limit < bounds['min'] if min_limit_type == '(' else min_limit <= bounds['min']
-  IN_BOUNDS_MAX = max_limit > bounds['min'] if max_limit_type == ')' else max_limit >= bounds['min']
-  return all([IN_BOUNDS_MIN, IN_BOUNDS_MAX])
-
-
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
     self.experiment_config_parsed = copy.deepcopy(experiment_config)
@@ -109,13 +100,7 @@ class XGBExperiment:
           )
         )
       else:
-        if parameter['type'] in ['double', 'int']:
-          parameter_bounds = parameter['bounds']
-          limits = PARAMETER_INFORMATION[parameter_name]['limits']
-          if not check_if_bounds_in_limits(parameter_bounds, limits):
-            raise ValueError(f'The min and max for {parameter_name} must be within the interval {limits}.')
-
-        elif parameter['type'] == 'categorical':
+        if parameter['type'] == 'categorical':
           proper_parameter_values = PARAMETER_INFORMATION[parameter_name]['values']
           config_parameter_values = parameter['categorical_values']
           if not set(proper_parameter_values) > set(config_parameter_values):
@@ -125,7 +110,7 @@ class XGBExperiment:
             )
 
         else:
-          pass  # in case there are grid parameters (which there are, just not general params) this needs updating
+          pass  # TODO: check bounds for double, int, and grid parameters in later PR
 
   def parse_and_create_parameters(self):
     if 'parameters' not in self.experiment_config_parsed:

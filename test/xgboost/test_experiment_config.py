@@ -88,9 +88,6 @@ class TestExperimentConfig:
     xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
     verify_experiment_config_integrity(xgb_experiment.experiment_config_parsed)
 
-  def test_check_supported_params(self):
-    assert set(PARAMETER_INFORMATION.keys()) > set(SUPPORTED_AUTOBOUND_PARAMS)
-
   def test_base(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
     params = copy.deepcopy(PARAMS_BASE)
@@ -175,13 +172,6 @@ class TestExperimentConfig:
       )
     )
     self.verify_integrity(experiment_config, params)
-
-  def test_config_search_space_wrong_bounds(self):
-    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
-    params = copy.deepcopy(PARAMS_BASE)
-    experiment_config['parameters'][0]['bounds'] = {'min': -0.1, 'max': 5.0}
-    with pytest.raises(ValueError):
-      self.verify_integrity(experiment_config, params)
 
   def test_config_no_supported_bounds(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
