@@ -10,7 +10,6 @@ from .constants import (
   DEFAULT_SEARCH_PARAMS,
   METRICS_OPTIMIZATION_STRATEGY,
   PARAMETER_INFORMATION,
-  SEARCH_BOUNDS,
   SUPPORTED_AUTOBOUND_PARAMS,
   SUPPORTED_METRICS_TO_OPTIMIZE,
 )
@@ -99,8 +98,16 @@ class XGBExperiment:
       if 'bounds' not in parameter and PARAMETER_INFORMATION[parameter_name]['type'] in ['double', 'int']:
         if parameter_name not in SUPPORTED_AUTOBOUND_PARAMS:
           raise ValueError('We do not support autoselection of bounds for {param_name}.')
-        search_bound = SEARCH_BOUNDS[SUPPORTED_AUTOBOUND_PARAMS.index(parameter_name)]
-        parameter.update(search_bound)
+        param_info = PARAMETER_INFORMATION[parameter_name]
+        transformation = param_info['transformation'] if 'transformation' in param_info else None
+        parameter.update(
+          dict(
+            name=parameter_name,
+            type=param_info['type'],
+            bounds=param_info['bounds'],
+            transformation=transformation
+          )
+        )
       else:
         if parameter['type'] in ['double', 'int']:
           parameter_bounds = parameter['bounds']
@@ -122,9 +129,19 @@ class XGBExperiment:
 
   def parse_and_create_parameters(self):
     if 'parameters' not in self.experiment_config_parsed:
-      self.experiment_config_parsed['parameters'] = [
-        SEARCH_BOUNDS[SUPPORTED_AUTOBOUND_PARAMS.index(param_name)] for param_name in DEFAULT_SEARCH_PARAMS
-      ]
+      default_search_space = []
+      for parameter_name in DEFAULT_SEARCH_PARAMS:
+        param_info = PARAMETER_INFORMATION[parameter_name]
+        transformation = param_info['transformation'] if 'transformation' in param_info else None
+        default_search_space.append(
+          dict(
+            name=parameter_name,
+            type=param_info['type'],
+            bounds=param_info['bounds'],
+            transformation=transformation
+          )
+        )
+      self.experiment_config_parsed['parameters'] = default_search_space
     else:
       self.check_and_fill_parameter_types()
       self.check_and_fill_parameter_bounds()

@@ -3,19 +3,6 @@ DEFAULT_TRAINING_NAME = 'TrainingSet'
 USER_SOURCE_NAME = 'User Specified'
 XGBOOST_DEFAULTS_SOURCE_NAME = 'XGBoost Defaults'
 
-# search space
-SEARCH_BOUNDS = [
-  {'name': 'alpha',             'type': 'double',                           'bounds': {'min': 0, 'max': 10}},
-  {'name': 'eta',               'type': 'double', 'transformation': 'log',  'bounds': {'min': 0.001, 'max': 1}},
-  {'name': 'gamma',             'type': 'double',                           'bounds': {'min': 0, 'max': 5}},
-  {'name': 'lambda',            'type': 'double',                           'bounds': {'min': 0, 'max': 10}},
-  {'name': 'max_delta_step',    'type': 'double', 'transformation': 'log',  'bounds': {'min': 0.001, 'max': 10}},
-  {'name': 'max_depth',         'type': 'int',                              'bounds': {'min': 2, 'max': 16}},
-  {'name': 'min_child_weight',  'type': 'double',                           'bounds': {'min': 0, 'max': 10}},
-  {'name': 'num_boost_round',   'type': 'int',                              'bounds': {'min': 10, 'max': 200}},
-]
-SUPPORTED_AUTOBOUND_PARAMS = [param['name'] for param in SEARCH_BOUNDS]
-
 # defaults
 DEFAULT_BO_ITERATIONS = 50
 DEFAULT_CLASSIFICATION_METRIC = 'accuracy'
@@ -33,27 +20,30 @@ METRICS_OPTIMIZATION_STRATEGY = {
 }
 
 # Note: only the XGB general params. Omitted monotone_constraints and interaction_constraints b/c more complex.
-# Also omitting refresh_leaf b/c it's a boolean value
+# Also omitting refresh_leaf b/c it's a boolean value. Only some of these have bounds which will be autofilled.
+# We can add arbitrary bounds to the rest (and maybe we should).
 PARAMETER_INFORMATION = {
 
   # Numerical Values
-  'alpha':              {'type': 'double', 'limits': '[0, Inf]'},
-  'colsample_bylevel':  {'type': 'double', 'limits': '(0, 1]'},
-  'colsample_bynode':   {'type': 'double', 'limits': '(0, 1]'},
-  'colsample_bytree':   {'type': 'double', 'limits': '(0, 1]'},
-  'eta':                {'type': 'double', 'limits': '(0, Inf]'},
-  'gamma':              {'type': 'double', 'limits': '[0, Inf]'},
-  'lambda':             {'type': 'double', 'limits': '[0, Inf]'},
-  'max_delta_step':     {'type': 'double', 'limits': '[0, Inf]'},
+  'eta':                {'type': 'double', 'limits': '(0, Inf]', 'bounds': {'min': 0.001, 'max':   1},
+                         'transformation': 'log'},
+  'max_delta_step':     {'type': 'double', 'limits': '[0, Inf]', 'bounds': {'min': 0.001, 'max':  10},
+                         'transformation': 'log'},
+  'alpha':              {'type': 'double', 'limits': '[0, Inf]', 'bounds': {'min': 0,     'max':  10}},
+  'gamma':              {'type': 'double', 'limits': '[0, Inf]', 'bounds': {'min': 0,     'max':   5}},
+  'lambda':             {'type': 'double', 'limits': '[0, Inf]', 'bounds': {'min': 0,     'max':  10}},
+  'max_depth':          {'type': 'int',    'limits': '[1, Inf]', 'bounds': {'min': 2,     'max':  16}},
+  'min_child_weight':   {'type': 'double', 'limits': '[0, Inf]', 'bounds': {'min': 0,     'max':  10}},
+  'num_boost_round':    {'type': 'int',    'limits': '[1, Inf]', 'bounds': {'min': 10,    'max': 200}},
+  'colsample_bylevel':  {'type': 'double', 'limits': '(0,   1]'},
+  'colsample_bynode':   {'type': 'double', 'limits': '(0,   1]'},
+  'colsample_bytree':   {'type': 'double', 'limits': '(0,   1]'},
   'max_bin':            {'type': 'int',    'limits': '[1, Inf]'},
-  'max_depth':          {'type': 'int',    'limits': '[1, Inf]'},
   'max_leaves':         {'type': 'int',    'limits': '[1, Inf]'},
-  'min_child_weight':   {'type': 'double', 'limits': '[0, Inf]'},
-  'num_boost_round':    {'type': 'int',    'limits': '[1, Inf]'},
   'num_parallel_tree':  {'type': 'int',    'limits': '[1, Inf]'},
   'scale_pos_weight':   {'type': 'double', 'limits': '[0, Inf]'},
-  'sketch_eps':         {'type': 'double', 'limits': '(0, 1)'},
-  'subsample':          {'type': 'double', 'limits': '(0, 1]'},
+  'sketch_eps':         {'type': 'double', 'limits': '(0,   1)'},
+  'subsample':          {'type': 'double', 'limits': '(0,   1]'},
 
   # String values
   'grow_policy':        {'type': 'categorical', 'values': ['depthwise', 'lossguide']},
@@ -65,3 +55,7 @@ PARAMETER_INFORMATION = {
                                                            'grow_quantile_histmaker', 'grow_gpu_hist', 'sync',
                                                            'refresh', 'prune']},
 }
+
+SUPPORTED_AUTOBOUND_PARAMS = [
+  name for name, info in PARAMETER_INFORMATION.items() if 'bounds' in info
+]
