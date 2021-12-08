@@ -21,13 +21,13 @@ from .utils import get_booster_params
 
 
 DEFAULT_RUN_OPTIONS = {
-  'log_checkpoints': True,
-  'log_feature_importances': True,
-  'log_metrics': True,
-  'log_stdout': True,
-  'log_stderr': True,
-  'log_sys_info': True,
-  'log_xgboost_defaults': True,
+  'autolog_checkpoints': True,
+  'autolog_feature_importances': True,
+  'autolog_metrics': True,
+  'autolog_stdout': True,
+  'autolog_stderr': True,
+  'autolog_sys_info': True,
+  'autolog_xgboost_defaults': True,
   'name': None,
   'run': None,
 }
@@ -117,7 +117,7 @@ class XGBRun:
 
   def form_callbacks(self):
     # if no validation set, checkpointing not possible
-    if not (self.run_options_parsed['log_checkpoints'] and self.validation_sets):
+    if not (self.run_options_parsed['autolog_checkpoints'] and self.validation_sets):
       return
 
     if self.callbacks is None:
@@ -144,7 +144,7 @@ class XGBRun:
   def log_metadata(self):
     self.run.log_dev_metadata(XGB_INTEGRATION_KEYWORD, True)
 
-    if self.run_options_parsed['log_sys_info']:
+    if self.run_options_parsed['autolog_sys_info']:
       python_version = platform.python_version()
       self.run.log_metadata("Python Version", python_version)
       self.run.log_metadata("XGBoost Version", xgboost.__version__)
@@ -174,7 +174,7 @@ class XGBRun:
     if self.early_stopping_rounds is not None and 'early_stopping_rounds' not in self.run.params.keys():
       self._log_param_by_source('early_stopping_rounds', self.early_stopping_rounds, USER_SOURCE_NAME)
 
-    if self.run_options_parsed['log_xgboost_defaults']:
+    if self.run_options_parsed['autolog_xgboost_defaults']:
       self.log_default_params()
 
   def log_default_params(self):
@@ -196,7 +196,7 @@ class XGBRun:
     objective = config_dict['learner']['objective']['name']
     # NOTE: do not log metrics if learning task isn't regression or classification
     if not any(s in config_dict['learner']['objective']['name'] for s in SUPPORTED_OBJECTIVE_PREFIXES):
-      self.run_options_parsed['log_metrics'] = False
+      self.run_options_parsed['autolog_metrics'] = False
     if objective.split(':')[0] == 'reg':
       self.is_regression = True
     else:
@@ -245,21 +245,21 @@ class XGBRun:
       t_start = time.time()
       bst = xgboost.train(**xgb_args)
       t_train = time.time() - t_start
-      if self.run_options_parsed['log_metrics']:
+      if self.run_options_parsed['autolog_metrics']:
         self.run.log_metric("Training time", t_train)
     stream_data = stream_monitor.get_stream_data()
     if stream_data:
       stdout, stderr = stream_data
       log_dict = {}
-      if self.run_options_parsed['log_stdout']:
+      if self.run_options_parsed['autolog_stdout']:
         log_dict["stdout"] = stdout
-      if self.run_options_parsed['log_stderr']:
+      if self.run_options_parsed['autolog_stderr']:
         log_dict["stderr"] = stderr
       self.run.set_logs(log_dict)
     self.model = bst
 
   def log_training_metrics(self):
-    if self.run_options_parsed['log_metrics']:
+    if self.run_options_parsed['autolog_metrics']:
       if self.is_regression:
         self.run.log_metrics(
           compute_regression_metrics(self.model, (self.dtrain, DEFAULT_TRAINING_NAME))
@@ -276,7 +276,7 @@ class XGBRun:
         for metric_label, metric_record in metric_dict.items():
           self.run.log_metric(f"{dataset}-{metric_label}", metric_record[-1])
 
-    if self.run_options_parsed['log_metrics']:
+    if self.run_options_parsed['autolog_metrics']:
       if self.validation_sets:
         for validation_set in self.validation_sets:
           if self.is_regression:
@@ -340,6 +340,6 @@ def run(
   _run.check_learning_task()
   _run.log_training_metrics()
   _run.log_validation_metrics()
-  if _run.run_options_parsed['log_feature_importances']:
+  if _run.run_options_parsed['autolog_feature_importances']:
     _run.log_feature_importances()
   return Context(_run.run, _run.model)

@@ -15,8 +15,8 @@ class TestRunOptionsParsing(object):
 
   def test_run_options_wrong_keys(self):
     run_options = {
-      'log_metric': True,
-      'log_params': True,
+      'autolog_metric': True,
+      'autolog_params': True,
     }
     with pytest.raises(ValueError):
       parse_run_options(run_options)

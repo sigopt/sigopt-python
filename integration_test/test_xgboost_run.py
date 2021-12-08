@@ -219,12 +219,12 @@ class TestXGBoostRun(object):
   def test_run_options_no_logging(self):
     self.run_params = _form_random_run_params(task='binary')
     self.run_params['run_options'].update({
-      'log_checkpoints': False,
-      'log_feature_importances': False,
-      'log_metrics': False,
-      'log_stderr': False,
-      'log_stdout': False,
-      'log_xgboost_defaults': False,
+      'autolog_checkpoints': False,
+      'autolog_feature_importances': False,
+      'autolog_metrics': False,
+      'autolog_stderr': False,
+      'autolog_stdout': False,
+      'autolog_xgboost_defaults': False,
     })
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
@@ -268,11 +268,11 @@ class TestXGBoostRun(object):
     run.params.update({'max_depth': 3})
 
     self.run_params['run_options'].update({
-      'log_checkpoints': False,
-      'log_feature_importances': False,
-      'log_metrics': False,
-      'log_stderr': False,
-      'log_stdout': False,
+      'autolog_checkpoints': False,
+      'autolog_feature_importances': False,
+      'autolog_metrics': False,
+      'autolog_stderr': False,
+      'autolog_stdout': False,
       'run': run,
       'name': None,
     })
