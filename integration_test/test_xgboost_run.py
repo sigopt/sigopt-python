@@ -278,7 +278,7 @@ class TestXGBoostRun(object):
       'name': None,
     })
     self.run_params['params'] = {'max_depth': 9}
-    self.run_params['params'] = {'num_boost_round': 9}
+    del self.run_params['num_boost_round']
     ctx = sigopt.xgboost.run(**self.run_params)
     booster = ctx.model
     params = json.loads(booster.save_config())
