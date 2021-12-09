@@ -164,6 +164,7 @@ class XGBRun:
     self.run.set_parameter_source(param_name, source_name)
 
   def log_params(self):
+    self.run.set_parameters_sources_meta(USER_SOURCE_NAME, sort=2, default_show=True)
     for p_name, p_value in self.params.items():
       if p_name not in self.run.params and p_name not in PARAMS_LOGGED_AS_METADATA:
         self._log_param_by_source(p_name, p_value, USER_SOURCE_NAME)
