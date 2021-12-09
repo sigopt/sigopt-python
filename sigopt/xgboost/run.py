@@ -15,7 +15,9 @@ from .constants import (
   DEFAULT_EVALS_NAME,
   DEFAULT_TRAINING_NAME,
   USER_SOURCE_NAME,
+  USER_SOURCE_PRIORITY,
   XGBOOST_DEFAULTS_SOURCE_NAME,
+  XGBOOST_DEFAULTS_SOURCE_PRIORITY,
 )
 from .utils import get_booster_params
 
@@ -40,6 +42,7 @@ PARAMS_LOGGED_AS_METADATA = [
   'eval_metric',
   'interaction_constraints',
   'monotone_constraints',
+  'num_class',
   'objective',
   'updater',
 ]
@@ -164,6 +167,7 @@ class XGBRun:
     self.run.set_parameter_source(param_name, source_name)
 
   def log_params(self):
+    self.run.set_parameters_sources_meta(USER_SOURCE_NAME, sort=USER_SOURCE_PRIORITY, default_show=True)
     for p_name, p_value in self.params.items():
       if p_name not in self.run.params and p_name not in PARAMS_LOGGED_AS_METADATA:
         self._log_param_by_source(p_name, p_value, USER_SOURCE_NAME)
@@ -182,7 +186,11 @@ class XGBRun:
     reported_params = self.run.params.keys()
 
     xgb_default_params = {}
-    self.run.set_parameters_sources_meta(XGBOOST_DEFAULTS_SOURCE_NAME, sort=40, default_show=False)
+    self.run.set_parameters_sources_meta(
+      XGBOOST_DEFAULTS_SOURCE_NAME,
+      sort=XGBOOST_DEFAULTS_SOURCE_PRIORITY,
+      default_show=False
+    )
     for p_name, p_value in all_xgb_params.items():
       if p_name not in reported_params and p_name not in PARAMS_LOGGED_AS_METADATA:
         if p_value is not None:
