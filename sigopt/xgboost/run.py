@@ -230,9 +230,9 @@ class XGBRun:
       params = copy.deepcopy(self.params)
       if self.run.params:
         params.update(self.run.params)
-        if 'num_boost_round' in self.params:
+        if 'num_boost_round' in params:
           self.num_boost_round = params.pop('num_boost_round')
-        if 'early_stopping_rounds' in self.params:
+        if 'early_stopping_rounds' in params:
           self.early_stopping_rounds = params.pop('early_stopping_rounds')
       xgb_args = {
         'params': params,
