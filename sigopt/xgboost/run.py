@@ -185,7 +185,11 @@ class XGBRun:
     reported_params = self.run.params.keys()
 
     xgb_default_params = {}
-    self.run.set_parameters_sources_meta(XGBOOST_DEFAULTS_SOURCE_NAME, sort=XGBOOST_DEFAULTS_SOURCE_PRIORITY, default_show=False)
+    self.run.set_parameters_sources_meta(
+      XGBOOST_DEFAULTS_SOURCE_NAME,
+      sort=XGBOOST_DEFAULTS_SOURCE_PRIORITY,
+      default_show=False
+    )
     for p_name, p_value in all_xgb_params.items():
       if p_name not in reported_params and p_name not in PARAMS_LOGGED_AS_METADATA:
         if p_value is not None:
