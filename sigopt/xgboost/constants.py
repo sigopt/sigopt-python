@@ -1,5 +1,4 @@
 DEFAULT_EVALS_NAME = 'TestSet'
-DEFAULT_TRAINING_NAME = 'TrainingSet'
 USER_SOURCE_NAME = 'User Specified'
 XGBOOST_DEFAULTS_SOURCE_NAME = 'XGBoost Defaults'
 

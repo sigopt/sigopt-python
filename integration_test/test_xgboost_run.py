@@ -14,7 +14,6 @@ from sigopt.xgboost.checkpoint_callback import SigOptCheckpointCallback
 from sigopt.xgboost.constants import (
   CLASSIFICATION_METRIC_CHOICES,
   DEFAULT_EVALS_NAME,
-  DEFAULT_TRAINING_NAME,
   REGRESSION_METRIC_CHOICES,
 )
 from sigopt.xgboost.run import (
@@ -131,7 +130,7 @@ class TestXGBoostRun(object):
     assert run.assignments['num_boost_round'] == self.run_params['num_boost_round']
 
   def _verify_metric_logging(self, run):
-    data_names = [DEFAULT_TRAINING_NAME]
+    data_names = []
     if self.run_params['evals']:
       data_names.extend([e[-1] for e in self.run_params['evals']])
     if self.is_classification:

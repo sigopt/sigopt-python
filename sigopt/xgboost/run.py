@@ -13,7 +13,6 @@ from .compat import DMatrix, xgboost
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 from .constants import (
   DEFAULT_EVALS_NAME,
-  DEFAULT_TRAINING_NAME,
   USER_SOURCE_NAME,
   XGBOOST_DEFAULTS_SOURCE_NAME,
 )
@@ -258,17 +257,6 @@ class XGBRun:
       self.run.set_logs(log_dict)
     self.model = bst
 
-  def log_training_metrics(self):
-    if self.run_options_parsed['autolog_metrics']:
-      if self.is_regression:
-        self.run.log_metrics(
-          compute_regression_metrics(self.model, (self.dtrain, DEFAULT_TRAINING_NAME))
-        )
-      else:
-        self.run.log_metrics(
-          compute_classification_metrics(self.model, (self.dtrain, DEFAULT_TRAINING_NAME))
-        )
-
   def log_validation_metrics(self):
     # Always log xgb-default eval_metric
     if self.evals_result is not None:
@@ -338,7 +326,6 @@ def run(
   _run.log_metadata()
   _run.log_params()
   _run.check_learning_task()
-  _run.log_training_metrics()
   _run.log_validation_metrics()
   if _run.run_options_parsed['autolog_feature_importances']:
     _run.log_feature_importances()
