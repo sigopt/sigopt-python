@@ -42,6 +42,7 @@ PARAMS_LOGGED_AS_METADATA = [
   'eval_metric',
   'interaction_constraints',
   'monotone_constraints',
+  'num_class',
   'objective',
   'updater',
 ]
