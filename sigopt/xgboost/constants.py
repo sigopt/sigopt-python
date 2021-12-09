@@ -3,6 +3,9 @@ DEFAULT_TRAINING_NAME = 'TrainingSet'
 USER_SOURCE_NAME = 'User Specified'
 XGBOOST_DEFAULTS_SOURCE_NAME = 'XGBoost Defaults'
 
+USER_SOURCE_PRIORITY = 2
+XGBOOST_DEFAULTS_SOURCE_PRIORITY = 3
+
 # search space
 SEARCH_BOUNDS = [
   {'name': 'alpha',             'type': 'double',                           'bounds': {'min': 0, 'max': 10}},
