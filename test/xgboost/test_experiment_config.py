@@ -60,10 +60,8 @@ def verify_experiment_config_integrity(experiment_config):
     assert 'type' in parameter
     if parameter['type'] in ['int', 'double']:
       assert 'bounds' in parameter
-    elif parameter['type'] == 'categorical':
-      assert 'categorical_values' in parameter
     else:
-      pass
+      assert 'categorical_values' in parameter
 
   metrics = experiment_config['metrics']
   for metric in metrics:
