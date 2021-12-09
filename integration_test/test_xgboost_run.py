@@ -266,6 +266,7 @@ class TestXGBoostRun(object):
     self.run_params = _form_random_run_params(task="binary")
     run = sigopt.create_run(name="placeholder-run-with-max-depth-already-logged")
     run.params.update({'max_depth': 3})
+    run.params.update({'num_boost_round': 7})
 
     self.run_params['run_options'].update({
       'autolog_checkpoints': False,
@@ -276,14 +277,18 @@ class TestXGBoostRun(object):
       'run': run,
       'name': None,
     })
-    self.run_params['params'] = {'max_depth': 7}
+    self.run_params['params'] = {'max_depth': 9}
+    self.run_params['params'] = {'num_boost_round': 9}
     ctx = sigopt.xgboost.run(**self.run_params)
     booster = ctx.model
     params = json.loads(booster.save_config())
     trained_max_depth = params['learner']['gradient_booster']['updater']['grow_colmaker']['train_param']['max_depth']
     assert int(trained_max_depth) == 3
+    bst_jsons = booster.get_dump(dump_format='json')
+    assert len(bst_jsons) == 7
     run = sigopt.get_run(ctx.run.id)
     assert run.assignments['max_depth'] == 3
+    assert run.assignments['num_boost_round'] == 7
     ctx.run.end()
 
 
