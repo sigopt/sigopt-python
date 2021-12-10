@@ -56,8 +56,8 @@ SUPPORTED_OBJECTIVE_PREFIXES = [
 def parse_run_options(run_options):
   if run_options is not None:
     if not isinstance(run_options, dict):
-      # TODO(Harvey): change to actual doc url when it's online
-      doc_url = "https://app.sigopt.com/docs/intro/overview"
+      # TODO(Harvey): verify actual doc url when it's online
+      doc_url = "https://app.sigopt.com/docs/xgboost/xgboost_run"
       raise TypeError(
         f"run_options should be a dictonary. Refer to the sigopt.xgboost.run documentation {doc_url}"
       )
@@ -66,6 +66,12 @@ def parse_run_options(run_options):
       raise ValueError(
         f"Unsupported keys {run_options.keys() - DEFAULT_RUN_OPTIONS.keys()} in run_options."
       )
+
+    for key, value in run_options.items():
+      if key.startswith("autolog") and not isinstance(value, bool):
+        raise TypeError(
+          f"run_options key '{key}` expects a Boolean value, not {type(value)}."
+        )
 
     if {'run', 'name'}.issubset(run_options.keys()):
       if run_options['run'] and run_options['name']:
