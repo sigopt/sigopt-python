@@ -101,6 +101,9 @@ class XGBExperiment:
         )
       else:
         if parameter['type'] == 'categorical':
+          if 'categorical_values' not in parameter:
+            raise ValueError(f'We do not support autoselection of categorical_values for {parameter_name}.')
+
           proper_parameter_values = PARAMETER_INFORMATION[parameter_name]['values']
           config_parameter_values = parameter['categorical_values']
           if not set(proper_parameter_values) > set(config_parameter_values):

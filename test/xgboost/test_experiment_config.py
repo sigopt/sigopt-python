@@ -146,6 +146,18 @@ class TestExperimentConfig:
     )
     self.verify_integrity(experiment_config, params)
 
+  def test_config_search_space_no_categorical_values(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    params = copy.deepcopy(PARAMS_BASE)
+    experiment_config['parameters'].append(
+      dict(
+        name='tree_method',
+        type='categorical',
+      )
+    )
+    with pytest.raises(ValueError):
+      self.verify_integrity(experiment_config, params)
+
   def test_config_search_space_wrong_categories(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
     params = copy.deepcopy(PARAMS_BASE)
