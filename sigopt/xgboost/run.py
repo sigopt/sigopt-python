@@ -5,11 +5,11 @@ import platform
 import time
 
 from .. import create_run
-from ..context import Context
 from ..log_capture import SystemOutputStreamMonitor
+from ..model_aware_run import ModelAwareRun
 from ..run_context import RunContext
 from .checkpoint_callback import SigOptCheckpointCallback
-from .compat import DMatrix, xgboost
+from .compat import Booster, DMatrix, xgboost
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 from .constants import (
   DEFAULT_EVALS_NAME,
@@ -90,7 +90,12 @@ def parse_run_options(run_options):
   return copy.deepcopy(DEFAULT_RUN_OPTIONS)
 
 
-class XGBRun:
+class XGBRun(ModelAwareRun):
+  def __init__(self, run, model):
+    assert isinstance(model, Booster)
+    super().__init__(run, model)
+
+class XGBRunHandler:
 
   def __init__(
     self,
@@ -319,9 +324,9 @@ def run(
   run_options=None,
 ):
   """
-  Sigopt integration for XGBoost mirrors the standard XGBoost train interface for the most part, with the option
-  for additional arguments. Unlike the usual train interface, run() returns a context object, where context.run
-  and context.model are the resulting RunContext and XGBoost model, respectively.
+  Sigopt integration for XGBoost mirrors the standard xgboost.train interface for the most part, with the option
+  for additional arguments. Unlike the usual train interface, sigopt.xgboost.run() returns a XGBRun object,
+  where XGBRun.run and XGBRun.model are the resulting RunContext and XGBoost model, respectively.
   """
   if evals is not None:
     if not isinstance(evals, (DMatrix, list)):
@@ -330,7 +335,7 @@ def run(
         f"`evals` must be a {dmatrix_module_name} object or list of ({dmatrix_module_name}, str) tuples."
       )
 
-  _run = XGBRun(
+  _run = XGBRunHandler(
     params=params,
     dtrain=dtrain,
     num_boost_round=num_boost_round,
@@ -356,4 +361,4 @@ def run(
   _run.log_validation_metrics()
   if _run.run_options_parsed['autolog_feature_importances']:
     _run.log_feature_importances()
-  return Context(_run.run, _run.model)
+  return XGBRun(_run.run, _run.model)
