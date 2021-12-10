@@ -219,12 +219,12 @@ class TestXGBoostRun(object):
   def test_run_options_no_logging(self):
     self.run_params = _form_random_run_params(task='binary')
     self.run_params['run_options'].update({
-      'log_checkpoints': False,
-      'log_feature_importances': False,
-      'log_metrics': False,
-      'log_stderr': False,
-      'log_stdout': False,
-      'log_xgboost_defaults': False,
+      'autolog_checkpoints': False,
+      'autolog_feature_importances': False,
+      'autolog_metrics': False,
+      'autolog_stderr': False,
+      'autolog_stdout': False,
+      'autolog_xgboost_defaults': False,
     })
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
@@ -266,24 +266,29 @@ class TestXGBoostRun(object):
     self.run_params = _form_random_run_params(task="binary")
     run = sigopt.create_run(name="placeholder-run-with-max-depth-already-logged")
     run.params.update({'max_depth': 3})
+    run.params.update({'num_boost_round': 7})
 
     self.run_params['run_options'].update({
-      'log_checkpoints': False,
-      'log_feature_importances': False,
-      'log_metrics': False,
-      'log_stderr': False,
-      'log_stdout': False,
+      'autolog_checkpoints': False,
+      'autolog_feature_importances': False,
+      'autolog_metrics': False,
+      'autolog_stderr': False,
+      'autolog_stdout': False,
       'run': run,
       'name': None,
     })
-    self.run_params['params'] = {'max_depth': 7}
+    self.run_params['params'] = {'max_depth': 9}
+    del self.run_params['num_boost_round']
     ctx = sigopt.xgboost.run(**self.run_params)
     booster = ctx.model
     params = json.loads(booster.save_config())
     trained_max_depth = params['learner']['gradient_booster']['updater']['grow_colmaker']['train_param']['max_depth']
     assert int(trained_max_depth) == 3
+    bst_jsons = booster.get_dump(dump_format='json')
+    assert len(bst_jsons) == 7
     run = sigopt.get_run(ctx.run.id)
     assert run.assignments['max_depth'] == 3
+    assert run.assignments['num_boost_round'] == 7
     ctx.run.end()
 
 
