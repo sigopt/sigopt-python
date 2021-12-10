@@ -9,12 +9,13 @@ from .constants import (
   DEFAULT_REGRESSION_METRIC,
   DEFAULT_SEARCH_PARAMS,
   METRICS_OPTIMIZATION_STRATEGY,
-  SEARCH_BOUNDS,
-  SEARCH_PARAMS,
+  PARAMETER_INFORMATION,
+  SUPPORTED_AUTOBOUND_PARAMS,
   SUPPORTED_METRICS_TO_OPTIMIZE,
 )
 from .run import parse_run_options
 from .run import run as XGBRunWrapper
+
 
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
@@ -66,19 +67,72 @@ class XGBExperiment:
         else:
           metric['name'] = DEFAULT_EVALS_NAME + '-' + metric['name']
 
+  def check_and_fill_parameter_types(self):
+    params_to_check = [p for p in self.experiment_config_parsed['parameters'] if p['name'] in PARAMETER_INFORMATION]
+    for parameter in params_to_check:
+      parameter_name = parameter['name']
+      proper_parameter_type = PARAMETER_INFORMATION[parameter_name]['type']
+      if 'type' in parameter:
+        experiment_config_parameter_type = parameter['type']
+        if experiment_config_parameter_type != proper_parameter_type:
+          raise ValueError(
+            f'Parameter {parameter_name} type listed incorrectly as {experiment_config_parameter_type} '
+            f'in experiment config, and should be listed as having type {proper_parameter_type}.'
+          )
+      else:
+        parameter['type'] = proper_parameter_type
+
+  def check_and_fill_parameter_bounds(self):
+    params_to_check = [p for p in self.experiment_config_parsed['parameters'] if p['name'] in PARAMETER_INFORMATION]
+    for parameter in params_to_check:
+      parameter_name = parameter['name']
+      if 'bounds' not in parameter and PARAMETER_INFORMATION[parameter_name]['type'] in ['double', 'int']:
+        if parameter_name not in SUPPORTED_AUTOBOUND_PARAMS:
+          raise ValueError('We do not support autoselection of bounds for {param_name}.')
+        param_info = PARAMETER_INFORMATION[parameter_name]
+        transformation = param_info['transformation'] if 'transformation' in param_info else None
+        parameter.update(
+          dict(
+            name=parameter_name,
+            type=param_info['type'],
+            bounds=param_info['bounds'],
+            transformation=transformation
+          )
+        )
+      else:
+        if parameter['type'] == 'categorical':
+          if 'categorical_values' not in parameter:
+            raise ValueError(f'We do not support autoselection of categorical_values for {parameter_name}.')
+
+          proper_parameter_values = PARAMETER_INFORMATION[parameter_name]['values']
+          config_parameter_values = parameter['categorical_values']
+          if not set(proper_parameter_values) > set(config_parameter_values):
+            raise ValueError(
+              f'The set of possible categorical values {config_parameter_values} is not a subset of '
+              f'the permissible categorical values {proper_parameter_values}.'
+            )
+
+        else:
+          pass  # TODO: check bounds for double, int, and grid parameters in later PR
+
   def parse_and_create_parameters(self):
     if 'parameters' not in self.experiment_config_parsed:
-      self.experiment_config_parsed['parameters'] = [
-        SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)] for param_name in DEFAULT_SEARCH_PARAMS
-      ]
+      default_search_space = []
+      for parameter_name in DEFAULT_SEARCH_PARAMS:
+        param_info = PARAMETER_INFORMATION[parameter_name]
+        transformation = param_info['transformation'] if 'transformation' in param_info else None
+        default_search_space.append(
+          dict(
+            name=parameter_name,
+            type=param_info['type'],
+            bounds=param_info['bounds'],
+            transformation=transformation
+          )
+        )
+      self.experiment_config_parsed['parameters'] = default_search_space
     else:
-      for param in self.experiment_config_parsed['parameters']:
-        if 'bounds' not in param:
-          param_name = param['name']
-          if param_name not in SEARCH_PARAMS:
-            raise ValueError('We do not support autoselection of bounds for {param_name}')
-          search_bound = SEARCH_BOUNDS[SEARCH_PARAMS.index(param_name)]
-          param.update(search_bound)
+      self.check_and_fill_parameter_types()
+      self.check_and_fill_parameter_bounds()
 
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
