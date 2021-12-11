@@ -21,7 +21,7 @@ from sigopt.xgboost.run import (
   DEFAULT_CHECKPOINT_PERIOD,
   PARAMS_LOGGED_AS_METADATA,
   XGB_INTEGRATION_KEYWORD,
-  XGBRun,
+  XGBRunHandler,
 )
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
@@ -294,7 +294,7 @@ class TestXGBoostRun(object):
 
 class TestFormCallbacks(object):
   def _append_xgbrun_param_none_values(self):
-    all_xgbrun_params_names = signature(XGBRun).parameters.keys()
+    all_xgbrun_params_names = signature(XGBRunHandler).parameters.keys()
     for p_name in all_xgbrun_params_names:
       if p_name not in self.run_params:
         self.run_params[p_name] = None
@@ -306,7 +306,7 @@ class TestFormCallbacks(object):
     self.run_params['num_boost_round'] = 35
     self.run_params['callbacks'] = None
     self._append_xgbrun_param_none_values()
-    xgbrun = XGBRun(**self.run_params)
+    xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     assert len(xgbrun.callbacks) == 1
     callback = xgbrun.callbacks[0]
@@ -322,7 +322,7 @@ class TestFormCallbacks(object):
     self.run_params['num_boost_round'] = 200
     self.run_params['callbacks'] = None
     self._append_xgbrun_param_none_values()
-    xgbrun = XGBRun(**self.run_params)
+    xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     assert len(xgbrun.callbacks) == 1
     callback = xgbrun.callbacks[0]
@@ -330,19 +330,19 @@ class TestFormCallbacks(object):
 
     self.run_params['verbose_eval'] = True
     self.run_params['num_boost_round'] = 999
-    xgbrun = XGBRun(**self.run_params)
+    xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     callback = xgbrun.callbacks[0]
     assert callback.period == DEFAULT_CHECKPOINT_PERIOD
 
     self.run_params['num_boost_round'] = 1000
-    xgbrun = XGBRun(**self.run_params)
+    xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     callback = xgbrun.callbacks[0]
     assert callback.period == 6
 
     self.run_params['num_boost_round'] = 3000
-    xgbrun = XGBRun(**self.run_params)
+    xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     callback = xgbrun.callbacks[0]
     assert callback.period == 16
@@ -352,7 +352,7 @@ class TestFormCallbacks(object):
     self.run_params['verbose_eval'] = False
     self.run_params['callbacks'] = [xgb.callback.EvaluationMonitor(period=3)]
     self._append_xgbrun_param_none_values()
-    xgbrun = XGBRun(**self.run_params)
+    xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     assert len(xgbrun.callbacks) == 2
     assert xgbrun.callbacks[0].period == xgbrun.callbacks[1].period
@@ -362,7 +362,7 @@ class TestFormCallbacks(object):
     self.run_params['callbacks'] = [xgb.callback.EarlyStopping(rounds=3)]
     self.run_params['evals'] = None
     self._append_xgbrun_param_none_values()
-    xgbrun = XGBRun(**self.run_params)
+    xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     assert len(xgbrun.callbacks) == 1
     assert isinstance(xgbrun.callbacks[0], xgb.callback.EarlyStopping)
