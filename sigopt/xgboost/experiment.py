@@ -179,7 +179,8 @@ class XGBExperiment:
           self.dtrain,
           num_boost_round=num_boost_round_run,
           evals=self.evals,
-          run_options=self.run_options
+          verbose_eval=False,
+          run_options=self.run_options,
         )
 
 
