@@ -17,6 +17,7 @@ from .constants import (
 from .run import parse_run_options
 from .run import run as XGBRunWrapper
 
+XGB_EXPERIMENT_KEYWORD = '_IS_XGB_EXPERIMENT'
 
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
@@ -161,6 +162,7 @@ class XGBExperiment:
       self.experiment_config_parsed['parallel_bandwidth'] = 1
     if 'type' not in self.experiment_config_parsed:
       self.experiment_config_parsed['type'] = 'offline'
+    self.experiment_config_parsed['metadata'] = {XGB_EXPERIMENT_KEYWORD: 'True'}
     self.sigopt_experiment = create_experiment(**self.experiment_config_parsed)
 
   def run_experiment(self):
@@ -179,7 +181,8 @@ class XGBExperiment:
           self.dtrain,
           num_boost_round=num_boost_round_run,
           evals=self.evals,
-          run_options=self.run_options
+          verbose_eval=False,
+          run_options=self.run_options,
         )
 
 
