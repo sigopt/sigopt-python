@@ -272,6 +272,8 @@ class MetricImportances(ApiObject):
 class Metadata(_DictWrapper):
   pass
 
+class SysMetadata(_DictWrapper):
+  pass
 
 class MetricEvaluation(ApiObject):
   name = Field(str)
@@ -551,6 +553,8 @@ class TrainingRun(ApiObject):
   updated = Field(int)
   user = Field(str)
   values = Field(MapOf(MetricEvaluation))
+  sys_metadata = Field(SysMetadata)
+  dev_metadata = Field(Metadata)
 
 
 class StoppingReasons(_DictWrapper):

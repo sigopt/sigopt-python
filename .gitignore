@@ -5,6 +5,13 @@ dist/
 *.egg-info/
 *~
 venv/
+
+#ctags
+tags
+
+#vim related
+*.swp
+
 # PyCharm related stuff
 .idea*
 .cache/
