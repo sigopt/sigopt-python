@@ -2,12 +2,13 @@ import copy
 
 from .. import create_experiment
 from .constants import (
-  DEFAULT_BO_ITERATIONS,
   DEFAULT_CLASSIFICATION_METRIC,
   DEFAULT_EVALS_NAME,
+  DEFAULT_ITERS_PER_DIM,
   DEFAULT_NUM_BOOST_ROUND,
   DEFAULT_REGRESSION_METRIC,
   DEFAULT_SEARCH_PARAMS,
+  MAX_BO_ITERATIONS,
   METRICS_OPTIMIZATION_STRATEGY,
   PARAMETER_INFORMATION,
   SUPPORTED_AUTOBOUND_PARAMS,
@@ -155,7 +156,8 @@ class XGBExperiment:
     self.parse_and_create_metrics()
     self.parse_and_create_parameters()
     if 'budget' not in self.experiment_config_parsed:
-      self.experiment_config_parsed['budget'] = DEFAULT_BO_ITERATIONS
+      chosen_budget = DEFAULT_ITERS_PER_DIM * len(self.experiment_config_parsed['parameters'])
+      self.experiment_config_parsed['budget'] = min(chosen_budget, MAX_BO_ITERATIONS)
     if 'parallel_bandwidth' not in self.experiment_config_parsed:
       self.experiment_config_parsed['parallel_bandwidth'] = 1
     if 'type' not in self.experiment_config_parsed:
