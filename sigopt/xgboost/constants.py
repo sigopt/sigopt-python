@@ -21,6 +21,14 @@ METRICS_OPTIMIZATION_STRATEGY = {
   **dict(zip(CLASSIFICATION_METRIC_CHOICES, ['maximize']*len(CLASSIFICATION_METRIC_CHOICES))),
   **dict(zip(REGRESSION_METRIC_CHOICES, ['minimize']*len(REGRESSION_METRIC_CHOICES))),
 }
+XGB_EVAL_METRICS_FIXED = [
+  'rmse', 'rmsle', 'mae', 'mape', 'mphe', 'logloss', 'merror', 'mlogloss', 'auc', 'aucpr',
+  'poisson-nloglik', 'gamma-nloglik', 'cox-nloglik', 'gamma-deviance', 'tweedie-nloglik',
+  'aft-nloglik', 'interval-regression-accuracy'
+]
+XGB_EVAL_METRICS_STAR = [  # metrics which have the form 'metric*' where * can be none, int, or something else
+  'error', 'ndcg', 'map'
+]
 
 # Note: only the XGB general params. Omitted monotone_constraints and interaction_constraints b/c more complex.
 # Also omitting refresh_leaf b/c it's a boolean value. Only some of these have bounds which will be autofilled.
