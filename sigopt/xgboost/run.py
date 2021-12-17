@@ -261,7 +261,7 @@ class XGBRunHandler:
         xgb_args['evals'] = self.validation_sets
         xgb_args['evals_result'] = self.evals_result
       t_start = time.time()
-      bst = xgboost.train(**xgb_args)
+      bst = xgboost._train(**xgb_args)
       t_train = time.time() - t_start
       if self.run_options_parsed['autolog_metrics']:
         self.run.log_metric("Training time", t_train)
