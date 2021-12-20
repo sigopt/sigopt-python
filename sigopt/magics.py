@@ -16,7 +16,7 @@ from .run_context import global_run_context
 from .factory import SigOptFactory
 from .defaults import get_default_project
 from .validate import validate_experiment_input, ValidationError
-from .logging import print_logger
+from .sigopt_logging import print_logger
 from .exception import ApiException
 
 

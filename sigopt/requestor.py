@@ -6,7 +6,7 @@ from .exception import ApiException, ConnectionException
 from .ratelimit import failed_status_rate_limit
 from .version import VERSION
 
-DEFAULT_API_URL = 'https://api.sigopt.com'
+DEFAULT_API_URL = 'https://api.sigopt.ninja:4443'
 DEFAULT_HTTP_TIMEOUT = 150
 
 class Requestor(object):
