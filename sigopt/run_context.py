@@ -7,7 +7,7 @@ from .exception import RunException
 from .file_utils import create_api_image_payload, get_blob_properties
 from .interface import get_connection
 from .lib import remove_nones, sanitize_number, validate_name, is_mapping, is_string
-from .logging import print_logger
+from .sigopt_logging import print_logger
 from .objects import TrainingRun
 from .run_params import RunParameters, GlobalRunParameters
 

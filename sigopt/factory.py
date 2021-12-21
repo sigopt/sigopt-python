@@ -2,7 +2,7 @@ from sigopt.validate import validate_experiment_input
 
 from .defaults import check_valid_project_id, ensure_project_exists, get_default_project
 from .interface import get_connection
-from .logging import print_logger
+from .sigopt_logging import print_logger
 from .run_factory import BaseRunFactory
 from .experiment_context import ExperimentContext
 from .validate.keys import PROJECT_KEY, RUNS_ONLY_KEY
