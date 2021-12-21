@@ -1,5 +1,5 @@
 from .defaults import get_default_name
-from .logging import print_logger
+from .sigopt_logging import print_logger
 from .run_context import RunContext
 
 
