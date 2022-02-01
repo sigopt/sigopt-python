@@ -10,7 +10,7 @@ import threading
 import click
 
 from sigopt.factory import SigOptFactory
-from sigopt.logging import enable_print_logging, print_logger
+from sigopt.sigopt_logging import enable_print_logging, print_logger
 from sigopt.run_context import GlobalRunContext
 
 from .arguments.load_yaml import ValidatedData

@@ -1,4 +1,4 @@
-from sigopt.logging import print_logger
+from sigopt.sigopt_logging import print_logger
 
 from ...arguments import experiment_file_option, project_option
 from ...utils import create_experiment_from_validated_data

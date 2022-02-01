@@ -3,7 +3,7 @@ import warnings
 from .config import config
 from .defaults import get_default_project
 from .interface import Connection
-from .logging import enable_print_logging
+from .sigopt_logging import enable_print_logging
 from .magics import SigOptMagics as _Magics
 from .run_context import global_run_context as _global_run_context
 from .factory import SigOptFactory
