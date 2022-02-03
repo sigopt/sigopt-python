@@ -92,8 +92,9 @@ class TestHyperopt(object):
 
   def _verify_uploaded_trials(self, trials, uploaded_tids):
     trial_dict = {tid: (result, parameters)
-            for tid, result, parameters in zip(trials.tids, trials.results,
-                                               trials.parameters)}
+                  for tid, result, parameters in zip(trials.tids, trials.results,
+                                                     trials.parameters)}
+
     def run_result(run):
       result = {}
       if run.state == "completed":
