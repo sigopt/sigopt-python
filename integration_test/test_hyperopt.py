@@ -1,31 +1,41 @@
-from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, Trials
+from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL
 import hyperopt
 from sigopt.hyperopt import SigOptTrials, upload_trials
 import sigopt
 import numpy as np
 import pytest
 
-def objective(p, threshold=0.8):
+
+def objective(p, threshold=1.0):
   x, y = p['x'], p['y']
   w = np.random.rand()
   if w <= threshold:
     return {
-    'loss': x ** 2 + y ** 2,
-    'sum': x + y,
-    'status': STATUS_OK
+      'loss': x ** 2 + y ** 2,
+      'sum': x + y,
+      'status': STATUS_OK
     }
   else:
     return {
       'status': STATUS_FAIL
-      }
+    }
+
+objective_random = lambda x: objective(x, 0.8)
+objective_success = objective
+objective_fail = lambda x: objective(x, -1.0)
+objectives = {
+  'random': objective_random,
+  'success': objective_success,
+  'fail': objective_fail
+  }
 
 
 class TestHyperopt(object):
-  def run_fmin(self, online=True, upload=True, threshold=0.5, max_evals=3):
+  def run_fmin(self, online=True, upload=True, objective='random', max_evals=3):
     project = 'hyperopt-integration-test'
     trials = SigOptTrials(project=project, online=(online and upload))
     try:
-      best = fmin(lambda x: objective(x, threshold),
+      best = fmin(objectives[objective],
                   space={
                     'x' : hp.uniform('x', -10, 10),
                     'y': hp.uniform('y', -10, 10)
@@ -35,7 +45,7 @@ class TestHyperopt(object):
                   trials=trials)
     except hyperopt.exceptions.AllTrialsFailed:
       best = None
-    if upload and (online == False):
+    if upload and not online:
       trials.upload()
     return trials, best
 
@@ -49,21 +59,24 @@ class TestHyperopt(object):
                             (True, True),
                             (False, False),
                             ])
-  @pytest.mark.parametrize("threshold", [-1.0, 0.5, 1.0])
-  def test_fmin(self, online, upload, threshold, max_evals=3):
-    trials, best = self.run_fmin(online, upload, threshold, max_evals)
-    self._verify_best_trial(best, trials, threshold)
+  @pytest.mark.parametrize("objective",
+                           ['random',
+                            'success',
+                            'fail'])
+  def test_fmin(self, online, upload, objective, max_evals=3):
+    trials, best = self.run_fmin(online, upload, objective, max_evals)
+    self._verify_best_trial(best, trials, objective)
     self._verify_runs(trials, upload, max_evals)
 
-  def _verify_best_trial(self, best, trials, threshold):
-    if threshold < 0:
+  def _verify_best_trial(self, best, trials, objective):
+    if objective == 'fail':
       assert not best
-    if threshold >= 1.0:
+    if objective == 'success':
       assert best
     losses = [r['loss'] for r in trials.results if r['status'] == STATUS_OK]
     assert ((not best) and (not losses)) or (best and losses)
     if best:
-      loss = objective(best, 1.0)['loss']
+      loss = objective_success(best)['loss']
       assert loss == min(losses)
 
   def _verify_runs(self, trials, upload, max_evals):
@@ -86,7 +99,7 @@ class TestHyperopt(object):
       elif run.state == "failed":
         result['status'] = STATUS_FAIL
       else:
-        resutl['status'] = None
+        result['status'] = None
       return result
 
     def run_parameters(run):
