@@ -1,4 +1,4 @@
-from .compat import Trials, STATUS_OK, STATUS_FAIL, fmin
+from .compat import Trials, STATUS_OK, STATUS_FAIL
 from .. import SigOptFactory
 
 HYPEROPT_SOURCE_NAME = 'Hyperopt Suggest'
@@ -99,8 +99,8 @@ class SigOptTrials(object):
       return attrs[name]
     try:
       return getattr(self._trials, name)
-    except AttributeError:
-      raise AttributeError(f"{type(self.__name__)} object has no attribute {name}")
+    except AttributeError as e:
+      raise AttributeError(f"{type(self.__name__)} object has no attribute {name}") from e
 
 
 def upload_trials(project, trials):
