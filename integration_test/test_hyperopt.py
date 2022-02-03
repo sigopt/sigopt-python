@@ -4,10 +4,12 @@ from sigopt.hyperopt import SigOptTrials, upload_trials
 import sigopt
 import numpy as np
 import pytest
+import time
 
-
-def objective(p, threshold=1.0):
+def objective(p, threshold=1.0, max_sleep_time=0.0):
   x, y = p['x'], p['y']
+  if max_sleep_time > 0:
+    time.sleep(np.random.rand() * max_sleep_time)
   w = np.random.rand()
   if w <= threshold:
     return {
@@ -23,26 +25,22 @@ def objective(p, threshold=1.0):
 objective_random = lambda x: objective(x, 0.8)
 objective_success = objective
 objective_fail = lambda x: objective(x, -1.0)
-objectives = {
-  'random': objective_random,
-  'success': objective_success,
-  'fail': objective_fail
-  }
-
 
 class TestHyperopt(object):
-  def run_fmin(self, online=True, upload=True, objective='random', max_evals=3):
+  def run_fmin(self, online=True, upload=True, objective=objective_success, max_evals=3, **kwargs):
     project = 'hyperopt-integration-test'
     trials = SigOptTrials(project=project, online=(online and upload))
     try:
-      best = fmin(objectives[objective],
+      best = fmin(objective,
                   space={
                     'x' : hp.uniform('x', -10, 10),
                     'y': hp.uniform('y', -10, 10)
                   },
                   algo=tpe.suggest,
                   max_evals=max_evals,
-                  trials=trials)
+                  trials=trials,
+                  **kwargs
+                  )
     except hyperopt.exceptions.AllTrialsFailed:
       best = None
     if upload and not online:
@@ -54,24 +52,30 @@ class TestHyperopt(object):
     tids = upload_trials('hyperopt-integration-test', trials)
     self._verify_uploaded_trials(trials, tids)
 
+  def test_trials_delete_all(self):
+    trials, _ = self.run_fmin(upload=True)
+    assert(len(trials) > 0 and len(trials) == len(trials.uploaded_tids))
+    trials.delete_all()
+    assert(len(trials) == 0 and len(trials.uploaded_tids) == 0)
+
   @pytest.mark.parametrize("online, upload",
                            [(False, True),
                             (True, True),
                             (False, False),
                             ])
   @pytest.mark.parametrize("objective",
-                           ['random',
-                            'success',
-                            'fail'])
-  def test_fmin(self, online, upload, objective, max_evals=3):
-    trials, best = self.run_fmin(online, upload, objective, max_evals)
+                           [objective_random,
+                            objective_success,
+                            objective_fail])
+  def test_fmin(self, online, upload, objective, max_evals=3, **kwargs):
+    trials, best = self.run_fmin(online, upload, objective, max_evals, **kwargs)
     self._verify_best_trial(best, trials, objective)
     self._verify_runs(trials, upload, max_evals)
 
   def _verify_best_trial(self, best, trials, objective):
-    if objective == 'fail':
+    if objective == objective_fail:
       assert not best
-    if objective == 'success':
+    if objective == objective_success:
       assert best
     losses = [r['loss'] for r in trials.results if r['status'] == STATUS_OK]
     assert ((not best) and (not losses)) or (best and losses)

@@ -80,6 +80,10 @@ class SigOptTrials(object):
     if self.online:
       self.upload()
 
+  def delete_all(self):
+    self.uploaded_tids.clear()
+    self._trials.delete_all()
+
   def __iter__(self):
     return iter(self._trials)
 
