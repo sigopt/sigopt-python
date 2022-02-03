@@ -73,9 +73,9 @@ class TestHyperopt(object):
     self._verify_runs(trials, upload, max_evals)
 
   def _verify_best_trial(self, best, trials, objective):
-    if objective == objective_fail:
+    if objective is objective_fail:
       assert not best
-    if objective == objective_success:
+    if objective is objective_success:
       assert best
     losses = [r['loss'] for r in trials.results if r['status'] == STATUS_OK]
     assert ((not best) and (not losses)) or (best and losses)
