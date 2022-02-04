@@ -47,7 +47,6 @@ class SigOptTrials(object):
     metrics = {k:v for k, v in result.items() if isinstance(v, (int, float))}
     parameters = self.trial_parameters(trial)
     status = result.get('status')
-    tid = trial['tid']
 
     run = RunBuilder(name=get_default_name(self.factory.project), metadata=metadata)
     self.log_run_params(run, parameters)
@@ -61,10 +60,9 @@ class SigOptTrials(object):
     return run.get()
 
   def _upload(self, trials):
-    ids = {}
     runs = [self.trial_to_run(trial) for trial in trials]
     runs = self.factory.upload_runs(runs)
-    return dict([(trial['tid'], run.id) for trial, run in zip(trials, runs)])
+    return {trial['tid']:run.id for trial, run in zip(trials, runs)}
 
   def log_run_params(self, run, params):
     run.set_parameters_sources_meta(
