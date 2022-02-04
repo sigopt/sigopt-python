@@ -61,6 +61,12 @@ class SigOptFactory(BaseRunFactory):
     run_context = self.run_context_class(connection, run, global_run_context.params)
     return run_context
 
+  def upload_runs(self, runs):
+    connection = self.connection
+    client_id, project_id = self.ensure_project_exists()
+    return [connection.clients(client_id).projects(project_id).training_runs().create(**run)
+            for run in runs]
+
   def create_prevalidated_experiment(self, validated_body):
     connection = self.connection
     client_id, project_id = self.ensure_project_exists()

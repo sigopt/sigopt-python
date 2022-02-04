@@ -1,5 +1,8 @@
 from .compat import Trials, STATUS_OK, STATUS_FAIL
+from .run_builder import RunBuilder
 from .. import SigOptFactory
+from ..defaults import get_default_name
+
 
 HYPEROPT_SOURCE_NAME = 'Hyperopt Suggest'
 HYPEROPT_SOURCE_PRIORITY = 1
@@ -38,26 +41,30 @@ class SigOptTrials(object):
     self.uploaded_tids.update(ids)
     return ids
 
+  def trial_to_run(self, trial):
+    metadata = {'optimizer': 'hyperopt'}
+    result = trial['result']
+    metrics = {k:v for k, v in result.items() if isinstance(v, (int, float))}
+    parameters = self.trial_parameters(trial)
+    status = result.get('status')
+    tid = trial['tid']
+
+    run = RunBuilder(name=get_default_name(self.factory.project), metadata=metadata)
+    self.log_run_params(run, parameters)
+    if status == STATUS_OK:
+      run.log_metrics(metrics)
+      run.log_state('completed')
+    elif status == STATUS_FAIL:
+      run.log_failure()
+    else:
+      raise ValueError(f'status must be {STATUS_OK} or {STATUS_FAIL}, actully {status}')
+    return run.get()
+
   def _upload(self, trials):
     ids = {}
-    for trial in trials:
-      tid = trial['tid']
-      result = trial['result']
-      metrics = {k:v for k, v in result.items() if isinstance(v, (int, float))}
-      parameters = self.trial_parameters(trial)
-      metadata = {'optimizer': 'hyperopt'}
-      status = result.get('status')
-      run = self.factory.create_run(metadata=metadata)
-      with run:
-        self.log_run_params(run, parameters)
-        if status == STATUS_OK:
-          run.log_metrics(metrics)
-        elif status == STATUS_FAIL:
-          run.log_failure()
-        else:
-          raise ValueError(f'status must be {STATUS_OK} or {STATUS_FAIL}, actully {status}')
-      ids[tid] = run.id
-    return ids
+    runs = [self.trial_to_run(trial) for trial in trials]
+    runs = self.factory.upload_runs(runs)
+    return dict([(trial['tid'], run.id) for trial, run in zip(trials, runs)])
 
   def log_run_params(self, run, params):
     run.set_parameters_sources_meta(
