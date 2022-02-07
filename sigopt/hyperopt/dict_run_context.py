@@ -1,7 +1,7 @@
 from ..run_context import BaseRunContext
 import copy
 
-class RunBuilder(BaseRunContext):
+class DictRunContext(BaseRunContext):
   def __init__(self, **kwargs):
     self.run = copy.deepcopy(kwargs) if kwargs else {}
 
@@ -32,3 +32,10 @@ class RunBuilder(BaseRunContext):
 
   def _set_parameters_sources(self, assignments_sources):
     self.get('assignments_sources').update(assignments_sources)
+
+  def log_parameters(self, params, source=None, source_meta=None):
+    self.set_parameters(params)
+    if source is not None:
+      self.set_parameters_source(params, source)
+    if source_meta is not None:
+      self.set_parameters_sources_meta(source, **source_meta)

@@ -1,5 +1,5 @@
 from .compat import Trials, STATUS_OK, STATUS_FAIL
-from .run_builder import RunBuilder
+from .dict_run_context import DictRunContext
 from .. import SigOptFactory
 from ..defaults import get_default_name
 
@@ -47,9 +47,13 @@ class SigOptTrials(object):
     metrics = {k:v for k, v in result.items() if isinstance(v, (int, float))}
     parameters = self.trial_parameters(trial)
     status = result.get('status')
-
-    run = RunBuilder(name=get_default_name(self.factory.project), metadata=metadata)
-    self.log_run_params(run, parameters)
+    run = DictRunContext(name=get_default_name(self.factory.project), metadata=metadata)
+    run.log_parameters(parameters,
+                       source=HYPEROPT_SOURCE_NAME,
+                       source_meta={
+                         'sort': HYPEROPT_SOURCE_PRIORITY,
+                         'default_show': True
+                       })
     if status == STATUS_OK:
       run.log_metrics(metrics)
       run.log_state('completed')
@@ -63,15 +67,6 @@ class SigOptTrials(object):
     runs = [self.trial_to_run(trial) for trial in trials]
     runs = self.factory.upload_runs(runs)
     return {trial['tid']:run.id for trial, run in zip(trials, runs)}
-
-  def log_run_params(self, run, params):
-    run.set_parameters_sources_meta(
-      HYPEROPT_SOURCE_NAME,
-      sort=HYPEROPT_SOURCE_PRIORITY,
-      default_show=True
-    )
-    run.set_parameters(params)
-    run.set_parameters_source(params, HYPEROPT_SOURCE_NAME)
 
   def trial_parameters(self, trial):
     vals = trial.get('misc', {}).get('vals', {})
