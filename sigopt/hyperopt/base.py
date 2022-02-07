@@ -1,5 +1,5 @@
 from .compat import Trials, STATUS_OK, STATUS_FAIL
-from .dict_run_context import DictRunContext
+from ..dict_run_context import DictRunContext
 from .. import SigOptFactory
 from ..defaults import get_default_name
 
