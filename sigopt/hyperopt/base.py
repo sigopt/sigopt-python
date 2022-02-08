@@ -66,7 +66,7 @@ class SigOptTrials(object):
     elif status == STATUS_FAIL:
       run.log_failure()
     else:
-      raise ValueError(f'status must be {STATUS_OK} or {STATUS_FAIL}, actully {status}')
+      raise ValueError(f'status must be {STATUS_OK} or {STATUS_FAIL}, actually {status}')
     return run.get()
 
   def _upload(self, trials):
