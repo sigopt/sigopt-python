@@ -27,9 +27,12 @@ class SigOptTrials(object):
   def parameters(self):
     return [self.trial_parameters(trial) for trial in self.trials]
 
-  def upload(self, trials=None):
+  def upload(self, trials=None, validate=False):
     new_trials = []
     trials = trials if trials is not None else self.trials
+    if validate:
+      for trial in trials:
+        self._trials.assert_valid_trial(trial)
     for trial in trials:
       result = trial['result']
       status = result.get('status')
@@ -41,15 +44,7 @@ class SigOptTrials(object):
     self.uploaded_tids.update(ids)
     return ids
 
-  def validate_trial(self, trial):
-    if 'result' not in trial:
-      raise ValueError('No result found in trial')
-    result = trial['result']
-    if 'status' not in result:
-      raise ValueError('No status found in trial result')
-
   def trial_to_run(self, trial):
-    self.validate_trial(trial)
     metadata = {'optimizer': 'hyperopt'}
     result = trial['result']
     metrics = {k:v for k, v in result.items() if isinstance(v, (int, float))}
@@ -116,4 +111,4 @@ class SigOptTrials(object):
 
 def upload_trials(project, trials):
   st = SigOptTrials(project=project, online=False)
-  return st.upload(trials)
+  return st.upload(trials, validate=True)
