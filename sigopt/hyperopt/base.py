@@ -100,7 +100,7 @@ class SigOptTrials(object):
     try:
       return getattr(self._trials, name)
     except AttributeError as e:
-      raise AttributeError(f"{type(self.__name__)} object has no attribute {name}") from e
+      raise AttributeError(f"{self.__class__.__name__} object has no attribute {name}") from e
 
 
 def upload_trials(project, trials):
