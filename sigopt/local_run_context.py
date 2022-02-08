@@ -1,7 +1,7 @@
 from .run_context import BaseRunContext
 import copy
 
-class DictRunContext(BaseRunContext):
+class LocalRunContext(BaseRunContext):
   def __init__(self, **kwargs):
     self.run = copy.deepcopy(kwargs) if kwargs else {}
 

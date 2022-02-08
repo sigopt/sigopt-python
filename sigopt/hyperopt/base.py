@@ -1,5 +1,5 @@
 from .compat import Trials, STATUS_OK, STATUS_FAIL
-from ..dict_run_context import DictRunContext
+from ..local_run_context import LocalRunContext
 from .. import SigOptFactory
 from ..defaults import get_default_name
 
@@ -50,7 +50,7 @@ class SigOptTrials(object):
     metrics = {k:v for k, v in result.items() if isinstance(v, (int, float))}
     parameters = self.trial_parameters(trial)
     status = result.get('status')
-    run = DictRunContext(name=get_default_name(self.factory.project), metadata=metadata)
+    run = LocalRunContext(name=get_default_name(self.factory.project), metadata=metadata)
     run.log_parameters(
       parameters,
       source=HYPEROPT_SOURCE_NAME,
