@@ -43,10 +43,10 @@ class SigOptTrials(object):
 
   def validate_trial(self, trial):
     if 'result' not in trial:
-      raise ValueError('No result in trial')
+      raise ValueError('No result found in trial')
     result = trial['result']
     if 'status' not in result:
-      raise ValueError('No status in trial result')
+      raise ValueError('No status found in trial result')
 
   def trial_to_run(self, trial):
     self.validate_trial(trial)
@@ -64,6 +64,8 @@ class SigOptTrials(object):
         'default_show': True
       })
     if status == STATUS_OK:
+      if not metrics:
+        raise ValueError('No metrics found in trial result')
       run.log_metrics(metrics)
       run.log_state('completed')
     elif status == STATUS_FAIL:
