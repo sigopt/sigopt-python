@@ -41,19 +41,28 @@ class SigOptTrials(object):
     self.uploaded_tids.update(ids)
     return ids
 
+  def validate_trial(self, trial):
+    if 'result' not in trial:
+      raise ValueError('No result in trial')
+    result = trial['result']
+    if 'status' not in result:
+      raise ValueError('No status in trial result')
+
   def trial_to_run(self, trial):
+    self.validate_trial(trial)
     metadata = {'optimizer': 'hyperopt'}
     result = trial['result']
     metrics = {k:v for k, v in result.items() if isinstance(v, (int, float))}
     parameters = self.trial_parameters(trial)
     status = result.get('status')
     run = DictRunContext(name=get_default_name(self.factory.project), metadata=metadata)
-    run.log_parameters(parameters,
-                       source=HYPEROPT_SOURCE_NAME,
-                       source_meta={
-                         'sort': HYPEROPT_SOURCE_PRIORITY,
-                         'default_show': True
-                       })
+    run.log_parameters(
+      parameters,
+      source=HYPEROPT_SOURCE_NAME,
+      source_meta={
+        'sort': HYPEROPT_SOURCE_PRIORITY,
+        'default_show': True
+      })
     if status == STATUS_OK:
       run.log_metrics(metrics)
       run.log_state('completed')
