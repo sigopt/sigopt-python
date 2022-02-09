@@ -5,11 +5,11 @@ class LocalRunContext(BaseRunContext):
   def __init__(self, **kwargs):
     self.run = copy.deepcopy(kwargs) if kwargs else {}
 
-  def get(self, name=None, type=dict):
+  def get(self, name=None, default_type=dict):
     if name is None:
       return self.run
     if not name in self.run:
-      self.run[name] = type()
+      self.run.setdefault(name, default_type())
     return self.run[name]
 
   def log_state(self, state):
