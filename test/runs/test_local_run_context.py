@@ -53,7 +53,10 @@ class TestLocalRunContext(object):
     (None, 20, False),
   ])
   def test_log_parameters(self, context, params, source, source_sort, source_default_show):
-    source_meta = {'sort': source_sort, 'default_show': source_default_show}
+    if source_sort is not None:
+      source_meta = {'sort': source_sort, 'default_show': source_default_show}
+    else:
+      source_meta = None
     context.log_parameters(params, source, source_meta)
     run = context.get()
     assert run['assignments'] == params
