@@ -37,5 +37,5 @@ class LocalRunContext(BaseRunContext):
     self.set_parameters(params)
     if source is not None:
       self.set_parameters_source(params, source)
-    if source_meta is not None:
-      self.set_parameters_sources_meta(source, **source_meta)
+      if source_meta is not None:
+        self.set_parameters_sources_meta(source, **source_meta)
