@@ -189,6 +189,7 @@ class ConnectionImpl(object):
       endpoints=[
         ApiEndpoint(None, paginated_objects(TrainingRun), 'GET', 'fetch'),
         ApiEndpoint(None, TrainingRun, 'POST', 'create'),
+        ApiEndpoint('batch', paginated_objects(TrainingRun), 'POST', 'create_batch'),
       ],
       resources=[checkpoints],
     )

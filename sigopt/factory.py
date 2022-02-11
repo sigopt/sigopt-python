@@ -64,8 +64,7 @@ class SigOptFactory(BaseRunFactory):
   def upload_runs(self, runs):
     connection = self.connection
     client_id, project_id = self.ensure_project_exists()
-    return [connection.clients(client_id).projects(project_id).training_runs().create(**run)
-            for run in runs]
+    return connection.clients(client_id).projects(project_id).training_runs().create_batch(runs=runs).data
 
   def create_prevalidated_experiment(self, validated_body):
     connection = self.connection
