@@ -1,10 +1,12 @@
 from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL
+from hyperopt.mongoexp import MongoTrials
 import hyperopt
 from sigopt.hyperopt import SigOptTrials, upload_trials
 import sigopt
 import numpy as np
 import pytest
 import time
+import uuid
 
 def objective(p, threshold=1.0, max_sleep_time=0.0):
   x, y = p['x'], p['y']
@@ -22,14 +24,23 @@ def objective(p, threshold=1.0, max_sleep_time=0.0):
       'status': STATUS_FAIL
     }
 
-objective_random = lambda x: objective(x, 0.8)
-objective_success = objective
-objective_fail = lambda x: objective(x, -1.0)
+def objective_random(x):
+  return objective(x, 0.8)
+
+def objective_success(x):
+  return objective(x, 1.0)
+
+def objective_fail(x):
+  return objective(x, -1.0)
 
 class TestHyperopt(object):
-  def run_fmin(self, online=True, upload=True, objective=objective_success, max_evals=3, **kwargs):
+  def run_fmin(self, online=True, upload=True, objective=objective_success, max_evals=3, wrap=False, **kwargs):
     project = 'hyperopt-integration-test'
-    trials = SigOptTrials(project=project, online=(online and upload))
+    if wrap:
+      trials = MongoTrials('mongo://localhost:1234/foo_db/jobs', exp_key=str(uuid.uuid4()))
+    else:
+      trials = None
+    trials = SigOptTrials(project=project, online=(online and upload), trials=trials)
     try:
       best = fmin(objective,
                   space={
@@ -58,19 +69,22 @@ class TestHyperopt(object):
     trials.delete_all()
     assert(len(trials) == 0 and len(trials.uploaded_tids) == 0)
 
-  @pytest.mark.parametrize("online, upload",
-                           [(False, True),
-                            (True, True),
-                            (False, False),
+  @pytest.mark.parametrize("online, upload, wrap, max_evals",
+                           [
+                             (False, True, False, 3),
+                             (True, True, False, 3),
+                             (False, False, False, 3),
+                             (True, True, True, 3),
                             ])
   @pytest.mark.parametrize("objective",
                            [objective_random,
                             objective_success,
                             objective_fail])
-  def test_fmin(self, online, upload, objective, max_evals=3, **kwargs):
-    trials, best = self.run_fmin(online, upload, objective, max_evals, **kwargs)
+  def test_fmin(self, online, upload, objective, wrap, max_evals):
+    trials, best = self.run_fmin(online, upload, objective, max_evals=max_evals, wrap=wrap)
     self._verify_best_trial(best, trials, objective)
     self._verify_runs(trials, upload, max_evals)
+
 
   def _verify_best_trial(self, best, trials, objective):
     if objective is objective_fail:
