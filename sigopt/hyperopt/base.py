@@ -12,7 +12,7 @@ class SigOptTrials(object):
   def __init__(self, project, trials=None, online=True):
     self.factory = SigOptFactory(project)
     self.online = online
-    self._trials = trials if trials else Trials()
+    self._trials = trials if trials is not None else Trials()
     self.uploaded_tids = {}
 
     if online:
