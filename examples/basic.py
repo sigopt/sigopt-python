@@ -1,11 +1,13 @@
 import argparse
 
-from sigopt import Connection
+import sigopt
 
 # Take a suggestion from sigopt and evaluate your function
-def evaluate_metric(assignments):
-  x = assignments['x']
-  raise NotImplementedError("Return a number, which represents your metric evaluated at x")
+def execute_model(run):
+  #train a model
+  #evaluate a model
+  #return the accuracy 
+  raise NotImplementedError("Return a number, which represents your metric for this run")
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
@@ -15,22 +17,28 @@ if __name__ == '__main__':
 
   connection = Connection(client_token=the_args.client_token, _show_deprecation_warning=False)
 
+  
+  sigopt.log_dataset("Example dataset") #Descriptor of what kind of dataset you are modeling
+  sigopt.log_metadata(key="Dataset Source", value="Example Source") #Useful for keeping track of where you got the data 
+  sigopt.log_metadata(key="Feature Pipeline Name", value="Example Pipeline") #e.g. Sklern, xgboost, etc.
+  sigopt.log_model("Example Model Technique") # What kind of learning you are attemping
   # Create an experiment with one paramter, x
-  experiment = connection.experiments().create(
+  experiment = sigopt.create_experiment(
     name="Basic Test experiment",
     project="sigopt-examples",
+    type="offline",
     parameters=[{'name': 'x', 'bounds': {'max': 50.0, 'min': 0.0}, 'type': 'double'}],
+    metrics=[{"name":"holdout_accuracy", "objective":"maximize"}],
+    parallel_bandwidth=1,
     observation_budget=the_args.observation_budget,
   )
   print('Created experiment id {0}'.format(experiment.id))
 
   # In a loop: receive a suggestion, evaluate the metric, report an observation
-  for _ in range(experiment.observation_budget):
-    suggestion = connection.experiments(experiment.id).suggestions().create()
-    print('Evaluating at suggested assignments: {0}'.format(suggestion.assignments))
-    value = evaluate_metric(suggestion.assignments)
-    print('Reporting observation of value: {0}'.format(value))
-    connection.experiments(experiment.id).observations().create(
-      suggestion=suggestion.id,
-      value=value,
-    )
+  for run in experiment.loop():
+    with run:
+      holdout_accuracy = execute_model(run)
+      run.log_metric("holdout_accuracy", holdout_accuracy)
+
+    
+  best_runs = experiment.get_best_runs()
