@@ -1,6 +1,9 @@
 import os
 import warnings
 
+import requests
+from requests.adapters import HTTPAdapter
+
 from .compat import json as simplejson
 from .config import config
 from .endpoint import ApiEndpoint
@@ -25,8 +28,21 @@ from .objects import (
 )
 from .requestor import Requestor, DEFAULT_API_URL
 from .resource import ApiResource
+from .urllib3_patch import ExpiringHTTPConnectionPool, ExpiringHTTPSConnectionPool
 from .version import VERSION
 
+
+def get_expiring_session():
+  adapter = HTTPAdapter()
+  adapter.poolmanager.pool_classes_by_scheme = {
+    "http": ExpiringHTTPConnectionPool,
+    "https": ExpiringHTTPSConnectionPool,
+  }
+  session = requests.Session()
+  session.mount("http://", adapter)
+  session.mount("https://", adapter)
+  session.mount("http://", adapter)
+  return session
 
 class ConnectionImpl(object):
   def __init__(self, requestor, api_url=None, user_agent=None, verify_ssl_certs=None):
@@ -341,6 +357,8 @@ class Connection(object):
       'Content-Type': 'application/json',
       'X-SigOpt-Python-Version': VERSION,
     }
+    if session is None:
+      session = get_expiring_session()
     requestor = Requestor(
       client_token,
       '',
