@@ -10,6 +10,7 @@ class SigOptHTTPConnection(HTTPConnection):
   """
   Tracks the time since the last activity of the connection.
   """
+
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.reset_activity()
