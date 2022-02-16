@@ -26,7 +26,7 @@ class SigOptHTTPConnection(HTTPConnection):
     self.reset_activity()
 
   def close(self, *args, **kwargs):
-    suoer().close()
+    super().close()
     self.reset_activity()
 
 class SigOptHTTPSConnection(SigOptHTTPConnection, HTTPSConnection):
