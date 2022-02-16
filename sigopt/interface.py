@@ -41,7 +41,6 @@ def get_expiring_session():
   session = requests.Session()
   session.mount("http://", adapter)
   session.mount("https://", adapter)
-  session.mount("http://", adapter)
   return session
 
 class ConnectionImpl(object):
