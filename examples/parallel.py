@@ -1,63 +1,47 @@
-from __future__ import print_function
-
 import argparse
-import math
-import threading
-import time
 
-from sigopt import Connection
-import sigopt.examples
+import sigopt
 
+def run_command_on_machine(machine_number, command):
+  # log into machine
+  # execute command
+  raise NotImplementedError("Log into the specified machines, execute the included command")
 
-class ExampleRunner(threading.Thread):
-  def __init__(self, client_token, experiment_id):
-    threading.Thread.__init__(self)
-    self.connection = Connection(client_token=client_token)
-    self.experiment_id = experiment_id
-
-  def run(self):
-    while True:
-      suggestion = self.connection.experiments(self.experiment_id).suggestions().create()
-      print('{0} - Evaluating at parameters: {1}'.format(threading.current_thread(), suggestion.assignments))
-      value = self.evaluate_metric(suggestion.assignments)
-      print('{0} - Observed value: {1}'.format(threading.current_thread(), value))
-      self.connection.experiments(self.experiment_id).observations().create(
-        suggestion=suggestion.id,
-        value=value,
-      )
-
-  def evaluate_metric(self, assignments):
-    """
-    Replace this with the function you want to optimize
-    This fictitious example has only two parameters, named x1 and x2
-    """
-    sleep_seconds = 10
-    print('{0} - Sleeping for {1} seconds to simulate expensive computation...'.format(threading.current_thread(), sleep_seconds))
-    time.sleep(sleep_seconds)
-    return sigopt.examples.franke_function(assignments['x1'], assignments['x2'])
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--runner_count', type=int, default=2)
+  parser.add_argument('--budget', type=int, default=20)
+  parser.add_argument('--parallel_bandwitth', type=int, default=3, help="Number of machines you are running learning on")
   parser.add_argument('--client_token', required=True, help="Find your CLIENT_TOKEN at https://sigopt.com/tokens")
   the_args = parser.parse_args()
-
-  client_token = the_args.client_token
-  conn = Connection(client_token=client_token)
-  experiment = conn.experiments().create(
-    name="Parallel Test Franke Function",
+  
+  # Descriptor of what kind of dataset you are modeling
+  sigopt.log_dataset("Example dataset") 
+  # Useful for keeping track of where you got the data 
+  sigopt.log_metadata(key="Dataset Source", value="Example Source") 
+  # e.g. Sklern, xgboost, etc.
+  sigopt.log_metadata(key="Feature Pipeline Name", value="Example Pipeline") 
+  # What kind of learning you are attemping
+  sigopt.log_model("Example Model Technique") 
+  # Create an experiment with one paramter, x
+  experiment = sigopt.create_experiment(
+    name="Basic Test experiment",
     project="sigopt-examples",
-    parameters=[
-      {'name': 'x1', 'bounds': {'max': 1.0, 'min': 0.0}, 'type': 'double'},
-      {'name': 'x2', 'bounds': {'max': 1.0, 'min': 0.0}, 'type': 'double'},
-    ],
+    type="offline",
+    parameters=[{'name': 'x', 'bounds': {'max': 50.0, 'min': 0.0}, 'type': 'double'}],
+    metrics=[{"name":"holdout_accuracy", "objective":"maximize"}],
+    parallel_bandwidth=the_args.parallel_badwidth, 
+    budget=the_args.budget,
+  )
+  print('Created experiment id {0}'.format(experiment.id))
+
+  # In a loop: on each machine, start off a learning process, then each reports separately 
+  # to Sigopt the results
+ for machine_number in range(experiment.parallel_bandwidth):
+  run_command_on_machine(
+    machine_number,
+    f"sigopt start-worker {experiment.id} python run-model.py",
   )
 
-  runners = [ExampleRunner(client_token, experiment.id) for _ in range(the_args.runner_count)]
-
-  for runner in runners:
-    runner.daemon = True
-    runner.start()
-
-  for runner in runners:
-    runner.join()
+    
+  best_runs = experiment.get_best_runs()
