@@ -17,7 +17,6 @@ class TestInterface(object):
     conn = Connection(client_token='client_token', _show_deprecation_warning=False)
     assert conn.impl.api_url == 'https://api.sigopt.com'
     assert conn.impl.requestor.verify_ssl_certs is None
-    assert conn.impl.requestor.session is None
     assert conn.impl.requestor.proxies is None
     assert conn.impl.requestor.timeout == DEFAULT_HTTP_TIMEOUT
     assert conn.impl.requestor.auth.username == 'client_token'
