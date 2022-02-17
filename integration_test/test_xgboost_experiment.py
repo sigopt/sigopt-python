@@ -115,7 +115,8 @@ class TestXGBoostExperiment:
       assert ssr.assignments['early_stopping_rounds']
       for param in experiment.parameters:
         if param.name == 'num_boost_round':
-          assert ssr.assignments['num_boost_round':] > ssr.assignments['early_stopping_rounds']
+          assert ssr.values['num_boost_round_before_stopping']
+          assert ssr.assignments['num_boost_round'] >= ssr.assignments['num_boost_round_before_stopping']
 
   def test_experiment_with_custom_loop(self):
     run_params = _form_random_run_params('binary')
