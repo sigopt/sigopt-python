@@ -73,9 +73,18 @@ def verify_experiment_config_integrity(experiment_config):
 def parse_and_create_experiment_config(experiment_config, params):
   num_boost_round = None
   run_options = None
+  early_stopping_rounds = 10
   d_train = Mock()
   evals = Mock()
-  xgb_experiment = XGBExperiment(experiment_config, d_train, evals, params, num_boost_round, run_options)
+  xgb_experiment = XGBExperiment(
+    experiment_config,
+    d_train,
+    evals,
+    params,
+    num_boost_round,
+    run_options,
+    early_stopping_rounds,
+  )
   xgb_experiment.parse_and_create_metrics()
   xgb_experiment.parse_and_create_parameters()
   return xgb_experiment

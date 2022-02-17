@@ -19,14 +19,16 @@ from .run import run as XGBRunWrapper
 
 XGB_EXPERIMENT_KEYWORD = '_IS_XGB_EXPERIMENT'
 
+
 class XGBExperiment:
-  def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options):
+  def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options, early_stopping_rounds):
     self.experiment_config_parsed = copy.deepcopy(experiment_config)
     self.dtrain = dtrain
     self.evals = evals
     self.params = params
     self.num_boost_round = num_boost_round
     self.run_options = run_options
+    self.early_stopping_rounds = early_stopping_rounds  # if None, deactivate early stopping
     self.sigopt_experiment = None
 
   def parse_and_create_metrics(self):
@@ -181,14 +183,31 @@ class XGBExperiment:
           self.dtrain,
           num_boost_round=num_boost_round_run,
           evals=self.evals,
+          early_stopping_rounds=self.early_stopping_rounds,
           verbose_eval=False,
           run_options=self.run_options,
         )
 
 
-def experiment(experiment_config, dtrain, evals, params, num_boost_round=None, run_options=None):
+def experiment(
+  experiment_config,
+  dtrain,
+  evals,
+  params,
+  num_boost_round=None,
+  run_options=None,
+  early_stopping_rounds=10,
+):
   run_options_parsed = parse_run_options(run_options)
-  xgb_experiment = XGBExperiment(experiment_config, dtrain, evals, params, num_boost_round, run_options_parsed)
+  xgb_experiment = XGBExperiment(
+    experiment_config,
+    dtrain,
+    evals,
+    params,
+    num_boost_round,
+    run_options_parsed,
+    early_stopping_rounds,
+  )
   xgb_experiment.parse_and_create_experiment()
   xgb_experiment.run_experiment()
   return xgb_experiment.sigopt_experiment
