@@ -1,5 +1,6 @@
 import backoff
 import requests
+from http import HTTPStatus
 
 from .compat import json as simplejson
 from .config import config
