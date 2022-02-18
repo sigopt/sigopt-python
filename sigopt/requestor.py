@@ -1,3 +1,4 @@
+import backoff
 import requests
 
 from .compat import json as simplejson
@@ -82,6 +83,7 @@ class Requestor(object):
       backoff.expo,
       lambda response: response.status_code == HTTPStatus.TOO_MANY_REQUESTS,
       max_time=self.timeout,
+      jitter=backoff.full_jitter,
     )
     response = retry(self._request)(method, url, params, json, headers, user_agent)
     return self._handle_response(response)
