@@ -52,7 +52,6 @@ class Requestor(object):
   def delete(self, url, params=None, json=None, headers=None):
     return self.request('delete', url=url, params=params, json=json, headers=headers)
 
-
   def _request(self, method, url, params, json, headers, user_agent):
     headers = self._with_default_headers(headers, user_agent)
     try:
