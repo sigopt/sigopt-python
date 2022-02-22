@@ -4,7 +4,7 @@ from .. import SigOptFactory
 from ..defaults import get_default_name
 
 
-HYPEROPT_SOURCE_NAME = 'Hyperopt Suggest'
+HYPEROPT_SOURCE_NAME = 'Hyperopt'
 HYPEROPT_SOURCE_PRIORITY = 1
 
 
