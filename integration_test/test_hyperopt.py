@@ -40,8 +40,7 @@ class TestHyperopt(object):
     if wrap == 'mongo':
       trials = MongoTrials('mongo://localhost:1234/foo_db/jobs', exp_key=str(uuid.uuid4()))
     elif wrap == 'spark':
-      spark = SparkSession.builder.master('spark://localhost:7077').appName('hyperopt-test').getOrCreate()
-      trials = SparkTrials(spark_session=spark)
+      trials = SparkTrials()
     else:
       trials = None
     trials = SigOptTrials(project=project, online=(online and upload), trials=trials)
