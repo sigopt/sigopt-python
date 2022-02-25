@@ -21,7 +21,7 @@ XGB_EXPERIMENT_KEYWORD = '_IS_XGB_EXPERIMENT'
 
 
 class XGBExperiment:
-  def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, run_options, early_stopping_rounds):
+  def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, early_stopping_rounds, run_options):
     self.experiment_config_parsed = copy.deepcopy(experiment_config)
     self.dtrain = dtrain
     self.evals = evals
@@ -195,8 +195,8 @@ def experiment(
   evals,
   params,
   num_boost_round=None,
-  run_options=None,
   early_stopping_rounds=10,
+  run_options=None,
 ):
   run_options_parsed = parse_run_options(run_options)
   xgb_experiment = XGBExperiment(
@@ -205,8 +205,8 @@ def experiment(
     evals,
     params,
     num_boost_round,
-    run_options_parsed,
     early_stopping_rounds,
+    run_options_parsed,
   )
   xgb_experiment.parse_and_create_experiment()
   xgb_experiment.run_experiment()
