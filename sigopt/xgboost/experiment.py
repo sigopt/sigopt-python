@@ -30,28 +30,15 @@ class XGBExperiment:
     self.run_options = run_options
     self.sigopt_experiment = None
 
-  @property
-  def has_valid_optimization_metric(self):
-    metric = self.experiment_config_parsed['metrics']
-    if metric in SUPPORTED_METRICS_TO_OPTIMIZE:
-      return True
-    else:
-      for variable_metric in VARIABLE_METRICS_TO_OPTIMIZE:
-        if variable_metric in metric:  # check if substring
-          return True
-      else:
-        return False
-
   def get_optimization_metric_source(self):
     metric = self.experiment_config_parsed['metrics']
     if metric in SUPPORTED_METRICS_TO_OPTIMIZE:
       return EVALUATION_METRICS_AND_SOURCES[metric]['source']
+    for variable_metric in VARIABLE_METRICS_TO_OPTIMIZE:
+      if variable_metric in metric:  # check if substring
+        return EVALUATION_METRICS_AND_SOURCES[metric]['source']
     else:
-      for variable_metric in VARIABLE_METRICS_TO_OPTIMIZE:
-        if variable_metric in metric:  # check if substring
-          return EVALUATION_METRICS_AND_SOURCES[metric]['source']
-      else:
-        return None
+      return None
 
   def parse_and_create_metrics(self):
     if 'metrics' in self.experiment_config_parsed and isinstance(self.experiment_config_parsed['metrics'], list):
