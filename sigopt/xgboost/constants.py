@@ -14,13 +14,123 @@ DEFAULT_REGRESSION_METRIC = 'mean squared error'
 DEFAULT_SEARCH_PARAMS = ['eta', 'gamma', 'max_depth', 'min_child_weight', 'num_boost_round']
 
 # optimization metrics
+
+EVALUATION_METRICS_AND_SOURCES = {
+  'accuracy': {
+    'strategy': 'maximize',
+    'source': 'sigopt_custom',
+  },
+  'F1': {
+    'strategy': 'maximize',
+    'source': 'sigopt_custom',
+  },
+  'precision': {
+    'strategy': 'maximize',
+    'source': 'sigopt_custom',
+  },
+  'recall': {
+    'strategy': 'maximize',
+    'source': 'sigopt_custom',
+  },
+  'mean absolute error': {
+    'strategy': 'minimize',
+    'source': 'sigopt_custom',
+  },
+  'mean squared error': {
+    'strategy': 'minimize',
+    'source': 'sigopt_custom',
+  },
+  'rmse': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'rmsle': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'mae': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'mape': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'mphe': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'logloss': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'error': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+    'variable': True,
+  },
+  'merror': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'mlogloss': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'auc': {
+    'strategy': 'maximize',
+    'source': 'xgboost',
+  },
+  'aucpr': {
+    'strategy': 'maximize',
+    'source': 'xgboost',
+  },
+  'ndcg': {
+    'strategy': 'maximize',
+    'source': 'xgboost',
+    'variable': True,
+  },
+  'map': {
+    'strategy': 'maximize',
+    'source': 'xgboost',
+    'variable': True,
+  },
+  'poisson-nloglik': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'gamma-nloglik': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'cox-nloglik': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'gamma-deviance': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'tweedie-nloglik': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'aft-nloglik': {
+    'strategy': 'minimize',
+    'source': 'xgboost',
+  },
+  'interval-regression-accuracy': {
+    'strategy': 'maximize',
+    'source': 'xgboost',
+  },
+}
+
 CLASSIFICATION_METRIC_CHOICES = ['accuracy', 'F1', 'precision', 'recall']
 REGRESSION_METRIC_CHOICES = ['mean absolute error', 'mean squared error']
-SUPPORTED_METRICS_TO_OPTIMIZE = CLASSIFICATION_METRIC_CHOICES + REGRESSION_METRIC_CHOICES
-METRICS_OPTIMIZATION_STRATEGY = {
-  **dict(zip(CLASSIFICATION_METRIC_CHOICES, ['maximize']*len(CLASSIFICATION_METRIC_CHOICES))),
-  **dict(zip(REGRESSION_METRIC_CHOICES, ['minimize']*len(REGRESSION_METRIC_CHOICES))),
-}
+SUPPORTED_METRICS_TO_OPTIMIZE = list(EVALUATION_METRICS_AND_SOURCES.keys())
+VARIABLE_METRICS_TO_OPTIMIZE = list(
+  metric for metric in SUPPORTED_METRICS_TO_OPTIMIZE if 'variable' in EVALUATION_METRICS_AND_SOURCES[metric]
+)
 
 # Note: only the XGB general params. Omitted monotone_constraints and interaction_constraints b/c more complex.
 # Also omitting refresh_leaf b/c it's a boolean value. Only some of these have bounds which will be autofilled.

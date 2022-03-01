@@ -9,7 +9,8 @@ from .constants import (
   DEFAULT_REGRESSION_METRIC,
   DEFAULT_SEARCH_PARAMS,
   MAX_BO_ITERATIONS,
-  METRICS_OPTIMIZATION_STRATEGY,
+  EVALUATION_METRICS_AND_SOURCES,
+  VARIABLE_METRICS_TO_OPTIMIZE,
   PARAMETER_INFORMATION,
   SUPPORTED_AUTOBOUND_PARAMS,
   SUPPORTED_METRICS_TO_OPTIMIZE,
@@ -29,6 +30,29 @@ class XGBExperiment:
     self.run_options = run_options
     self.sigopt_experiment = None
 
+  @property
+  def has_valid_optimization_metric(self):
+    metric = self.experiment_config_parsed['metrics']
+    if metric in SUPPORTED_METRICS_TO_OPTIMIZE:
+      return True
+    else:
+      for variable_metric in VARIABLE_METRICS_TO_OPTIMIZE:
+        if variable_metric in metric:  # check if substring
+          return True
+      else:
+        return False
+
+  def get_optimization_metric_source(self):
+    metric = self.experiment_config_parsed['metrics']
+    if metric in SUPPORTED_METRICS_TO_OPTIMIZE:
+      return EVALUATION_METRICS_AND_SOURCES[metric]['source']
+    else:
+      for variable_metric in VARIABLE_METRICS_TO_OPTIMIZE:
+        if variable_metric in metric:  # check if substring
+          return EVALUATION_METRICS_AND_SOURCES[metric]['source']
+      else:
+        return None
+
   def parse_and_create_metrics(self):
     if 'metrics' in self.experiment_config_parsed and isinstance(self.experiment_config_parsed['metrics'], list):
       for metric in self.experiment_config_parsed['metrics']:
@@ -47,14 +71,20 @@ class XGBExperiment:
             metric_to_optimize = DEFAULT_REGRESSION_METRIC  # do regression if anything else (including ranking)
         else:
           metric_to_optimize = DEFAULT_REGRESSION_METRIC
-      else:
-        if self.experiment_config_parsed['metrics'] not in SUPPORTED_METRICS_TO_OPTIMIZE:
+      else:  # if there is a metric, check that it is valid
+        optimization_source = self.get_optimization_metric_source()
+        if optimization_source is None:
           raise ValueError(
             f"The chosen metric to optimize, {self.experiment_config_parsed['metrics']}, is not supported."
           )
         metric_to_optimize = self.experiment_config_parsed['metrics']
+        if optimization_source == 'xgboost':
+          if self.params['eval_metric']:
+            self.params['eval_metric'].append(metric_to_optimize)
+          else:
+            self.params['eval_metric'] = [metric_to_optimize]
 
-      optimization_strategy = METRICS_OPTIMIZATION_STRATEGY[metric_to_optimize]
+      optimization_strategy = EVALUATION_METRICS_AND_SOURCES[metric_to_optimize]['strategy']
       self.experiment_config_parsed['metrics'] = [{
         'name': metric_to_optimize,
         'strategy': 'optimize',
@@ -65,7 +95,7 @@ class XGBExperiment:
     for metric in self.experiment_config_parsed['metrics']:
       if metric['strategy'] == 'optimize':
         if isinstance(self.evals, list):
-          metric['name'] = self.evals[0][1] + '-' + metric['name']  # optimize metric on first eval set by default
+          metric['name'] = self.evals[-1][1] + '-' + metric['name']  # optimize metric on last eval set by default
         else:
           metric['name'] = DEFAULT_EVALS_NAME + '-' + metric['name']
 
