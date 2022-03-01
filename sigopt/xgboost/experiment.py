@@ -30,24 +30,33 @@ class XGBExperiment:
     self.run_options = run_options
     self.sigopt_experiment = None
 
-  def get_optimization_metric_source(self):
-    metric = self.experiment_config_parsed['metrics']
+  def get_optimization_metric_source(self, metric=None):
+    if metric is None:
+      metric = self.experiment_config_parsed['metrics']
     if metric in SUPPORTED_METRICS_TO_OPTIMIZE:
       return EVALUATION_METRICS_AND_SOURCES[metric]['source']
-    for variable_metric in VARIABLE_METRICS_TO_OPTIMIZE:
-      if variable_metric in metric:  # check if substring
-        return EVALUATION_METRICS_AND_SOURCES[metric]['source']
-    else:
-      return None
+    for supported_variable_metric in VARIABLE_METRICS_TO_OPTIMIZE:
+      if supported_variable_metric in metric:  # check if substring
+        return EVALUATION_METRICS_AND_SOURCES[supported_variable_metric]['source']
+    return None
 
   def parse_and_create_metrics(self):
     if 'metrics' in self.experiment_config_parsed and isinstance(self.experiment_config_parsed['metrics'], list):
       for metric in self.experiment_config_parsed['metrics']:
-        if metric['strategy'] == 'optimize' and metric['name'] not in SUPPORTED_METRICS_TO_OPTIMIZE:
-          raise ValueError(
-            f"The chosen metric to optimize, {metric['name']}, is not supported."
-          )
-
+        if metric['strategy'] == 'optimize':
+          metric_to_optimize = metric['name']
+          metric_source = self.get_optimization_metric_source(metric=metric_to_optimize)
+          if metric_source is None:
+            raise ValueError(
+              f"The chosen metric to optimize, {metric['name']}, is not supported."
+            )
+          elif metric_source == 'xgboost':
+            if 'eval_metric' in self.params:
+              self.params['eval_metric'].append(metric_to_optimize)
+            else:
+              self.params['eval_metric'] = [metric_to_optimize]
+          else:
+            pass
     else:
       if 'metrics' not in self.experiment_config_parsed:  # pick a default metric
         if 'objective' in self.params:
@@ -58,25 +67,25 @@ class XGBExperiment:
             metric_to_optimize = DEFAULT_REGRESSION_METRIC  # do regression if anything else (including ranking)
         else:
           metric_to_optimize = DEFAULT_REGRESSION_METRIC
+        metric_source = 'sigopt_custom'
       else:  # if there is a metric, check that it is valid
-        optimization_source = self.get_optimization_metric_source()
-        if optimization_source is None:
+        metric_source = self.get_optimization_metric_source()
+        if metric_source is None:
           raise ValueError(
             f"The chosen metric to optimize, {self.experiment_config_parsed['metrics']}, is not supported."
           )
         metric_to_optimize = self.experiment_config_parsed['metrics']
-        if optimization_source == 'xgboost':
-          if self.params['eval_metric']:
-            self.params['eval_metric'].append(metric_to_optimize)
-          else:
-            self.params['eval_metric'] = [metric_to_optimize]
-
       optimization_strategy = EVALUATION_METRICS_AND_SOURCES[metric_to_optimize]['strategy']
       self.experiment_config_parsed['metrics'] = [{
         'name': metric_to_optimize,
         'strategy': 'optimize',
         'objective': optimization_strategy
       }]
+      if metric_source == 'xgboost':
+        if 'eval_metric' in self.params:
+          self.params['eval_metric'].append(metric_to_optimize)
+        else:
+          self.params['eval_metric'] = [metric_to_optimize]
 
     # change optimized metric to reflect updated name
     for metric in self.experiment_config_parsed['metrics']:
