@@ -256,3 +256,27 @@ class TestExperimentConfig:
     params = copy.deepcopy(PARAMS_BASE)
     with pytest.raises(ValueError):
       self.verify_integrity(experiment_config, params)
+
+  def test_config_xgboost_external_metric_string(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    experiment_config['metrics'] = 'error'
+    params = copy.deepcopy(PARAMS_BASE)
+    self.verify_integrity(experiment_config, params)
+
+  def test_config_xgboost_external_variable_metric_string(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    experiment_config['metrics'] = 'error5'
+    params = copy.deepcopy(PARAMS_BASE)
+    self.verify_integrity(experiment_config, params)
+
+  def test_config_xgboost_external_metric_list(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    experiment_config['metrics'][0]['name'] = 'error'
+    params = copy.deepcopy(PARAMS_BASE)
+    self.verify_integrity(experiment_config, params)
+
+  def test_config_xgboost_external_variable_metric_list(self):
+    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
+    experiment_config['metrics'][0]['name'] = 'error5'
+    params = copy.deepcopy(PARAMS_BASE)
+    self.verify_integrity(experiment_config, params)
