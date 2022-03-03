@@ -150,3 +150,43 @@ def validate_experiment_input(experiment_input):
       raise ValidationError("all experiment keys must be strings")
     validated[key] = value
   return validated
+
+def validate_experiment_update_input(experiment_input):
+  experiment_input = validate_top_level_dict(experiment_input)
+  if PROJECT_KEY in experiment_input:
+    raise ValidationError(
+      'The project field is not permitted in the experiment.'
+      ' Please set the SIGOPT_PROJECT environment variable instead.'
+    )
+  if RUNS_ONLY_KEY in experiment_input:
+    raise ValidationError(f"The {RUNS_ONLY_KEY} field is not allowed for experiments created with this module.")
+  experiment_input = dict(experiment_input)
+  validated = {}
+  try:
+    validated["name"] = get_validated_name(experiment_input)
+  except KeyError:
+    pass
+
+  try:
+    validated["parameters"] = get_validated_parameters(experiment_input)
+  except KeyError:
+    pass
+
+  if "metrics" in experiment_input:
+    validated["metrics"] = get_validated_metrics(experiment_input)
+
+  try:
+    validated["budget"] = get_validated_budget(experiment_input)
+  except KeyError:
+    pass
+
+  try:
+    validated["parallel_bandwidth"] = get_validated_parallel_bandwidth(experiment_input)
+  except KeyError:
+    pass
+
+  for key, value in experiment_input.items():
+    if not is_string(key):
+      raise ValidationError("all experiment keys must be strings")
+    validated[key] = value
+  return validated
