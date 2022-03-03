@@ -151,7 +151,7 @@ class TestXGBoostRun(object):
 
     if 'early_stopping_rounds' in self.run_params:
       assert run.values['num_boost_round_before_stopping']
-      if run.values['num_boost_round_before_stopping'] < run.assignments['num_boost_round']:
+      if run.values['num_boost_round_before_stopping'].value < run.assignments['num_boost_round']:
         assert run.values['best_iteration']
 
 
@@ -234,6 +234,8 @@ class TestXGBoostRun(object):
       'autolog_stdout': False,
       'autolog_xgboost_defaults': False,
     })
+    if 'early_stopping_rounds' in self.run_params:
+      del self.run_params['early_stopping_rounds']
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
 
