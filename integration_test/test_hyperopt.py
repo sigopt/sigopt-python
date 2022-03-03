@@ -1,7 +1,8 @@
-from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL
+from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, SparkTrials
 from hyperopt.mongoexp import MongoTrials
 import hyperopt
 from sigopt.hyperopt import SigOptTrials, upload_trials
+from pyspark.sql import SparkSession
 import sigopt
 import numpy as np
 import pytest
@@ -34,10 +35,12 @@ def objective_fail(x):
   return objective(x, -1.0)
 
 class TestHyperopt(object):
-  def run_fmin(self, online=True, upload=True, objective=objective_success, max_evals=3, wrap=False, **kwargs):
+  def run_fmin(self, online=True, upload=True, objective=objective_success, max_evals=3, wrap=None, **kwargs):
     project = 'hyperopt-integration-test'
-    if wrap:
-      trials = MongoTrials('mongo://localhost:1234/foo_db/jobs', exp_key=str(uuid.uuid4()))
+    if wrap == 'mongo':
+      trials = MongoTrials('mongo://mongodb:27017/foo_db/jobs', exp_key=str(uuid.uuid4()))
+    elif wrap == 'spark':
+      trials = SparkTrials()
     else:
       trials = None
     trials = SigOptTrials(project=project, online=(online and upload), trials=trials)
@@ -71,10 +74,11 @@ class TestHyperopt(object):
 
   @pytest.mark.parametrize("online, upload, wrap, max_evals",
                            [
-                             (False, True, False, 3),
-                             (True, True, False, 3),
-                             (False, False, False, 3),
-                             (True, True, True, 3),
+                             (False, True, None, 3),
+                             (True, True, None, 3),
+                             (False, False, None, 3),
+                             (True, True, 'mongo', 3),
+                             (True, True, 'spark', 3),
                             ])
   @pytest.mark.parametrize("objective",
                            [objective_random,
