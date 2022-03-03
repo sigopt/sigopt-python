@@ -30,6 +30,8 @@ SEARCH_SPACES = [
 
 
 class TestXGBoostExperiment:
+  experiment_params = None
+
   def _generate_randomized_search_space(self):
     search_space = copy.deepcopy(SEARCH_SPACES)
     if random.randint(0, 1) == 1:  # add bounds and type to eta randomly
@@ -96,7 +98,7 @@ class TestXGBoostExperiment:
   @pytest.mark.parametrize('task', ['binary', 'multiclass', 'regression'])
   def test_experiment(self, task):
     self._form_random_experiment_config(task)
-    experiment = sigopt.xgboost.experiment(**self.experiment_params)
+    experiment = sigopt.xgboost.experiment(**self.experiment_params) #pylint: disable=unexpected-keyword-arg
     assert experiment.is_finished()
     sigopt_suggested_runs = list(experiment.get_runs())
     assert len(sigopt_suggested_runs) == self.experiment_params['experiment_config']['budget']

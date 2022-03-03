@@ -117,6 +117,9 @@ def _form_random_run_params(task):
   )
 
 class TestXGBoostRun(object):
+  is_classification = None
+  run_params = None
+
   def _verify_parameter_logging(self, run):
     params = self.run_params['params']
     for p in params.keys():
@@ -292,6 +295,8 @@ class TestXGBoostRun(object):
 
 
 class TestFormCallbacks(object):
+  run_params = None
+
   def _append_xgbrun_param_none_values(self):
     all_xgbrun_params_names = signature(XGBRunHandler).parameters.keys()
     for p_name in all_xgbrun_params_names:
