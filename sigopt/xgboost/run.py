@@ -262,7 +262,7 @@ class XGBRunHandler:
         xgb_args['evals_result'] = self.evals_result
       t_start = time.time()
       bst = xgboost.train(**xgb_args)
-      if self.early_stopping_rounds:
+      if self.early_stopping_rounds and hasattr(bst, 'best_iteration'):
         self.run.log_metric('Best iteration', bst.best_iteration)
       t_train = time.time() - t_start
       if self.run_options_parsed['autolog_metrics']:

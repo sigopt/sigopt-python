@@ -107,7 +107,7 @@ def _form_random_run_params(task):
 
   run_options = {'name': f'dev-integration-test-{task}'}
 
-  return dict(
+  run_params =  dict(
     params=subset_params,
     dtrain=D_train,
     evals=[(D_test, f'test{n}') for n in range(random.randint(1, 3))],
@@ -115,6 +115,9 @@ def _form_random_run_params(task):
     verbose_eval=random.choice([True, False]),
     run_options=run_options,
   )
+  if numpy.random.rand() > 0.5:
+    run_params['early_stopping_rounds'] = 10
+  return run_params
 
 class TestXGBoostRun(object):
   def _verify_parameter_logging(self, run):
@@ -145,6 +148,12 @@ class TestXGBoostRun(object):
         assert run.values['-'.join((d_name, m_name))]
 
     assert run.values['Training time'].value > 0
+
+    if 'early_stopping_rounds' in self.run_params:
+      assert run.values['num_boost_round_before_stopping']
+      if run.values['num_boost_round_before_stopping'] < run.assignments['num_boost_round']:
+        assert run.values['best_iteration']
+
 
   def _verify_metadata_logging(self, run):
     assert run.metadata['Dataset columns'] == self.run_params['dtrain'].num_col()
