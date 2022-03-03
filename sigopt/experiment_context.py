@@ -3,6 +3,7 @@ import threading
 
 from .run_factory import BaseRunFactory
 from .run_context import global_run_context
+from .objects import Parameter
 
 
 class ExperimentContext(BaseRunFactory):
@@ -63,3 +64,16 @@ class ExperimentContext(BaseRunFactory):
 
   def get_best_runs(self):
     return self._connection.experiments(self.id).best_training_runs().fetch().iterate_pages()
+
+  def _parse_parameter(self, parameter):
+    if isinstance(parameter, Parameter):
+      parameter = parameter.as_json(parameter)
+      for attr in ['constraints', 'conditions']:
+        parameter.pop(attr, None)
+    return parameter
+
+  def update(self, **kwargs):
+    if 'parameters' in kwargs:
+      parameters = [self._parse_parameter(p) for p in kwargs['parameters']]
+      kwargs['parameters'] = parameters
+    return self._connection.experiments(self.id).update(**kwargs)
