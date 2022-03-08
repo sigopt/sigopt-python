@@ -1,3 +1,4 @@
+import click
 import http
 import io
 import sys
@@ -20,7 +21,6 @@ from .defaults import get_default_project
 from .validate import validate_experiment_input, ValidationError
 from .sigopt_logging import print_logger
 from .exception import ApiException
-from .utils import query_yes_no
 
 
 def get_ns():
@@ -126,8 +126,8 @@ class SigOptMagics(Magics):
     command = line.strip()
     if command == "config":
       api_token = input(API_TOKEN_PROMPT)
-      enable_log_collection = query_yes_no(LOG_COLLECTION_PROMPT, default="no")
-      enable_code_tracking = query_yes_no(CELL_TRACKING_PROMPT, default="no")
+      enable_log_collection = click.confirm(LOG_COLLECTION_PROMPT, default=False)
+      enable_code_tracking = click.confirm(CELL_TRACKING_PROMPT, default=False)
       config.persist_configuration_options({
         config.API_TOKEN_KEY: api_token,
         config.CELL_TRACKING_ENABLED_KEY: enable_code_tracking,
