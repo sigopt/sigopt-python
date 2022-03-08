@@ -1,3 +1,4 @@
+import click
 import http
 import io
 import sys
@@ -6,11 +7,12 @@ import IPython
 from IPython.core.magic import (
   Magics,
   cell_magic,
+  line_magic,
   magics_class,
 )
 
 from .config import config
-from .interface import get_connection
+from .cli.commands.config import API_TOKEN_PROMPT, LOG_COLLECTION_PROMPT, CELL_TRACKING_PROMPT
 from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
 from .run_context import global_run_context
 from .factory import SigOptFactory
@@ -38,7 +40,6 @@ def get_ns():
 class SigOptMagics(Magics):
   def __init__(self, shell):
     super().__init__(shell)
-    self._connection = get_connection()
     self._experiment = None
     self._factory = SigOptFactory(get_default_project())
 
@@ -117,3 +118,19 @@ class SigOptMagics(Magics):
     for run_context in self._experiment.loop(name=name):
       with run_context:
         self.exec_cell(run_context, cell, ns)
+
+  @line_magic
+  def sigopt(self, line):
+    command = line.strip()
+    if command == "config":
+      api_token = click.prompt(API_TOKEN_PROMPT, hide_input=True)
+      enable_log_collection = click.confirm(LOG_COLLECTION_PROMPT, default=False)
+      enable_code_tracking = click.confirm(CELL_TRACKING_PROMPT, default=False)
+      config.persist_configuration_options({
+        config.API_TOKEN_KEY: api_token,
+        config.CELL_TRACKING_ENABLED_KEY: enable_code_tracking,
+        config.LOG_COLLECTION_ENABLED_KEY: enable_log_collection,
+      })
+      self._factory.connection.set_client_token(api_token)
+    else:
+      raise ValueError(f"Unknown sigopt command: {command}")
