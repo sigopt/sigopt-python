@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-export PYTHONPATH='sigopt'
 
 PYTHON_VERSION=$(python --version 2>&1)
 if [[ $PYTHON_VERSION =~ "Python 2.6" || $PYTHON_VERSION =~ "Python 3.2" ]]; then
@@ -8,4 +7,4 @@ if [[ $PYTHON_VERSION =~ "Python 2.6" || $PYTHON_VERSION =~ "Python 3.2" ]]; the
   exit 0
 fi
 
-pylint sigopt controller test -r n --rcfile=.pylintrc
+pylint sigopt controller/controller test integration_test -r n --rcfile=.pylintrc
