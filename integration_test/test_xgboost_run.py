@@ -107,7 +107,7 @@ def _form_random_run_params(task):
 
   run_options = {'name': f'dev-integration-test-{task}'}
 
-  run_params =  dict(
+  return dict(
     params=subset_params,
     dtrain=D_train,
     evals=[(D_test, f'test{n}') for n in range(random.randint(1, 3))],
@@ -115,10 +115,8 @@ def _form_random_run_params(task):
     verbose_eval=random.choice([True, False]),
     run_options=run_options,
   )
-  if numpy.random.rand() > 0.5:
-    run_params['early_stopping_rounds'] = 10
-  return run_params
-#
+
+
 class TestXGBoostRun(object):
   def _verify_parameter_logging(self, run):
     params = self.run_params['params']
@@ -149,9 +147,6 @@ class TestXGBoostRun(object):
 
     assert run.values['Training time'].value > 0
     assert run.values['best_iteration'].value >= 0
-    if 'early_stopping_rounds' in self.run_params:
-      assert run.values['num_boost_round_before_stopping'].value > 0
-
 
   def _verify_metadata_logging(self, run):
     assert run.metadata['Dataset columns'] == self.run_params['dtrain'].num_col()
@@ -232,8 +227,6 @@ class TestXGBoostRun(object):
       'autolog_stdout': False,
       'autolog_xgboost_defaults': False,
     })
-    if 'early_stopping_rounds' in self.run_params:
-      del self.run_params['early_stopping_rounds']
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
 
@@ -375,7 +368,7 @@ class TestFormCallbacks(object):
     assert len(xgbrun.callbacks) == 1
     assert isinstance(xgbrun.callbacks[0], xgb.callback.EarlyStopping)
 
-  def test_xgbrun_did_early_stop(self):
+  def test_xgbrun_early_stopping(self):
     """
     This test is slightly more involved, and uses a dataset and params for which we know XGB will early stop, and
     then verifies that early stopping occurs
@@ -396,4 +389,5 @@ class TestFormCallbacks(object):
     self.run_params['early_stopping_rounds'] = 2
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
+    assert run.assignments['early_stopping_rounds'] == self.run_params['early_stopping_rounds']
     assert run.values['num_boost_round_before_stopping'].value < self.run_params['num_boost_round']
