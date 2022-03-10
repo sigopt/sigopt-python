@@ -105,8 +105,7 @@ class TestXGBoostExperiment:
     experiment.archive()
 
   def test_early_stopping(self):
-    task = 'binary'
-    self._form_random_experiment_config(task)
+    self._form_random_experiment_config('binary')
     self.experiment_params['early_stopping_rounds'] = 1
     experiment = sigopt.xgboost.experiment(**self.experiment_params)
     assert experiment.is_finished()
