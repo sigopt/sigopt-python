@@ -7,6 +7,7 @@ from .run_factory import BaseRunFactory
 from .experiment_context import ExperimentContext
 from .validate.keys import PROJECT_KEY, RUNS_ONLY_KEY
 from .run_context import global_run_context
+from .utils import batcher
 
 
 class SigOptFactory(BaseRunFactory):
@@ -61,10 +62,15 @@ class SigOptFactory(BaseRunFactory):
     run_context = self.run_context_class(connection, run, global_run_context.params)
     return run_context
 
-  def upload_runs(self, runs):
+  def upload_runs(self, runs, max_batch_size=10000):
     connection = self.connection
     client_id, project_id = self.ensure_project_exists()
-    return connection.clients(client_id).projects(project_id).training_runs().create_batch(runs=runs, fields='id').data
+    result = []
+    for batch in batcher(runs, max_batch_size):
+      result.extend(
+        connection.clients(client_id).projects(project_id).training_runs().create_batch(runs=batch, fields='id').data
+      )
+    return result
 
   def create_prevalidated_experiment(self, validated_body):
     connection = self.connection
