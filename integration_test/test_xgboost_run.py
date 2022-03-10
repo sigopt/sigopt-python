@@ -118,7 +118,7 @@ def _form_random_run_params(task):
   if numpy.random.rand() > 0.5:
     run_params['early_stopping_rounds'] = 10
   return run_params
-
+#
 class TestXGBoostRun(object):
   def _verify_parameter_logging(self, run):
     params = self.run_params['params']
@@ -148,11 +148,9 @@ class TestXGBoostRun(object):
         assert run.values['-'.join((d_name, m_name))]
 
     assert run.values['Training time'].value > 0
-
+    assert run.values['best_iteration'].value >= 0
     if 'early_stopping_rounds' in self.run_params:
-      assert run.values['num_boost_round_before_stopping']
-      if run.values['num_boost_round_before_stopping'].value < run.assignments['num_boost_round']:
-        assert run.values['best_iteration']
+      assert run.values['num_boost_round_before_stopping'].value > 0
 
 
   def _verify_metadata_logging(self, run):
@@ -376,3 +374,26 @@ class TestFormCallbacks(object):
     xgbrun.form_callbacks()
     assert len(xgbrun.callbacks) == 1
     assert isinstance(xgbrun.callbacks[0], xgb.callback.EarlyStopping)
+
+  def test_xgbrun_did_early_stop(self):
+    """
+    This test is slightly more involved, and uses a dataset and params for which we know XGB will early stop, and
+    then verifies that early stopping occurs
+    """
+    d = 10
+    n = 500
+    numpy.random.seed(1234)
+    X = numpy.random.rand(n, d)
+    y = numpy.zeros(n)
+    y[0:10] = 1
+    X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2, random_state=1234)
+    D_train = xgb.DMatrix(X_train, label=Y_train)
+    D_test = xgb.DMatrix(X_test, label=Y_test)
+    self.run_params = _form_random_run_params(task="binary")
+    self.run_params['dtrain'] = D_train
+    self.run_params['evals'] = D_test
+    self.run_params['num_boost_round'] = 100
+    self.run_params['early_stopping_rounds'] = 2
+    ctx = sigopt.xgboost.run(**self.run_params)
+    run = sigopt.get_run(ctx.run.id)
+    assert run.values['num_boost_round_before_stopping'].value < self.run_params['num_boost_round']

@@ -112,11 +112,11 @@ class TestXGBoostExperiment:
     assert experiment.is_finished()
     sigopt_suggested_runs = list(experiment.get_runs())
     for ssr in sigopt_suggested_runs:
-      assert ssr.assignments['early_stopping_rounds']
+      assert ssr.assignments['early_stopping_rounds'] == self.experiment_params['early_stopping_rounds']
       for param in experiment.parameters:
         if param.name == 'num_boost_round':
           assert ssr.values['num_boost_round_before_stopping']
-          assert ssr.assignments['num_boost_round'] >= ssr.assignments['num_boost_round_before_stopping']
+          assert ssr.assignments['num_boost_round'] >= ssr.values['num_boost_round_before_stopping']
 
   def test_experiment_with_custom_loop(self):
     run_params = _form_random_run_params('binary')
