@@ -3,6 +3,7 @@ import copy
 from .. import create_experiment
 from .constants import (
   DEFAULT_CLASSIFICATION_METRIC,
+  DEFAULT_EARLY_STOPPING_ROUNDS,
   DEFAULT_EVALS_NAME,
   DEFAULT_ITERS_PER_DIM,
   DEFAULT_NUM_BOOST_ROUND,
@@ -11,6 +12,8 @@ from .constants import (
   MAX_BO_ITERATIONS,
   METRICS_OPTIMIZATION_STRATEGY,
   PARAMETER_INFORMATION,
+  SIGOPT_DEFAULTS_SOURCE_NAME,
+  SIGOPT_DEFAULTS_SOURCE_PRIORITY,
   SUPPORTED_AUTOBOUND_PARAMS,
   SUPPORTED_METRICS_TO_OPTIMIZE,
 )
@@ -188,6 +191,17 @@ class XGBExperiment:
           run_options=self.run_options,
         )
 
+        # mark early stopping rounds as SigOpt Default
+        if self.early_stopping_rounds == DEFAULT_EARLY_STOPPING_ROUNDS:
+          run.set_parameters_sources_meta(
+            SIGOPT_DEFAULTS_SOURCE_NAME,
+            sort=SIGOPT_DEFAULTS_SOURCE_PRIORITY,
+            default_show=True
+          )
+          run.set_parameters_source(
+            {'early_stopping_rounds': DEFAULT_EARLY_STOPPING_ROUNDS},
+            SIGOPT_DEFAULTS_SOURCE_NAME,
+          )
 
 def experiment(
   experiment_config,
@@ -195,7 +209,7 @@ def experiment(
   evals,
   params,
   num_boost_round=None,
-  early_stopping_rounds=10,
+  early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
   run_options=None,
 ):
   run_options_parsed = parse_run_options(run_options)

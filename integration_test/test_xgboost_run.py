@@ -373,16 +373,14 @@ class TestFormCallbacks(object):
     This test is slightly more involved, and uses a dataset and params for which we know XGB will early stop, and
     then verifies that early stopping occurs
     """
-    d = 10
-    n = 500
-    numpy.random.seed(1234)
-    X = numpy.random.rand(n, d)
+    n = 100
+    X = numpy.linspace(0, 1, n)[:, None]
     y = numpy.zeros(n)
-    y[0:10] = 1
+    y[50:] = 1
     X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2, random_state=1234)
     D_train = xgb.DMatrix(X_train, label=Y_train)
     D_test = xgb.DMatrix(X_test, label=Y_test)
-    self.run_params = _form_random_run_params(task="binary")
+    self.run_params = {}
     self.run_params['dtrain'] = D_train
     self.run_params['evals'] = D_test
     self.run_params['num_boost_round'] = 100
