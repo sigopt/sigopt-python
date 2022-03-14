@@ -380,7 +380,7 @@ class TestFormCallbacks(object):
     X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2, random_state=1234)
     D_train = xgb.DMatrix(X_train, label=Y_train)
     D_test = xgb.DMatrix(X_test, label=Y_test)
-    self.run_params = {}
+    self.run_params =_form_random_run_params(task="binary")
     self.run_params['dtrain'] = D_train
     self.run_params['evals'] = D_test
     self.run_params['num_boost_round'] = 100
