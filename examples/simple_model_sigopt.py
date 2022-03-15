@@ -2,14 +2,9 @@ import click
 from simple_model import train_predict_save
 
 run_options = {}
-
 parameters = [
   {
     'name': 'max_depth',
-    'type': 'int',
-    'bounds': {'min': 2, 'max': 5}},
-  {
-    'name': 'num_boost_round',
     'type': 'int',
     'bounds': {'min': 2, 'max': 5}
   },
