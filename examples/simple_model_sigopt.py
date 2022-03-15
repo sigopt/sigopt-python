@@ -1,40 +1,36 @@
 import click
 from simple_model import train_predict_save
 
-def exp_config():
-  parameters = [
-    {
-      'name': 'max_depth',
-      'type': 'int',
-      'bounds': {'min': 2, 'max': 5}
-    },
-    {
-      'name': 'num_boost_round',
-      'type': 'int',
-      'bounds': {'min': 2, 'max': 5}
-    },
-  ]
-  config = {
-    'name': 'simple-experiment-test',
-    'type': 'offline',
-    'parameters': parameters,
-    'metrics': [{
-      'name': 'accuracy',
-      'strategy': 'optimize',
-      'objective': 'maximize'
-    }],
-    'parallel_bandwidth': 1,
-    'budget': 3
-  }
-  return config
+run_options = {}
+
+parameters = [
+  {
+    'name': 'max_depth',
+    'type': 'int',
+    'bounds': {'min': 2, 'max': 5}},
+  {
+    'name': 'num_boost_round',
+    'type': 'int',
+    'bounds': {'min': 2, 'max': 5}
+  },
+]
+experiment_config = {
+  'name': 'simple-experiment-test',
+  'type': 'offline',
+  'parameters': parameters,
+  'metrics': [{
+    'name': 'accuracy',
+    'strategy': 'optimize',
+    'objective': 'maximize'
+  }],
+  'parallel_bandwidth': 1,
+  'budget': 3
+}
 
 @click.command()
 @click.argument('mode', default='run')
 def main(mode):
   import sigopt.xgboost.simple
-  run_options = None
-  experiment_config = exp_config()
-
   sigopt.xgboost.simple.set_mode(mode, run_options, experiment_config)
   model = train_predict_save()
 
