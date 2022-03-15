@@ -1,12 +1,8 @@
 import xgboost as xgb
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-import os
-from pprint import pprint
-import json
 import numpy as np
 
-# Load data
 iris = datasets.load_iris()
 X = iris.data
 y = iris.target
@@ -30,7 +26,7 @@ xgb_params = dict(
 
 def train_predict_save():
   model = xgb.train(**xgb_params)
-  preds = model.predict(D_test)
+  model.predict(D_test)
   model.save_model('0001.model')
   return model
 
