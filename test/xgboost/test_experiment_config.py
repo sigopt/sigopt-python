@@ -229,19 +229,6 @@ class TestExperimentConfig:
     params = copy.deepcopy(PARAMS_BASE)
     self.verify_integrity(experiment_config, params)
 
-  def test_config_param_defined_twice(self):
-    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
-    params = copy.deepcopy(PARAMS_BASE)
-    params['eta'] = 0.1
-    with pytest.raises(ValueError):
-      self.verify_integrity(experiment_config, params)
-
-  def test_config_num_boost_round_defined_twice(self):
-    experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
-    params = copy.deepcopy(PARAMS_BASE)
-    params['num_boost_round'] = 10
-    with pytest.raises(ValueError):
-      self.verify_integrity(experiment_config, params)
 
   def test_config_wrong_metric_string(self):
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
