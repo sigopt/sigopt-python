@@ -9,7 +9,7 @@ from ..log_capture import SystemOutputStreamMonitor
 from ..model_aware_run import ModelAwareRun
 from ..run_context import RunContext
 from .checkpoint_callback import SigOptCheckpointCallback
-from .compat import Booster, DMatrix, xgboost
+from .compat import Booster, DMatrix, xgboost, xgboost_train
 from .compute_metrics import compute_classification_metrics, compute_regression_metrics
 from .constants import (
   DEFAULT_EVALS_NAME,
@@ -261,7 +261,7 @@ class XGBRunHandler:
         xgb_args['evals'] = self.validation_sets
         xgb_args['evals_result'] = self.evals_result
       t_start = time.time()
-      bst = xgboost._train(**xgb_args)
+      bst = xgboost_train(**xgb_args)
       t_train = time.time() - t_start
       if self.run_options_parsed['autolog_metrics']:
         self.run.log_metric("Training time", t_train)

@@ -24,7 +24,7 @@ class XGBExperiment:
     self.experiment_config_parsed = copy.deepcopy(experiment_config)
     self.dtrain = dtrain
     self.evals = evals
-    self.params = params
+    self.params = copy.deepcopy(params)
     self.num_boost_round = num_boost_round
     self.run_options = run_options
     self.sigopt_experiment = None
@@ -139,18 +139,12 @@ class XGBExperiment:
     # Check key overlap between parameters to be optimized and parameters that are set
     params_optimized = [param['name'] for param in self.experiment_config_parsed['parameters']]
     params_overlap = set(params_optimized) & set(self.params.keys())
-    if len(params_overlap) != 0:
-      raise ValueError(
-        f'There is overlap between tuned parameters and user-set parameters: {params_overlap}.'
-        'Parameter names cannot be defined in both locations'
-      )
+    for k in params_overlap:
+      self.params.pop(k)
 
     # Check that num_boost_round is not set by both sigopt experiment and user
     if self.num_boost_round and 'num_boost_round' in params_optimized:
-      raise ValueError(
-        'num_boost_round has been denoted as an optimization parameter, but also has been fixed in the input arguments'
-        f'to have value {self.num_boost_round}. Please remove it from either the search space or the input arguments.'
-      )
+      self.num_boost_round = None
 
   def parse_and_create_experiment(self):
     self.parse_and_create_metrics()
@@ -166,6 +160,7 @@ class XGBExperiment:
     self.sigopt_experiment = create_experiment(**self.experiment_config_parsed)
 
   def run_experiment(self):
+    r = []
     for run in self.sigopt_experiment.loop():
       with run:
         if self.num_boost_round:
@@ -176,7 +171,7 @@ class XGBExperiment:
           num_boost_round_run = DEFAULT_NUM_BOOST_ROUND
         self.run_options['run'] = run
 
-        XGBRunWrapper(
+        x = XGBRunWrapper(
           self.params,
           self.dtrain,
           num_boost_round=num_boost_round_run,
@@ -184,11 +179,17 @@ class XGBExperiment:
           verbose_eval=False,
           run_options=self.run_options,
         )
+        r.append(x)
+    return r
 
 
-def experiment(experiment_config, dtrain, evals, params, num_boost_round=None, run_options=None):
+
+
+def experiment(experiment_config, dtrain, evals, params, num_boost_round=None, run_options=None, with_runs=False):
   run_options_parsed = parse_run_options(run_options)
   xgb_experiment = XGBExperiment(experiment_config, dtrain, evals, params, num_boost_round, run_options_parsed)
   xgb_experiment.parse_and_create_experiment()
-  xgb_experiment.run_experiment()
+  runs = xgb_experiment.run_experiment()
+  if with_runs:
+    return xgb_experiment.sigopt_experiment, runs
   return xgb_experiment.sigopt_experiment

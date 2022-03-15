@@ -1,7 +1,8 @@
 import sigopt
-from .compat import xgboost
+from .compat import xgboost, xgboost_train
 from .run import run
-import types
+from .experiment import experiment
+
 
 class ModeConfig:
   def __init__(self):
@@ -11,45 +12,56 @@ class ModeConfig:
 
 config = ModeConfig()
 
-def wrap_f(f):
-  def _f(*argv, **kwargs):
-    return f(*argv, **kwargs)
-  return _f
+class WrapRun(object):
+  def __init__(self, run, model):
+    self.run = run
+    self.model = model
 
-def wrap(obj):
-  class Obj(object):
-    pass
-  new_obj = Obj()
-  for att in dir(obj):
-    v = getattr(obj, att)
-    if not att.startswith('_') and isinstance(v, types.MethodType):
-      setattr(new_obj, att, wrap_f(v))
-  return new_obj
+  def get_run(self):
+    return sigopt.get_run(self.run.id)
+
+  def __getattr__(self, name):
+    attrs = dir(self)
+    if name in attrs:
+      return attrs[name]
+    return getattr(self.model, name)
+
+class WrapExp(object):
+  def __init__(self, experiment, model):
+    self.experiment = experiment
+    self.model = model
+
+  def get_experiment(self):
+    return sigopt.get_experiment(self.experiment.id)._experiment
+
+  def __getattr__(self, name):
+    attrs = dir(self)
+    if name in attrs:
+      return attrs[name]
+    return getattr(self.model, name)
+
 
 def xgboost_run(*argv, **kwargs):
   ctx = run(*argv, **kwargs)
   ctx.run.end()
-  r = wrap(ctx.model)
-  setattr(r, 'run', ctx.run)
-  setattr(r, 'get_run', lambda : sigopt.get_run(ctx.run.id))
-  return r
+  return WrapRun(ctx.run, ctx.model)
 
 def xgboost_experiment(*argv, **kwargs):
-  # TODO
-  pass
+  exp, runs = experiment(*argv, **kwargs, with_runs=True)
+  best = list(exp.get_best_runs())[0]
+  best_run = [run for run in runs if run.run.id == best.id][0]
+  return WrapExp(exp, best_run.model)
 
 
-saved_train = xgboost.train
 def enable():
-  xgboost._train = saved_train
   xgboost.train = new_xgboost_train
 
 def disable():
-  xgboost.train = saved_train
+  xgboost.train = xgboost_train
 
 def set_mode(mode=None, run_options=None, experiment_config=None):
   config.mode = mode
-  if mode == None:
+  if mode is None:
     disable()
   else:
     enable()

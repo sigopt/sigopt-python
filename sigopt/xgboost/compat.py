@@ -6,6 +6,8 @@ MIN_REQUIRED_XGBOOST_VERSION = "1.3.0"
 try:
   import xgboost
   from xgboost import Booster, DMatrix
+  xgboost_train = xgboost.train
+
 except ImportError as ie_xgb:
   raise ImportError(
     "xgboost needs to be installed in order to use sigopt.xgboost.run functionality. "
