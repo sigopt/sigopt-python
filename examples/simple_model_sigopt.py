@@ -34,8 +34,8 @@ def main(mode):
   import sigopt.xgboost.simple
   run_options = None
   experiment_config = exp_config()
-  sigopt.xgboost.simple.set_mode(mode, run_options, experiment_config)
 
+  sigopt.xgboost.simple.set_mode(mode, run_options, experiment_config)
   model = train_model()
 
   if mode == 'run':

@@ -59,9 +59,9 @@ def enable():
 def disable():
   xgboost.train = xgboost_train
 
-def set_mode(mode=None, run_options=None, experiment_config=None):
+def set_mode(mode='default', run_options=None, experiment_config=None):
   config.mode = mode
-  if mode is None:
+  if mode == 'default':
     disable()
   else:
     enable()
