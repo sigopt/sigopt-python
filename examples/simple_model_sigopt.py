@@ -1,5 +1,5 @@
 import click
-from simple_model import train_model
+from simple_model import train_predict_save
 
 def exp_config():
   parameters = [
@@ -36,7 +36,7 @@ def main(mode):
   experiment_config = exp_config()
 
   sigopt.xgboost.simple.set_mode(mode, run_options, experiment_config)
-  model = train_model()
+  model = train_predict_save()
 
   if mode == 'run':
     print(model.run)

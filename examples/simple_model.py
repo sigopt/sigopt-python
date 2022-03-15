@@ -28,7 +28,7 @@ xgb_params = dict(
   num_boost_round=3,
 )
 
-def train_model():
+def train_predict_save():
   model = xgb.train(**xgb_params)
   preds = model.predict(D_test)
   model.save_model('0001.model')
