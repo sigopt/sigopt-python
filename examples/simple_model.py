@@ -35,4 +35,4 @@ def train_predict_save():
   return model
 
 if __name__ == '__main__':
-  train_model()
+  train_predict_save()
