@@ -2,17 +2,11 @@ import click
 from simple_model import train_predict_save
 
 run_options = {}
-parameters = [
-  {
-    'name': 'max_depth',
-    'type': 'int',
-    'bounds': {'min': 2, 'max': 5}
-  },
-]
+
 experiment_config = {
   'name': 'simple-experiment-test',
   'type': 'offline',
-  'parameters': parameters,
+  'parameters': [dict(name='max_depth', type='int', bounds=dict(min=2, max=5))],
   'metrics': [{
     'name': 'accuracy',
     'strategy': 'optimize',
