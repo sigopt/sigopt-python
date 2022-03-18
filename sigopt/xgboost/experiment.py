@@ -22,6 +22,13 @@ from .run import run as XGBRunWrapper
 
 XGB_EXPERIMENT_KEYWORD = '_IS_XGB_EXPERIMENT'
 
+# Sentinel value to distinguish between default early_stopping_rounds and input early_stopping_rounds w/ default value
+class DefaultEarlyStoppingRounds:
+  pass
+
+
+_default_early_stopping_rounds = DefaultEarlyStoppingRounds()
+
 
 class XGBExperiment:
   def __init__(self, experiment_config, dtrain, evals, params, num_boost_round, early_stopping_rounds, run_options):
@@ -31,7 +38,12 @@ class XGBExperiment:
     self.params = params
     self.num_boost_round = num_boost_round
     self.run_options = run_options
-    self.early_stopping_rounds = early_stopping_rounds  # if None, deactivate early stopping
+    if early_stopping_rounds == _default_early_stopping_rounds:
+      self.early_stopping_rounds = DEFAULT_EARLY_STOPPING_ROUNDS
+      self.early_stopping_round_used_sigopt_default = True
+    else:
+      self.early_stopping_rounds = early_stopping_rounds  # if None, deactivate early stopping
+      self.early_stopping_round_used_sigopt_default = False
     self.sigopt_experiment = None
 
   def parse_and_create_metrics(self):
@@ -192,11 +204,11 @@ class XGBExperiment:
         )
 
         # mark early stopping rounds as SigOpt Default
-        if self.early_stopping_rounds == DEFAULT_EARLY_STOPPING_ROUNDS:
+        if self.early_stopping_round_used_sigopt_default:
           run.set_parameters_sources_meta(
             SIGOPT_DEFAULTS_SOURCE_NAME,
             sort=SIGOPT_DEFAULTS_SOURCE_PRIORITY,
-            default_show=True
+            default_show=True,
           )
           run.set_parameters_source(
             {'early_stopping_rounds': DEFAULT_EARLY_STOPPING_ROUNDS},
@@ -209,7 +221,7 @@ def experiment(
   evals,
   params,
   num_boost_round=None,
-  early_stopping_rounds=DEFAULT_EARLY_STOPPING_ROUNDS,
+  early_stopping_rounds=_default_early_stopping_rounds,
   run_options=None,
 ):
   run_options_parsed = parse_run_options(run_options)
