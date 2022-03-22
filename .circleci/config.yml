@@ -28,6 +28,8 @@ commands:
   tutorial:
     steps:
       - checkout
+      - run: sudo apt-get update -y
+      - run: sudo apt-get install -y expect
       - run: echo 'export TEST_ACCOUNT_API_TOKEN=$TEST_ACCOUNT_API_TOKEN' >> $BASH_ENV
       - run: sudo pip install sigopt
       - run: pip install xgboost scikit-learn
