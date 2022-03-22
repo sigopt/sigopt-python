@@ -63,7 +63,7 @@ jobs:
       - test
   tutorial:
      parameters:
-       api_token: 
+       TEST_ACCOUNT_API_TOKEN: 
          type: string
          default: $TEST_ACCOUNT_API_TOKEN
      docker:
@@ -106,13 +106,3 @@ workflows:
             branches:
               only:
                 - master
-
-  first-run-check:
-     triggers:
-       - schedule:
-           cron: "0, 8,16 * * *"
-           filters:
-             branches:
-               only:
-                 - master
-     
