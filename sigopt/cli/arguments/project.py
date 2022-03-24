@@ -17,5 +17,8 @@ project_option = click.option(
   "-p",
   "--project",
   callback=validate_project_id_callback,
-  help="Configure the project to use",
+  help="""
+  Provide a project ID string to associate the experiment with a new or existing project.
+  If a project ID is not provided, the parent directory is the default project ID.
+  """,
 )
