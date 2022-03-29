@@ -5,6 +5,7 @@ import os
 import platform
 import pytest
 import random
+import math
 
 os.environ['SIGOPT_PROJECT'] = "dev-sigopt-xgb-integration-test"
 
@@ -18,6 +19,7 @@ from sigopt.xgboost.constants import (
 )
 from sigopt.xgboost.run import (
   DEFAULT_CHECKPOINT_PERIOD,
+  MAX_NUM_CHECKPOINTS,
   PARAMS_LOGGED_AS_METADATA,
   XGB_INTEGRATION_KEYWORD,
   XGBRunHandler,
@@ -191,20 +193,14 @@ class TestXGBoostRun(object):
     assert run.dev_metadata[XGB_INTEGRATION_KEYWORD]
 
   def _verify_checkpoint_logging(self, run):
-    if not self.run_params['verbose_evals']:
-      assert run.checkpoint_count == (
-        self.run_params['num_boost_round'] // DEFAULT_CHECKPOINT_PERIOD + 1 * (
-          self.run_params['num_boost_round'] % DEFAULT_CHECKPOINT_PERIOD > 0
-        )
-      )
-    elif self.run_params['verbose_evals'] is True:
-      assert run.checkpoint_count == self.run_params['num_boost_round']
-    else:
-      assert run.checkpoint_count == (
-        self.run_params['num_boost_round'] // self.run_params['verbose_evals'] + 1 * (
-          self.run_params['num_boost_round'] % self.run_params['verbose_evals'] > 0
-        )
-      )
+    period = self.run_params.get('verbose_eval')
+    if not period:
+      period = DEFAULT_CHECKPOINT_PERIOD
+    elif period is True:
+      period = 1
+    num_boost_round = self.run_params['num_boost_round']
+    period = max(period, math.ceil((num_boost_round + 1) / MAX_NUM_CHECKPOINTS))
+    assert run.checkpoint_count == 1 + math.ceil((num_boost_round - 1) / period)
 
   @pytest.mark.parametrize("task", ['binary', 'multiclass', 'regression'])
   def test_run(self, task):
@@ -218,6 +214,7 @@ class TestXGBoostRun(object):
     self._verify_metric_logging(run)
     self._verify_feature_importances_logging(run, ctx.model)
     self._verify_miscs_data_logging(run)
+    self._verify_checkpoint_logging(run)
     ctx.run.end()
 
   def test_run_options_no_logging(self):

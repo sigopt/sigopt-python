@@ -1,7 +1,6 @@
 MODIFIED  # unused variable (controller/controller/k8s_constants.py:3)
 signum  # unused variable (controller/controller/manage_pods.py:26)
 _.create_from_pod  # unused method (controller/controller/run_state.py:32)
-_._verify_checkpoint_logging  # unused method (integration_test/test_xgboost_run.py:193)
 load_ipython_extension  # unused function (sigopt/__init__.py:36)
 franke_function  # unused function (sigopt/examples/franke.py:4)
 FRANKE_EXPERIMENT_DEFINITION  # unused variable (sigopt/examples/franke.py:14)
