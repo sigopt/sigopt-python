@@ -1,8 +1,6 @@
 MODIFIED  # unused variable (sigopt-python/controller/controller/k8s_constants.py:3)
 signum  # unused variable (sigopt-python/controller/controller/manage_pods.py:26)
 _.create_from_pod  # unused method (sigopt-python/controller/controller/run_state.py:32)
-best_runs  # unused variable (sigopt-python/examples/basic.py:44)
-best_runs  # unused variable (sigopt-python/examples/parallel.py:47)
 _._verify_checkpoint_logging  # unused method (sigopt-python/integration_test/test_xgboost_run.py:191)
 load_ipython_extension  # unused function (sigopt-python/sigopt/__init__.py:36)
 franke_function  # unused function (sigopt-python/sigopt/examples/franke.py:4)
