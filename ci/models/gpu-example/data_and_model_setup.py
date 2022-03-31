@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, average_precision_score, f1_score
-from keras.callbacks import Callback
 import sigopt
 from sklearn.preprocessing import StandardScaler
 
@@ -24,15 +23,6 @@ class LoadTransformData:
         sc = StandardScaler()
         scaled_trainX, scaled_testX = sc.fit_transform(trainX), sc.fit_transform(testX)
         return scaled_trainX, scaled_testX
-
-
-class CheckpointCB(Callback):
-    def on_train_begin(self, logs=None):
-        pass
-
-    def on_epoch_end(self, epoch, logs=None):
-        if logs:
-            sigopt.log_checkpoint(logs)
 
 
 def max_missed_fraud(prediction, label, amount):
