@@ -9,7 +9,6 @@ class MonitorStream(io.IOBase):
     self.buffer_lock = threading.Lock()
     self.original_stream = original_stream
     self.buffer_stream = None
-    self._closed = original_stream.closed
     self._replace_buffer_stream()
 
   def _replace_buffer_stream(self):
