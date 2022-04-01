@@ -10,7 +10,10 @@ lint: vulture
 	@./lint
 
 vulture:
-	vulture --exclude "build,venv" --ignore-decorators "@click.*,@sigopt_cli.*,@pytest.*" . .vulture_allowlist
+	@vulture --exclude "build,venv" --ignore-decorators "@click.*,@sigopt_cli.*,@pytest.*" . .vulture_allowlist
+
+vulture-allowlist:
+	@./tools/generate_vulture_allowlist > .vulture_allowlist
 
 update:
 	@pip install -r requirements-dev.txt
