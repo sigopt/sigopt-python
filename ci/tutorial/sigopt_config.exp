@@ -1,0 +1,13 @@
+#!/usr/bin/expect
+
+spawn sigopt config
+
+expect "SigOpt API token (find at https://app.sigopt.com/tokens/info):"
+
+send "$env(TEST_ACCOUNT_API_TOKEN)\r"
+
+send "y\r"
+
+send "y\r"
+
+expect eof

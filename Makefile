@@ -1,4 +1,4 @@
-.PHONY: test lint integration_test
+.PHONY: test lint integration_test vulture
 
 test:
 	@PYTHONPATH=. python -m pytest -rw -v test
@@ -6,8 +6,14 @@ test:
 integration_test:
 	@PYTHONPATH=. python -m pytest -rw -v integration_test
 
-lint:
+lint: vulture
 	@./lint
+
+vulture:
+	@vulture --exclude "build,venv" --ignore-decorators "@click.*,@sigopt_cli.*,@pytest.*" . .vulture_allowlist
+
+vulture-allowlist:
+	@./tools/generate_vulture_allowlist > .vulture_allowlist
 
 update:
 	@pip install -r requirements-dev.txt

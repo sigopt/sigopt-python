@@ -11,4 +11,5 @@ experiment_file_option = click.option(
   default='experiment.yml',
   type=click.Path(exists=True),
   callback=load_yaml_callback(validate_experiment_input),
+  help="A YAML file that defines your run. The contents will be stored as data on your run.",
 )

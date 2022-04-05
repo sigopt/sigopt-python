@@ -16,3 +16,8 @@ def accept_sigopt_not_found():
     if ae.status_code != HTTPStatus.NOT_FOUND:
       raise
     handled.exception = ae
+
+def batcher(alist, n=1):
+  l = len(alist)
+  for ndx in range(0, l, n):
+    yield alist[ndx:min(ndx + n, l)]

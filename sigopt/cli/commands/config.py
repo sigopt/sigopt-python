@@ -3,6 +3,7 @@ import click
 from ...config import config as _config
 from .base import sigopt_cli
 
+API_TOKEN_PROMPT = 'SigOpt API token (find at https://app.sigopt.com/tokens/info)'
 
 LOG_COLLECTION_PROMPT = '''Log Collection
 \tThis will capture and upload the standard output and standard error of your
@@ -15,7 +16,7 @@ CELL_TRACKING_PROMPT = '''Notebook Cell Tracking
 Enable cell tracking'''
 
 @sigopt_cli.command()
-@click.option('--api-token', prompt='SigOpt API token (find at https://app.sigopt.com/tokens/info)')
+@click.option('--api-token', prompt=API_TOKEN_PROMPT)
 @click.option(
   '--enable-log-collection/--no-enable-log-collection',
   prompt=LOG_COLLECTION_PROMPT,

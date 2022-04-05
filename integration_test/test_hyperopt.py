@@ -2,7 +2,6 @@ from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, SparkTrials
 from hyperopt.mongoexp import MongoTrials
 import hyperopt
 from sigopt.hyperopt import SigOptTrials, upload_trials
-from pyspark.sql import SparkSession
 import sigopt
 import numpy as np
 import pytest

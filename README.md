@@ -100,6 +100,18 @@ To lint, install requirements (included in the previous step) and run
 make lint
 ```
 
+Use `vulture` to check no use code/paramters
+```bash
+make vulture
+```
+
+Generate `vulture` allowlist
+```bash
+make vulture-allowlist
+```
+
+The `vulture`  allowlist file `.vulture_allowlist` can be edit to add/remove allowed no use code/parameters.
+
 ## Acknowledgments
 
 We would like to thank the following people for their contributions:
