@@ -109,7 +109,7 @@ class TestXGBoostExperiment:
   def test_early_stopping(self):
     self._form_random_experiment_config('binary')
     self.experiment_params['early_stopping_rounds'] = 1
-    experiment = sigopt.xgboost.experiment(**self.experiment_params)
+    experiment = sigopt.xgboost.experiment(**self.experiment_params) #pylint: disable=unexpected-keyword-arg
     assert experiment.is_finished()
     sigopt_suggested_runs = list(experiment.get_runs())
     for ssr in sigopt_suggested_runs:
