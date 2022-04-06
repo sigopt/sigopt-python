@@ -1,4 +1,4 @@
-.PHONY: test lint integration_test vulture
+.PHONY: test lint integration_test vulture vulture-allowlist
 
 test:
 	@PYTHONPATH=. python -m pytest -rw -v test
