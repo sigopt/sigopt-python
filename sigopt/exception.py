@@ -49,3 +49,17 @@ class RunException(SigOptException):
 class ConflictingProjectException(SigOptException):
   def __init__(self, project_id):
     super().__init__(f"The project with id '{project_id}' already exists.")
+
+class ProjectNotFoundException(SigOptException):
+  def __init__(self, project_id):
+    super().__init__(
+      f"The project '{project_id}' does not exist.\n"
+      "Try any of the following steps to resolve this:\n"
+      f"  * create a project with the ID '{project_id}' by visiting\n"
+      "    https://app.sigopt.com/projects\n"
+      "  * change the project ID by setting the SIGOPT_PROJECT environment variable or\n"
+      "    by renaming the current directory\n"
+      f"  * (advanced) if the project you want to use is in a different team,\n"
+      "    change your API token by switching to that team and then going to\n"
+      "    https://app.sigopt.com/tokens/info"
+    )

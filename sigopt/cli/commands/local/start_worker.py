@@ -19,6 +19,7 @@ from ..run_base import run_command
 def start_worker(experiment_id, command, run_options, source_file):
   '''Start a worker for the given Experiment.'''
   factory = SigOptFactory.from_default_project()
+  factory.set_up_cli()
   try:
     experiment = factory.get_experiment(experiment_id)
   except ValueError as ve:

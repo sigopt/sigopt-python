@@ -10,6 +10,7 @@ from ..base import archive_command
 def archive(project, run_ids):
   '''Archive SigOpt Runs.'''
   factory = SigOptFactory(project)
+  factory.set_up_cli()
   for run_id in run_ids:
     try:
       factory.archive_run(run_id)

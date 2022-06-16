@@ -17,5 +17,6 @@ from ..run_base import run_command
 def run(command, run_options, source_file, project):
   '''Create a SigOpt Run.'''
   factory = SigOptFactory(project)
+  factory.set_up_cli()
   with factory.create_run(name=run_options.get("name")) as run_context:
     run_user_program(config, run_context, command, source_file)

@@ -10,6 +10,7 @@ from ..base import unarchive_command
 def unarchive(project, experiment_ids):
   '''Unarchive SigOpt Experiments.'''
   factory = SigOptFactory(project)
+  factory.set_up_cli()
   for experiment_id in experiment_ids:
     try:
       factory.unarchive_experiment(experiment_id)
