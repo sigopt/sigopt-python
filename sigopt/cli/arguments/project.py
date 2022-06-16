@@ -18,7 +18,20 @@ project_option = click.option(
   "--project",
   callback=validate_project_id_callback,
   help="""
-  Provide a project ID string to associate the experiment with a new or existing project.
-  If a project ID is not provided, the parent directory is the default project ID.
+  Provide the project ID.
+  Projects can be created at https://app.sigopt.com/projects or with the command `sigopt create project`.
+  If a project ID is not provided then the project ID is determined in the following order:
+  first from the SIGOPT_PROJECT environment variable, then by the name of the current directory.
   """,
+)
+
+def validate_project_name_callback(ctx, p, value):  # pylint: disable=unused-argument
+  if value is None:
+    return get_default_project()
+  return value
+
+project_name_option = click.option(
+  '--project-name',
+  callback=validate_project_name_callback,
+  help="The name of the project.",
 )

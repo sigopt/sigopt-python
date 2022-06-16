@@ -1,6 +1,8 @@
+import http
+
 from sigopt.validate import validate_experiment_input
 
-from .defaults import check_valid_project_id, ensure_project_exists, get_default_project
+from .defaults import check_valid_project_id, ensure_project_exists, get_default_project, get_client_id
 from .interface import get_connection
 from .sigopt_logging import print_logger
 from .run_factory import BaseRunFactory
@@ -8,6 +10,7 @@ from .experiment_context import ExperimentContext
 from .validate.keys import PROJECT_KEY, RUNS_ONLY_KEY
 from .run_context import global_run_context
 from .utils import batcher
+from .exception import ApiException, ConflictingProjectException
 
 
 class SigOptFactory(BaseRunFactory):
@@ -47,6 +50,18 @@ class SigOptFactory(BaseRunFactory):
       "Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/%s",
       experiment.id,
     )
+
+  def create_project(self, project_name):
+    client_id = get_client_id(self.connection)
+    try:
+      project = self.connection.clients(client_id).projects().create(id=self.project, name=project_name)
+    except ApiException as e:
+      if e.status_code == http.HTTPStatus.CONFLICT:
+        raise ConflictingProjectException(self.project)
+      raise
+    self._client_id = client_id
+    self._assume_project_exists = True
+    return project
 
   def ensure_project_exists(self):
     # if we have already ensured that the project exists then we can skip this step in the future

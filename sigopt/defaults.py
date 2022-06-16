@@ -37,8 +37,11 @@ def get_default_name(project):
   datetime_string = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
   return f'{project} {datetime_string}'
 
+def get_client_id(connection):
+  return connection.tokens('self').fetch().client
+
 def ensure_project_exists(connection, project_id):
-  client_id = connection.tokens('self').fetch().client
+  client_id = get_client_id()
   try:
     connection.clients(client_id).projects().create(id=project_id, name=project_id)
   except ApiException as e:
