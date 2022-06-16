@@ -14,7 +14,10 @@ def normalize_project_id(project_id):
 
 def check_valid_project_id(project_id):
   if not VALID_PROJECT_ID.match(project_id):
-    raise ValueError(f"project id is invalid: {project_id}")
+    raise ValueError(
+      f"Project ID is invalid: '{project_id}'\n"
+      "Project IDs can only consist of lowercase letters, digits, hyphens (-), underscores (_) and periods (.)."
+    )
 
 def get_default_project():
   project_id = os.environ.get('SIGOPT_PROJECT')
