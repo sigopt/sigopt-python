@@ -49,7 +49,7 @@ class RunException(SigOptException):
 class ProjectNotFoundException(SigOptException):
   def __init__(self, project_id):
     super().__init__(
-      f"The project {project_id} does not exist.\n"
+      f"The project '{project_id}' does not exist.\n"
       "Try any of the following steps to resolve this:\n"
       f"  * create a project with the ID '{project_id}' by visiting\n"
       "    https://app.sigopt.com/projects\n"
