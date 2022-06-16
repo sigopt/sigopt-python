@@ -57,7 +57,7 @@ class SigOptFactory(BaseRunFactory):
       project = self.connection.clients(client_id).projects().create(id=self.project, name=project_name)
     except ApiException as e:
       if e.status_code == http.HTTPStatus.CONFLICT:
-        raise ConflictingProjectException(self.project)
+        raise ConflictingProjectException(self.project) from e
       raise
     self._client_id = client_id
     self._assume_project_exists = True
