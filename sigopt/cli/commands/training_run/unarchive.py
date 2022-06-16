@@ -9,6 +9,7 @@ from ..base import unarchive_command
 def unarchive(project, run_ids):
   '''Unarchive SigOpt Runs.'''
   factory = SigOptFactory(project)
+  factory.set_up_cli()
   for run_id in run_ids:
     try:
       factory.unarchive_run(run_id)

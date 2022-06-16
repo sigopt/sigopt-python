@@ -3,7 +3,7 @@ import http
 import re
 import os
 
-from .exception import ApiException
+from .exception import ApiException, ProjectNotFoundException
 
 INVALID_PROJECT_ID_STRING_CHARACTERS = re.compile(r'[^a-z0-9\-_\.]')
 VALID_PROJECT_ID = re.compile(r'[a-z0-9\-_\.]+\Z')
@@ -40,8 +40,9 @@ def get_default_name(project):
 def ensure_project_exists(connection, project_id):
   client_id = connection.tokens('self').fetch().client
   try:
-    connection.clients(client_id).projects().create(id=project_id, name=project_id)
+    connection.clients(client_id).projects(project_id).fetch()
   except ApiException as e:
-    if e.status_code != http.HTTPStatus.CONFLICT:
-      raise
+    if e.status_code == http.HTTPStatus.NOT_FOUND:
+      raise ProjectNotFoundException(project_id) from e
+    raise
   return client_id

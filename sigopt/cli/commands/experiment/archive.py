@@ -10,6 +10,7 @@ from ..base import archive_command
 def archive(project, experiment_ids):
   '''Archive SigOpt Experiments.'''
   factory = SigOptFactory(project)
+  factory.set_up_cli()
   for experiment_id in experiment_ids:
     try:
       factory.connection.experiments(experiment_id).delete()

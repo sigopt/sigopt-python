@@ -1,9 +1,12 @@
+import click
+
 from sigopt.validate import validate_experiment_input
 
 from .defaults import check_valid_project_id, ensure_project_exists, get_default_project
 from .interface import get_connection
 from .sigopt_logging import print_logger
 from .run_factory import BaseRunFactory
+from .exception import ProjectNotFoundException
 from .experiment_context import ExperimentContext
 from .validate.keys import PROJECT_KEY, RUNS_ONLY_KEY
 from .run_context import global_run_context
@@ -47,6 +50,12 @@ class SigOptFactory(BaseRunFactory):
       "Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/%s",
       experiment.id,
     )
+
+  def set_up_cli(self):
+    try:
+      self.ensure_project_exists()
+    except ProjectNotFoundException as pnfe:
+      raise click.ClickException(pnfe) from pnfe
 
   def ensure_project_exists(self):
     # if we have already ensured that the project exists then we can skip this step in the future
