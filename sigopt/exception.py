@@ -45,3 +45,16 @@ class ApiException(SigOptException):
 
 class RunException(SigOptException):
   pass
+
+class ProjectNotFoundException(SigOptException):
+  def __init__(self, project_id):
+    super().__init__(
+      f"The project {project_id} does not exist.\n"
+      "Try any of the following steps to resolve this:\n"
+      f"  * create a project with the id '{project_id}' by visiting\n"
+      "    https://app.sigopt.com/projects\n"
+      "  * change the project id by setting the SIGOPT_PROJECT environment variable or\n"
+      "    by renaming the current directory\n"
+      f"  * (advanced) change to a team that has the project '{project_id}' then find your\n"
+      "    API token for that team at https://app.sigopt.com/tokens/info"
+    )
