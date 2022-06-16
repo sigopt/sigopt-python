@@ -37,7 +37,6 @@ class TestSigOptFactory(object):
   def test_create_context_with_name(self, factory, api_connection):
     run_context = factory.create_run(name='test context')
     assert run_context is not None
-    assert api_connection.clients().projects().create.call_args[1]['name'] == 'test-project'
     api_connection.clients().projects().training_runs().create.assert_called_once()
     assert api_connection.clients().projects().training_runs().create.call_args[1]['name'] == 'test context'
 
