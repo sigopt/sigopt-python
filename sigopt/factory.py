@@ -51,10 +51,14 @@ class SigOptFactory(BaseRunFactory):
       experiment.id,
     )
 
-  def create_project(self, project_name):
+  def create_project(self, id_=None, name=None):
+    if id_ is not None:
+      self.set_project(id_)
+    if name is None:
+      name = self.project
     client_id = get_client_id(self.connection)
     try:
-      project = self.connection.clients(client_id).projects().create(id=self.project, name=project_name)
+      project = self.connection.clients(client_id).projects().create(id=self.project, name=name)
     except ApiException as e:
       if e.status_code == http.HTTPStatus.CONFLICT:
         raise ConflictingProjectException(self.project) from e

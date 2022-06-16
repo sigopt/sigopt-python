@@ -14,7 +14,7 @@ def create(project, project_name):
   '''Create a SigOpt Project.'''
   factory = SigOptFactory(project)
   try:
-    factory.create_project(project_name)
+    factory.create_project(name=project_name)
   except ConflictingProjectException as cpe:
     raise click.ClickException(cpe) from cpe
   print_logger.info("Project '%s' created.", project)
