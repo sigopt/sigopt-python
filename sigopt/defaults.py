@@ -44,7 +44,7 @@ def get_client_id(connection):
   return connection.tokens('self').fetch().client
 
 def ensure_project_exists(connection, project_id):
-  client_id = get_client_id()
+  client_id = get_client_id(connection)
   try:
     connection.clients(client_id).projects().create(id=project_id, name=project_id)
   except ApiException as e:
