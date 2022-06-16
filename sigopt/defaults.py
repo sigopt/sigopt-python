@@ -43,6 +43,6 @@ def ensure_project_exists(connection, project_id):
     connection.clients(client_id).projects(project_id).fetch()
   except ApiException as e:
     if e.status_code == http.HTTPStatus.NOT_FOUND:
-      raise ProjectNotFoundException(project_id)
+      raise ProjectNotFoundException(project_id) from e
     raise
   return client_id
