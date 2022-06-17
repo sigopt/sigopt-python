@@ -18,3 +18,5 @@ def create(project, project_name):
   except ConflictingProjectException as cpe:
     raise click.ClickException(cpe) from cpe
   print_logger.info("Project '%s' created.", project)
+  print_logger.info("To use this project, set the SIGOPT_PROJECT environment variable:")
+  print_logger.info("> export SIGOPT_PROJECT='%s'", project)
