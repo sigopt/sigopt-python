@@ -46,12 +46,17 @@ class ApiException(SigOptException):
 class RunException(SigOptException):
   pass
 
+class ConflictingProjectException(SigOptException):
+  def __init__(self, project_id):
+    super().__init__(f"The project with id '{project_id}' already exists.")
+
 class ProjectNotFoundException(SigOptException):
   def __init__(self, project_id):
     super().__init__(
       f"The project '{project_id}' does not exist.\n"
       "Try any of the following steps to resolve this:\n"
-      f"  * create a project with the ID '{project_id}' by visiting\n"
+      f"  * create a project with the ID '{project_id}' with the command\n"
+      f"    `sigopt create project --project '{project_id}'` or by visiting\n"
       "    https://app.sigopt.com/projects\n"
       "  * change the project ID by setting the SIGOPT_PROJECT environment variable or\n"
       "    by renaming the current directory\n"

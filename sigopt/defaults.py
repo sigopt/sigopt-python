@@ -14,7 +14,10 @@ def normalize_project_id(project_id):
 
 def check_valid_project_id(project_id):
   if not VALID_PROJECT_ID.match(project_id):
-    raise ValueError(f"project id is invalid: {project_id}")
+    raise ValueError(
+      f"Project ID is invalid: '{project_id}'\n"
+      "Project IDs can only consist of lowercase letters, digits, hyphens (-), underscores (_) and periods (.)."
+    )
 
 def get_default_project():
   project_id = os.environ.get('SIGOPT_PROJECT')
@@ -37,8 +40,11 @@ def get_default_name(project):
   datetime_string = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
   return f'{project} {datetime_string}'
 
+def get_client_id(connection):
+  return connection.tokens('self').fetch().client
+
 def ensure_project_exists(connection, project_id):
-  client_id = connection.tokens('self').fetch().client
+  client_id = get_client_id(connection)
   try:
     connection.clients(client_id).projects(project_id).fetch()
   except ApiException as e:
