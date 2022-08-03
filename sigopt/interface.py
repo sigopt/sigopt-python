@@ -404,6 +404,10 @@ class Connection(object):
     return self.impl.clients
 
   @property
+  def aiexperiments(self):
+    return self.impl.aiexperiments
+
+  @property
   def experiments(self):
     return self.impl.experiments
 
