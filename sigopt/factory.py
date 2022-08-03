@@ -10,7 +10,6 @@ from .sigopt_logging import print_logger
 from .run_factory import BaseRunFactory
 from .exception import ProjectNotFoundException
 from .aiexperiment_context import AIExperimentContext
-from .validate.keys import PROJECT_KEY, RUNS_ONLY_KEY
 from .run_context import global_run_context
 from .utils import batcher
 from .exception import ApiException, ConflictingProjectException
@@ -48,10 +47,10 @@ class SigOptFactory(BaseRunFactory):
   def project(self):
     return self._project_id
 
-  def _on_experiment_created(self, experiment):
+  def _on_aiexperiment_created(self, aiexperiment):
     print_logger.info(
-      "Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/%s",
-      experiment.id,
+      "AIExperiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/%s",
+      aiexperiment.id,
     )
 
   def create_project(self, id_=None, name=None):
@@ -103,12 +102,11 @@ class SigOptFactory(BaseRunFactory):
   def create_prevalidated_aiexperiment(self, validated_body):
     connection = self.connection
     client_id, project_id = self.ensure_project_exists()
-    experiment = connection.clients(client_id).experiments().create(
-      **{PROJECT_KEY: project_id, RUNS_ONLY_KEY: True},
+    aiexperiment = connection.clients(client_id).projects(project_id).aiexperiments().create(
       **validated_body,
     )
-    self._on_experiment_created(experiment)
-    return AIExperimentContext(experiment, connection=connection)
+    self._on_aiexperiment_created(aiexperiment)
+    return AIExperimentContext(aiexperiment, connection=connection)
 
   def create_experiment(self, *args, **kwargs):
     return self.create_aiexperiment(*args, **kwargs)
