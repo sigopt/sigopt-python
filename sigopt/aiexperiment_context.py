@@ -7,35 +7,35 @@ from .objects import Parameter
 from .validate.aiexperiment_input import validate_aiexperiment_update_input
 
 
-class ExperimentContext(BaseRunFactory):
-  '''Wraps the Experiment object and provides extra utility methods.'''
+class AIExperimentContext(BaseRunFactory):
+  '''Wraps the AIExperiment object and provides extra utility methods.'''
 
-  def __init__(self, experiment, connection):
-    if experiment.project is None:
-      raise ValueError("experiment does not belong to a project")
-    self._experiment = experiment
+  def __init__(self, aiexperiment, connection):
+    if aiexperiment.project is None:
+      raise ValueError("AIExperiment does not belong to a project")
+    self._aiexperiment = aiexperiment
     self._refresh_lock = threading.Lock()
     self._connection = connection
 
   def refresh(self):
-    '''Refresh the state of the Experiment from the SigOpt API.'''
+    '''Refresh the state of the AIExperiment from the SigOpt API.'''
     connection = self._connection
     with self._refresh_lock:
-      self._experiment = connection.experiments(self.id).fetch()
+      self._aiexperiment = connection.aiexperiments(self.id).fetch()
 
   def is_finished(self):
-    '''Check if the experiment has consumed its entire budget.'''
+    '''Check if the AIExperiment has consumed its entire budget.'''
     self.refresh()
     return self.progress.remaining_budget is not None and self.progress.remaining_budget <= 0
 
   def loop(self, name=None):
-    '''Create runs until the experiment has finished.'''
+    '''Create runs until the AIExperiment has finished.'''
     while not self.is_finished():
       yield self.create_run(name=name)
 
   def archive(self):
     connection = self._connection
-    connection.experiments(self.id).delete()
+    connection.aiexperiments(self.id).delete()
     self.refresh()
 
   @property
@@ -44,12 +44,12 @@ class ExperimentContext(BaseRunFactory):
     raise AttributeError
 
   def __getattr__(self, attr):
-    return getattr(self._experiment, attr)
+    return getattr(self._aiexperiment, attr)
 
   def _create_run(self, name, metadata):
-    experiment = self._experiment
+    aiexperiment = self._aiexperiment
     connection = self._connection
-    run = connection.experiments(experiment.id).training_runs().create(
+    run = connection.aiexperiments(aiexperiment.id).training_runs().create(
       name=name,
       metadata=metadata,
     )
@@ -64,7 +64,7 @@ class ExperimentContext(BaseRunFactory):
     }])).iterate_pages()
 
   def get_best_runs(self):
-    return self._connection.experiments(self.id).best_training_runs().fetch().iterate_pages()
+    return self._connection.aiexperiments(self.id).best_training_runs().fetch().iterate_pages()
 
   def _parse_parameter(self, parameter):
     if isinstance(parameter, Parameter):
@@ -79,4 +79,4 @@ class ExperimentContext(BaseRunFactory):
       parameters = [self._parse_parameter(p) for p in kwargs['parameters']]
       kwargs['parameters'] = parameters
     kwargs = validate_aiexperiment_update_input(kwargs)
-    return self._connection.experiments(self.id).update(**kwargs)
+    return self._connection.aiexperiments(self.id).update(**kwargs)

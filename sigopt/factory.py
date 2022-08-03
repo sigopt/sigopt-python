@@ -9,7 +9,7 @@ from .interface import get_connection
 from .sigopt_logging import print_logger
 from .run_factory import BaseRunFactory
 from .exception import ProjectNotFoundException
-from .experiment_context import ExperimentContext
+from .aiexperiment_context import AIExperimentContext
 from .validate.keys import PROJECT_KEY, RUNS_ONLY_KEY
 from .run_context import global_run_context
 from .utils import batcher
@@ -17,7 +17,7 @@ from .exception import ApiException, ConflictingProjectException
 
 
 class SigOptFactory(BaseRunFactory):
-  '''A SigOptFactory creates Runs and Experiments that belong to a specified Project.'''
+  '''A SigOptFactory creates Runs and AIExperiments that belong to a specified Project.'''
 
   _project_id = None
   _assume_project_exists = False
@@ -108,7 +108,7 @@ class SigOptFactory(BaseRunFactory):
       **validated_body,
     )
     self._on_experiment_created(experiment)
-    return ExperimentContext(experiment, connection=connection)
+    return AIExperimentContext(experiment, connection=connection)
 
   def create_experiment(self, *args, **kwargs):
     return self.create_aiexperiment(*args, **kwargs)
@@ -134,7 +134,7 @@ class SigOptFactory(BaseRunFactory):
         aiexperiment_id,
         self._project_id,
       )
-    return ExperimentContext(aiexperiment, connection=connection)
+    return AIExperimentContext(aiexperiment, connection=connection)
 
   def archive_experiment(self, experiment_id, *args, **kwargs):
     return self.archive_aiexperiment(experiment_id, *args, **kwargs)
