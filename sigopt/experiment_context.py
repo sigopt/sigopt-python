@@ -4,7 +4,7 @@ import threading
 from .run_factory import BaseRunFactory
 from .run_context import global_run_context
 from .objects import Parameter
-from .validate.experiment_input import validate_experiment_update_input
+from .validate.aiexperiment_input import validate_aiexperiment_update_input
 
 
 class ExperimentContext(BaseRunFactory):
@@ -78,5 +78,5 @@ class ExperimentContext(BaseRunFactory):
     if 'parameters' in kwargs:
       parameters = [self._parse_parameter(p) for p in kwargs['parameters']]
       kwargs['parameters'] = parameters
-    kwargs = validate_experiment_update_input(kwargs)
+    kwargs = validate_aiexperiment_update_input(kwargs)
     return self._connection.experiments(self.id).update(**kwargs)

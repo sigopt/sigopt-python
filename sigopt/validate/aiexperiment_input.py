@@ -2,23 +2,23 @@ from sigopt.lib import validate_name, is_string, is_sequence, is_mapping, is_num
 
 from .common import validate_top_level_dict
 from .exceptions import ValidationError
-from .keys import PROJECT_KEY, RUNS_ONLY_KEY
+from .keys import PROJECT_KEY
 
 
-def get_validated_name(experiment_input):
+def get_validated_name(aiexperiment_input):
   try:
-    name = experiment_input.pop("name")
+    name = aiexperiment_input.pop("name")
   except KeyError as ke:
     raise ValidationError("name is required") from ke
   try:
-    validate_name("experiment name", name)
+    validate_name("AIExperiment name", name)
   except ValueError as ve:
     raise ValidationError(str(ve)) from ve
   return name
 
-def get_validated_metrics(experiment_input):
+def get_validated_metrics(aiexperiment_input):
   try:
-    metrics = experiment_input.pop("metrics")
+    metrics = aiexperiment_input.pop("metrics")
   except KeyError as ke:
     raise ValidationError("a list of metrics is required") from ke
   if not is_sequence(metrics):
@@ -68,9 +68,9 @@ def get_validated_metrics(experiment_input):
     validated_metrics.append(validated_metric)
   return validated_metrics
 
-def get_validated_parameters(experiment_input):
+def get_validated_parameters(aiexperiment_input):
   try:
-    parameters = experiment_input.pop("parameters")
+    parameters = aiexperiment_input.pop("parameters")
   except KeyError as ke:
     raise ValidationError("a list of parameters is required") from ke
   if not is_sequence(parameters):
@@ -109,84 +109,80 @@ def get_validated_parameters(experiment_input):
     validated_parameters.append(validated_param)
   return validated_parameters
 
-def get_validated_budget(experiment_input):
-  budget = experiment_input["budget"]
+def get_validated_budget(aiexperiment_input):
+  budget = aiexperiment_input["budget"]
   if not (budget is None or is_number(budget) and budget >= 0):
     raise ValidationError("budget must be a non-negative number")
   if budget == float("inf"):
     raise ValidationError("budget cannot be infinity")
   return budget
 
-def get_validated_parallel_bandwidth(experiment_input):
-  parallel_bandwidth = experiment_input.pop("parallel_bandwidth")
+def get_validated_parallel_bandwidth(aiexperiment_input):
+  parallel_bandwidth = aiexperiment_input.pop("parallel_bandwidth")
   if parallel_bandwidth is None or is_integer(parallel_bandwidth) and parallel_bandwidth > 0:
     return parallel_bandwidth
   raise ValidationError("parallel_bandwidth must be a positive integer")
 
-def validate_experiment_input(experiment_input):
-  experiment_input = validate_top_level_dict(experiment_input)
-  if PROJECT_KEY in experiment_input:
+def validate_aiexperiment_input(aiexperiment_input):
+  aiexperiment_input = validate_top_level_dict(aiexperiment_input)
+  if PROJECT_KEY in aiexperiment_input:
     raise ValidationError(
-      'The project field is not permitted in the experiment.'
+      'The project field is not permitted in the AIExperiment.'
       ' Please set the SIGOPT_PROJECT environment variable instead.'
     )
-  if RUNS_ONLY_KEY in experiment_input:
-    raise ValidationError(f"The {RUNS_ONLY_KEY} field is not allowed for experiments created with this module.")
-  experiment_input = dict(experiment_input)
+  aiexperiment_input = dict(aiexperiment_input)
   validated = {}
-  validated["name"] = get_validated_name(experiment_input)
-  validated["parameters"] = get_validated_parameters(experiment_input)
-  validated["metrics"] = get_validated_metrics(experiment_input)
+  validated["name"] = get_validated_name(aiexperiment_input)
+  validated["parameters"] = get_validated_parameters(aiexperiment_input)
+  validated["metrics"] = get_validated_metrics(aiexperiment_input)
   try:
-    validated["budget"] = get_validated_budget(experiment_input)
+    validated["budget"] = get_validated_budget(aiexperiment_input)
   except KeyError:
     pass
   try:
-    validated["parallel_bandwidth"] = get_validated_parallel_bandwidth(experiment_input)
+    validated["parallel_bandwidth"] = get_validated_parallel_bandwidth(aiexperiment_input)
   except KeyError:
     pass
-  for key, value in experiment_input.items():
+  for key, value in aiexperiment_input.items():
     if not is_string(key):
-      raise ValidationError("all experiment keys must be strings")
+      raise ValidationError("all AIExperiment keys must be strings")
     validated[key] = value
   return validated
 
-def validate_experiment_update_input(experiment_input):
-  experiment_input = validate_top_level_dict(experiment_input)
-  if PROJECT_KEY in experiment_input:
+def validate_aiexperiment_update_input(aiexperiment_input):
+  aiexperiment_input = validate_top_level_dict(aiexperiment_input)
+  if PROJECT_KEY in aiexperiment_input:
     raise ValidationError(
-      'The project field is not permitted in the experiment.'
+      'The project field is not permitted in the AIExperiment.'
       ' Please set the SIGOPT_PROJECT environment variable instead.'
     )
-  if RUNS_ONLY_KEY in experiment_input:
-    raise ValidationError(f"The {RUNS_ONLY_KEY} field is not allowed for experiments created with this module.")
-  experiment_input = dict(experiment_input)
+  aiexperiment_input = dict(aiexperiment_input)
   validated = {}
   try:
-    validated["name"] = get_validated_name(experiment_input)
+    validated["name"] = get_validated_name(aiexperiment_input)
   except KeyError:
     pass
 
   try:
-    validated["parameters"] = get_validated_parameters(experiment_input)
+    validated["parameters"] = get_validated_parameters(aiexperiment_input)
   except KeyError:
     pass
 
-  if "metrics" in experiment_input:
-    validated["metrics"] = get_validated_metrics(experiment_input)
+  if "metrics" in aiexperiment_input:
+    validated["metrics"] = get_validated_metrics(aiexperiment_input)
 
   try:
-    validated["budget"] = get_validated_budget(experiment_input)
+    validated["budget"] = get_validated_budget(aiexperiment_input)
   except KeyError:
     pass
 
   try:
-    validated["parallel_bandwidth"] = get_validated_parallel_bandwidth(experiment_input)
+    validated["parallel_bandwidth"] = get_validated_parallel_bandwidth(aiexperiment_input)
   except KeyError:
     pass
 
-  for key, value in experiment_input.items():
+  for key, value in aiexperiment_input.items():
     if not is_string(key):
-      raise ValidationError("all experiment keys must be strings")
+      raise ValidationError("all AIExperiment keys must be strings")
     validated[key] = value
   return validated

@@ -2,7 +2,7 @@ import http
 
 import click
 
-from sigopt.validate import validate_experiment_input
+from sigopt.validate import validate_aiexperiment_input
 
 from .defaults import check_valid_project_id, ensure_project_exists, get_default_project, get_client_id
 from .interface import get_connection
@@ -110,36 +110,43 @@ class SigOptFactory(BaseRunFactory):
     self._on_experiment_created(experiment)
     return ExperimentContext(experiment, connection=connection)
 
-  def create_experiment(self, *, name, parameters, metrics, **experiment_body):
+  def create_experiment(self, *args, **kwargs):
+    return self.create_aiexperiment(*args, **kwargs)
+
+  def create_aiexperiment(self, *, name, parameters, metrics, **aiexperiment_body):
     # name, parameters and metrics are always required and placing them in the signature
     # results in more pythonic errors
-    experiment_body["name"] = name
-    experiment_body["parameters"] = parameters
-    experiment_body["metrics"] = metrics
-    validated = validate_experiment_input(experiment_body)
-    return self.create_prevalidated_experiment(validated)
+    aiexperiment_body["name"] = name
+    aiexperiment_body["parameters"] = parameters
+    aiexperiment_body["metrics"] = metrics
+    validated = validate_aiexperiment_input(aiexperiment_body)
+    return self.create_prevalidated_aiexperiment(validated)
 
   def get_experiment(self, experiment_id):
+    return self.get_aiexperiment(experiment_id)
+
+  def get_aiexperiment(self, aiexperiment_id):
     connection = self.connection
-    experiment = connection.experiments(experiment_id).fetch()
-    if experiment.project is None:
-      raise ValueError(
-        f"The requested experiment {experiment_id} does not belong to a project."
-        " Only experiments in projects are compatible with this client."
-      )
-    if experiment.project != self._project_id:
+    aiexperiment = connection.aiexperiments(aiexperiment_id).fetch()
+    if aiexperiment.project != self._project_id:
       print_logger.warning(
-        "Warning: experiment %s does not belong to the configured project %s",
-        experiment_id,
+        "Warning: AIExperiment %s does not belong to the configured project %s",
+        aiexperiment_id,
         self._project_id,
       )
-    return ExperimentContext(experiment, connection=connection)
+    return ExperimentContext(aiexperiment, connection=connection)
 
-  def archive_experiment(self, experiment_id, include_runs=False):
-    self.connection.experiments(experiment_id).delete(include_runs="true" if include_runs else "false")
+  def archive_experiment(self, experiment_id, *args, **kwargs):
+    return self.archive_aiexperiment(experiment_id, *args, **kwargs)
+
+  def archive_experiment(self, aiexperiment_id, include_runs=False):
+    self.connection.aiexperiments(aiexperiment_id).delete(include_runs="true" if include_runs else "false")
 
   def unarchive_experiment(self, experiment_id):
-    self.connection.experiments(experiment_id).update(state="active")
+    self.unarchive_aiexperiment(experiment_id)
+
+  def unarchive_experiment(self, aiexperiment_id):
+    self.connection.aiexperiments(aiexperiment_id).update(state="active")
 
   def archive_run(self, run_id):
     self.connection.training_runs(run_id).delete()

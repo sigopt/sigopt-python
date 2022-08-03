@@ -1,6 +1,6 @@
 import click
 
-from sigopt.validate import validate_experiment_input
+from sigopt.validate import validate_aiexperiment_input
 
 from .load_yaml import load_yaml_callback
 
@@ -10,6 +10,6 @@ experiment_file_option = click.option(
   '--experiment-file',
   default='experiment.yml',
   type=click.Path(exists=True),
-  callback=load_yaml_callback(validate_experiment_input),
-  help="A YAML file that defines your run. The contents will be stored as data on your run.",
+  callback=load_yaml_callback(validate_aiexperiment_input),
+  help="A YAML file that defines your AIExperiment.",
 )

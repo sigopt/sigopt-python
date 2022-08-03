@@ -17,7 +17,7 @@ from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
 from .run_context import global_run_context
 from .factory import SigOptFactory
 from .defaults import get_default_project
-from .validate import validate_experiment_input, ValidationError
+from .validate import validate_aiexperiment_input, ValidationError
 from .sigopt_logging import print_logger
 from .exception import ApiException
 
@@ -62,7 +62,7 @@ class SigOptMagics(Magics):
       experiment_body = yaml.safe_load(io.StringIO(cell_value))
     self.setup()
     try:
-      validated = validate_experiment_input(experiment_body)
+      validated = validate_aiexperiment_input(experiment_body)
     except ValidationError as validation_error:
       print_logger.error("ValidationError: %s", str(validation_error))
       return
