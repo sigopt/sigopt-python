@@ -212,6 +212,15 @@ class ConnectionImpl(object):
       ],
     )
 
+    client_project_aiexperiments = ApiResource(
+      self,
+      'aiexperiments',
+      endpoints=[
+        ApiEndpoint(None, AIExperiment, 'POST', 'create'),
+        ApiEndpoint(None, paginated_objects(AIExperiment), 'GET', 'fetch'),
+      ],
+    )
+
     client_project_experiments = ApiResource(
       self,
       'experiments',
@@ -240,6 +249,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, Project, 'PUT', 'update'),
       ],
       resources=[
+        client_project_aiexperiments,
         client_project_experiments,
         client_project_training_runs,
       ],
