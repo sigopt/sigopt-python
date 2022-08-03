@@ -1,7 +1,7 @@
 from sigopt.config import config
 
 from ...arguments import project_option, source_file_option
-from ...utils import create_experiment_from_validated_data, cli_experiment_loop
+from ...utils import create_aiexperiment_from_validated_data, cli_experiment_loop
 from ..base import sigopt_cli
 from ..optimize_base import optimize_command
 
@@ -14,6 +14,6 @@ from ..optimize_base import optimize_command
 @source_file_option
 @project_option
 def optimize(command, run_options, experiment_file, source_file, project):
-  '''Run a SigOpt Experiment. Requires a path to an experiment or run YAML file.'''
-  experiment = create_experiment_from_validated_data(experiment_file, project)
+  '''Run a SigOpt AIExperiment. Requires a path to an experiment or run YAML file.'''
+  experiment = create_aiexperiment_from_validated_data(experiment_file, project)
   cli_experiment_loop(config, experiment, command, run_options, source_file)

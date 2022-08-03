@@ -1,6 +1,6 @@
 import copy
 
-from .. import create_experiment
+from .. import create_aiexperiment
 from .constants import (
   DEFAULT_CLASSIFICATION_METRIC,
   DEFAULT_EARLY_STOPPING_ROUNDS,
@@ -169,7 +169,7 @@ class XGBExperiment:
         f'to have value {self.num_boost_round}. Please remove it from either the search space or the input arguments.'
       )
 
-  def parse_and_create_experiment(self):
+  def parse_and_create_aiexperiment(self):
     self.parse_and_create_metrics()
     self.parse_and_create_parameters()
     if 'budget' not in self.experiment_config_parsed:
@@ -180,7 +180,7 @@ class XGBExperiment:
     if 'type' not in self.experiment_config_parsed:
       self.experiment_config_parsed['type'] = 'offline'
     self.experiment_config_parsed['metadata'] = {XGB_EXPERIMENT_KEYWORD: 'True'}
-    self.sigopt_experiment = create_experiment(**self.experiment_config_parsed)
+    self.sigopt_experiment = create_aiexperiment(**self.experiment_config_parsed)
 
   def run_experiment(self):
     for run in self.sigopt_experiment.loop():
@@ -234,6 +234,6 @@ def experiment(
     early_stopping_rounds,
     run_options_parsed,
   )
-  xgb_experiment.parse_and_create_experiment()
+  xgb_experiment.parse_and_create_aiexperiment()
   xgb_experiment.run_experiment()
   return xgb_experiment.sigopt_experiment

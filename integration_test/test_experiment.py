@@ -27,7 +27,7 @@ class TestExperiment(object):
       'parallel_bandwidth': 1,
       'budget': 3
     }
-    experiment = sigopt.create_experiment(**config)
+    experiment = sigopt.create_aiexperiment(**config)
     parameters = experiment.parameters
     parameters[0].bounds.max = 100
     parameters[1].bounds.min = 1

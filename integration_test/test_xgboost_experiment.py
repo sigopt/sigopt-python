@@ -142,7 +142,7 @@ class TestXGBoostExperiment:
       ],
       budget=5,
     )
-    experiment = sigopt.create_experiment(**experiment_config)
+    experiment = sigopt.create_aiexperiment(**experiment_config)
     custom_run = experiment.create_run()
 
     ctx = sigopt.xgboost.run(

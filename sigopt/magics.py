@@ -67,7 +67,7 @@ class SigOptMagics(Magics):
       print_logger.error("ValidationError: %s", str(validation_error))
       return
     try:
-      self._experiment = self._factory.create_prevalidated_experiment(validated)
+      self._experiment = self._factory.create_prevalidated_aiexperiment(validated)
     except ApiException as api_exception:
       if api_exception.status_code == http.HTTPStatus.BAD_REQUEST:
         print_logger.error("ApiException: %s", str(api_exception))

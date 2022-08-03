@@ -21,12 +21,12 @@ class TestRunCli(object):
 
   @pytest.fixture(autouse=True)
   def patch_experiment(self, run_context):
-    with mock.patch('sigopt.cli.commands.local.optimize.create_experiment_from_validated_data') as create_experiment:
+    with mock.patch('sigopt.cli.commands.local.optimize.create_aiexperiment_from_validated_data') as create_aiexperiment:
       experiment = AIExperimentContext(mock.Mock(project="test-project"), mock.Mock())
       experiment.create_run = mock.Mock(return_value=run_context)
       experiment.refresh = mock.Mock()
       experiment.is_finished = mock.Mock(side_effect=[False, True])
-      create_experiment.return_value = experiment
+      create_aiexperiment.return_value = experiment
       yield
 
   @pytest.fixture
