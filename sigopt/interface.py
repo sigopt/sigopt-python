@@ -7,6 +7,7 @@ from .compat import json as simplejson
 from .config import config
 from .endpoint import ApiEndpoint
 from .objects import (
+  AIExperiment,
   ApiObject,
   BestAssignments,
   Checkpoint,
@@ -177,6 +178,28 @@ class ConnectionImpl(object):
         queued_suggestions,
         stopping_criteria,
         suggestions,
+      ],
+    )
+
+    aiexperiment_training_runs = ApiResource(
+      self,
+      'training_runs',
+      endpoints=[
+        ApiEndpoint(None, TrainingRun, 'POST', 'create'),
+      ],
+    )
+
+    self.aiexperiments = ApiResource(
+      self,
+      'aiexperiments',
+      endpoints=[
+        ApiEndpoint(None, AIExperiment, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(AIExperiment), 'GET', 'fetch'),
+        ApiEndpoint(None, AIExperiment, 'PUT', 'update'),
+        ApiEndpoint(None, None, 'DELETE', 'delete'),
+      ],
+      resources=[
+        aiexperiment_training_runs,
       ],
     )
 
