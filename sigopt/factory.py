@@ -100,7 +100,7 @@ class SigOptFactory(BaseRunFactory):
       )
     return result
 
-  def create_prevalidated_experiment(self, validated_body):
+  def create_prevalidated_aiexperiment(self, validated_body):
     connection = self.connection
     client_id, project_id = self.ensure_project_exists()
     experiment = connection.clients(client_id).experiments().create(
