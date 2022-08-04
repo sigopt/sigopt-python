@@ -137,13 +137,13 @@ class SigOptFactory(BaseRunFactory):
   def archive_experiment(self, experiment_id, *args, **kwargs):
     return self.archive_aiexperiment(experiment_id, *args, **kwargs)
 
-  def archive_experiment(self, aiexperiment_id, include_runs=False):
+  def archive_aiexperiment(self, aiexperiment_id, include_runs=False):
     self.connection.aiexperiments(aiexperiment_id).delete(include_runs="true" if include_runs else "false")
 
   def unarchive_experiment(self, experiment_id):
     self.unarchive_aiexperiment(experiment_id)
 
-  def unarchive_experiment(self, aiexperiment_id):
+  def unarchive_aiexperiment(self, aiexperiment_id):
     self.connection.aiexperiments(aiexperiment_id).update(state="active")
 
   def archive_run(self, run_id):
