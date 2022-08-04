@@ -1,7 +1,7 @@
 import copy
 import pytest
 
-from sigopt.validate.experiment_input import validate_aiexperiment_input
+from sigopt.validate.aiexperiment_input import validate_aiexperiment_input
 from sigopt.validate.exceptions import ValidationError
 
 
