@@ -29,17 +29,25 @@ def get_validated_metrics(aiexperiment_input):
   validated_metrics = []
   for metric in metrics:
     validated_metric = {}
-    if not is_mapping(metric):
-      raise ValidationError("all metrics must be a mapping of keys to values")
-    metric = dict(metric)
+
+    if isinstance(metric, str):
+      metric = {"name": metric}
+
+    if is_mapping(metric):
+      metric = dict(metric)
+    else:
+      raise ValidationError("all metrics must be a mapping of keys to values, or a shorthand string with just the metric name")
+
     try:
       metric_name = metric["name"]
     except KeyError as ke:
       raise ValidationError("all metrics require a name") from ke
+
     try:
       validate_name("metric name", metric_name)
     except ValueError as ve:
       raise ValidationError(str(ve)) from ve
+
     validated_metric["name"] = metric_name
     metric_strategy = metric.pop("strategy", None)
     if metric_strategy is not None:
