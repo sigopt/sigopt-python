@@ -14,8 +14,8 @@ Or use the python client library:
 
   #/usr/bin/env python3
   import sigopt
-  aiexperiment = sigopt.get_aiexperiment({aiexperiment.id!r})
-  for run in aiexperiment.loop():
+  experiment = sigopt.get_experiment({aiexperiment.id!r})
+  for run in experiment.loop():
     with run:
       ...
 '''
