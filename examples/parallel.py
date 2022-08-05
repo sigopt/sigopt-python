@@ -24,7 +24,7 @@ if __name__ == '__main__':
   # What kind of learning you are attemping
   sigopt.log_model("Example Model Technique")
   # Create an experiment with one paramter, x
-  experiment = sigopt.create_aiexperiment(
+  experiment = sigopt.create_experiment(
     name="Basic Test experiment",
     type="offline",
     parameters=[{'name': 'x', 'bounds': {'max': 50.0, 'min': 0.0}, 'type': 'double'}],
