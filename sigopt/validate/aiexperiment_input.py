@@ -16,6 +16,57 @@ def get_validated_name(aiexperiment_input):
     raise ValidationError(str(ve)) from ve
   return name
 
+def get_validated_metric(metric_input):
+  validated_metric = {}
+
+  if isinstance(metric_input, str):
+    return metric_input
+
+  if is_mapping(metric_input):
+    metric = dict(metric_input)
+  else:
+    raise ValidationError(
+      "all metrics must be a mapping of keys to values,"
+      " or a shorthand string specifying the metric name"
+    )
+
+  try:
+    metric_name = metric["name"]
+  except KeyError as ke:
+    raise ValidationError("all metrics require a name") from ke
+
+  try:
+    validate_name("metric name", metric_name)
+  except ValueError as ve:
+    raise ValidationError(str(ve)) from ve
+
+  validated_metric["name"] = metric_name
+  metric_strategy = metric.pop("strategy", None)
+  if metric_strategy is not None:
+    try:
+      validate_name("metric strategy", metric_strategy)
+    except ValueError as ve:
+      raise ValidationError(str(ve)) from ve
+    validated_metric["strategy"] = metric_strategy
+  metric_objective = metric.pop("objective", None)
+  if metric_objective is not None:
+    try:
+      validate_name("metric objective", metric_objective)
+    except ValueError as ve:
+      raise ValidationError(str(ve)) from ve
+    validated_metric["objective"] = metric_objective
+  metric_threshold = metric.pop("threshold", None)
+  if metric_threshold is not None:
+    if not is_number(metric_threshold):
+      raise ValidationError("metric threshold must be a number")
+    validated_metric["threshold"] = metric_threshold
+  for key, value in metric.items():
+    if key not in validated_metric:
+      if not is_string(key):
+        raise ValidationError("all metric keys must be strings")
+      validated_metric[key] = value
+  return validated_metric
+
 def get_validated_metrics(aiexperiment_input):
   try:
     metrics = aiexperiment_input.pop("metrics")
@@ -26,57 +77,9 @@ def get_validated_metrics(aiexperiment_input):
   metrics = list(metrics)
   if not metrics:
     raise ValidationError("metrics must be a non-empty list")
-  validated_metrics = []
-  for metric in metrics:
-    validated_metric = {}
-
-    if isinstance(metric, str):
-      metric = {"name": metric}
-
-    if is_mapping(metric):
-      metric = dict(metric)
-    else:
-      raise ValidationError(
-        "all metrics must be a mapping of keys to values,"
-        " or a shorthand string specifying the metric name"
-      )
-
-    try:
-      metric_name = metric["name"]
-    except KeyError as ke:
-      raise ValidationError("all metrics require a name") from ke
-
-    try:
-      validate_name("metric name", metric_name)
-    except ValueError as ve:
-      raise ValidationError(str(ve)) from ve
-
-    validated_metric["name"] = metric_name
-    metric_strategy = metric.pop("strategy", None)
-    if metric_strategy is not None:
-      try:
-        validate_name("metric strategy", metric_strategy)
-      except ValueError as ve:
-        raise ValidationError(str(ve)) from ve
-      validated_metric["strategy"] = metric_strategy
-    metric_objective = metric.pop("objective", None)
-    if metric_objective is not None:
-      try:
-        validate_name("metric objective", metric_objective)
-      except ValueError as ve:
-        raise ValidationError(str(ve)) from ve
-      validated_metric["objective"] = metric_objective
-    metric_threshold = metric.pop("threshold", None)
-    if metric_threshold is not None:
-      if not is_number(metric_threshold):
-        raise ValidationError("metric threshold must be a number")
-      validated_metric["threshold"] = metric_threshold
-    for key, value in metric.items():
-      if key not in validated_metric:
-        if not is_string(key):
-          raise ValidationError("all metric keys must be strings")
-        validated_metric[key] = value
-    validated_metrics.append(validated_metric)
+  validated_metrics = [
+    get_validated_metric(metric) for metric in metrics
+  ]
   return validated_metrics
 
 def get_validated_parameters(aiexperiment_input):
