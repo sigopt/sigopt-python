@@ -11,8 +11,6 @@ class AIExperimentContext(BaseRunFactory):
   '''Wraps the AIExperiment object and provides extra utility methods.'''
 
   def __init__(self, aiexperiment, connection):
-    if aiexperiment.project is None:
-      raise ValueError("AIExperiment does not belong to a project")
     self._aiexperiment = aiexperiment
     self._refresh_lock = threading.Lock()
     self._connection = connection
