@@ -19,15 +19,11 @@ def get_validated_name(aiexperiment_input):
 def get_validated_metric(metric_input):
   validated_metric = {}
 
-  if isinstance(metric_input, str):
-    return metric_input
-
   if is_mapping(metric_input):
     metric = dict(metric_input)
   else:
     raise ValidationError(
-      "all metrics must be a mapping of keys to values,"
-      " or a shorthand string specifying the metric name"
+      "all metrics must be a mapping of keys to values"
     )
 
   try:
