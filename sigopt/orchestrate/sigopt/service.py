@@ -45,7 +45,7 @@ class SigOptService(Service):
 
   def fetch_experiment(self, experiment_id):
     factory = SigOptFactory.from_default_project()
-    return factory.get_experiment(experiment_id)
+    return factory.get_aiexperiment(experiment_id)
 
   def create_run(self, run_name, cluster, project_id):
     factory = SigOptFactory(project_id)

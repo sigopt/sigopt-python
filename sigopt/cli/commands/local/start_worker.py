@@ -17,11 +17,11 @@ from ..run_base import run_command
 @run_command
 @source_file_option
 def start_worker(experiment_id, command, run_options, source_file):
-  '''Start a worker for the given Experiment.'''
+  '''Start a worker for the given AIExperiment.'''
   factory = SigOptFactory.from_default_project()
   factory.set_up_cli()
   try:
-    experiment = factory.get_experiment(experiment_id)
+    experiment = factory.get_aiexperiment(experiment_id)
   except ValueError as ve:
     raise click.ClickException(str(ve))
   cli_experiment_loop(config, experiment, command, run_options, source_file)

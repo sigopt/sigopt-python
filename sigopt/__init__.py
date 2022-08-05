@@ -26,6 +26,7 @@ create_run = _global_factory.create_run
 create_aiexperiment = _global_factory.create_aiexperiment
 create_experiment = _global_factory.create_experiment
 create_project = _global_factory.create_project
+get_aiexperiment = _global_factory.get_aiexperiment
 get_experiment = _global_factory.get_experiment
 archive_aiexperiment = _global_factory.archive_aiexperiment
 archive_experiment = _global_factory.archive_experiment

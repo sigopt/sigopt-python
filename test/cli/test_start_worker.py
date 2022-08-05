@@ -27,7 +27,7 @@ class TestRunCli(object):
       experiment.refresh = mock.Mock()
       experiment.is_finished = mock.Mock(side_effect=[False, True])
       instance = mock.Mock()
-      instance.get_experiment.return_value = experiment
+      instance.get_aiexperiment.return_value = experiment
       factory.from_default_project = mock.Mock(return_value=instance)
       yield
 
