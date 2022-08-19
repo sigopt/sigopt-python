@@ -54,7 +54,7 @@ class JobRunnerService(Service):
 
     data["metadata"] = metadata
 
-    experiment = self.services.sigopt_service.create_experiment(data, project_id)
+    experiment = self.services.sigopt_service.create_aiexperiment(data, project_id)
     return experiment.id
 
   def create_controller(

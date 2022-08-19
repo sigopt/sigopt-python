@@ -13,6 +13,6 @@ def unarchive(project, experiment_ids):
   factory.set_up_cli()
   for experiment_id in experiment_ids:
     try:
-      factory.unarchive_experiment(experiment_id)
+      factory.unarchive_aiexperiment(experiment_id)
     except Exception as e:
       raise click.ClickException(f'experiment_id: {experiment_id}, {e}') from e

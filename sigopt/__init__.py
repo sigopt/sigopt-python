@@ -23,10 +23,14 @@ config.set_context_entry(_global_run_context)
 
 _global_factory = SigOptFactory(get_default_project())
 create_run = _global_factory.create_run
+create_aiexperiment = _global_factory.create_aiexperiment
 create_experiment = _global_factory.create_experiment
 create_project = _global_factory.create_project
+get_aiexperiment = _global_factory.get_aiexperiment
 get_experiment = _global_factory.get_experiment
+archive_aiexperiment = _global_factory.archive_aiexperiment
 archive_experiment = _global_factory.archive_experiment
+unarchive_aiexperiment = _global_factory.unarchive_aiexperiment
 unarchive_experiment = _global_factory.unarchive_experiment
 archive_run = _global_factory.archive_run
 unarchive_run = _global_factory.unarchive_run
