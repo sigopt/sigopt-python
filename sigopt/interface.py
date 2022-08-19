@@ -200,6 +200,7 @@ class ConnectionImpl(object):
       ],
       resources=[
         aiexperiment_training_runs,
+        best_training_runs,
       ],
     )
 
