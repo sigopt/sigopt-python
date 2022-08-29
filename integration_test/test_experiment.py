@@ -27,7 +27,7 @@ class TestExperiment(object):
       'parallel_bandwidth': 1,
       'budget': 3
     }
-    experiment = sigopt.create_experiment(**config)
+    experiment = sigopt.create_aiexperiment(**config)
     parameters = experiment.parameters
     parameters[0].bounds.max = 100
     parameters[1].bounds.min = 1
@@ -38,7 +38,7 @@ class TestExperiment(object):
       'budget': 4
     }
     experiment.update(**new_config)
-    updated_experiment = sigopt.get_experiment(experiment.id)
+    updated_experiment = sigopt.get_aiexperiment(experiment.id)
     assert updated_experiment.name == 'experiment-integration-test-1'
     assert updated_experiment.budget == 4
     assert updated_experiment.parallel_bandwidth == 2

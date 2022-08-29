@@ -411,6 +411,13 @@ class Progress(ApiObject):
   remaining_budget = Field(float)
 
 
+class RunsProgress(ApiObject):
+  active_run_count = Field(int)
+  finished_run_count = Field(int)
+  total_run_count = Field(int)
+  remaining_budget = Field(float)
+
+
 class Suggestion(ApiObject):
   assignments = Field(Assignments)
   created = Field(int)
@@ -478,6 +485,26 @@ class Experiment(ApiObject):
   tasks = Field(ListOf(Task))
   training_monitor = Field(TrainingMonitor)
   type = Field(str)
+  updated = Field(int)
+  user = Field(str)
+
+
+class AIExperiment(ApiObject):
+  budget = Field(float)
+  client = Field(str)
+  conditionals = Field(ListOf(Conditional))
+  created = Field(int)
+  id = Field(str)
+  linear_constraints = Field(ListOf(LinearConstraint))
+  metadata = Field(Metadata)
+  metrics = Field(ListOf(Metric))
+  name = Field(str)
+  num_solutions = Field(int)
+  parallel_bandwidth = Field(int)
+  parameters = Field(ListOf(Parameter))
+  progress = Field(RunsProgress)
+  project = Field(str)
+  state = Field(str)
   updated = Field(int)
   user = Field(str)
 
