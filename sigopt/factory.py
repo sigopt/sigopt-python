@@ -49,7 +49,7 @@ class SigOptFactory(BaseRunFactory):
 
   def _on_aiexperiment_created(self, aiexperiment):
     print_logger.info(
-      "AIExperiment created, view it on the SigOpt dashboard at https://app.sigopt.com/experiment/%s",
+      "AI Experiment created, view it on the SigOpt dashboard at https://app.sigopt.com/aiexperiment/%s",
       aiexperiment.id,
     )
 
