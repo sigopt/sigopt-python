@@ -18,6 +18,10 @@ class JobRunnerService(Service):
   DEFAULT_EPHEMERAL_STORAGE_REQUEST = "128Mi"
   EXPERIMENT_ENV_KEY = "ORCHESTRATE_EXPERIMENT_ID"
 
+  @property
+  def controller_image(self):
+    return os.environ.get("SIGOPT_CONTROLLER_IMAGE", DEFAULT_CONTROLLER_IMAGE)
+
   def sigopt_env_vars(self, project_id):
     client, project = self.services.sigopt_service.ensure_project_exists(project_id)
     return format_k8s_env_vars({
@@ -142,7 +146,7 @@ class JobRunnerService(Service):
             'restartPolicy': 'Never',
             'containers': [
               {
-                'image': DEFAULT_CONTROLLER_IMAGE,
+                'image': self.controller_image,
                 'imagePullPolicy': 'Always',
                 'name': 'controller',
                 'env': env_vars,

@@ -29,7 +29,6 @@ class WatchPodsThread(ControllerThread):
         try:
           run_state = run_states[pod_name]
         except KeyError:
-          logger.error("event %s received for unknown pod %s", event_type, pod_name)
           continue
         run_state.process_pod_event(event)
         if event_type == K8sEvent.DELETED or is_pod_finished(pod):
