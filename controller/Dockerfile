@@ -1,28 +1,23 @@
 ARG SIGOPT_GIT_HASH=d4257f9daf672139d7c3437c2f784eef4ae20f08
 
-ARG BUILD_PACKAGES="cargo=1.60.0-r2 git=2.36.2-r0 gcc=11.2.1_git20220219-r2 libffi-dev=3.4.2-r1 musl-dev=1.2.3-r0 openssl-dev=1.1.1q-r0 rust=1.60.0-r2"
-ARG UPGRADE_PACKAGES="expat=2.4.9-r0 libretls=3.5.2-r0 openssl=1.1.1q-r0"
-
 
 FROM python:3.10.7-alpine3.16 AS updated-base
 
 SHELL ["/bin/ash", "-ex", "-o", "pipefail", "-c"]
 
-ARG UPGRADE_PACKAGES
+COPY upgrade_packages.txt /upgrade_packages.txt
 
 # hadolint ignore=DL3018
 RUN : \
   ; apk del --purge krb5-conf krb5-libs \
   ; apk update --no-cache \
-  ; apk add --upgrade --no-cache $UPGRADE_PACKAGES \
+  ; xargs apk add --upgrade --no-cache </upgrade_packages.txt \
   ; :
 
 
 FROM updated-base AS alpine-src
 
 SHELL ["/bin/ash", "-ex", "-o", "pipefail", "-c"]
-
-ARG UPGRADE_PACKAGES
 
 RUN : \
   ; apk update --no-cache \
@@ -33,7 +28,7 @@ RUN : \
 
 # hadolint ignore=DL3003
 RUN : \
-  ; echo "$UPGRADE_PACKAGES" | awk -F= '{ print $1 }' | while read -r pkg; do : \
+  ; awk -F= '{ print $1 }' </upgrade_packages.txt | while read -r pkg; do : \
     ; cd /aports/*/"$pkg" || exit 1 \
     ; abuild -F fetch verify \
     ; cp -Lr /aports/*/"$pkg" /src/"$pkg" \
@@ -45,18 +40,19 @@ FROM updated-base AS pip-reqs
 
 SHELL ["/bin/ash", "-ex", "-o", "pipefail", "-c"]
 
-ARG BUILD_PACKAGES
 ARG SIGOPT_GIT_HASH
+
+COPY build_packages.txt /build_packages.txt
 
 # NOTE: the pip install attempts to install pypng==0.0.21 but for some reason that is not available in this container.
 # The sigopt reqs ask for pypng>=0.0.20 so there should theoretically be no issue.
 # hadolint ignore=DL3018
 RUN : \
-  ; apk add --no-cache $BUILD_PACKAGES \
+  ; xargs apk add --no-cache </build_packages.txt \
   ; mkdir -p /src \
   ; pip install --upgrade --no-cache-dir kubernetes==12.0.1 pypng==0.0.20 git+https://github.com/sigopt/sigopt-python@$SIGOPT_GIT_HASH \
   ; rm -rf /root/.cache \
-  ; echo "$BUILD_PACKAGES" | awk -F= '{ print $1 }' | xargs apk del --purge \
+  ; awk -F= '{ print $1 }' </build_packages.txt | xargs apk del --purge \
   ; :
 
 RUN pip freeze > /pip-reqs.txt
