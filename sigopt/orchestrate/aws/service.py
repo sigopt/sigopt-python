@@ -277,7 +277,7 @@ class AwsService(ProviderInterface):
       command_args.extend(["-r", cluster_access_role_arn])
     user = {
       "exec": {
-        "apiVersion": "client.authentication.k8s.io/v1alpha1",
+        "apiVersion": "client.authentication.k8s.io/v1beta1",
         "command": get_executable_path("aws-iam-authenticator"),
         "args": command_args,
       },
