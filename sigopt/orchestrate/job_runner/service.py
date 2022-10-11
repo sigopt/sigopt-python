@@ -147,7 +147,6 @@ class JobRunnerService(Service):
             'securityContext': {
               'allowPrivilegeEscalation': False,
               'readOnlyRootFilesystem': True,
-              'runAsNonRoot': True,
             },
             'restartPolicy': 'Never',
             'containers': [
@@ -169,6 +168,10 @@ class JobRunnerService(Service):
                     'mountPath': job_info_path,
                   },
                 ],
+                'securityContext': {
+                  'allowPrivilegeEscalation': False,
+                  'readOnlyRootFilesystem': True,
+                },
               },
             ],
             'volumes': [{
