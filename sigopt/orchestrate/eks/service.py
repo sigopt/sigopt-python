@@ -3,8 +3,8 @@ import boto3
 from ..services.aws_base import AwsService
 
 
-DEFAULT_KUBERNETES_VERSION = "1.20"
-SUPPORTED_KUBERNETES_VERSIONS = ("1.17", "1.18", "1.19", "1.20", "1.21", "1.22", "latest")
+DEFAULT_KUBERNETES_VERSION = "1.23"
+SUPPORTED_KUBERNETES_VERSIONS = ("1.20", "1.21", "1.22", "1.23")
 
 
 class AwsEksService(AwsService):
