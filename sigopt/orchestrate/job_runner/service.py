@@ -144,6 +144,11 @@ class JobRunnerService(Service):
           },
           'spec': {
             'serviceAccount': 'controller',
+            'securityContext': {
+              'allowPrivilegeEscalation': False,
+              'readOnlyRootFilesystem': True,
+              'runAsNonRoot': True,
+            },
             'restartPolicy': 'Never',
             'containers': [
               {
@@ -152,6 +157,12 @@ class JobRunnerService(Service):
                 'name': 'controller',
                 'env': env_vars,
                 'args': run_command,
+                'resources': {
+                  'limits': {
+                    'cpu': '100m',
+                    'memory': '128Mi',
+                  },
+                },
                 'volumeMounts': [
                   {
                     'name': job_info_volume_name,
