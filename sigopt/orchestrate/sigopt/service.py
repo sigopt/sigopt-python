@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlparse
 
 from sigopt.config import config
 from sigopt.exception import ApiException
@@ -24,7 +25,9 @@ class SigOptService(Service):
 
   @property
   def api_url(self):
-    return self.conn.impl.api_url
+    api_url = self.conn.impl.api_url
+    urlparse(api_url)
+    return api_url
 
   @property
   def verify_ssl_certs(self):
