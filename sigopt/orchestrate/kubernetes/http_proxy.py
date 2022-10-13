@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import ssl
 
 from kubernetes.client.rest import RESTClientObject

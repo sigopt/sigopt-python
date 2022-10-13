@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import sigopt
 from data_and_model_setup import LoadTransformData, log_inference_metrics, CheckpointCB
 import time

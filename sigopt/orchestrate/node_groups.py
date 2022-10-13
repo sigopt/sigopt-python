@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 NODE_GROUP_TYPE_CPU = "cpu"
 NODE_GROUP_TYPE_GPU = "gpu"
 NODE_GROUP_TYPE_SYSTEM = "system"

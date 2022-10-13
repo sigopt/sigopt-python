@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import pytest
 
 from sigopt.exception import ApiException, ConnectionException

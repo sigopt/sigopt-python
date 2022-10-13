@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 class ServiceBag(object):
   """
   A top-level container for all of our services. A service bag should be passed

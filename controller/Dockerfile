@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 FROM python:3.9.6-alpine3.14 AS updated-base
 
 RUN apk del krb5-conf krb5-libs

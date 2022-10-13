@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 # model.py  
 import sklearn.datasets 
 import sklearn.metrics 

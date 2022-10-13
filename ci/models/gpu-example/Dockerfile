@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 FROM nvidia/cuda:11.1.1-cudnn8-runtime
 USER root
 RUN set -ex \

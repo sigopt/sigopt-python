@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from ..cluster.object import CustomCluster
 from ..exceptions import OrchestrateException
 from ..provider.constants import Provider, provider_to_string

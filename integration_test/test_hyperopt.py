@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from hyperopt import fmin, tpe, hp, STATUS_OK, STATUS_FAIL, SparkTrials
 from hyperopt.mongoexp import MongoTrials
 import hyperopt
