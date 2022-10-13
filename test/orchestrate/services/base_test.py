@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from mock import Mock
 
 from sigopt.orchestrate.services.base import Service

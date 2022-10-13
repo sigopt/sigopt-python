@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from ..cloudformation.service import AwsCloudFormationService
 from ..ec2.service import AwsEc2Service
 from ..ecr.service import AwsEcrService

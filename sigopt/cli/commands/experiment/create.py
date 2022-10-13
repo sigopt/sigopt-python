@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from sigopt.sigopt_logging import print_logger
 
 from ...arguments import experiment_file_option, project_option

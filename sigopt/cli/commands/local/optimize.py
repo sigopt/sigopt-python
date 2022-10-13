@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from sigopt.config import config
 
 from ...arguments import project_option, source_file_option

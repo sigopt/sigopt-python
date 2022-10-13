@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from ..cluster.service import ClusterService
 from ..cluster_metadata.service import ClusterMetadataService
 from ..gpu_options_validator.service import GpuOptionsValidatorService

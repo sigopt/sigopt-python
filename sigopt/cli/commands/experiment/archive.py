@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import click
 from sigopt.factory import SigOptFactory
 from ...arguments import project_option, validate_ids

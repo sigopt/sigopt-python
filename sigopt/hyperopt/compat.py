@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 # pylint: disable=unused-import
 from packaging.version import parse
 

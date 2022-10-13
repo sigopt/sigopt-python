@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from http import HTTPStatus
 from kubernetes.client.exceptions import ApiException as KubernetesApiException
 import logging
