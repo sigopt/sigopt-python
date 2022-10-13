@@ -1,5 +1,4 @@
-#! /usr/bin/env python
-#
+#!/usr/bin/env python
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -15,7 +14,7 @@ def file_has_disclaimer(filename, verbose=False):
   if verbose:
     print(f"Checking: {filename}")
   with open(filename) as fp:
-    # NOTE: allow shebang+empty line before
+    # NOTE: allow shebang before
     header = "".join(fp.readline() for _ in range(5))
   return COPYRIGHT_AND_LICENSE_DISCLAIMER in header
 
@@ -44,7 +43,7 @@ def fix_in_place(filename, verbose):
     fp.seek(0)
 
     if maybe_shebang.startswith("#!"):
-      fp.write(maybe_shebang + "#\n" + COPYRIGHT_AND_LICENSE_DISCLAIMER + remaining)
+      fp.write(maybe_shebang + COPYRIGHT_AND_LICENSE_DISCLAIMER + remaining)
     else:
       fp.write(COPYRIGHT_AND_LICENSE_DISCLAIMER + maybe_shebang + remaining)
 
