@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -8,34 +8,77 @@ import os
 import sys
 
 
-COPYRIGHT_AND_LICENSE_DISCLAIMER = "# Copyright © 2022 Intel Corporation\n#\n# SPDX-License-Identifier: MIT\n"
+COPYRIGHT = "Copyright © 2022 Intel Corporation"
+LICENSE = "SPDX-License-Identifier: MIT"
 
-def file_has_disclaimer(filename, verbose=False):
+
+class Filetype:
+  python = ".py"
+  dockerfile = "Dockerfile"
+
+
+FILETYPES = (
+  Filetype.python,
+  Filetype.dockerfile,
+)
+
+COMMENT_BLOCKS = {
+  Filetype.python: ("", ""),
+  Filetype.dockerfile: ("", ""),
+}
+
+COMMENT_LINES = {
+  Filetype.python: "#",
+  Filetype.dockerfile: "#",
+}
+
+
+def guess_filetype(filename):
+  for filetype in FILETYPES:
+    if filename.endswith(filetype):
+      return filetype
+    # Filenames like "Dockerfile.api" are allowed
+    if os.path.basename(filename).startswith(Filetype.dockerfile):
+      return Filetype.dockerfile
+  return None
+
+
+def generate_disclaimer(filetype):
+  opener, closer = COMMENT_BLOCKS[filetype]
+  separator = COMMENT_LINES[filetype]
+  return f"{opener}{separator} {COPYRIGHT}\n{separator}\n{separator} {LICENSE}\n{closer}"
+
+
+def file_has_disclaimer(filename, filetype, verbose=False):
   if verbose:
     print(f"Checking: {filename}")
   with open(filename) as fp:
     # NOTE: allow shebang before
     header = "".join(fp.readline() for _ in range(5))
-  return COPYRIGHT_AND_LICENSE_DISCLAIMER in header
+  return generate_disclaimer(filetype) in header
 
 
 def check_all(directory, verbose=False):
   missing = []
-  for dirpath, dirnames, filenames in os.walk(directory):
+  if os.path.isfile(directory):
+    gen = [("", "", [directory])]
+  else:
+    gen = os.walk(directory)
+  for dirpath, _, filenames in gen:
     for filename in filenames:
       absolute_filename = os.path.join(dirpath, filename)
-      if is_file_relevant(absolute_filename):
-        if not file_has_disclaimer(absolute_filename, verbose=verbose):
+      filetype = guess_filetype(absolute_filename)
+      if filetype and os.stat(absolute_filename).st_size > 0:
+        if not file_has_disclaimer(absolute_filename, filetype, verbose=verbose):
           missing.append(absolute_filename)
   return missing
 
 
-def is_file_relevant(filename):
-  return filename.endswith((".py", "Dockerfile")) and os.stat(filename).st_size > 0
-
-def fix_in_place(filename, verbose):
+def fix_in_place(filename, filetype, verbose):
   if verbose:
     print(f"Fixing {filename}")
+
+  disclaimer = generate_disclaimer(filetype)
   with open(filename, "r+") as fp:
     maybe_shebang = fp.readline()
     remaining = fp.read()
@@ -43,19 +86,21 @@ def fix_in_place(filename, verbose):
     fp.seek(0)
 
     if maybe_shebang.startswith("#!"):
-      fp.write(maybe_shebang + COPYRIGHT_AND_LICENSE_DISCLAIMER + remaining)
+      fp.write(maybe_shebang + disclaimer + remaining)
     else:
-      fp.write(COPYRIGHT_AND_LICENSE_DISCLAIMER + maybe_shebang + remaining)
+      fp.write(disclaimer + maybe_shebang + remaining)
+
 
 def fix_all(filenames, verbose=False):
   failed_to_fix = []
   for filename in filenames:
+    filetype = guess_filetype(filename)
     try:
-      fix_in_place(filename, verbose=verbose)
+      fix_in_place(filename, filetype, verbose=verbose)
     except Exception as e:
       print(f"failed to fix {filename}: {e}")
       failed_to_fix.append(filename)
-    if not file_has_disclaimer(filename):
+    if not file_has_disclaimer(filename, filetype):
       print(f"fix did not work for {filename}")
       failed_to_fix.append(filename)
   return failed_to_fix
