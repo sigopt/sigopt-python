@@ -71,7 +71,10 @@ if __name__ == "__main__":
   args = parser.parse_args()
   missing = check_all(args.directory, verbose=args.verbose)
   if args.fix_in_place:
-    missing = fix_all(missing)
+    missing = fix_all(missing, verbose=args.verbose)
   if missing:
-    print("The following files failed the copyright + license check:\n\t" + "\n\t".join(f for f in missing))
+    print("\nThe following files failed the copyright + license check:\n\t" + "\n\t".join(f for f in missing))
     sys.exit(1)
+  else:
+    if args.verbose:
+      print("\nAll files have disclaimer")
