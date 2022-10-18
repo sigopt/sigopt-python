@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from ..aws.service import AwsService
 from ..custom_cluster.service import CustomClusterService
 from ..provider.constants import Provider

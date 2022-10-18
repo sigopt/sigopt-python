@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from .compat import json as simplejson
 
 class BoundApiEndpoint(object):

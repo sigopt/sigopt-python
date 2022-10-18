@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import sigopt.cli.commands.cluster.base
 import sigopt.cli.commands.cluster.clean
 import sigopt.cli.commands.cluster.connect

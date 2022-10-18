@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from .compat import xgboost
 
 class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):

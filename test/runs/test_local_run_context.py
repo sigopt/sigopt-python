@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from sigopt.local_run_context import LocalRunContext
 import pytest
 

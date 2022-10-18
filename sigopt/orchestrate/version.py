@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 CLI_NAME = 'sigopt'
 CONTROLLER_IMAGE_VERSION = "2022-09-19a"
 CONTROLLER_REPOSITORY = "sigopt/controller"

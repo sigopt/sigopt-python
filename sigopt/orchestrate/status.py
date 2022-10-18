@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from .identifier import (
   IDENTIFIER_QUERY_ID,
   IDENTIFIER_QUERY_NAME,

@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import sigopt
 from sigopt.interface import get_connection
 from sigopt.run_context import RunContext

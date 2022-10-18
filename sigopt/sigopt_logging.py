@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import sys
 from logging import getLogger, INFO, StreamHandler
 
