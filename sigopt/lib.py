@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import math as _math
 import numbers as _numbers
 from collections.abc import Mapping as _Mapping, Sequence as _Sequence

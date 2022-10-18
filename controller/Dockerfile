@@ -1,3 +1,7 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+FROM python:3.9.6-alpine3.14 AS updated-base
 ARG SIGOPT_GIT_HASH=d4257f9daf672139d7c3437c2f784eef4ae20f08
 
 

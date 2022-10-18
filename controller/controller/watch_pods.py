@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from kubernetes import watch
 
 from controller.thread import ControllerThread

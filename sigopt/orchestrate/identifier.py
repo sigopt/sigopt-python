@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 IDENTIFIER_TYPE_EXPERIMENT = "experiment"
 IDENTIFIER_TYPE_RUN = "run"
 IDENTIFIER_TYPE_SUGGESTION = "suggestion"

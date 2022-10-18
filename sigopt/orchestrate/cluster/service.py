@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from ..provider.constants import Provider, string_to_provider
 from ..services.base import Service
 from .context import DisconnectOnException

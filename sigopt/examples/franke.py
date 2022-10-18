@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import math
 
 # Franke function - http://www.sfu.ca/~ssurjano/franke2d.html

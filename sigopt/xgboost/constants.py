@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 DEFAULT_EVALS_NAME = 'TestSet'
 USER_SOURCE_NAME = 'User Specified'
 SIGOPT_DEFAULTS_SOURCE_NAME = 'SigOpt Defaults'
