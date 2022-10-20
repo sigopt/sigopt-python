@@ -1157,7 +1157,7 @@ ________________________________________________________________________________
 
 18. busybox
    Copyright (C) 1996 Brian Candler <B.Candler@pobox.com>
-   
+
             GNU GENERAL PUBLIC LICENSE
       TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
