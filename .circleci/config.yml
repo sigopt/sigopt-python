@@ -5,7 +5,7 @@ orbs:
 
 slack-fail-post-step: &slack-fail-post-step
   - slack/notify:
-      branch_pattern: master
+      branch_pattern: main
       channel: eng
       event: fail
       template: basic_fail_1
@@ -65,7 +65,7 @@ jobs:
       - test
   tutorial:
      parameters:
-       TEST_ACCOUNT_API_TOKEN: 
+       TEST_ACCOUNT_API_TOKEN:
          type: string
          default: $TEST_ACCOUNT_API_TOKEN
      docker:
@@ -107,4 +107,4 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
