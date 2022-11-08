@@ -26,7 +26,8 @@ from .exception import ApiException
 
 
 def get_ns():
-  # NOTE(taylor): inspired by https://github.com/ipython/ipython/blob/master/IPython/core/interactiveshell.py
+  # NOTE(taylor): inspired by
+  # https://github.com/ipython/ipython/blob/5577a476295146641fbd6f8c992d374b905dc1bc/IPython/core/interactiveshell.py
   # Walk up the stack trace until we find the 'exit' command
   stack_depth = 1
   while True:
