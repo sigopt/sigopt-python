@@ -1,11 +1,10 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-FROM python:3.9.6-alpine3.14 AS updated-base
 ARG SIGOPT_GIT_HASH=d4257f9daf672139d7c3437c2f784eef4ae20f08
 
 
-FROM python:3.10.7-alpine3.16 AS updated-base
+FROM python:3.10.8-alpine3.16 AS updated-base
 
 SHELL ["/bin/ash", "-ex", "-o", "pipefail", "-c"]
 
@@ -25,7 +24,7 @@ SHELL ["/bin/ash", "-ex", "-o", "pipefail", "-c"]
 
 RUN : \
   ; apk update --no-cache \
-  ; apk add --no-cache alpine-sdk=1.0-r1 git=2.36.2-r0 \
+  ; apk add --no-cache alpine-sdk=1.0-r1 git=2.36.3-r0 \
   ; git clone --depth=1 --branch=3.16-stable git://git.alpinelinux.org/aports \
   ; mkdir -p /src \
   ; :
