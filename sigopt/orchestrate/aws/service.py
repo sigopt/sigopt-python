@@ -82,6 +82,8 @@ class AwsService(ProviderInterface):
       ) from e
 
   def validate_cluster_options(self, cluster_name, node_groups_config, kubernetes_version):
+    if kubernetes_version == "latest":
+      kubernetes_version = DEFAULT_KUBERNETES_VERSION
     if kubernetes_version:
       assert kubernetes_version in SUPPORTED_KUBERNETES_VERSIONS, (
         'Unsupported kubernetes version for EKS:'
