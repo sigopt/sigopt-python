@@ -1,7 +1,7 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from .errors import PleaseDisconnectError
+from .errors import NotConnectedError
 
 
 class DisconnectOnException(object):
@@ -16,7 +16,7 @@ class DisconnectOnException(object):
     if exc is not None:
       try:
         self._services.cluster_service.disconnect(cluster_name=self._cluster_name, disconnect_all=False)
-        return False
-      except Exception as disconnect_exception:
-        raise PleaseDisconnectError(self._cluster_name) from disconnect_exception
+      except NotConnectedError:
+        pass
+      return False
     return None

@@ -12,7 +12,10 @@ The third party programs and their corresponding required notices and/or license
 terms are listed below.
 _______________________________________________________________________________________________________
 
-1. boto3
+1. asttokens
+   Copyright 2016 Grist Labs, Inc.
+
+   boto3
    Copyright 2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
    botocore
@@ -275,6 +278,9 @@ ________________________________________________________________________________
    python-dateutil
    Copyright 2017- Paul Ganssle <paul@ganssle.io>
    Copyright 2017- dateutil contributors (see AUTHORS file)
+
+   matplotlib-inline
+   Copyright (c) IPython Development Team.
 
    BSD 3-Clause License
 
@@ -939,6 +945,16 @@ ________________________________________________________________________________
    cffi
    Copyright (C) 2005-2007, James Bielman  <jamesjb@jamesjb.com>
 
+   charset-normalizer
+   Copyright: (c) 2021 by Ahmed TAHRI
+
+   executing
+   Copyright (c) 2021 Alex Hall
+
+   expat
+   Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper
+   Copyright (c) 2001-2022 Expat maintainers
+
    jedi
    Copyright (c) <2013> <David Halter and others, see AUTHORS.txt>
 
@@ -959,11 +975,17 @@ ________________________________________________________________________________
    Copyright (c) 2017-2021 Ingy döt Net
    Copyright (c) 2006-2016 Kirill Simonov
 
+   setuptools
+   Copyright Jason R. Coombs
+
    sigOpt
    Copyright (c) 2016 SigOpt
 
    six
    Copyright (c) 2010-2020 Benjamin Peterson
+
+   stack_data
+   Copyright (c) 2019 Alex Hall
 
    urllib3
    Copyright (c) 2008-2020 Andrey Petrov and contributors (see CONTRIBUTORS.txt)
@@ -1135,7 +1157,7 @@ ________________________________________________________________________________
 
 18. busybox
    Copyright (C) 1996 Brian Candler <B.Candler@pobox.com>
-   
+
             GNU GENERAL PUBLIC LICENSE
       TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 

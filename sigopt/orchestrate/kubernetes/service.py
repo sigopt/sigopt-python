@@ -507,18 +507,11 @@ class KubernetesService(Service):
     return (autoscaler_role_arn, kubernetes_version)
 
   def _get_autoscaler_image_version(self, kubernetes_version):
-    image_prefix = 'cluster-autoscaler-'
-    response = requests.get('https://api.github.com/repos/kubernetes/autoscaler/releases')
-    response.raise_for_status()
-    release_tags = [
-      release['tag_name'].replace(image_prefix, '')
-      for release in response.json()
-      if release['tag_name'].startswith(f'{image_prefix}1.')
-    ]
-    tag_map = {tag.rsplit('.', 1)[0]: tag for tag in release_tags}
-    if kubernetes_version not in tag_map:
-      raise OrchestrateException(f'cluster autoscaler not supported for kubernetes version {kubernetes_version}')
-    return tag_map[kubernetes_version]
+    k8s_version_to_autoscaler_release = {
+      "1.20": "1.20.3",
+      "1.21": "1.21.2",
+    }
+    return k8s_version_to_autoscaler_release.get(kubernetes_version, f"{kubernetes_version}.0")
 
   def _parameterize_autoscaler_dicts(self, cluster_name, autoscaler_role_arn, kubernetes_version):
     with self.services.resource_service.open("plugins", "autoscaler-plugin-template.yml") as fh:
