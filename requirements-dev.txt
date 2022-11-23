@@ -1,6 +1,5 @@
 # For continuous integration and development
 
-Pillow
 flake8==3.8.4
 isort==4.3.4
 matplotlib>=3.3.4
