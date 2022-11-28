@@ -84,7 +84,7 @@ def parse_run_options(run_options):
     if 'run' in run_options.keys() and run_options['run'] is not None:
       if not isinstance(run_options['run'], RunContext):
         raise TypeError(
-          "`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
+          f"`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
         )
 
     return {**DEFAULT_RUN_OPTIONS, **run_options}
