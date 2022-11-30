@@ -38,6 +38,7 @@ DEFAULT_RUN_OPTIONS = {
 DEFAULT_CHECKPOINT_PERIOD = 5
 MAX_NUM_CHECKPOINTS = 200
 FEATURE_IMPORTANCES_MAX_NUM_FEATURE = 50
+FEATURE_IMPORTANCES_MAX_KEY_CHARS = 100
 XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
 
 PARAMS_LOGGED_AS_METADATA = [
@@ -231,6 +232,10 @@ class XGBRunHandler:
     scores = dict(
       sorted(scores.items(), key=lambda x:(x[1], x[0]), reverse=True)[:FEATURE_IMPORTANCES_MAX_NUM_FEATURE]
     )
+
+    if any(scoress.keys() > FEATURE_IMPORTANCES_MAX_KEY_CHARS):
+      return
+
     fp = {
       'type': importance_type,
       'scores': scores,
