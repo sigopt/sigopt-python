@@ -233,7 +233,7 @@ class XGBRunHandler:
       sorted(scores.items(), key=lambda x:(x[1], x[0]), reverse=True)[:FEATURE_IMPORTANCES_MAX_NUM_FEATURE]
     )
 
-    if any(scoress.keys() > FEATURE_IMPORTANCES_MAX_KEY_CHARS):
+    if any(len(k) > FEATURE_IMPORTANCES_MAX_KEY_CHARS for k in scores.keys()):
       return
 
     fp = {
