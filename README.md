@@ -49,6 +49,7 @@ experiment = conn.experiments().create(
     dict(name='x', type='double', bounds=dict(min=0.0, max=1.0)),
     dict(name='y', type='double', bounds=dict(min=0.0, max=1.0)),
   ],
+  metrics=[dict(name='f', objective='maximize')],
 )
 print("Created experiment: https://sigopt.com/experiment/" + experiment.id);
 
@@ -63,7 +64,7 @@ for _ in range(20):
   value = evaluate_model(suggestion.assignments)
   conn.experiments(experiment.id).observations().create(
     suggestion=suggestion.id,
-    value=value,
+    values=[dict(name='f', value=value)],
   )
 ```
 
