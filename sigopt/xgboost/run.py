@@ -94,11 +94,11 @@ def parse_run_options(run_options):
   return copy.deepcopy(DEFAULT_RUN_OPTIONS)
 
 
-def validate_xgboost_kwargs(**kwargs):
-  if kwargs:
-    for key in kwargs.keys():
+def validate_xgboost_kwargs(xgb_kwargs):
+  if xgb_kwargs:
+    for key in xgb_kwargs.keys():
       if key not in signature(xgboost.train).parameters.keys():
-        kwargs.pop("key")
+        xgb_kwargs.pop(key)
 
 
 class XGBRun(ModelAwareRun):

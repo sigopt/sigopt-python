@@ -7,8 +7,44 @@ import random
 
 from sigopt.objects import TrainingRun
 from sigopt.run_context import RunContext
-from sigopt.xgboost.run import DEFAULT_RUN_OPTIONS, parse_run_options
+from sigopt.xgboost.run import DEFAULT_RUN_OPTIONS, parse_run_options, XGBRunHandler
 
+class TestXGBoostKwargs(object):
+  def test_xgboost_kwargs_remove_wrong_key(self):
+    kwargs = {"WRONG_KEY": True}
+    xgb_run_handler = XGBRunHandler(
+      params={"max_depth": 2},
+      dtrain=Mock(),
+      num_boost_round=21,
+      evals=None,
+      early_stopping_rounds=10,
+      evals_result=None,
+      verbose_eval=True,
+      xgb_model=Mock(),
+      callbacks=None,
+      run_options=None,
+      **kwargs
+    )
+    assert not xgb_run_handler.kwargs
+
+  def test_xgboost_kwargs_keep_right_key(self):
+    kwargs = {"maximize": True}
+    xgb_run_handler = XGBRunHandler(
+      params={"max_depth": 2},
+      dtrain=Mock(),
+      num_boost_round=21,
+      evals=None,
+      early_stopping_rounds=None,
+      evals_result=None,
+      verbose_eval=True,
+      xgb_model=None,
+      callbacks=None,
+      run_options = {"autolog_metrics": True},
+      **kwargs
+    )
+    assert len(xgb_run_handler.kwargs) == 1
+    assert "maximize" in xgb_run_handler.kwargs
+    assert xgb_run_handler.kwargs["maximize"] == True
 
 class TestRunOptionsParsing(object):
   def test_run_options_wrong_type(self):
