@@ -8,24 +8,31 @@ import random
 from sigopt.objects import TrainingRun
 from sigopt.run_context import RunContext
 from sigopt.xgboost.run import DEFAULT_RUN_OPTIONS, parse_run_options, XGBRunHandler
+from .utils import ObserveWarnings
 
 class TestXGBoostKwargs(object):
   def test_xgboost_kwargs_remove_wrong_key(self):
-    kwargs = {"WRONG_KEY": True}
-    xgb_run_handler = XGBRunHandler(
-      params={"max_depth": 2},
-      dtrain=Mock(),
-      num_boost_round=21,
-      evals=None,
-      early_stopping_rounds=10,
-      evals_result=None,
-      verbose_eval=True,
-      xgb_model=Mock(),
-      callbacks=None,
-      run_options=None,
-      **kwargs
-    )
-    assert not xgb_run_handler.kwargs
+    kwargs = {
+      "WRONG_KEY_1": True,
+      "WRONG_KEY_2": 3.14,
+    }
+    with ObserveWarnings() as w:
+      xgb_run_handler = XGBRunHandler(
+        params={"max_depth": 2},
+        dtrain=Mock(),
+        num_boost_round=21,
+        evals=None,
+        early_stopping_rounds=10,
+        evals_result=None,
+        verbose_eval=True,
+        xgb_model=Mock(),
+        callbacks=None,
+        run_options=None,
+        **kwargs
+      )
+      assert not xgb_run_handler.kwargs
+      assert len(w) == len(kwargs)
+      assert issubclass(w[-1].category, RuntimeWarning)
 
   def test_xgboost_kwargs_keep_right_key(self):
     kwargs = {"maximize": True}
