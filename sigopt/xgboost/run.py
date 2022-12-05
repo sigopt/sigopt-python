@@ -7,6 +7,7 @@ import math
 import json
 import platform
 import time
+import warnings
 
 from .. import create_run
 from ..log_capture import SystemOutputStreamMonitor
@@ -98,6 +99,10 @@ def validate_xgboost_kwargs(xgb_kwargs):
   if xgb_kwargs:
     for key in list(xgb_kwargs.keys()):
       if key not in signature(xgboost.train).parameters.keys():
+        warnings.warn(
+          f"The argument `{key}` is not supported by this version of XGBoost, and has been ignored",
+          RuntimeWarning,
+        )
         xgb_kwargs.pop(key)
 
 
