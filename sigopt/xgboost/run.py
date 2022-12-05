@@ -244,6 +244,11 @@ class XGBRunHandler:
     )
 
     if any(len(k) > FEATURE_IMPORTANCES_MAX_KEY_CHARS for k in scores.keys()):
+      warnings.warn(
+        f"Some of the feature names have more than {FEATURE_IMPORTANCES_MAX_KEY_CHARS} characters,"
+        " skipping logging feature importances."
+        RuntimeWarning,
+      )
       return
 
     fp = {
