@@ -16,7 +16,7 @@ class TestXGBoostKwargs(object):
       "WRONG_KEY_1": True,
       "WRONG_KEY_2": 3.14,
     }
-    with ObserveWarnings() as w:
+    with ObserveWarnings() as ws:
       xgb_run_handler = XGBRunHandler(
         params={"max_depth": 2},
         dtrain=Mock(),
@@ -31,11 +31,11 @@ class TestXGBoostKwargs(object):
         **kwargs
       )
       assert not xgb_run_handler.kwargs
-      assert len(w) == len(kwargs)
-      assert issubclass(w[-1].category, RuntimeWarning)
+      assert len(ws) == len(kwargs)
+      for w in ws:
+        assert issubclass(w.category, RuntimeWarning)
 
   def test_xgboost_kwargs_keep_right_key(self):
-    kwargs = {"maximize": True}
     xgb_run_handler = XGBRunHandler(
       params={"max_depth": 2},
       dtrain=Mock(),
@@ -46,8 +46,8 @@ class TestXGBoostKwargs(object):
       verbose_eval=True,
       xgb_model=None,
       callbacks=None,
-      run_options = {"autolog_metrics": True},
-      **kwargs
+      maximize=True,
+      run_options={"autolog_metrics": True},
     )
     assert len(xgb_run_handler.kwargs) == 1
     assert "maximize" in xgb_run_handler.kwargs
