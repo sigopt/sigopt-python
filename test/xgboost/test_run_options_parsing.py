@@ -8,7 +8,7 @@ import random
 from sigopt.objects import TrainingRun
 from sigopt.run_context import RunContext
 from sigopt.xgboost.run import DEFAULT_RUN_OPTIONS, parse_run_options, XGBRunHandler
-from .utils import ObserveWarnings
+from ..utils import ObserveWarnings
 
 class TestXGBoostKwargs(object):
   def test_xgboost_kwargs_remove_wrong_key(self):
