@@ -110,7 +110,7 @@ class XGBExperiment:
       parameter_name = parameter['name']
       if 'bounds' not in parameter and PARAMETER_INFORMATION[parameter_name]['type'] in ['double', 'int']:
         if parameter_name not in SUPPORTED_AUTOBOUND_PARAMS:
-          raise ValueError('We do not support autoselection of bounds for {param_name}.')
+          raise ValueError(f'We do not support autoselection of bounds for {parameter_name}.')
         param_info = PARAMETER_INFORMATION[parameter_name]
         transformation = param_info['transformation'] if 'transformation' in param_info else None
         parameter.update(
