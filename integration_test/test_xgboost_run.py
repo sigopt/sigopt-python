@@ -395,6 +395,3 @@ class TestFormCallbacks(object):
     run = sigopt.get_run(ctx.run.id)
     assert run.assignments['early_stopping_rounds'] == self.run_params['early_stopping_rounds']
     assert run.values['num_boost_round_before_stopping'].value < self.run_params['num_boost_round']
-
-t = TestFormCallbacks()
-t.append_xgbrun_param_none_values()
