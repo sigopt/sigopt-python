@@ -297,7 +297,7 @@ class TestXGBoostRun(object):
 
 
 class TestFormCallbacks(object):
-  run_params = {}
+  run_params = None
 
   def append_xgbrun_param_none_values(self):
     all_xgbrun_params = dict(signature(XGBRunHandler).parameters)
