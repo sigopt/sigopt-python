@@ -299,7 +299,7 @@ class TestXGBoostRun(object):
 class TestFormCallbacks(object):
   run_params = None
 
-  def append_xgbrun_param_none_values(self):
+  def _append_xgbrun_param_none_values(self):
     all_xgbrun_params = dict(signature(XGBRunHandler).parameters)
     all_xgbrun_params.pop("kwargs", None)
     for p_name in all_xgbrun_params.keys():
