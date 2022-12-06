@@ -297,13 +297,12 @@ class TestXGBoostRun(object):
 
 
 class TestFormCallbacks(object):
-  run_params = None
+  run_params = {}
 
-  def _append_xgbrun_param_none_values(self):
+  def append_xgbrun_param_none_values(self):
     all_xgbrun_params = dict(signature(XGBRunHandler).parameters)
     all_xgbrun_params.pop("kwargs", None)
-    all_xgbrun_params_names = all_xgbrun_params.keys()
-    for p_name in all_xgbrun_params_names:
+    for p_name in all_xgbrun_params.keys():
       if p_name not in self.run_params:
         self.run_params[p_name] = None
 
@@ -396,3 +395,6 @@ class TestFormCallbacks(object):
     run = sigopt.get_run(ctx.run.id)
     assert run.assignments['early_stopping_rounds'] == self.run_params['early_stopping_rounds']
     assert run.values['num_boost_round_before_stopping'].value < self.run_params['num_boost_round']
+
+t = TestFormCallbacks()
+t.append_xgbrun_param_none_values()
