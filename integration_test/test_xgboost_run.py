@@ -300,8 +300,9 @@ class TestFormCallbacks(object):
   run_params = None
 
   def _append_xgbrun_param_none_values(self):
-    all_xgbrun_params_names = signature(XGBRunHandler).parameters.keys()
-    for p_name in all_xgbrun_params_names:
+    all_xgbrun_params = dict(signature(XGBRunHandler).parameters)
+    all_xgbrun_params.pop("kwargs", None)
+    for p_name in all_xgbrun_params.keys():
       if p_name not in self.run_params:
         self.run_params[p_name] = None
 
