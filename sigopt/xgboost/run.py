@@ -56,54 +56,55 @@ SUPPORTED_OBJECTIVE_PREFIXES = [
   'multi',
   'reg',
 ]
+DOC_URL = "https://docs.sigopt.com/ai-module-api-references/xgboost/xgboost_run"
 
 
 def parse_run_options(run_options):
-  if run_options is not None:
-    if not isinstance(run_options, dict):
-      # TODO(Harvey): verify actual doc url when it's online
-      doc_url = "https://app.sigopt.com/docs/xgboost/xgboost_run"
+  if run_options is None:
+    return copy.deepcopy(DEFAULT_RUN_OPTIONS)
+
+  if not isinstance(run_options, dict):
+    raise TypeError(
+      f"run_options should be a dictonary. Refer to the sigopt.xgboost.run documentation {DOC_URL}"
+    )
+
+  if run_options.keys() - DEFAULT_RUN_OPTIONS.keys():
+    raise ValueError(
+      f"Unsupported keys {run_options.keys() - DEFAULT_RUN_OPTIONS.keys()} in run_options."
+    )
+
+  for key, value in run_options.items():
+    if key.startswith("autolog") and not isinstance(value, bool):
       raise TypeError(
-        f"run_options should be a dictonary. Refer to the sigopt.xgboost.run documentation {doc_url}"
+        f"run_options key '{key}` expects a Boolean value, not {type(value)}."
       )
 
-    if run_options.keys() - DEFAULT_RUN_OPTIONS.keys():
+  if {'run', 'name'}.issubset(run_options.keys()):
+    if run_options['run'] and run_options['name']:
       raise ValueError(
-        f"Unsupported keys {run_options.keys() - DEFAULT_RUN_OPTIONS.keys()} in run_options."
+        "Cannot speicify both `run` and `name` keys inside run_options."
       )
 
-    for key, value in run_options.items():
-      if key.startswith("autolog") and not isinstance(value, bool):
-        raise TypeError(
-          f"run_options key '{key}` expects a Boolean value, not {type(value)}."
-        )
+  if 'run' in run_options.keys() and run_options['run'] is not None:
+    if not isinstance(run_options['run'], RunContext):
+      raise TypeError(
+        f"`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
+      )
 
-    if {'run', 'name'}.issubset(run_options.keys()):
-      if run_options['run'] and run_options['name']:
-        raise ValueError(
-          "Cannot speicify both `run` and `name` keys inside run_options."
-        )
-
-    if 'run' in run_options.keys() and run_options['run'] is not None:
-      if not isinstance(run_options['run'], RunContext):
-        raise TypeError(
-          f"`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
-        )
-
-    return {**DEFAULT_RUN_OPTIONS, **run_options}
-
-  return copy.deepcopy(DEFAULT_RUN_OPTIONS)
+  return {**DEFAULT_RUN_OPTIONS, **run_options}
 
 
 def validate_xgboost_kwargs(xgb_kwargs):
-  if xgb_kwargs:
-    for key in list(xgb_kwargs.keys()):
-      if key not in signature(xgboost.train).parameters.keys():
-        warnings.warn(
-          f"The argument `{key}` is not supported by this version of XGBoost, and has been ignored",
-          RuntimeWarning,
-        )
-        xgb_kwargs.pop(key)
+  if not xgb_kwargs:
+    return
+
+  for key in list(xgb_kwargs.keys()):
+    if key not in signature(xgboost.train).parameters.keys():
+      warnings.warn(
+        f"The argument `{key}` is not supported by this version of XGBoost, and has been ignored",
+        RuntimeWarning,
+      )
+      xgb_kwargs.pop(key)
 
 
 class XGBRun(ModelAwareRun):
@@ -312,17 +313,19 @@ class XGBRunHandler:
       if self.early_stopping_rounds:
         self.run.log_metric('num_boost_round_before_stopping', n_eval_rounds)
 
-    if self.run_options_parsed['autolog_metrics']:
-      if self.validation_sets:
-        for validation_set in self.validation_sets:
-          if self.is_regression:
-            self.run.log_metrics(
-              compute_regression_metrics(self.model, (validation_set))
-            )
-          else:
-            self.run.log_metrics(
-              compute_classification_metrics(self.model, (validation_set))
-            )
+    if not self.run_options_parsed['autolog_metrics']:
+      return
+
+    if self.validation_sets:
+      for validation_set in self.validation_sets:
+        if self.is_regression:
+          self.run.log_metrics(
+            compute_regression_metrics(self.model, (validation_set))
+          )
+        else:
+          self.run.log_metrics(
+            compute_classification_metrics(self.model, (validation_set))
+          )
 
 
 def run(
