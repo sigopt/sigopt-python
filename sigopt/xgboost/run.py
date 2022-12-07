@@ -65,7 +65,7 @@ def parse_run_options(run_options):
 
   if not isinstance(run_options, dict):
     raise TypeError(
-      f"run_options should be a dictonary. Refer to the sigopt.xgboost.run documentation {DOC_URL}"
+      f"run_options should be a dictionary. Refer to the sigopt.xgboost.run documentation {DOC_URL}"
     )
 
   if run_options.keys() - DEFAULT_RUN_OPTIONS.keys():
@@ -82,7 +82,7 @@ def parse_run_options(run_options):
   if {'run', 'name'}.issubset(run_options.keys()):
     if run_options['run'] and run_options['name']:
       raise ValueError(
-        "Cannot speicify both `run` and `name` keys inside run_options."
+        "Cannot specify both `run` and `name` keys inside run_options."
       )
 
   if 'run' in run_options.keys() and run_options['run'] is not None:
@@ -313,10 +313,7 @@ class XGBRunHandler:
       if self.early_stopping_rounds:
         self.run.log_metric('num_boost_round_before_stopping', n_eval_rounds)
 
-    if not self.run_options_parsed['autolog_metrics']:
-      return
-
-    if self.validation_sets:
+    if self.run_options_parsed["autolog_metrics"] and self.validation_sets:
       for validation_set in self.validation_sets:
         if self.is_regression:
           self.run.log_metrics(
