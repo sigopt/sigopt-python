@@ -1,5 +1,5 @@
 # SigOpt API Examples
-For the complete API documentation, visit [https://sigopt.com/docs](https://sigopt.com/docs).
+For the complete API documentation, visit [https://docs.sigopt.com](https://docs.sigopt.com).
 ## Python
 Check out our `basic` python example and implement your own function to evaluate. Dive deeper with our `parallel` example, which runs multiple optimization loops at the same time.
 ## Other Languages

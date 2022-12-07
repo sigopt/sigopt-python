@@ -242,7 +242,7 @@ class AwsService(ProviderInterface):
           raise AwsClusterSharePermissionError(
             f"You do not have permission to use the role '{cluster_access_role_arn}' for accessing this cluster.\n"
             "Please read the SigOpt documentation for sharing clusters: "
-            "https://app.sigopt.com/docs/orchestrate/deep_dive#cluster_sharing"
+            "https://docs.sigopt.com/ai-module-api-references/orchestrate/aws_cluster#share-your-kubernetes-cluster"
           ) from ce
         time.sleep(wait_time)
 

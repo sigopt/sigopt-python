@@ -474,7 +474,10 @@ class Experiment(ApiObject):
   metadata = Field(Metadata)
   metric = DeprecatedField(
     Metric,
-    recommendation='Prefer the `metrics` field (see https://sigopt.com/docs/objects/experiment)'
+    recommendation=(
+      'Prefer the `metrics` field'
+      '(see https://docs.sigopt.com/core-module-api-references/api-objects/object_experiment)'
+    )
   )
   metrics = Field(ListOf(Metric))
   name = Field(str)

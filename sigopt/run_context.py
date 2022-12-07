@@ -259,7 +259,7 @@ class BaseRunContext(object):
     '''
     sigopt.log_image(image, name=None)
       Logs an image artifact from your model's evaluation. See the documentation for more details:
-      https://app.sigopt.com/docs/runs/reference#log_image
+      https://docs.sigopt.com/ai-module-api-references/api_reference/python_tracking#sigopt.log_image-image-name-none
     image: string, PIL.Image.Image, matplotlib.figure.Figure or numpy.ndarray, required
       The image artifact to upload. This will be converted to an appropriate format and then uploaded.
     name: string
