@@ -76,7 +76,7 @@ def parse_run_options(run_options):
   for key, value in run_options.items():
     if key.startswith("autolog") and not isinstance(value, bool):
       raise TypeError(
-        f"run_options key '{key}` expects a Boolean value, not {type(value)}."
+        f"run_options key `{key}` expects a Boolean value, not {type(value)}."
       )
 
   if {'run', 'name'}.issubset(run_options.keys()):
