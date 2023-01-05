@@ -89,6 +89,7 @@ workflows:
       - test-38
       - test-39
       - lint
+      - tutorial
       - final-catch-all:
           context: slack-secret
           requires:
@@ -97,6 +98,7 @@ workflows:
             - test-38
             - test-39
             - lint
+            - tutorial
           post-steps: *slack-fail-post-step
 
   rot-check:
