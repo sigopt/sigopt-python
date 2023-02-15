@@ -15,14 +15,15 @@ commands:
     steps:
       - checkout
       - run: sudo pip install --upgrade pip setuptools
-      - run: sudo make update
   test:
     steps:
       - setup
+      - run: pip install -e '.[dev,orchestrate]'
       - run: make test
   lint:
     steps:
       - setup
+      - run: sudo make update
       - run: sudo pip install pylint==2.9.6
       - run: make lint
   tutorial:
@@ -43,24 +44,13 @@ jobs:
       - image: circleci/python:3.9
     steps:
       - lint
-  test-39:
+  test:
+    parameters:
+      python-version:
+        type: enum
+        enum: ["3.9", "3.8", "3.7", "3.6"]
     docker:
-      - image: circleci/python:3.9
-    steps:
-      - test
-  test-38:
-    docker:
-      - image: circleci/python:3.8
-    steps:
-      - test
-  test-37:
-    docker:
-      - image: circleci/python:3.7
-    steps:
-      - test
-  test-36:
-    docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:<< parameters.python-version >>
     steps:
       - test
   tutorial:
@@ -84,19 +74,16 @@ jobs:
 workflows:
   main:
     jobs: &jobs
-      - test-36
-      - test-37
-      - test-38
-      - test-39
+      - test:
+          matrix:
+            parameters:
+              python-version: ["3.9", "3.8", "3.7", "3.6"]
       - lint
       - tutorial
       - final-catch-all:
           context: slack-secret
           requires:
-            - test-36
-            - test-37
-            - test-38
-            - test-39
+            - test
             - lint
             - tutorial
           post-steps: *slack-fail-post-step
