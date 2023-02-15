@@ -6,6 +6,7 @@ import os
 from sigopt.paths import get_bin_dir
 
 from ..exceptions import OrchestrateException
+from ..paths import get_executable_path
 from ..services.base import Service
 
 
@@ -24,7 +25,8 @@ class KubectlError(OrchestrateException):
     )
 
 class KubectlService(Service):
-  kubectl_command = 'kubectl'
+  def kubectl_command(self):
+    return get_executable_path('kubectl')
 
   def kubectl_env(self):
     assert self.kube_config, "The kubectl service has no kubernetes config"
