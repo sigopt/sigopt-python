@@ -7,7 +7,7 @@ import pytest
 import warnings
 
 from sigopt.objects import *
-from .utils import ObserveWarnings
+from ..utils import ObserveWarnings
 
 def load(filename):
   with open(os.path.join(os.path.dirname(__file__), 'json', filename), 'r') as f:
