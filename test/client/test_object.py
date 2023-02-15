@@ -1,23 +1,28 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import os
+import json
 import numpy
 import pytest
 import warnings
+try:
+  import importlib.resources as pkg_resources
+except ImportError:
+  import importlib_resources as pkg_resources
 
 from sigopt.objects import *
+from . import json_data
 from ..utils import ObserveWarnings
 
 def load(filename):
-  with open(os.path.join(os.path.dirname(__file__), 'json', filename), 'r') as f:
+  with pkg_resources.open_text(json_data, filename) as f:
     return json.load(f)
 
 def load_and_parse(Cls, filename):
-  json = load(filename)
-  obj = Cls(json)
-  assert obj.to_json() == json
-  assert ApiObject.as_json(obj) == json
+  data = load(filename)
+  obj = Cls(data)
+  assert obj.to_json() == data
+  assert ApiObject.as_json(obj) == data
   return obj
 
 class TestBase(object):
