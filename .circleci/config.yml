@@ -1,7 +1,7 @@
 version: 2.1
 
 variables:
-  python-versions: &python-versions ["3.9", "3.8", "3.7", "3.6"]
+  python-versions: &python-versions ["3.10", "3.9", "3.8", "3.7", "3.6"]
 
 orbs:
   slack: circleci/slack@4.4.4
