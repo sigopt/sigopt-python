@@ -3,19 +3,15 @@
 # SPDX-License-Identifier: MIT
 import json
 import numpy
+import os
 import pytest
 import warnings
-try:
-  import importlib.resources as pkg_resources
-except ImportError:
-  import importlib_resources as pkg_resources
 
 from sigopt.objects import *
-from . import json_data
 from ..utils import ObserveWarnings
 
 def load(filename):
-  with pkg_resources.open_text(json_data, filename) as f:
+  with open(os.path.join(__file__, 'json_data', filename), "r") as f:
     return json.load(f)
 
 def load_and_parse(Cls, filename):
