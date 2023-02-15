@@ -19,4 +19,4 @@ INSTALLATION_MESSAGE = " ".join([
   type=click.UNPROCESSED,
 )
 def cluster(_):
-  print(INSTALLATION_MESSAGE)
+  raise click.ClickException(INSTALLATION_MESSAGE)
