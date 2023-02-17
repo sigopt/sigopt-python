@@ -479,12 +479,12 @@ class OrchestrateController:
   def exec_kubectl(self, arguments):
     self.services.cluster_service.assert_is_connected()
     check_binary(kubectl_check)
-    cmd = self.services.kubectl_service.kubectl_command()
+    cmd = self.services.kubectl_service.get_kubectl_command()
     args = [cmd, '--namespace', ORCHESTRATE_NAMESPACE, *arguments]
     os.execvpe(
       cmd,
       args,
-      env=self.services.kubectl_service.kubectl_env(),
+      env=self.services.kubectl_service.get_kubectl_env(),
     )
 
 kubectl_check = (check_kubectl_executable, download_kubectl_executable, 'kubernetes')
