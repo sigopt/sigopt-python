@@ -318,16 +318,10 @@ class Connection(object):
   Client-facing interface for creating Connections.
   Shouldn't be changed without a major version change.
   """
-  def __init__(self, *args, user_agent=None, session=None, driver=RequestDriver, **kwargs):
+  def __init__(self, *args, user_agent=None, driver=RequestDriver, **kwargs):
 
-    default_headers = {
-      'Content-Type': 'application/json',
-      'X-SigOpt-Python-Version': VERSION,
-    }
     driver_instance = driver(
       *args,
-      headers=default_headers,
-      session=session,
       **kwargs,
     )
     self.impl = ConnectionImpl(driver=driver_instance, user_agent=user_agent)
