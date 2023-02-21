@@ -30,7 +30,7 @@ def get_expiring_session():
   session.mount("https://", adapter)
   return session
 
-class Requestor(object):
+class RequestDriver(object):
   api_version = "v1"
 
   def __init__(

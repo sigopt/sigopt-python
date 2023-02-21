@@ -29,7 +29,7 @@ from .objects import (
   Token,
   TrainingRun,
 )
-from .requestor import Requestor, DEFAULT_API_URL
+from .request_driver import RequestDriver
 from .resource import ApiResource
 from .version import VERSION
 
@@ -318,7 +318,7 @@ class Connection(object):
   Client-facing interface for creating Connections.
   Shouldn't be changed without a major version change.
   """
-  def __init__(self, *args, user_agent=None, session=None, driver=Requestor, **kwargs):
+  def __init__(self, *args, user_agent=None, session=None, driver=RequestDriver, **kwargs):
 
     default_headers = {
       'Content-Type': 'application/json',
