@@ -13,11 +13,13 @@ class BoundApiEndpoint(object):
 
   def call_with_params(self, params):
     name = self._endpoint._name
-    url = self._bound_resource._base_url + ('/' + name if name else '')
+    path = list(self._bound_resource._base_path)
+    if name:
+      path.append(name)
     conn = self._bound_resource._resource._conn
     raw_response = None
 
-    raw_response = conn._request(self._endpoint._method, url, params)
+    raw_response = conn._request(self._endpoint._method, path, params)
 
     if raw_response is not None and self._endpoint._response_cls is not None:
       return self._endpoint._response_cls(raw_response, self, params)

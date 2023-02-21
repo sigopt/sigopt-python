@@ -2,12 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 import backoff
+import os
 import requests
 from http import HTTPStatus
 
 from .compat import json as simplejson
 from .config import config
 from .exception import ApiException, ConnectionException
+from .objects import ApiObject
 from .ratelimit import failed_status_rate_limit
 from .version import VERSION
 
@@ -33,6 +35,7 @@ class Requestor(object):
     self.timeout = timeout
     self.client_ssl_certs = client_ssl_certs
     self.session = session
+    self.api_url = os.environ.get("SIGOPT_API_URL") or DEFAULT_API_URL
 
   def _set_auth(self, username, password):
     if username is not None:
@@ -40,20 +43,26 @@ class Requestor(object):
     else:
       self.auth = None
 
+  def _request_params(self, params):
+    req_params = params or {}
+
+    def serialize(value):
+      if isinstance(value, (dict, list)):
+        return simplejson.dumps(value)
+      return str(value)
+
+    return dict((
+      (key, serialize(ApiObject.as_json(value)))
+      for key, value
+      in req_params.items()
+      if value is not None
+    ))
+
   def set_client_token(self, client_token):
     self._set_auth(client_token, '')
 
-  def get(self, url, params=None, json=None, headers=None):
-    return self.request('get', url=url, params=params, json=json, headers=headers)
-
-  def post(self, url, params=None, json=None, headers=None):
-    return self.request('post', url=url, params=params, json=json, headers=headers)
-
-  def put(self, url, params=None, json=None, headers=None):
-    return self.request('put', url=url, params=params, json=json, headers=headers)
-
-  def delete(self, url, params=None, json=None, headers=None):
-    return self.request('delete', url=url, params=params, json=json, headers=headers)
+  def set_api_url(self, api_url):
+    self.api_url = api_url
 
   def _request(self, method, url, params, json, headers, user_agent):
     headers = self._with_default_headers(headers, user_agent)
@@ -81,7 +90,12 @@ class Requestor(object):
       raise ConnectionException('\n'.join(message)) from rqe
     return response
 
-  def request(self, method, url, params=None, json=None, headers=None, user_agent=None):
+  def request(self, method, path, data=None, headers=None, user_agent=None):
+    url = "/".join([self.api_url, "v1"] + path)
+    if method.upper() in ('GET', 'DELETE'):
+      json, params = None, self._request_params(data)
+    else:
+      json, params = ApiObject.as_json(data), None
     retry = backoff.on_predicate(
       backoff.expo,
       lambda response: response.status_code == HTTPStatus.TOO_MANY_REQUESTS,
