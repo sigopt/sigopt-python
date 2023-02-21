@@ -31,23 +31,10 @@ from .objects import (
 )
 from .requestor import Requestor, DEFAULT_API_URL
 from .resource import ApiResource
-from .urllib3_patch import ExpiringHTTPConnectionPool, ExpiringHTTPSConnectionPool
 from .version import VERSION
 
-
-def get_expiring_session():
-  adapter = HTTPAdapter()
-  adapter.poolmanager.pool_classes_by_scheme = {
-    "http": ExpiringHTTPConnectionPool,
-    "https": ExpiringHTTPSConnectionPool,
-  }
-  session = requests.Session()
-  session.mount("http://", adapter)
-  session.mount("https://", adapter)
-  return session
-
 class ConnectionImpl(object):
-  def __init__(self, driver, user_agent=None, verify_ssl_certs=None):
+  def __init__(self, driver, user_agent=None):
     self.driver = driver
 
     suggestions = ApiResource(
@@ -290,8 +277,6 @@ class ConnectionImpl(object):
     )
 
     self.user_agent = user_agent
-    if verify_ssl_certs is not None:
-      self.set_verify_ssl_certs(verify_ssl_certs)
 
     self.pki_sessions = ApiResource(
       self,
@@ -333,31 +318,19 @@ class Connection(object):
   Client-facing interface for creating Connections.
   Shouldn't be changed without a major version change.
   """
-  def __init__(self, client_token=None, user_agent=None, session=None):
-    client_token = client_token or os.environ.get('SIGOPT_API_TOKEN', config.api_token)
-    # no-verify overrides a passed in path
-    no_verify_ssl_certs = os.environ.get('SIGOPT_API_NO_VERIFY_SSL_CERTS')
-    if no_verify_ssl_certs:
-      verify_ssl_certs = False
-    else:
-      verify_ssl_certs = os.environ.get('SIGOPT_API_VERIFY_SSL_CERTS')
-
-    if not client_token:
-      raise ValueError('Must provide client_token or set environment variable SIGOPT_API_TOKEN')
+  def __init__(self, *args, user_agent=None, session=None, driver=Requestor, **kwargs):
 
     default_headers = {
       'Content-Type': 'application/json',
       'X-SigOpt-Python-Version': VERSION,
     }
-    if session is None:
-      session = get_expiring_session()
-    requestor = Requestor(
-      client_token,
-      '',
-      default_headers,
+    driver_instance = driver(
+      *args,
+      headers=default_headers,
       session=session,
+      **kwargs,
     )
-    self.impl = ConnectionImpl(driver=requestor, user_agent=user_agent, verify_ssl_certs=verify_ssl_certs)
+    self.impl = ConnectionImpl(driver=driver_instance, user_agent=user_agent)
 
   def set_api_url(self, api_url):
     self.impl.set_api_url(api_url)
