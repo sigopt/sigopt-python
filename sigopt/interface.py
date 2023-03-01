@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import os
 
 import requests
@@ -7,6 +10,7 @@ from .compat import json as simplejson
 from .config import config
 from .endpoint import ApiEndpoint
 from .objects import (
+  AIExperiment,
   ApiObject,
   BestAssignments,
   Checkpoint,
@@ -180,12 +184,44 @@ class ConnectionImpl(object):
       ],
     )
 
+    aiexperiment_training_runs = ApiResource(
+      self,
+      'training_runs',
+      endpoints=[
+        ApiEndpoint(None, TrainingRun, 'POST', 'create'),
+      ],
+    )
+
+    self.aiexperiments = ApiResource(
+      self,
+      'aiexperiments',
+      endpoints=[
+        ApiEndpoint(None, AIExperiment, 'POST', 'create'),
+        ApiEndpoint(None, object_or_paginated_objects(AIExperiment), 'GET', 'fetch'),
+        ApiEndpoint(None, AIExperiment, 'PUT', 'update'),
+        ApiEndpoint(None, None, 'DELETE', 'delete'),
+      ],
+      resources=[
+        aiexperiment_training_runs,
+        best_training_runs,
+      ],
+    )
+
     client_experiments = ApiResource(
       self,
       'experiments',
       endpoints=[
         ApiEndpoint(None, Experiment, 'POST', 'create'),
         ApiEndpoint(None, paginated_objects(Experiment), 'GET', 'fetch'),
+      ],
+    )
+
+    client_project_aiexperiments = ApiResource(
+      self,
+      'aiexperiments',
+      endpoints=[
+        ApiEndpoint(None, AIExperiment, 'POST', 'create'),
+        ApiEndpoint(None, paginated_objects(AIExperiment), 'GET', 'fetch'),
       ],
     )
 
@@ -217,6 +253,7 @@ class ConnectionImpl(object):
         ApiEndpoint(None, Project, 'PUT', 'update'),
       ],
       resources=[
+        client_project_aiexperiments,
         client_project_experiments,
         client_project_training_runs,
       ],
@@ -379,6 +416,10 @@ class Connection(object):
   @property
   def clients(self):
     return self.impl.clients
+
+  @property
+  def aiexperiments(self):
+    return self.impl.aiexperiments
 
   @property
   def experiments(self):

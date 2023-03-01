@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import errno
 import io
 import os
@@ -136,10 +139,10 @@ def setup_cli(config):
   config.set_user_agent_info(['CLI'])
   enable_print_logging()
 
-def create_experiment_from_validated_data(experiment_file, project):
+def create_aiexperiment_from_validated_data(experiment_file, project):
   assert isinstance(experiment_file, ValidatedData)
   factory = SigOptFactory(project)
-  return factory.create_prevalidated_experiment(experiment_file.data)
+  return factory.create_prevalidated_aiexperiment(experiment_file.data)
 
 def cli_experiment_loop(config, experiment, command, run_options, source_code_content):
   for run_context in experiment.loop(name=run_options.get("name")):

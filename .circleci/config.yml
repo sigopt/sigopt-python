@@ -1,11 +1,14 @@
 version: 2.1
 
+variables:
+  python-versions: &python-versions ["3.10", "3.9", "3.8", "3.7"]
+
 orbs:
   slack: circleci/slack@4.4.4
 
 slack-fail-post-step: &slack-fail-post-step
   - slack/notify:
-      branch_pattern: master
+      branch_pattern: main
       channel: sigopt-platform-ci
       event: fail
       template: basic_fail_1
@@ -15,14 +18,35 @@ commands:
     steps:
       - checkout
       - run: sudo pip install --upgrade pip setuptools
-      - run: sudo make update
-  test:
+  test-cli:
     steps:
       - setup
-      - run: make test
+      - run: pip install -e '.[dev,orchestrate]'
+      - run: pytest -rw -v test/cli
+  test-client:
+    steps:
+      - setup
+      - run: pip install -e '.[dev]'
+      - run: pytest -rw -v test/client
+  test-orchestrate:
+    steps:
+      - setup
+      - run: pip install -e '.[dev,orchestrate]'
+      - run: pytest -rw -v test/orchestrate
+  test-runs:
+    steps:
+      - setup
+      - run: pip install -e '.[dev]'
+      - run: pytest -rw -v test/runs test/validate
+  test-xgboost:
+    steps:
+      - setup
+      - run: pip install -e '.[dev,xgboost]'
+      - run: pytest -rw -v test/xgboost
   lint:
     steps:
       - setup
+      - run: sudo make update
       - run: sudo pip install pylint==2.9.6
       - run: make lint
   tutorial:
@@ -43,26 +67,47 @@ jobs:
       - image: circleci/python:3.9
     steps:
       - lint
-  test-39:
+  test-cli:
+    parameters:
+      python-version: &python-version-param
+        type: enum
+        enum: *python-versions
     docker:
-      - image: circleci/python:3.9
+      - image: circleci/python:<< parameters.python-version >>
     steps:
-      - test
-  test-38:
+      - test-cli
+  test-client:
+    parameters:
+      python-version:
+        <<: *python-version-param
     docker:
-      - image: circleci/python:3.8
+      - image: circleci/python:<< parameters.python-version >>
     steps:
-      - test
-  test-37:
+      - test-client
+  test-orchestrate:
+    parameters:
+      python-version:
+        <<: *python-version-param
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:<< parameters.python-version >>
     steps:
-      - test
-  test-36:
+      - test-orchestrate
+  test-runs:
+    parameters:
+      python-version:
+        <<: *python-version-param
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:<< parameters.python-version >>
     steps:
-      - test
+      - test-runs
+  test-xgboost:
+    parameters:
+      python-version:
+        <<: *python-version-param
+    docker:
+      - image: circleci/python:<< parameters.python-version >>
+    steps:
+      - test-xgboost
   tutorial:
      parameters:
        TEST_ACCOUNT_API_TOKEN:
@@ -84,19 +129,38 @@ jobs:
 workflows:
   main:
     jobs: &jobs
-      - test-36
-      - test-37
-      - test-38
-      - test-39
+      - test-cli:
+          matrix:
+            parameters:
+              python-version: *python-versions
+      - test-client:
+          matrix:
+            parameters:
+              python-version: *python-versions
+      - test-orchestrate:
+          matrix:
+            parameters:
+              python-version: *python-versions
+      - test-runs:
+          matrix:
+            parameters:
+              python-version: *python-versions
+      - test-xgboost:
+          matrix:
+            parameters:
+              python-version: *python-versions
       - lint
+      - tutorial
       - final-catch-all:
           context: slack-secret
           requires:
-            - test-36
-            - test-37
-            - test-38
-            - test-39
+            - test-cli
+            - test-client
+            - test-orchestrate
+            - test-runs
+            - test-xgboost
             - lint
+            - tutorial
           post-steps: *slack-fail-post-step
 
   rot-check:
@@ -107,4 +171,4 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main

@@ -5,7 +5,7 @@
 This is the [SigOpt](https://sigopt.com) Python API client.
 Use this to natively call SigOpt API endpoints to create experiments and report data.
 
-For more help getting started with SigOpt and Python, check out the [docs](https://sigopt.com/docs/overview/python).
+For more help getting started with SigOpt and Python, check out the [docs](https://docs.sigopt.com/core-module-api-references/get_started).
 
 Take a look in `examples` for example usage.
 
@@ -49,6 +49,7 @@ experiment = conn.experiments().create(
     dict(name='x', type='double', bounds=dict(min=0.0, max=1.0)),
     dict(name='y', type='double', bounds=dict(min=0.0, max=1.0)),
   ],
+  metrics=[dict(name='f', objective='maximize')],
 )
 print("Created experiment: https://sigopt.com/experiment/" + experiment.id);
 
@@ -63,7 +64,7 @@ for _ in range(20):
   value = evaluate_model(suggestion.assignments)
   conn.experiments(experiment.id).observations().create(
     suggestion=suggestion.id,
-    value=value,
+    values=[dict(name='f', value=value)],
   )
 ```
 

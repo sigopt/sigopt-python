@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import errno
 import hashlib
 import os
@@ -52,17 +55,17 @@ def check_executable(command, sha256, full_check):
         raise
 
 
-KUBECTL_VERSION = 'v1.20.4'
-KUBECTL_URL_FORMAT = 'https://storage.googleapis.com/kubernetes-release/release/{}/bin/{}/amd64/kubectl'
-KUBECTL_SHA256_LINUX = '98e8aea149b00f653beeb53d4bd27edda9e73b48fed156c4a0aa1dabe4b1794c'
-KUBECTL_SHA256_MAC = '37f593731b8c9913bf2a3bfa36dacb3058dc176c7aeae2930c783822ea03a573'
+KUBECTL_VERSION = 'v1.25.2'
+KUBECTL_URL_FORMAT = 'https://dl.k8s.io/release/{}/bin/{}/amd64/kubectl'
+KUBECTL_SHA256_LINUX = '8639f2b9c33d38910d706171ce3d25be9b19fc139d0e3d4627f38ce84f9040eb'
+KUBECTL_SHA256_MAC = 'b859766d7b47267af5cc1ee01a2d0c3c137dbfc53cd5be066181beed11ec7d34'
 
 AWS_IAM_AUTHENTICATOR_URL_FORMAT = (
-  'https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/0.4.0-alpha.1/aws-iam-'
-  'authenticator_0.4.0-alpha.1_{}_amd64'
+  'https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-'
+  'authenticator_0.5.9_{}_amd64'
 )
-AWS_IAM_AUTHENTICATOR_SHA256_LINUX = 'a573503724b15857e4c766fb16b7992865f34715a5297e46a046af9536ccb71a'
-AWS_IAM_AUTHENTICATOR_SHA256_MAC = 'e98beb32cd15c198dedd9da46bd56599ee36e0e9e6debede4bd737a8158da92a'
+AWS_IAM_AUTHENTICATOR_SHA256_LINUX = 'b192431c22d720c38adbf53b016c33ab17105944ee73b25f485aa52c9e9297a7'
+AWS_IAM_AUTHENTICATOR_SHA256_MAC = '7656bd290a7e9cb588df1d9ccec43fab7f2447b88ed4f41d3f5092fd114b0939'
 
 def check_kubectl_executable(full_check=False):
   check_executable(

@@ -1,7 +1,10 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import copy
 import pytest
 
-from sigopt.validate.experiment_input import validate_experiment_input
+from sigopt.validate.aiexperiment_input import validate_aiexperiment_input
 from sigopt.validate.exceptions import ValidationError
 
 
@@ -61,7 +64,7 @@ class TestValidateExperiment:
     experiment_input = copy.deepcopy(VALID_EXPERIMENT_INPUT)
     mutator(experiment_input)
     with pytest.raises(ValidationError) as validation_error:
-      validate_experiment_input(experiment_input)
+      validate_aiexperiment_input(experiment_input)
     assert expected_message in str(validation_error)
 
   @pytest.mark.parametrize("mutator,check", [
@@ -77,5 +80,5 @@ class TestValidateExperiment:
   def test_valid_experiment(self, mutator, check):
     experiment_input = copy.deepcopy(VALID_EXPERIMENT_INPUT)
     mutator(experiment_input)
-    validated = validate_experiment_input(experiment_input)
+    validated = validate_aiexperiment_input(experiment_input)
     assert check(validated)

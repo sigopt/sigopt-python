@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from sigopt.factory import SigOptFactory
 
 from controller.create_pod import create_run_pod, random_run_name
@@ -29,7 +32,7 @@ class RefillExperimentPodsThread(ControllerThread):
     logger = self.logger
     logger.info("starting management loop")
     project = sigopt_settings.project
-    run_factory = SigOptFactory(project, connection=sigopt_settings.conn).get_experiment(experiment_id)
+    run_factory = SigOptFactory(project, connection=sigopt_settings.conn).get_aiexperiment(experiment_id)
     while True:
       refill_pods_event.wait()
       refill_pods_event.clear()

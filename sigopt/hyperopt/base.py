@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from .compat import Trials, STATUS_OK, STATUS_FAIL
 from ..local_run_context import LocalRunContext
 from .. import SigOptFactory

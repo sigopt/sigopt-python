@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import datetime
 import re
 import sys
@@ -79,6 +82,8 @@ class AwsService(ProviderInterface):
       ) from e
 
   def validate_cluster_options(self, cluster_name, node_groups_config, kubernetes_version):
+    if kubernetes_version == "latest":
+      kubernetes_version = DEFAULT_KUBERNETES_VERSION
     if kubernetes_version:
       assert kubernetes_version in SUPPORTED_KUBERNETES_VERSIONS, (
         'Unsupported kubernetes version for EKS:'
@@ -237,7 +242,7 @@ class AwsService(ProviderInterface):
           raise AwsClusterSharePermissionError(
             f"You do not have permission to use the role '{cluster_access_role_arn}' for accessing this cluster.\n"
             "Please read the SigOpt documentation for sharing clusters: "
-            "https://app.sigopt.com/docs/orchestrate/deep_dive#cluster_sharing"
+            "https://docs.sigopt.com/ai-module-api-references/orchestrate/aws_cluster#share-your-kubernetes-cluster"
           ) from ce
         time.sleep(wait_time)
 
@@ -277,7 +282,7 @@ class AwsService(ProviderInterface):
       command_args.extend(["-r", cluster_access_role_arn])
     user = {
       "exec": {
-        "apiVersion": "client.authentication.k8s.io/v1alpha1",
+        "apiVersion": "client.authentication.k8s.io/v1beta1",
         "command": get_executable_path("aws-iam-authenticator"),
         "args": command_args,
       },

@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 def get_missing_experiment_pod_count(conn, current_pod_count, experiment_id):
   e = conn.experiments(experiment_id).fetch()
   expected_num_pods = e.parallel_bandwidth or 1

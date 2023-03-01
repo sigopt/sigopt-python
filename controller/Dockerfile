@@ -1,60 +1,81 @@
-FROM python:3.9.6-alpine3.14 AS updated-base
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+ARG SIGOPT_GIT_HASH=d4257f9daf672139d7c3437c2f784eef4ae20f08
 
-RUN apk del krb5-conf krb5-libs
 
-# NOTE: packages to update are busybox, libretls and openssl.
-# all dependencies and exact versions are mentioned here so that we can ensure the correct sources are downloaded for licensing.
-ENV UPDATED_PKGS "busybox=1.33.1-r3 libcrypto1.1=1.1.1l-r0 libretls=3.3.3p1-r2 libssl1.1=1.1.1l-r0 openssl=1.1.1l-r0 ssl_client=1.33.1-r3"
+FROM python:3.10.8-alpine3.16 AS updated-base
 
-RUN set -ex \
+SHELL ["/bin/ash", "-ex", "-o", "pipefail", "-c"]
+
+COPY upgrade_packages.txt /upgrade_packages.txt
+
+# hadolint ignore=DL3018
+RUN : \
+  ; apk del --purge krb5-conf krb5-libs \
   ; apk update --no-cache \
-  ; apk add --upgrade --no-cache $UPDATED_PKGS \
+  ; xargs apk add --upgrade --no-cache </upgrade_packages.txt \
   ; :
 
 
 FROM updated-base AS alpine-src
 
-RUN apk update --no-cache
+SHELL ["/bin/ash", "-ex", "-o", "pipefail", "-c"]
 
-RUN apk add --no-cache alpine-sdk git
+RUN : \
+  ; apk update --no-cache \
+  ; apk add --no-cache alpine-sdk=1.0-r1 git=2.36.3-r0 \
+  ; git clone --depth=1 --branch=3.16-stable git://git.alpinelinux.org/aports \
+  ; mkdir -p /src \
+  ; :
 
-RUN git clone --depth=1 --branch=v3.14.0 git://git.alpinelinux.org/aports
-
-RUN mkdir -p /src
-
-# NOTE: https://pkgs.alpinelinux.org/packages shows that for each of the updated packages these source packages are listed as the origin.
-ENV SRC_PKGS "busybox libretls openssl"
-
-RUN set -ex \
-  ; for pkg in $SRC_PKGS \
-    ; do cd /aports/*/$pkg \
+# hadolint ignore=DL3003
+RUN : \
+  ; awk -F= '{ print $1 }' </upgrade_packages.txt | while read -r pkg; do : \
+    ; cd /aports/*/"$pkg" || exit 1 \
     ; abuild -F fetch verify \
-    ; cp -Lr /aports/*/$pkg /src/$pkg \
+    ; cp -Lr /aports/*/"$pkg" /src/"$pkg" \
     ; done \
   ; :
 
 
 FROM updated-base AS pip-reqs
 
+SHELL ["/bin/ash", "-ex", "-o", "pipefail", "-c"]
+
+ARG SIGOPT_GIT_HASH
+
+COPY build_packages.txt /build_packages.txt
+
 # NOTE: the pip install attempts to install pypng==0.0.21 but for some reason that is not available in this container.
 # The sigopt reqs ask for pypng>=0.0.20 so there should theoretically be no issue.
-RUN set -ex \
-  ; BUILD_PKGS="cargo git gcc libffi-dev musl-dev openssl-dev rust" \
-  ; apk add --no-cache $BUILD_PKGS \
+# hadolint ignore=DL3018
+RUN : \
+  ; xargs apk add --no-cache </build_packages.txt \
   ; mkdir -p /src \
-  ; pip install --upgrade --no-cache-dir kubernetes==12.0.1 pypng==0.0.20 git+https://github.com/sigopt/sigopt-python@d5c71dca6b754405f644e8f89214d823aa2e3f58 \
-  ; apk del --purge $BUILD_PKGS \
+  ; pip install --upgrade --no-cache-dir kubernetes==12.0.1 pypng==0.0.20 git+https://github.com/sigopt/sigopt-python@$SIGOPT_GIT_HASH \
+  ; rm -rf /root/.cache \
+  ; awk -F= '{ print $1 }' </build_packages.txt | xargs apk del --purge \
   ; :
 
 RUN pip freeze > /pip-reqs.txt
 
 
-FROM python:3.9.6 AS pip-src
+FROM python:3.10.7 AS pip-src
+
+SHELL ["/bin/bash", "-ex", "-o", "pipefail", "-c"]
 
 COPY --from=pip-reqs /pip-reqs.txt /pip-reqs.txt
 
-RUN cat /pip-reqs.txt | grep -v '@' | xargs -P8 pip download --no-binary=:all: --no-cache-dir -d /src
+RUN : \
+  ; grep -v '@' </pip-reqs.txt | xargs -P8 pip download --no-binary=:all: --no-cache-dir -d /src \
+  ; :
 
+ARG SIGOPT_GIT_HASH
+
+RUN : \
+  ; curl -fSsLo /src/sigopt-python@$SIGOPT_GIT_HASH.tar https://github.com/sigopt/sigopt-python/tarball/$SIGOPT_GIT_HASH \
+  ; :
 
 
 FROM pip-reqs
@@ -64,7 +85,7 @@ RUN apk del apk-tools
 COPY --from=alpine-src /src/ /src/
 COPY --from=pip-src /src/ /src/
 
-COPY controller /usr/local/lib/python3.9/site-packages/controller
+COPY controller /usr/local/lib/python3.10/site-packages/controller
 
 RUN adduser -S controller
 

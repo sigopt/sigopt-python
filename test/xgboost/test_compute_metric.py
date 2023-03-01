@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import numpy
 from sigopt.xgboost.compute_metrics import (
   compute_accuracy,

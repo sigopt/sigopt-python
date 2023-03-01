@@ -1,4 +1,8 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import json
+from urllib.parse import urlparse
 
 from sigopt.config import config
 from sigopt.exception import ApiException
@@ -24,7 +28,9 @@ class SigOptService(Service):
 
   @property
   def api_url(self):
-    return self.conn.impl.api_url
+    api_url = self.conn.impl.api_url
+    urlparse(api_url)
+    return api_url
 
   @property
   def verify_ssl_certs(self):
@@ -39,13 +45,13 @@ class SigOptService(Service):
     except ApiException as e:
       raise CheckConnectionError(f'An error occured while checking your SigOpt connection: {e}') from e
 
-  def create_experiment(self, experiment_body, project_id):
+  def create_aiexperiment(self, experiment_body, project_id):
     factory = SigOptFactory(project_id)
-    return factory.create_prevalidated_experiment(experiment_body)
+    return factory.create_prevalidated_aiexperiment(experiment_body)
 
   def fetch_experiment(self, experiment_id):
     factory = SigOptFactory.from_default_project()
-    return factory.get_experiment(experiment_id)
+    return factory.get_aiexperiment(experiment_id)
 
   def create_run(self, run_name, cluster, project_id):
     factory = SigOptFactory(project_id)

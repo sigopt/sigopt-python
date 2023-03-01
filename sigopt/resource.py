@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from .endpoint import BoundApiEndpoint
 
 _NO_ARG = object()

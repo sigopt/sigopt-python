@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 from .identifier import (
   IDENTIFIER_QUERY_ID,
   IDENTIFIER_QUERY_NAME,
@@ -63,7 +66,7 @@ def print_experiment_status(experiment_identifier, services):
     "Follow logs: "
     f"sigopt cluster kubectl logs -ltype=run,experiment={experiment.id} --max-log-requests=1000 -f"
   )
-  yield f'View more at: https://app.sigopt.com/experiment/{experiment_id}'
+  yield f'View more at: https://app.sigopt.com/aiexperiment/{experiment_id}'
 
 def print_run_status(run_identifier, services):
   run_identifier = maybe_convert_to_run_identifier(run_identifier)

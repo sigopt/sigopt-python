@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import pytest
 from mock import Mock
 
@@ -61,10 +64,8 @@ class TestAwsService(object):
 
   @pytest.mark.parametrize('kubernetes_version', [
     None,
-    '1.17',
-    '1.18',
-    '1.19',
     '1.20',
+    '1.23',
     'latest',
   ])
   def test_valid_kubernetes_versions(self, aws_service, kubernetes_version, cpu_config, gpu_config):

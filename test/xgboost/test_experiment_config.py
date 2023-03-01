@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import copy
 from mock import Mock
 import pytest
@@ -70,7 +73,7 @@ def verify_experiment_config_integrity(experiment_config):
     assert 'objective' in metric
 
 
-def parse_and_create_experiment_config(experiment_config, params):
+def parse_and_create_aiexperiment_config(experiment_config, params):
   num_boost_round = None
   run_options = None
   early_stopping_rounds = 10
@@ -92,7 +95,7 @@ def parse_and_create_experiment_config(experiment_config, params):
 
 class TestExperimentConfig:
   def verify_integrity(self, experiment_config, params):
-    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
+    xgb_experiment = parse_and_create_aiexperiment_config(experiment_config, params)
     verify_experiment_config_integrity(xgb_experiment.experiment_config_parsed)
 
   def test_base(self):
@@ -118,7 +121,7 @@ class TestExperimentConfig:
     experiment_config = copy.deepcopy(EXPERIMENT_CONFIG_BASE)
     params = copy.deepcopy(PARAMS_BASE)
     experiment_config['parameters'] = [dict(name='eta')]
-    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
+    xgb_experiment = parse_and_create_aiexperiment_config(experiment_config, params)
     assert xgb_experiment.experiment_config_parsed['parameters'][0]['transformation'] == 'log'
 
   def test_config_search_space_mixed(self):
@@ -205,19 +208,19 @@ class TestExperimentConfig:
     params = copy.deepcopy(PARAMS_BASE)
 
     params['objective'] = 'binary:logistic'
-    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
+    xgb_experiment = parse_and_create_aiexperiment_config(experiment_config, params)
     assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == '-'.join(
       (DEFAULT_EVALS_NAME, DEFAULT_CLASSIFICATION_METRIC)
     )
 
     params['objective'] = 'multi:softmax'
-    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
+    xgb_experiment = parse_and_create_aiexperiment_config(experiment_config, params)
     assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == '-'.join(
       (DEFAULT_EVALS_NAME, DEFAULT_CLASSIFICATION_METRIC)
     )
 
     params['objective'] = 'reg:squarederror'
-    xgb_experiment = parse_and_create_experiment_config(experiment_config, params)
+    xgb_experiment = parse_and_create_aiexperiment_config(experiment_config, params)
     assert xgb_experiment.experiment_config_parsed['metrics'][0]['name'] == '-'.join(
       (DEFAULT_EVALS_NAME, DEFAULT_REGRESSION_METRIC)
     )

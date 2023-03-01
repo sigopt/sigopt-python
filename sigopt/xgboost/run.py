@@ -1,8 +1,13 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import copy
+from inspect import signature
 import math
 import json
 import platform
 import time
+import warnings
 
 from .. import create_run
 from ..log_capture import SystemOutputStreamMonitor
@@ -35,6 +40,7 @@ DEFAULT_RUN_OPTIONS = {
 DEFAULT_CHECKPOINT_PERIOD = 5
 MAX_NUM_CHECKPOINTS = 200
 FEATURE_IMPORTANCES_MAX_NUM_FEATURE = 50
+FEATURE_IMPORTANCES_MAX_KEY_CHARS = 100
 XGB_INTEGRATION_KEYWORD = '_IS_XGB_RUN'
 
 PARAMS_LOGGED_AS_METADATA = [
@@ -50,43 +56,55 @@ SUPPORTED_OBJECTIVE_PREFIXES = [
   'multi',
   'reg',
 ]
+DOC_URL = "https://docs.sigopt.com/ai-module-api-references/xgboost/xgboost_run"
 
 
 def parse_run_options(run_options):
-  if run_options is not None:
-    if not isinstance(run_options, dict):
-      # TODO(Harvey): verify actual doc url when it's online
-      doc_url = "https://app.sigopt.com/docs/xgboost/xgboost_run"
+  if run_options is None:
+    return copy.deepcopy(DEFAULT_RUN_OPTIONS)
+
+  if not isinstance(run_options, dict):
+    raise TypeError(
+      f"run_options should be a dictionary. Refer to the sigopt.xgboost.run documentation {DOC_URL}"
+    )
+
+  if run_options.keys() - DEFAULT_RUN_OPTIONS.keys():
+    raise ValueError(
+      f"Unsupported keys {run_options.keys() - DEFAULT_RUN_OPTIONS.keys()} in run_options."
+    )
+
+  for key, value in run_options.items():
+    if key.startswith("autolog") and not isinstance(value, bool):
       raise TypeError(
-        f"run_options should be a dictonary. Refer to the sigopt.xgboost.run documentation {doc_url}"
+        f"run_options key `{key}` expects a Boolean value, not {type(value)}."
       )
 
-    if run_options.keys() - DEFAULT_RUN_OPTIONS.keys():
+  if {'run', 'name'}.issubset(run_options.keys()):
+    if run_options['run'] and run_options['name']:
       raise ValueError(
-        f"Unsupported keys {run_options.keys() - DEFAULT_RUN_OPTIONS.keys()} in run_options."
+        "Cannot specify both `run` and `name` keys inside run_options."
       )
 
-    for key, value in run_options.items():
-      if key.startswith("autolog") and not isinstance(value, bool):
-        raise TypeError(
-          f"run_options key '{key}` expects a Boolean value, not {type(value)}."
-        )
+  if 'run' in run_options.keys() and run_options['run'] is not None:
+    if not isinstance(run_options['run'], RunContext):
+      raise TypeError(
+        f"`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
+      )
 
-    if {'run', 'name'}.issubset(run_options.keys()):
-      if run_options['run'] and run_options['name']:
-        raise ValueError(
-          "Cannot speicify both `run` and `name` keys inside run_options."
-        )
+  return {**DEFAULT_RUN_OPTIONS, **run_options}
 
-    if 'run' in run_options.keys() and run_options['run'] is not None:
-      if not isinstance(run_options['run'], RunContext):
-        raise TypeError(
-          "`run` must be an instance of RunContext object, not {type(run_options['run']).__name__}."
-        )
 
-    return {**DEFAULT_RUN_OPTIONS, **run_options}
+def validate_xgboost_kwargs(xgb_kwargs):
+  if not xgb_kwargs:
+    return
 
-  return copy.deepcopy(DEFAULT_RUN_OPTIONS)
+  for key in list(xgb_kwargs.keys()):
+    if key not in signature(xgboost.train).parameters.keys():
+      warnings.warn(
+        f"The argument `{key}` is not supported by this version of XGBoost, and has been ignored",
+        RuntimeWarning,
+      )
+      xgb_kwargs.pop(key)
 
 
 class XGBRun(ModelAwareRun):
@@ -101,9 +119,6 @@ class XGBRunHandler:
     params,
     dtrain,
     num_boost_round,
-    obj,
-    feval,
-    maximize,
     evals,
     early_stopping_rounds,
     evals_result,
@@ -111,13 +126,11 @@ class XGBRunHandler:
     xgb_model,
     callbacks,
     run_options,
+    **kwargs,
   ):
     self.params = params
     self.dtrain = dtrain
     self.num_boost_round = num_boost_round
-    self.obj = obj
-    self.feval = feval
-    self.maximize = maximize
     self.early_stopping_rounds = early_stopping_rounds
     self.verbose_eval = verbose_eval
     self.callbacks = callbacks
@@ -127,6 +140,8 @@ class XGBRunHandler:
     self.run = None
     self.model = xgb_model
     self.is_regression = None
+    self.kwargs = kwargs
+    validate_xgboost_kwargs(self.kwargs)
 
   def form_callbacks(self):
     # if no validation set, checkpointing not possible
@@ -228,6 +243,15 @@ class XGBRunHandler:
     scores = dict(
       sorted(scores.items(), key=lambda x:(x[1], x[0]), reverse=True)[:FEATURE_IMPORTANCES_MAX_NUM_FEATURE]
     )
+
+    if any(len(k) > FEATURE_IMPORTANCES_MAX_KEY_CHARS for k in scores.keys()):
+      warnings.warn(
+        f"Some of the feature names have more than {FEATURE_IMPORTANCES_MAX_KEY_CHARS} characters,"
+        " skipping logging feature importances.",
+        RuntimeWarning,
+      )
+      return
+
     fp = {
       'type': importance_type,
       'scores': scores,
@@ -248,14 +272,13 @@ class XGBRunHandler:
         'params': params,
         'dtrain': self.dtrain,
         'num_boost_round': self.num_boost_round,
-        'obj': self.obj,
-        'feval': self.feval,
-        'maximize': self.maximize,
         'early_stopping_rounds': self.early_stopping_rounds,
         'verbose_eval': self.verbose_eval,
         'xgb_model': self.model,
         'callbacks': self.callbacks,
       }
+      if self.kwargs:
+        xgb_args.update(self.kwargs)
       if self.validation_sets is not None:
         self.evals_result = {} if self.evals_result is None else self.evals_result
         xgb_args['evals'] = self.validation_sets
@@ -290,26 +313,22 @@ class XGBRunHandler:
       if self.early_stopping_rounds:
         self.run.log_metric('num_boost_round_before_stopping', n_eval_rounds)
 
-    if self.run_options_parsed['autolog_metrics']:
-      if self.validation_sets:
-        for validation_set in self.validation_sets:
-          if self.is_regression:
-            self.run.log_metrics(
-              compute_regression_metrics(self.model, (validation_set))
-            )
-          else:
-            self.run.log_metrics(
-              compute_classification_metrics(self.model, (validation_set))
-            )
+    if self.run_options_parsed["autolog_metrics"] and self.validation_sets:
+      for validation_set in self.validation_sets:
+        if self.is_regression:
+          self.run.log_metrics(
+            compute_regression_metrics(self.model, (validation_set))
+          )
+        else:
+          self.run.log_metrics(
+            compute_classification_metrics(self.model, (validation_set))
+          )
 
 
 def run(
   params,
   dtrain,
   num_boost_round=10,
-  obj=None,
-  feval=None,
-  maximize=None,
   evals=None,
   early_stopping_rounds=None,
   evals_result=None,
@@ -317,6 +336,7 @@ def run(
   callbacks=None,
   xgb_model=None,
   run_options=None,
+  **kwargs,
 ):
   """
   Sigopt integration for XGBoost mirrors the standard xgboost.train interface for the most part, with the option
@@ -334,9 +354,6 @@ def run(
     params=params,
     dtrain=dtrain,
     num_boost_round=num_boost_round,
-    obj=obj,
-    feval=feval,
-    maximize=maximize,
     evals=evals,
     early_stopping_rounds=early_stopping_rounds,
     evals_result=evals_result,
@@ -344,6 +361,7 @@ def run(
     xgb_model=xgb_model,
     callbacks=callbacks,
     run_options=run_options,
+    **kwargs,
   )
 
   _run.make_run()

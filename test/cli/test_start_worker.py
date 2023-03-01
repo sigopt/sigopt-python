@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import click
 import mock
 import os
@@ -6,7 +9,7 @@ import shutil
 from click.testing import CliRunner
 
 from sigopt.cli import cli
-from sigopt.experiment_context import ExperimentContext
+from sigopt.aiexperiment_context import AIExperimentContext
 from sigopt.run_context import RunContext
 
 
@@ -22,12 +25,12 @@ class TestRunCli(object):
   @pytest.fixture(autouse=True)
   def patch_run_factory(self, run_context):
     with mock.patch('sigopt.cli.commands.local.start_worker.SigOptFactory') as factory:
-      experiment = ExperimentContext(mock.Mock(project="test-project"), mock.Mock())
+      experiment = AIExperimentContext(mock.Mock(project="test-project"), mock.Mock())
       experiment.create_run = mock.Mock(return_value=run_context)
       experiment.refresh = mock.Mock()
       experiment.is_finished = mock.Mock(side_effect=[False, True])
       instance = mock.Mock()
-      instance.get_experiment.return_value = experiment
+      instance.get_aiexperiment.return_value = experiment
       factory.from_default_project = mock.Mock(return_value=instance)
       yield
 

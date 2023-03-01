@@ -1,3 +1,6 @@
+# Copyright © 2022 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import click
 
 from .version import CLI_NAME
@@ -24,7 +27,7 @@ class AwsPermissionsError(OrchestrateException):
       "Looks like you have encountered the below AWS permissions error."
       " Please check out our documentation and ensure you have granted yourself the correct AWS permissions"
       " to use SigOpt cluster features:"
-      " https://app.sigopt.com/docs/orchestrate/deep_dive#aws_permissions"
+      " https://docs.sigopt.com/ai-module-api-references/orchestrate/aws_cluster#aws-configuration"
       f"\n\n{error}"
     )
 
