@@ -9,7 +9,7 @@ orbs:
 slack-fail-post-step: &slack-fail-post-step
   - slack/notify:
       branch_pattern: main
-      channel: eng
+      channel: sigopt-platform-ci
       event: fail
       template: basic_fail_1
 
