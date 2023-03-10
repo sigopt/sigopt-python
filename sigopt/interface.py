@@ -312,17 +312,44 @@ class ConnectionImpl(object):
   def set_client_token(self, client_token):
     self.driver.set_client_token(client_token)
 
+def instantiate_lite_driver(*args, **kwargs):
+  try:
+    from sigoptlite import LocalDriver
+  except ModuleNotFoundError as mnfe:
+    raise ModuleNotFoundError(
+      "SigOpt Lite is not installed. It can be installed with the following command: `pip install 'sigopt[lite]'`"
+    ) from mnfe
+  return LocalDriver(*args, **kwargs)
+
+DRIVER_KEY_HTTP = "http"
+DRIVER_KEY_LITE = "lite"
+driver_map = {
+  DRIVER_KEY_HTTP: RequestDriver,
+  DRIVER_KEY_LITE: instantiate_lite_driver,
+}
+
+def create_driver_instance(driver, args, kwargs):
+  if isinstance(driver, str):
+    try:
+      driver = driver_map[driver]
+    except KeyError as ke:
+      raise ValueError(
+        f"The driver {driver!r} is unknown."
+        f" Only the following options are available: {list(driver_map.keys())}"
+      ) from ke
+  return driver(*args, **kwargs)
+
 
 class Connection(object):
   """
   Client-facing interface for creating Connections.
   Shouldn't be changed without a major version change.
   """
-  def __init__(self, *args, user_agent=None, driver=RequestDriver, **kwargs):
-
-    driver_instance = driver(
-      *args,
-      **kwargs,
+  def __init__(self, *args, user_agent=None, driver="http", **kwargs):
+    driver_instance = create_driver_instance(
+      driver,
+      args,
+      kwargs,
     )
     self.impl = ConnectionImpl(driver=driver_instance, user_agent=user_agent)
 
