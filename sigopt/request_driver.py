@@ -92,8 +92,8 @@ class RequestDriver(object):
   def set_api_url(self, api_url):
     self.api_url = api_url
 
-  def _request(self, method, url, params, json, headers, user_agent):
-    headers = self._with_default_headers(headers, user_agent)
+  def _request(self, method, url, params, json, headers):
+    headers = self._with_default_headers(headers)
     try:
       caller = (self.session or requests)
       response = caller.request(
@@ -118,7 +118,7 @@ class RequestDriver(object):
       raise ConnectionException('\n'.join(message)) from rqe
     return response
 
-  def request(self, method, path, data=None, headers=None, user_agent=None):
+  def request(self, method, path, data, headers):
     url = "/".join([self.api_url, self.api_version] + path)
     if method.upper() in ('GET', 'DELETE'):
       json, params = None, self._request_params(data)
@@ -130,11 +130,11 @@ class RequestDriver(object):
       max_time=self.timeout,
       jitter=backoff.full_jitter,
     )
-    response = retry(self._request)(method, url, params, json, headers, user_agent)
+    response = retry(self._request)(method, url, params, json, headers)
     return self._handle_response(response)
 
-  def _with_default_headers(self, headers, user_agent):
-    user_agent_str = user_agent or 'sigopt-python/{0}'.format(VERSION)
+  def _with_default_headers(self, headers):
+    user_agent_str = 'sigopt-python/{0}'.format(VERSION)
     user_agent_info = config.get_user_agent_info()
     if user_agent_info:
       user_agent_info_str = ''.join([
