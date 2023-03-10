@@ -10,7 +10,7 @@ from sigopt.resource import BoundApiResource, PartiallyBoundApiResource
 class TestResource(object):
   @pytest.fixture
   def connection(self):
-    return ConnectionImpl(requestor=None)
+    return ConnectionImpl(driver=None)
 
   def test_partial_bind_resource(self, connection):
     assert isinstance(connection.experiments().observations, PartiallyBoundApiResource)

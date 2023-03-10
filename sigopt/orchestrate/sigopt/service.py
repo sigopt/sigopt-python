@@ -24,17 +24,17 @@ class SigOptService(Service):
 
   @property
   def api_token(self):
-    return self.conn.impl.requestor.auth.username
+    return self.conn.impl.driver.auth.username
 
   @property
   def api_url(self):
-    api_url = self.conn.impl.api_url
+    api_url = self.conn.impl.driver.api_url
     urlparse(api_url)
     return api_url
 
   @property
   def verify_ssl_certs(self):
-    return self.conn.impl.requestor.verify_ssl_certs
+    return self.conn.impl.driver.verify_ssl_certs
 
   def log_collection_enabled(self):
     return config.log_collection_enabled

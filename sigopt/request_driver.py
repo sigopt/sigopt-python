@@ -56,7 +56,7 @@ class RequestDriver(object):
     self.proxies = proxies
     self.timeout = timeout
     self.client_ssl_certs = client_ssl_certs
-    self.session = get_expiring_session()
+    self.session = session or get_expiring_session()
     self.api_url = os.environ.get("SIGOPT_API_URL") or DEFAULT_API_URL
     self.default_headers = {
       'Content-Type': 'application/json',

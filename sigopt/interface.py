@@ -291,7 +291,7 @@ class ConnectionImpl(object):
       method,
       path,
       data,
-      headers=headers,
+      headers,
     )
 
   def set_api_url(self, api_url):
