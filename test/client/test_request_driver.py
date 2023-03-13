@@ -6,6 +6,7 @@ from sigopt.version import VERSION
 
 
 class TestRequestDriver:
+  api_token = "test_api_token"
   api_url = "https://test.api.sigopt.ninja"
   timeout = -1
   user_agent_info = ("test", "info")
@@ -23,7 +24,10 @@ class TestRequestDriver:
   @pytest.fixture
   def driver(self, mock_session):
     return RequestDriver(
-      api_url=self.api_url, session=mock_session, timeout=self.timeout
+      self.api_token,
+      api_url=self.api_url,
+      session=mock_session,
+      timeout=self.timeout,
     )
 
   @pytest.mark.parametrize(
@@ -84,7 +88,7 @@ class TestRequestDriver:
     [
       (200, "{}", {}),
       (204, "", None),
-    ]
+    ],
   )
   def test_request(
     self,
