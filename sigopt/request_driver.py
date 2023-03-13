@@ -41,6 +41,7 @@ class RequestDriver(object):
     timeout=DEFAULT_HTTP_TIMEOUT,
     client_ssl_certs=None,
     session=None,
+    api_url=None,
   ):
     if client_token is None:
       client_token = client_token or os.environ.get("SIGOPT_API_TOKEN", config.api_token)
@@ -57,7 +58,7 @@ class RequestDriver(object):
     self.timeout = timeout
     self.client_ssl_certs = client_ssl_certs
     self.session = session or get_expiring_session()
-    self.api_url = os.environ.get("SIGOPT_API_URL") or DEFAULT_API_URL
+    self.api_url = api_url or os.environ.get("SIGOPT_API_URL") or DEFAULT_API_URL
     self.default_headers = {
       'Content-Type': 'application/json',
       'X-SigOpt-Python-Version': VERSION,
@@ -119,8 +120,9 @@ class RequestDriver(object):
     return response
 
   def request(self, method, path, data, headers):
-    url = "/".join([self.api_url, self.api_version] + path)
-    if method.upper() in ('GET', 'DELETE'):
+    method = method.upper()
+    url = "/".join(str(v) for v in (self.api_url, self.api_version, *path))
+    if method in ('GET', 'DELETE'):
       json, params = None, self._request_params(data)
     else:
       json, params = ApiObject.as_json(data), None
