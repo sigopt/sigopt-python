@@ -72,6 +72,13 @@ class TestRequestDriver:
       ({"X-Response-Content": "skip"}, {"X-Response-Content": "skip"}),
     ],
   )
+  @pytest.mark.parametrize(
+    "response_code,response_data,returned_data",
+    [
+      (200, "{}", {}),
+      (204, "", None),
+    ]
+  )
   def test_request(
     self,
     driver,
@@ -81,6 +88,9 @@ class TestRequestDriver:
     data,
     headers,
     uses_params,
+    response_code,
+    response_data,
+    returned_data,
     expected_method,
     expected_url,
     expected_params,
@@ -90,13 +100,13 @@ class TestRequestDriver:
     mock_session.request = mock.Mock(
       side_effect=[
         mock.Mock(
-          status_code=200,
-          text="{}",
+          status_code=response_code,
+          text=response_data,
         )
       ]
     )
     response = driver.request(method, path, data, headers)
-    assert response == {}
+    assert response == returned_data
     if uses_params:
       expected_json = None
     else:
