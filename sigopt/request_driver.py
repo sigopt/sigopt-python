@@ -77,7 +77,7 @@ class RequestDriver(object):
 
     def serialize(value):
       if isinstance(value, (dict, list)):
-        return simplejson.dumps(value)
+        return simplejson.dumps(value, indent=None, separators=(",", ":"))
       return str(value)
 
     return dict((

@@ -15,7 +15,9 @@ class TestRequestDriver:
 
   @pytest.fixture
   def driver(self, mock_session):
-    return RequestDriver(api_url=self.api_url, session=mock_session, timeout=self.timeout)
+    return RequestDriver(
+      api_url=self.api_url, session=mock_session, timeout=self.timeout
+    )
 
   @pytest.mark.parametrize(
     "method,expected_method,uses_params",
@@ -23,9 +25,9 @@ class TestRequestDriver:
       ("get", "GET", True),
       ("Get", "GET", True),
       ("GET", "GET", True),
+      ("DELETE", "DELETE", True),
       ("PUT", "PUT", False),
       ("POST", "POST", False),
-      ("DELETE", "DELETE", True),
       ("MERGE", "MERGE", False),
     ],
   )
@@ -42,6 +44,24 @@ class TestRequestDriver:
     "data,expected_params,expected_json",
     [
       (None, {}, None),
+      ({}, {}, {}),
+      ({"id": 1}, {"id": "1"}, {"id": 1}),
+      ({"id": "1"}, {"id": "1"}, {"id": "1"}),
+      (
+        {"assignments": {"x": 1, "y": 2}},
+        {"assignments": '{"x":1,"y":2}'},
+        {"assignments": {"x": 1, "y": 2}},
+      ),
+      (
+        {"datasets": {"mnist": {}}, "source_code": {"hash": "xyz123"}},
+        {"datasets": '{"mnist":{}}', "source_code": '{"hash":"xyz123"}'},
+        {"datasets": {"mnist": {}}, "source_code": {"hash": "xyz123"}},
+      ),
+      (
+        {"after": "", "before": "1234", "limit": 100},
+        {"after": "", "before": "1234", "limit": "100"},
+        {"after": "", "before": "1234", "limit": 100},
+      ),
     ],
   )
   @pytest.mark.parametrize(
@@ -49,6 +69,7 @@ class TestRequestDriver:
     [
       (None, {}),
       ({}, {}),
+      ({"X-Response-Content": "skip"}, {"X-Response-Content": "skip"}),
     ],
   )
   def test_request(
@@ -66,10 +87,14 @@ class TestRequestDriver:
     expected_json,
     expected_headers,
   ):
-    mock_session.request = mock.Mock(side_effect=[mock.Mock(
-      status_code=200,
-      text='{}',
-    )])
+    mock_session.request = mock.Mock(
+      side_effect=[
+        mock.Mock(
+          status_code=200,
+          text="{}",
+        )
+      ]
+    )
     response = driver.request(method, path, data, headers)
     assert response == {}
     if uses_params:
@@ -77,9 +102,11 @@ class TestRequestDriver:
     else:
       expected_params = None
     expected_headers.update(driver.default_headers)
-    expected_headers.update({
-      "User-Agent": f"sigopt-python/{VERSION}",
-    })
+    expected_headers.update(
+      {
+        "User-Agent": f"sigopt-python/{VERSION}",
+      }
+    )
     mock_session.request.assert_called_once_with(
       method=expected_method,
       url=f"{self.api_url}{expected_url}",
