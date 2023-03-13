@@ -47,6 +47,7 @@ class RequestDriver(object):
       client_token = client_token or os.environ.get("SIGOPT_API_TOKEN", config.api_token)
     if not client_token:
       raise ValueError("Must provide client_token or set environment variable SIGOPT_API_TOKEN")
+    self.auth = None
     self.set_client_token(client_token)
     # no-verify overrides a passed in path
     no_verify_ssl_certs = os.environ.get("SIGOPT_API_NO_VERIFY_SSL_CERTS")

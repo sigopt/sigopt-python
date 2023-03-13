@@ -1,17 +1,9 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import os
-
-import requests
-from requests.adapters import HTTPAdapter
-
-from .compat import json as simplejson
-from .config import config
 from .endpoint import ApiEndpoint
 from .objects import (
   AIExperiment,
-  ApiObject,
   BestAssignments,
   Checkpoint,
   Client,
@@ -31,7 +23,6 @@ from .objects import (
 )
 from .request_driver import RequestDriver
 from .resource import ApiResource
-from .version import VERSION
 
 class ConnectionImpl(object):
   def __init__(self, driver, user_agent=None):
@@ -314,7 +305,7 @@ class ConnectionImpl(object):
 
 def instantiate_lite_driver(*args, **kwargs):
   try:
-    from sigoptlite import LocalDriver
+    from sigoptlite import LocalDriver  # pylint: disable=import-error
   except ModuleNotFoundError as mnfe:
     raise ModuleNotFoundError(
       "SigOpt Lite is not installed. It can be installed with the following command: `pip install 'sigopt[lite]'`"
