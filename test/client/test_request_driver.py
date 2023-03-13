@@ -8,6 +8,13 @@ from sigopt.version import VERSION
 class TestRequestDriver:
   api_url = "https://test.api.sigopt.ninja"
   timeout = -1
+  user_agent_info = ("test", "info")
+
+  @pytest.fixture(autouse=True)
+  def patch_config(self):
+    with mock.patch("sigopt.config.get_user_agent_info") as get_user_agent_info:
+      get_user_agent_info.side_effect = [self.user_agent_info]
+      yield
 
   @pytest.fixture
   def mock_session(self):
@@ -112,9 +119,10 @@ class TestRequestDriver:
     else:
       expected_params = None
     expected_headers.update(driver.default_headers)
+    user_agent_info = "; ".join(self.user_agent_info)
     expected_headers.update(
       {
-        "User-Agent": f"sigopt-python/{VERSION}",
+        "User-Agent": f"sigopt-python/{VERSION} ({user_agent_info})",
       }
     )
     mock_session.request.assert_called_once_with(
