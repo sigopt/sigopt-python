@@ -371,19 +371,18 @@ class RunContext(BaseRunContext):
     print_logger.info("Run finished, view it on the SigOpt dashboard at https://app.sigopt.com/run/%s", self.id)
 
   def _request(self, method, path, params, headers=None):
-    base_url = self.connection.impl.api_url
     run_id = self.run.id
-    return self.connection.impl._request(
-      method=method,
-      url=f'{base_url}/v1/training_runs/{run_id}{path}',
-      params=params,
-      headers=headers,
+    return self.connection.impl.driver.request(
+      method,
+      ["training_runs", run_id, *path],
+      params,
+      headers,
     )
 
   def _update_run(self, body):
     self._request(
       method='MERGE',
-      path='',
+      path=[],
       params=body,
       headers={'X-Response-Content': 'skip'},
     )
@@ -391,7 +390,7 @@ class RunContext(BaseRunContext):
   def _create_checkpoint(self, body):
     self._request(
       method='POST',
-      path='/checkpoints',
+      path=["checkpoints"],
       params=body,
       headers={'X-Response-Content': 'skip'},
     )
@@ -456,7 +455,7 @@ class RunContext(BaseRunContext):
     content_length, content_md5_base64 = get_blob_properties(image_data)
     file_info = self._request(
       method='POST',
-      path='/files',
+      path=["files"],
       params={
         "content_length": content_length,
         "content_md5": content_md5_base64,
