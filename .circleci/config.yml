@@ -47,7 +47,7 @@ commands:
     steps:
       - setup
       - run: sudo make update
-      - run: sudo pip install pylint==2.9.6
+      - run: sudo pip install pylint==2.9.6 isort==5.12.0
       - run: make lint
   tutorial:
     steps:
