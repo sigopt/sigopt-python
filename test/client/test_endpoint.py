@@ -21,7 +21,7 @@ class TestEndpoint(object):
   def connection(self, requestor):
     return ConnectionImpl(requestor)
 
-  def assert_called(self, requestor, connection, method, path, params=None, headers=None, user_agent=None):
+  def assert_called(self, requestor, connection, method, path, params=None, headers=None):
     requestor.request.assert_called_once_with(
       method.upper(),
       path,

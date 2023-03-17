@@ -25,7 +25,7 @@ from .request_driver import RequestDriver
 from .resource import ApiResource
 
 class ConnectionImpl(object):
-  def __init__(self, driver, user_agent=None):
+  def __init__(self, driver):
     self.driver = driver
 
     suggestions = ApiResource(
@@ -267,8 +267,6 @@ class ConnectionImpl(object):
       ],
     )
 
-    self.user_agent = user_agent
-
     self.pki_sessions = ApiResource(
       self,
       'pki_sessions',
@@ -336,13 +334,13 @@ class Connection(object):
   Client-facing interface for creating Connections.
   Shouldn't be changed without a major version change.
   """
-  def __init__(self, *args, user_agent=None, driver="http", **kwargs):
+  def __init__(self, *args, driver="http", **kwargs):
     driver_instance = create_driver_instance(
       driver,
       args,
       kwargs,
     )
-    self.impl = ConnectionImpl(driver=driver_instance, user_agent=user_agent)
+    self.impl = ConnectionImpl(driver=driver_instance)
 
   def set_api_url(self, api_url):
     self.impl.set_api_url(api_url)
