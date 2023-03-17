@@ -44,7 +44,7 @@ class RequestDriver(object):
     api_url=None,
   ):
     if client_token is None:
-      client_token = client_token or os.environ.get("SIGOPT_API_TOKEN", config.api_token)
+      client_token = os.environ.get("SIGOPT_API_TOKEN", config.api_token)
     if not client_token:
       raise ValueError("Must provide client_token or set environment variable SIGOPT_API_TOKEN")
     self.auth = None
