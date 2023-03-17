@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 from __future__ import print_function
+import io
+
 import mock
 import pytest
 
@@ -27,7 +29,7 @@ def test_allow_state_update(new_state, old_state, expected):
 class TestLiveRunContext(object):
   def make_run_context(self):
     mock_driver = mock.Mock()
-    mock_driver.request = mock.Mock(side_effect=[None])
+    mock_driver.request = mock.Mock(return_value=None)
     run_context = RunContext(
       connection=Connection(driver=mock_driver),
       run=mock.Mock(id="0", assignments={"fixed1": 0, "fixed2": "test"}),
@@ -214,3 +216,38 @@ class TestLiveRunContext(object):
     return_value = run_context.log_model(type=model_type)
     assert return_value is None
     self.assert_run_update_request_called(run_context, {"model": {"type": model_type}})
+
+  def test_log_image(self, run_context):
+    run_context.connection.impl.driver.request.return_value = {
+      "upload": {
+        "method": "TEST",
+        "url": "https://test.sigopt.ninja/upload_file",
+        "headers": {"X-Testing": "value"},
+      },
+    }
+    with mock.patch("sigopt.run_context.requests") as patch_requests, mock.patch(
+      "sigopt.run_context.create_api_image_payload"
+    ) as patch_image_payload:
+      image_data = io.BytesIO()
+      image_data.write(b"test data")
+      image_data.seek(0)
+      patch_image_payload.return_value = ("test image", image_data, "image/png")
+      run_context.log_image(None, None)
+      run_context.connection.impl.driver.request.assert_called_once_with(
+        "POST",
+        ["training_runs", "0", "files"],
+        {
+          "content_length": 9,
+          "content_md5": "63M6AMDJ0zbmVpGjerVCkw==",
+          "content_type": "image/png",
+          "name": None,
+          "filename": "test image",
+        },
+        None,
+      )
+      patch_requests.request.assert_called_once_with(
+        "TEST",
+        "https://test.sigopt.ninja/upload_file",
+        headers={"X-Testing": "value"},
+        data=image_data,
+      )
