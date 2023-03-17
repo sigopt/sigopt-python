@@ -137,7 +137,7 @@ class RequestDriver(object):
     return self._handle_response(response)
 
   def _with_default_headers(self, headers):
-    user_agent_str = 'sigopt-python/{0}'.format(VERSION)
+    user_agent_str = f'sigopt-python/{VERSION}'
     user_agent_info = config.get_user_agent_info()
     if user_agent_info:
       user_agent_info_str = ''.join([
