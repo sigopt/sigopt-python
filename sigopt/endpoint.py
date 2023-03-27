@@ -19,7 +19,7 @@ class BoundApiEndpoint(object):
     conn = self._bound_resource._resource._conn
     raw_response = None
 
-    raw_response = conn._request(self._endpoint._method, path, params)
+    raw_response = conn.request(self._endpoint._method, path, params, None)
 
     if raw_response is not None and self._endpoint._response_cls is not None:
       return self._endpoint._response_cls(raw_response, self, params)
