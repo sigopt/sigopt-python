@@ -372,7 +372,7 @@ class RunContext(BaseRunContext):
 
   def _request(self, method, path, params, headers=None):
     run_id = self.run.id
-    return self.connection.impl.driver.request(
+    return self.connection.impl.request(
       method,
       ["training_runs", run_id, *path],
       params,

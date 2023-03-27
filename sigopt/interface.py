@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from .endpoint import ApiEndpoint
+from .exception import SigOptException
 from .objects import (
   AIExperiment,
   BestAssignments,
@@ -275,13 +276,18 @@ class ConnectionImpl(object):
       ],
     )
 
-  def _request(self, method, path, data, headers=None):
-    return self.driver.request(
-      method,
-      path,
-      data,
-      headers,
-    )
+  def request(self, method, path, data, headers):
+    try:
+      return self.driver.request(
+        method,
+        path,
+        data,
+        headers,
+      )
+    except SigOptException:
+      raise
+    except Exception as e:
+      raise SigOptException(str(e)) from e
 
   def set_api_url(self, api_url):
     self.driver.set_api_url(api_url)
