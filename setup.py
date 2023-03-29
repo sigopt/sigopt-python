@@ -40,7 +40,7 @@ orchestrate_install_requires = [
 ]
 xgboost_install_requires = ['xgboost>=1.3.1', 'numpy>=1.15.0']
 hyperopt_install_requires = ['hyperopt>=0.2.7']
-lite_install_requires = ['sigoptlite>=0.1.0']
+lite_install_requires = ['sigoptlite>=0.1.1']
 
 setup(
   name='sigopt',
