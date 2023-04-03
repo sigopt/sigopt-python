@@ -26,6 +26,7 @@ from .run import run as XGBRunWrapper
 
 XGB_EXPERIMENT_KEYWORD = "_IS_XGB_EXPERIMENT"
 
+
 # Sentinel value to distinguish between default early_stopping_rounds and input early_stopping_rounds w/ default value
 class DefaultEarlyStoppingRounds:
   pass

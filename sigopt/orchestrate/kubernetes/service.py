@@ -33,6 +33,7 @@ ORCHESTRATE_NAMESPACE = "orchestrate"
 KUBESYSTEM_NAMESPACE = "kube-system"
 NVIDIA_DEVICE_PLUGIN_URL = "https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.9.0/nvidia-device-plugin.yml"
 
+
 # NOTE(dan): monkeypatch for containerd not naming all images (?)
 # https://github.com/kubernetes-client/python/issues/895#issuecomment-515025300
 # pylint: disable=all
