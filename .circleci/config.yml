@@ -63,7 +63,7 @@ commands:
 jobs:
   pylint:
     docker:
-      - image: circleci/python:3.9
+      - image: circleci/python:3.10
     steps:
       - pylint
   test-cli:
