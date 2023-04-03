@@ -42,7 +42,7 @@ class TestLocalRunContext(object):
     assert run["state"] == "failed"
 
   def test_log_metrics(self, context, metrics):
-    context.log_metrics()
+    context.log_metrics(metrics)
     run = context.get()
     assert run["values"] == metrics
 
