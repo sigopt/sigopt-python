@@ -14,4 +14,4 @@ vulture-allowlist:
 
 update:
 	@python setup.py clean --all
-	@pip install -e '.[dev]'
+	@pip install -e '.[all]'

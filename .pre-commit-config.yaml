@@ -28,7 +28,7 @@ repos:
     rev: sigopt-22.10.0
     hooks:
       - id: black
-        args: [--experimental-string-processing]
+        args: [--preview]
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:

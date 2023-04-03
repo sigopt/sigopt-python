@@ -58,7 +58,11 @@ setup(
   },
   install_requires=install_requires,
   extras_require={
-    "dev": dev_install_requires + xgboost_install_requires + hyperopt_install_requires,
+    "dev": dev_install_requires
+    + orchestrate_install_requires
+    + xgboost_install_requires
+    + hyperopt_install_requires
+    + lite_install_requires,
     "hyperopt": hyperopt_install_requires,
     "orchestrate": orchestrate_install_requires,
     "xgboost": xgboost_install_requires,

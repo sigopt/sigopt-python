@@ -21,32 +21,32 @@ commands:
   test-cli:
     steps:
       - setup
-      - run: pip install -e '.[dev,orchestrate]'
+      - run: pip install -e '.[orchestrate]' -r requirements-dev.txt
       - run: pytest -rw -v test/cli
   test-client:
     steps:
       - setup
-      - run: pip install -e '.[dev]'
+      - run: pip install -e . -r requirements-dev.txt
       - run: pytest -rw -v test/client
   test-orchestrate:
     steps:
       - setup
-      - run: pip install -e '.[dev,orchestrate]'
+      - run: pip install -e '.[orchestrate]' -r requirements-dev.txt
       - run: pytest -rw -v test/orchestrate
   test-runs:
     steps:
       - setup
-      - run: pip install -e '.[dev]'
+      - run: pip install -e '.' -r requirements-dev.txt
       - run: pytest -rw -v test/runs test/validate
   test-xgboost:
     steps:
       - setup
-      - run: pip install -e '.[dev,xgboost]'
+      - run: pip install -e '.[xgboost]' -r requirements-dev.txt
       - run: pytest -rw -v test/xgboost
   pylint:
     steps:
       - setup
-      - run: pip install -e '.[dev,hyperopt,lite,orchestrate,xgboost]'
+      - run: pip install -e '.[dev]'
       - run: pre-commit run pylint --all-files
   tutorial:
     steps:
