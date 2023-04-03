@@ -46,7 +46,7 @@ commands:
   pylint:
     steps:
       - setup
-      - run: pip install pre-commit
+      - run: pip install -e '.[dev]'
       - run: pre-commit run pylint --all-files
   tutorial:
     steps:
