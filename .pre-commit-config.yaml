@@ -46,7 +46,7 @@ repos:
         types: [python]
         args: ["-rn", "-sn"]
       - id: apply-copyright-notice
-        name: Apply the copywright notice
+        name: Apply the copyright notice
         description: This hook applies the copyright notice and license disclaimer to all files.
         entry: tools/check_copyright_and_license_disclaimers.py --fix-in-place
         language: python
