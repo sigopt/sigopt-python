@@ -311,7 +311,7 @@ class ConnectionImpl(object):
 
 def instantiate_lite_driver(*args, **kwargs):
   try:
-    from sigoptlite import LocalDriver  # pylint: disable=import-error
+    from sigoptlite import LocalDriver
   except ModuleNotFoundError as mnfe:
     raise ModuleNotFoundError(
       "SigOpt Lite is not installed. It can be installed with the following command: `pip install 'sigopt[lite]'`"

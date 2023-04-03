@@ -46,7 +46,7 @@ commands:
   pylint:
     steps:
       - setup
-      - run: pip install -e '.[dev]'
+      - run: pip install -e '.[dev,hyperopt,lite,orchestrate,xgboost]'
       - run: pre-commit run pylint --all-files
   tutorial:
     steps:
