@@ -13,7 +13,5 @@ vulture-allowlist:
 	@./tools/generate_vulture_allowlist > .vulture_allowlist
 
 update:
-	@pip install -r requirements-dev.txt
-	@pip install -r requirements.txt
 	@python setup.py clean --all
-	@pip install -e .\[dev\]
+	@pip install -e '.[dev]'
