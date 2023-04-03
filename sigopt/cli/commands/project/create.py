@@ -7,14 +7,15 @@ from sigopt.exception import ConflictingProjectException
 from sigopt.factory import SigOptFactory
 from sigopt.sigopt_logging import print_logger
 
-from ...arguments import project_option, project_name_option
+from ...arguments import project_name_option, project_option
 from ..base import create_command
 
-@create_command.command('project')
+
+@create_command.command("project")
 @project_option
 @project_name_option
 def create(project, project_name):
-  '''Create a SigOpt Project.'''
+  """Create a SigOpt Project."""
   factory = SigOptFactory(project)
   try:
     factory.create_project(name=project_name)

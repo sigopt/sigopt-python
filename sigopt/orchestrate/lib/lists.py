@@ -9,8 +9,8 @@ from .types import is_mapping, is_sequence, is_set
 
 def list_get(lis, index):
   """
-  Gets the list item at the provided index, or None if that index is invalid
-  """
+    Gets the list item at the provided index, or None if that index is invalid
+    """
   try:
     return lis[index]
   except IndexError:
@@ -19,8 +19,8 @@ def list_get(lis, index):
 
 def remove_nones(lis):
   """
-  Returns a copy of this object with all `None` values removed.
-  """
+    Returns a copy of this object with all `None` values removed.
+    """
   if is_mapping(lis):
     return {k: v for k, v in lis.items() if v is not None}
   if is_set(lis):
@@ -32,17 +32,17 @@ def remove_nones(lis):
 
 def coalesce(*args):
   """
-  Returns the first non-None value, or None if no such value exists
-  """
+    Returns the first non-None value, or None if no such value exists
+    """
   return list_get(remove_nones(args), 0)
 
 
 def partition(lis, predicate):
   """
-  Splits a list into two lists based on a predicate. The first list will contain
-  all elements of the provided list where predicate is true, and the second list
-  will contain the rest
-  """
+    Splits a list into two lists based on a predicate. The first list will contain
+    all elements of the provided list where predicate is true, and the second list
+    will contain the rest
+    """
   as_list = list(lis)
   true_list = []
   false_list = []

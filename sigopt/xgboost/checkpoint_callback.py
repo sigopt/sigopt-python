@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from .compat import xgboost
 
+
 class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
   def __init__(self, run, period=1):
     self.run = run
@@ -21,7 +22,7 @@ class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
           chkpt_value = metric_record[-1][0]
         else:
           chkpt_value = metric_record[-1]
-        checkpoint_logs.update({'-'.join((dataset, metric_label)): chkpt_value})
+        checkpoint_logs.update({"-".join((dataset, metric_label)): chkpt_value})
     if (epoch % self.period) == 0 or self.period == 1:
       self.run.log_checkpoint(checkpoint_logs)
       self._latest = None

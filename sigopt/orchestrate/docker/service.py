@@ -20,34 +20,46 @@ from ..services.base import Service
 DOCKER_TARGET_VERSION = "1.41"
 
 
-DockerLoginCredentials = namedtuple('DockerLoginCredentials', [
-  'username',
-  'password',
-  'registry',
-])
+DockerLoginCredentials = namedtuple(
+  "DockerLoginCredentials",
+  [
+    "username",
+    "password",
+    "registry",
+  ],
+)
+
 
 class DockerException(OrchestrateException):
   pass
 
+
 class DockerInstallationError(DockerException):
   pass
+
 
 class DockerPodTimeoutError(DockerException):
   pass
 
+
 class DockerConnectionError(DockerException):
   pass
+
 
 class DockerService(Service):
   @classmethod
   def create(cls, services):
     if not services.kubernetes_service.is_docker_installed():
-      raise DockerInstallationError("\n".join([
-        "Docker not found in your cluster.",
-        "SigOpt no longer uses your local Docker installation to build images.",
-        "Please install the SigOpt plugins to get Docker running on your cluster:",
-        "\tsigopt cluster install-plugins",
-      ]))
+      raise DockerInstallationError(
+        "\n".join(
+          [
+            "Docker not found in your cluster.",
+            "SigOpt no longer uses your local Docker installation to build images.",
+            "Please install the SigOpt plugins to get Docker running on your cluster:",
+            "\tsigopt cluster install-plugins",
+          ]
+        )
+      )
     try:
       services.kubernetes_service.wait_for_docker_pod()
     except TimeoutError as e:
@@ -70,9 +82,7 @@ class DockerService(Service):
     try:
       self.client.images.list()
     except (docker.errors.DockerException, requests.exceptions.ConnectionError) as e:
-      raise DockerConnectionError(
-        f'An error occurred while checking your docker connection: {e}'
-      ) from e
+      raise DockerConnectionError(f"An error occurred while checking your docker connection: {e}") from e
 
   def print_logs(self, logs):
     for log in logs:
@@ -82,17 +92,17 @@ class DockerService(Service):
   def stream_build_log(self, logs, dockerfile, show_all_logs):
     downloading = False
     for parsed_log in json_stream(logs):
-      if 'error' in parsed_log:
+      if "error" in parsed_log:
         if show_all_logs:
-          print(parsed_log['error'], file=sys.stderr)
-        raise ModelPackingError(parsed_log['error'], dockerfile)
-      if 'status' in parsed_log:
-        if not downloading and parsed_log['status'] == 'Downloading':
-          yield 'Downloading the base image...\n'
+          print(parsed_log["error"], file=sys.stderr)
+        raise ModelPackingError(parsed_log["error"], dockerfile)
+      if "status" in parsed_log:
+        if not downloading and parsed_log["status"] == "Downloading":
+          yield "Downloading the base image...\n"
           downloading = True
-      elif 'stream' in parsed_log:
+      elif "stream" in parsed_log:
         if show_all_logs:
-          yield parsed_log['stream']
+          yield parsed_log["stream"]
         downloading = False
 
   def build(
@@ -106,9 +116,8 @@ class DockerService(Service):
     show_all_logs=False,
   ):
     if dockerfile_contents:
-      assert not dockerfile_name, \
-        "only one of dockerfile_name, dockerfile_contents can be provided"
-      with NamedTemporaryFile(mode='w', delete=False) as dockerfile_fp:
+      assert not dockerfile_name, "only one of dockerfile_name, dockerfile_contents can be provided"
+      with NamedTemporaryFile(mode="w", delete=False) as dockerfile_fp:
         dockerfile_fp.write(dockerfile_contents)
         dockerfile = dockerfile_fp.name
     else:
@@ -144,15 +153,15 @@ class DockerService(Service):
     for try_number in range(retries + 1):
       try:
         for obj in json_stream(self.client.images.push(repository=repository, tag=tag, stream=True)):
-          if 'error' in obj:
-            raise Exception(obj['error'])
+          if "error" in obj:
+            raise Exception(obj["error"])
       except urllib3.exceptions.ReadTimeoutError:
         if try_number >= retries:
           raise
         if not quiet:
           print("Docker push failed, retrying...")
 
-  def pull(self, repository, tag='latest'):
+  def pull(self, repository, tag="latest"):
     self.client.images.pull(repository=repository, tag=tag)
 
   def login(self, docker_login_credentials):
@@ -165,19 +174,19 @@ class DockerService(Service):
     )
     response_status = response.get("Status")
     if response_status:
-      assert response_status == 'Login Succeeded', (
-        f'Docker failed logging into registry {creds.registry} with username {creds.username}',
+      assert response_status == "Login Succeeded", (
+        f"Docker failed logging into registry {creds.registry} with username {creds.username}",
       )
 
   @staticmethod
   def format_image_name(repository, tag):
-    return f'{repository}:{tag}' if tag is not None else repository
+    return f"{repository}:{tag}" if tag is not None else repository
 
   @staticmethod
   def get_repository_and_tag(image):
-    image_regex = r'^([a-z0-9\_\-]+(?::[0-9]+)?\/?[a-z0-9\_\-]+)(:[a-zA-Z0-9\_\-\.]+)?$'
+    image_regex = r"^([a-z0-9\_\-]+(?::[0-9]+)?\/?[a-z0-9\_\-]+)(:[a-zA-Z0-9\_\-\.]+)?$"
     match = re.match(image_regex, image)
-    assert match, 'image must match the regex: /' + image_regex + '/'
+    assert match, "image must match the regex: /" + image_regex + "/"
     groups = match.groups()
     repository = groups[0]
     tag = groups[1][1:] if groups[1] else None
@@ -194,7 +203,7 @@ class DockerService(Service):
       self.client.images.remove(tag)
 
   def untag_all(self, label):
-    for image in self.client.images.list(filters={'label': label}):
+    for image in self.client.images.list(filters={"label": label}):
       self.untag(image)
 
   def image_exists_in_registry(self, repo, tag):

@@ -12,7 +12,7 @@ from ..services.aws_base import AwsService
 class AwsS3Service(AwsService):
   def __init__(self, services, aws_services, **kwargs):
     super().__init__(services, aws_services)
-    self._client = boto3.client('s3', **kwargs)
+    self._client = boto3.client("s3", **kwargs)
     self.region = boto3.session.Session().region_name
     self._init_kwargs = kwargs
 
@@ -51,7 +51,7 @@ class AwsS3Service(AwsService):
               "BucketKeyEnabled": True,
             },
           ]
-        }
+        },
       )
     except self.client.exceptions.BucketAlreadyOwnedByYou:
       pass

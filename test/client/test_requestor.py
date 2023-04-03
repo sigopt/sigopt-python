@@ -17,24 +17,26 @@ class MockRequestor(object):
       if isinstance(self.response, Exception):
         raise self.response
       return self.response
+
     func.__name__ = name
     return func
 
 
-MESSAGE = 'This is an exception message.'
+MESSAGE = "This is an exception message."
 
 SAMPLE_EXCEPTION = {
-  'message': MESSAGE,
+  "message": MESSAGE,
 }
 
 SAMPLE_RESPONSE = {
-  'number': 1.2,
-  'string': 'abc',
-  'list': [1, 2, 3],
-  'object': {
-    'key': 'value',
-  }
+  "number": 1.2,
+  "string": "abc",
+  "list": [1, 2, 3],
+  "object": {
+    "key": "value",
+  },
 }
+
 
 class TestRequestor(object):
   def returns(self, response):
@@ -65,7 +67,7 @@ class TestRequestor(object):
     with pytest.raises(ApiException) as e:
       connection.experiments(1).fetch()
     e = e.value
-    assert str(e) == 'ApiException (400): '
+    assert str(e) == "ApiException (400): "
     assert e.status_code == 400
     assert e.to_json() == SAMPLE_RESPONSE
 
@@ -74,7 +76,7 @@ class TestRequestor(object):
     with pytest.raises(ApiException) as e:
       connection.experiments(1).fetch()
     e = e.value
-    assert str(e) == 'ApiException (400): ' + MESSAGE
+    assert str(e) == "ApiException (400): " + MESSAGE
     assert e.status_code == 400
     assert e.to_json() == SAMPLE_EXCEPTION
 
@@ -83,13 +85,13 @@ class TestRequestor(object):
     with pytest.raises(ApiException) as e:
       connection.experiments(1).fetch()
     e = e.value
-    assert str(e) == 'ApiException (500): ' + MESSAGE
+    assert str(e) == "ApiException (500): " + MESSAGE
     assert e.status_code == 500
     assert e.to_json() == SAMPLE_EXCEPTION
 
   def test_connection_error(self):
-    connection = ConnectionImpl(self.returns(ConnectionException('fake connection exception')))
+    connection = ConnectionImpl(self.returns(ConnectionException("fake connection exception")))
     with pytest.raises(ConnectionException) as e:
       connection.experiments(1).fetch()
     e = e.value
-    assert str(e) == 'ConnectionException: fake connection exception'
+    assert str(e) == "ConnectionException: fake connection exception"

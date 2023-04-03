@@ -1,9 +1,6 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import click
-import mock
-import pytest
 from click.testing import CliRunner
 from mock import Mock, patch
 
@@ -15,13 +12,12 @@ class TestRunCli(object):
     services = Mock()
     runner = CliRunner()
     with runner.isolated_filesystem():
-      with \
-        patch('sigopt.orchestrate.controller.OrchestrateServiceBag', return_value=services), \
-        patch('sigopt.orchestrate.docker.service.DockerService.create'), \
-        patch(
-          'sigopt.orchestrate.docker.service.DockerService.get_repository_and_tag',
-          return_value=("docker.io/test", "123"),
-        ):
+      with patch("sigopt.orchestrate.controller.OrchestrateServiceBag", return_value=services), patch(
+        "sigopt.orchestrate.docker.service.DockerService.create"
+      ), patch(
+        "sigopt.orchestrate.docker.service.DockerService.get_repository_and_tag",
+        return_value=("docker.io/test", "123"),
+      ):
         services.cluster_service.assert_is_connected = Mock()
         services.gpu_options_validator_service.get_resource_options = Mock(return_value=None)
         open("Dockerfile", "w").close()

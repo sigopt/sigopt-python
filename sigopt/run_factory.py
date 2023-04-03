@@ -2,15 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 from .defaults import get_default_name
-from .sigopt_logging import print_logger
 from .run_context import RunContext
+from .sigopt_logging import print_logger
 
 
 class BaseRunFactory(object):
   run_context_class = RunContext
 
   def _on_run_created(self, run):
-    print_logger.info("Run started, view it on the SigOpt dashboard at https://app.sigopt.com/run/%s", run.id)
+    print_logger.info(
+      "Run started, view it on the SigOpt dashboard at https://app.sigopt.com/run/%s",
+      run.id,
+    )
 
   @property
   def project(self):

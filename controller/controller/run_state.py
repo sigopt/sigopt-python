@@ -3,17 +3,22 @@
 # SPDX-License-Identifier: MIT
 import collections
 import logging
-from sigopt.exception import ApiException
-from sigopt.run_context import RunContext
 
 from controller.k8s_constants import K8sPhase
 from controller.pod_status import is_pod_phase_active, is_pod_phase_finished
 
+from sigopt.exception import ApiException
+from sigopt.run_context import RunContext
 
-PodState = collections.namedtuple("PodState", [
-  "phase",
-  "termination_info",
-])
+
+PodState = collections.namedtuple(
+  "PodState",
+  [
+    "phase",
+    "termination_info",
+  ],
+)
+
 
 def get_relevant_state_from_pod_event(event):
   pod = event["object"]
@@ -28,6 +33,7 @@ def get_relevant_state_from_pod_event(event):
     phase=phase,
     termination_info=termination_info,
   )
+
 
 # NOTE(taylor): this class maintains a local state of the run pod
 # and updates the SigOpt API when there are changes

@@ -26,7 +26,7 @@ def get_booster_params(booster):
   while stack:
     obj = stack.pop()
     for k, v in obj.items():
-      if k.endswith('_param'):
+      if k.endswith("_param"):
         for p_k, p_v in v.items():
           all_xgboost_params[p_k] = p_v
       elif isinstance(v, dict):

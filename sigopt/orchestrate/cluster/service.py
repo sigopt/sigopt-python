@@ -63,14 +63,14 @@ class ClusterService(Service):
     try:
       self.assert_is_disconnected()
     except PleaseDisconnectError as e:
-      if e.current_cluster_name == options.get('cluster_name', ''):
+      if e.current_cluster_name == options.get("cluster_name", ""):
         raise AlreadyConnectedException(e.current_cluster_name) from e
       raise
 
     self.services.options_validator_service.validate_cluster_options(**options)
-    cluster_name = options.get('cluster_name', '')
+    cluster_name = options.get("cluster_name", "")
 
-    provider_string = options.get('provider', '')
+    provider_string = options.get("provider", "")
     provider = string_to_provider(provider_string)
     provider_service = self.services.provider_broker.get_provider_service(provider)
 
@@ -83,9 +83,9 @@ class ClusterService(Service):
 
   def update(self, options):
     self.services.options_validator_service.validate_cluster_options(**options)
-    cluster_name = options.get('cluster_name', '')
+    cluster_name = options.get("cluster_name", "")
 
-    provider_string = options.get('provider', '')
+    provider_string = options.get("provider", "")
     provider = string_to_provider(provider_string)
     provider_service = self.services.provider_broker.get_provider_service(provider)
 
@@ -103,7 +103,7 @@ class ClusterService(Service):
 
   def disconnect(self, cluster_name, disconnect_all):
     if (cluster_name and disconnect_all) or (not cluster_name and not disconnect_all):
-      raise ClusterError('Must provide exactly one of --cluster-name <cluster_name> and --all')
+      raise ClusterError("Must provide exactly one of --cluster-name <cluster_name> and --all")
 
     try:
       current_cluster_name = self.assert_is_connected()
@@ -117,11 +117,9 @@ class ClusterService(Service):
       try:
         self.services.cluster_metadata_service.ensure_metadata_deleted(cluster_name=cname)
         self.services.kubernetes_service.ensure_config_deleted(cluster_name=cname)
-        self.services.logging_service.warning(f'Successfully disconnected from {cname}')
+        self.services.logging_service.warning(f"Successfully disconnected from {cname}")
       except Exception as e:
-        raise ClusterError(
-          f'Looks like an error occured while attempting to disconnect from cluster "{cname}".'
-        ) from e
+        raise ClusterError(f'Looks like an error occured while attempting to disconnect from cluster "{cname}".') from e
 
   def get_connected_cluster(self):
     cluster_name = self.assert_is_connected()
@@ -134,8 +132,6 @@ class ClusterService(Service):
     try:
       provider_service.test_kubernetes_cluster(cluster_name=cluster.name)
     except Exception as e:
-      raise ClusterError(
-        f'Looks like an error occured while testing cluster "{cluster.name}".'
-      ) from e
+      raise ClusterError(f'Looks like an error occured while testing cluster "{cluster.name}".') from e
 
     return cluster

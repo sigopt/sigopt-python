@@ -3,4 +3,5 @@
 # SPDX-License-Identifier: MIT
 from __future__ import print_function
 
-print('hello')
+
+print("hello")

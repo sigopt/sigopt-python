@@ -5,10 +5,10 @@ import warnings
 
 from .config import config
 from .defaults import get_default_project
-from .interface import Connection
-from .sigopt_logging import enable_print_logging
-from .run_context import global_run_context as _global_run_context
 from .factory import SigOptFactory
+from .interface import Connection
+from .run_context import global_run_context as _global_run_context
+from .sigopt_logging import enable_print_logging
 from .version import VERSION
 
 
@@ -42,17 +42,23 @@ upload_runs = _global_factory.upload_runs
 
 def load_ipython_extension(ipython):
   from .magics import SigOptMagics as _Magics
+
   ipython.register_magics(_Magics)
   enable_print_logging()
+
 
 def get_run_id():
   return _global_run_context.id
 
+
 def set_project(project):
   if get_run_id() is not None:
     warnings.warn(
-      "set_project does nothing when your code is executed with the SigOpt CLI."
-      " Set the SIGOPT_PROJECT environment variable or use the --project CLI option instead.",
+      (
+        "set_project does nothing when your code is executed with the SigOpt"
+        " CLI. Set the SIGOPT_PROJECT environment variable or use the --project"
+        " CLI option instead."
+      ),
       UserWarning,
     )
   return _global_factory.set_project(project)

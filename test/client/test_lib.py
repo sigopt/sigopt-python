@@ -1,13 +1,16 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+import warnings
+
 import numpy
 import pytest
-import warnings
 
 from sigopt.lib import *
 
+
 LONG_NUMBER = 100000000000000000000000
+
 
 class TestBase(object):
   @pytest.fixture(autouse=True)
@@ -15,7 +18,7 @@ class TestBase(object):
     warnings.simplefilter("error")
 
   def test_is_integer(self):
-    assert is_integer(int('3')) is True
+    assert is_integer(int("3")) is True
     assert is_integer(0) is True
     assert is_integer(LONG_NUMBER) is True
     assert is_integer(numpy.int32()) is True
@@ -28,14 +31,14 @@ class TestBase(object):
     assert is_integer(True) is False
     assert is_integer(False) is False
     assert is_integer(4.0) is False
-    assert is_integer('3') is False
+    assert is_integer("3") is False
     assert is_integer(3.14) is False
     assert is_integer(numpy.float32()) is False
     assert is_integer(numpy.float64()) is False
     assert is_integer(numpy.nan) is False
 
   def test_is_number(self):
-    assert is_number(int('3')) is True
+    assert is_number(int("3")) is True
     assert is_number(0) is True
     assert is_number(LONG_NUMBER) is True
     assert is_number(4.0) is True
@@ -51,7 +54,7 @@ class TestBase(object):
     assert is_number(None) is False
     assert is_number(True) is False
     assert is_number(False) is False
-    assert is_number('3') is False
+    assert is_number("3") is False
     assert is_number(numpy.nan) is False
 
   def test_is_numpy_array(self):
@@ -67,15 +70,15 @@ class TestBase(object):
     assert not is_numpy_array(True)
     assert not is_numpy_array(0)
     assert not is_numpy_array(1.0)
-    assert not is_numpy_array('abc')
-    assert not is_numpy_array(u'abc')
-    assert not is_numpy_array(b'abc')
+    assert not is_numpy_array("abc")
+    assert not is_numpy_array("abc")
+    assert not is_numpy_array(b"abc")
     assert not is_numpy_array({})
-    assert not is_numpy_array({'a': 123})
+    assert not is_numpy_array({"a": 123})
     assert not is_numpy_array(set())
-    assert not is_numpy_array(set((1, 'a')))
-    assert not is_numpy_array({1, 'a'})
-    assert not is_numpy_array(frozenset((1, 'a')))
+    assert not is_numpy_array(set((1, "a")))
+    assert not is_numpy_array({1, "a"})
+    assert not is_numpy_array(frozenset((1, "a")))
 
   def test_is_sequence(self):
     assert is_sequence([])
@@ -90,19 +93,19 @@ class TestBase(object):
     assert not is_sequence(True)
     assert not is_sequence(0)
     assert not is_sequence(1.0)
-    assert not is_sequence('abc')
-    assert not is_sequence(u'abc')
-    assert not is_sequence(b'abc')
+    assert not is_sequence("abc")
+    assert not is_sequence("abc")
+    assert not is_sequence(b"abc")
     assert not is_sequence({})
-    assert not is_sequence({'a': 123})
+    assert not is_sequence({"a": 123})
     assert not is_sequence(set())
-    assert not is_sequence(set((1, 'a')))
-    assert not is_sequence({1, 'a'})
-    assert not is_sequence(frozenset((1, 'a')))
+    assert not is_sequence(set((1, "a")))
+    assert not is_sequence({1, "a"})
+    assert not is_sequence(frozenset((1, "a")))
 
   def test_is_mapping(self):
     assert is_mapping({})
-    assert is_mapping({'a': 123})
+    assert is_mapping({"a": 123})
 
     assert not is_mapping([])
     assert not is_mapping([1, 2, 3])
@@ -115,21 +118,21 @@ class TestBase(object):
     assert not is_mapping(True)
     assert not is_mapping(0)
     assert not is_mapping(1.0)
-    assert not is_mapping('abc')
-    assert not is_mapping(u'abc')
-    assert not is_mapping(b'abc')
+    assert not is_mapping("abc")
+    assert not is_mapping("abc")
+    assert not is_mapping(b"abc")
     assert not is_mapping(set())
-    assert not is_mapping(set((1, 'a')))
-    assert not is_mapping({1, 'a'})
-    assert not is_mapping(frozenset((1, 'a')))
+    assert not is_mapping(set((1, "a")))
+    assert not is_mapping({1, "a"})
+    assert not is_mapping(frozenset((1, "a")))
 
   def test_is_string(self):
-    assert is_string('abc')
-    assert is_string(u'abc')
+    assert is_string("abc")
+    assert is_string("abc")
 
-    assert not is_string(b'abc')
+    assert not is_string(b"abc")
     assert not is_string({})
-    assert not is_string({'a': 123})
+    assert not is_string({"a": 123})
     assert not is_string([])
     assert not is_string([1, 2, 3])
     assert not is_string(())
@@ -142,6 +145,6 @@ class TestBase(object):
     assert not is_string(0)
     assert not is_string(1.0)
     assert not is_string(set())
-    assert not is_string(set((1, 'a')))
-    assert not is_string({1, 'a'})
-    assert not is_string(frozenset((1, 'a')))
+    assert not is_string(set((1, "a")))
+    assert not is_string({1, "a"})
+    assert not is_string(frozenset((1, "a")))

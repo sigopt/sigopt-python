@@ -14,7 +14,9 @@ repos:
         exclude: "^LICENSES/third_party/third-party-licenses.txt$"
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
+      - id: check-toml
       - id: check-yaml
+        exclude: "^sigopt/orchestrate/.*$"
       - id: check-ast
       - id: debug-statements
       - id: end-of-file-fixer
@@ -26,6 +28,7 @@ repos:
     rev: sigopt-22.10.0
     hooks:
       - id: black
+        args: [--experimental-string-processing]
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:

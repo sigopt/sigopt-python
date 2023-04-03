@@ -18,7 +18,7 @@ class TestRunCli(object):
     ]
     runner = CliRunner()
     with runner.isolated_filesystem():
-      result = runner.invoke(cli, ['init'])
+      result = runner.invoke(cli, ["init"])
       for filename in files:
         assert os.path.exists(filename)
     assert result.exit_code == 0

@@ -10,7 +10,7 @@ import pint
 import yaml
 from botocore.exceptions import NoRegionError
 
-from sigopt.paths import get_bin_dir, ensure_dir
+from sigopt.paths import ensure_dir, get_bin_dir
 from sigopt.utils import accept_sigopt_not_found
 
 from .cluster.errors import AlreadyConnectedException, ClusterError, MultipleClustersConnectionError, NotConnectedError
@@ -41,6 +41,7 @@ def docker_login(cluster, docker_service, repository_name):
   if creds is not None:
     docker_service.login(creds)
 
+
 class OrchestrateController:
   def __init__(self, services):
     self.services = services
@@ -66,15 +67,15 @@ class OrchestrateController:
     run_options,
     quiet,
   ):
-    image_name = run_options.get('image')
+    image_name = run_options.get("image")
     repository_name, tag = DockerService.get_repository_and_tag(image_name)
     docker_login(cluster, docker_service, repository_name)
 
-    build_image = run_options.get('build_image', True)
+    build_image = run_options.get("build_image", True)
 
     if build_image:
       if not quiet:
-        print('Containerizing and uploading your model, this may take a few minutes...')
+        print("Containerizing and uploading your model, this may take a few minutes...")
       try:
         image_tag = self.services.model_packer_service.build_image(
           docker_service=docker_service,
@@ -86,9 +87,9 @@ class OrchestrateController:
         image = docker_service.get_image(image_tag)
       except ModelPackingError as mpe:
         msg = str(mpe)
-        match = re.search('manifest for (.*?) not found: manifest unknown: manifest unknown', msg)
+        match = re.search("manifest for (.*?) not found: manifest unknown: manifest unknown", msg)
         if match is not None:
-          msg = f'Unable to find base image {match.groups()[0]} when building your docker container'
+          msg = f"Unable to find base image {match.groups()[0]} when building your docker container"
         raise _ExitException(msg) from mpe
 
     repository_name = cluster.generate_image_tag(repository_name)
@@ -115,7 +116,7 @@ class OrchestrateController:
   ):
     if optimize:
       if not optimization_options:
-        raise OrchestrateException('optimize jobs require an experiment yaml file')
+        raise OrchestrateException("optimize jobs require an experiment yaml file")
 
     repository_name, tag = self.build_and_push_image(
       cluster=cluster,
@@ -129,10 +130,10 @@ class OrchestrateController:
 
     run_command = command
 
-    job_type_str = 'experiment' if optimize else 'run'
+    job_type_str = "experiment" if optimize else "run"
 
     if not quiet:
-      print('Starting your {}'.format(job_type_str))
+      print("Starting your {}".format(job_type_str))
 
     if optimize:
       return self.services.job_runner_service.start_cluster_experiment(
@@ -201,14 +202,16 @@ class OrchestrateController:
         if condition.reason == "Unschedulable":
           print(
             "Hint: If you configured your nodes with sufficient resources"
-            " then you probably just need to wait for the cluster to scale up"
+            " then you probably just need to wait for the cluster to"
+            " scale up"
           )
       for container_status in pod.status.container_statuses or []:
         waiting_state = container_status.state.waiting
         if waiting_state:
           print(
-            f"Container '{container_status.name}' in pod '{pod.metadata.name}' is waiting:"
-            f" {waiting_state.reason}: {waiting_state.message}"
+            f"Container '{container_status.name}' in pod"
+            f" '{pod.metadata.name}' is waiting: {waiting_state.reason}:"
+            f" {waiting_state.message}"
           )
 
     self.services.kubernetes_service.wait_for_pod_to_start(
@@ -270,29 +273,29 @@ class OrchestrateController:
       print(f'Started "{identifier}"')
 
   def create_cluster(self, options):
-    print('Creating your cluster, this process may take 20-30 minutes or longer...')
+    print("Creating your cluster, this process may take 20-30 minutes or longer...")
 
     # NOTE(dan): checks again now that we know provider, in case aws iam authenticator is needed
-    check_authenticator_binary(provider=options.get('provider'))
+    check_authenticator_binary(provider=options.get("provider"))
     try:
       cluster_name = self.services.cluster_service.create(options=options)
     except ClusterError as pde:
       raise _ExitException(str(pde)) from pde
 
-    print(f'Successfully created kubernetes cluster: {cluster_name}')
+    print(f"Successfully created kubernetes cluster: {cluster_name}")
 
   def update_cluster(self, options):
-    print('Updating your cluster, this process may take 5-10 minutes or longer...')
+    print("Updating your cluster, this process may take 5-10 minutes or longer...")
 
     # NOTE(dan): checks again now that we know provider, in case aws iam authenticator is needed
-    check_authenticator_binary(provider=options.get('provider'))
+    check_authenticator_binary(provider=options.get("provider"))
     cluster_name = self.services.cluster_service.update(options=options)
 
-    print(f'Successfully updated kubernetes cluster: {cluster_name}')
+    print(f"Successfully updated kubernetes cluster: {cluster_name}")
 
   def destroy_connected_cluster(self):
     cluster = self.services.cluster_service.get_connected_cluster()
-    print(f'Destroying cluster {cluster.name}, this process may take 20-30 minutes or longer...')
+    print(f"Destroying cluster {cluster.name}, this process may take 20-30 minutes or longer...")
 
     try:
       self.services.kubernetes_service.cleanup_for_destroy()
@@ -302,12 +305,12 @@ class OrchestrateController:
       cluster_name=cluster.name,
       provider_string=cluster.provider_string,
     )
-    print(f'Successfully destroyed kubernetes cluster: {cluster.name}')
+    print(f"Successfully destroyed kubernetes cluster: {cluster.name}")
 
   def connect_to_cluster(self, cluster_name, provider_string, registry, kubeconfig):
     check_authenticator_binary(provider=provider_string)
 
-    print(f'Connecting to cluster {cluster_name}...')
+    print(f"Connecting to cluster {cluster_name}...")
     try:
       self.services.cluster_service.connect(
         cluster_name=cluster_name,
@@ -315,44 +318,43 @@ class OrchestrateController:
         kubeconfig=kubeconfig,
         registry=registry,
       )
-      print(f'Successfully connected to kubernetes cluster: {cluster_name}')
+      print(f"Successfully connected to kubernetes cluster: {cluster_name}")
     except AlreadyConnectedException as ace:
       raise _ExitException(
-        f'Already connected to cluster: {ace.current_cluster_name}',
+        f"Already connected to cluster: {ace.current_cluster_name}",
       ) from ace
 
   def disconnect_from_connected_cluster(self):
     cluster = self.services.cluster_service.get_connected_cluster()
-    print(f'Disconnecting from cluster {cluster.name}...')
+    print(f"Disconnecting from cluster {cluster.name}...")
 
     try:
       self.services.cluster_service.disconnect(cluster.name, disconnect_all=False)
     except NotConnectedError:
-      self.services.logging_service.warning('Not connected to any clusters')
+      self.services.logging_service.warning("Not connected to any clusters")
     except MultipleClustersConnectionError as mcce:
       cluster_names = ", ".join(mcce.connected_clusters)
       self.services.logging_service.warning(
-        f'Connected to multiple clusters: {cluster_names}. '
-        'Rerun with `disconnect --all`.'
+        f"Connected to multiple clusters: {cluster_names}. Rerun with `disconnect --all`."
       )
     except ClusterError as ce:
       raise _ExitException(str(ce)) from ce
 
   def test_cluster_connection(self):
-    print('Testing if you are connected to a cluster, this may take a moment...')
+    print("Testing if you are connected to a cluster, this may take a moment...")
     try:
       cluster = self.services.cluster_service.test()
     except NotConnectedError as nce:
       raise _ExitException(
-        'You are not currently connected to a cluster.',
+        "You are not currently connected to a cluster.",
       ) from nce
 
-    registry_str = cluster.registry if cluster.registry is not None else 'default'
+    registry_str = cluster.registry if cluster.registry is not None else "default"
     print(
-      '\nYou are connected to a cluster! Here is the info:'
-      f'\n\tcluster name: {cluster.name}'
-      f'\n\tprovider: {cluster.provider_string}'
-      f'\n\tregistry: {registry_str}'
+      "\nYou are connected to a cluster! Here is the info:"
+      f"\n\tcluster name: {cluster.name}"
+      f"\n\tprovider: {cluster.provider_string}"
+      f"\n\tregistry: {registry_str}"
     )
 
     try:
@@ -366,7 +368,7 @@ class OrchestrateController:
       cluster = self.services.cluster_service.test()
     except NotConnectedError as nce:
       raise _ExitException(
-        'You are not currently connected to a cluster',
+        "You are not currently connected to a cluster",
       ) from nce
 
     print(f"You are currently connected to the cluster: {cluster.name}")
@@ -429,11 +431,7 @@ class OrchestrateController:
       ]
       # NOTE(taylor): create an inital value for each resource type for requests and limits
       all_totals = tuple(
-        {
-          resource_type: 0 * unit_registry(ext)
-          for resource_type, ext in RESOURCE_META
-        }
-        for _ in range(2)
+        {resource_type: 0 * unit_registry(ext) for resource_type, ext in RESOURCE_META} for _ in range(2)
       )
       for resources in node_resources:
         for resource_allocation, totals in zip(resources, all_totals):
@@ -454,8 +452,7 @@ class OrchestrateController:
         total_limit = limits_totals[resource_type]
         percent_limit = (100 * total_limit / allocatable).to_reduced_units()
         allocatable, total_request, total_limit = (
-          value.to_compact()
-          for value in (allocatable, total_request, total_limit)
+          value.to_compact() for value in (allocatable, total_request, total_limit)
         )
         print(f"\t\t\tAllocatable: {allocatable:~.2f}")
         print(f"\t\t\tRequests: {total_request:~.2f}, {percent_request:~.2f} %")
@@ -480,23 +477,26 @@ class OrchestrateController:
     self.services.cluster_service.assert_is_connected()
     check_binary(kubectl_check)
     cmd = self.services.kubectl_service.get_kubectl_command()
-    args = [cmd, '--namespace', ORCHESTRATE_NAMESPACE, *arguments]
+    args = [cmd, "--namespace", ORCHESTRATE_NAMESPACE, *arguments]
     os.execvpe(
       cmd,
       args,
       env=self.services.kubectl_service.get_kubectl_env(),
     )
 
-kubectl_check = (check_kubectl_executable, download_kubectl_executable, 'kubernetes')
+
+kubectl_check = (check_kubectl_executable, download_kubectl_executable, "kubernetes")
 aws_iam_authenticator_check = (
   check_iam_authenticator_executable,
   download_iam_authenticator_executable,
-  'aws iam-authentication',
+  "aws iam-authentication",
 )
+
 
 def check_authenticator_binary(provider):
   if provider == PROVIDER_TO_STRING[Provider.AWS]:
     check_binary(aws_iam_authenticator_check)
+
 
 def check_binary(options):
   ensure_dir(get_bin_dir())
@@ -507,6 +507,7 @@ def check_binary(options):
     print(f"Downloading {name} executable, this could take some time...")
     download()
     check(full_check=True)
+
 
 def load_user_options(filename):
   with open(filename) as f:

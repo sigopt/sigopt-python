@@ -9,7 +9,6 @@ from ..arguments import commands_argument, run_file_option
 
 
 def run_command(f):
-
   @commands_argument
   @run_file_option
   @functools.wraps(f)

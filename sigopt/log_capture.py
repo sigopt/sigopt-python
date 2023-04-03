@@ -18,14 +18,14 @@ class MonitorStream(io.IOBase):
     self.buffer_stream = io.StringIO()
 
   def close(self):
-    raise IOError('MonitorStream cannot be closed')
+    raise IOError("MonitorStream cannot be closed")
 
   @property
   def closed(self):
     return self.original_stream.closed
 
   def fileno(self):
-    raise IOError('MonitorStream has no fileno')
+    raise IOError("MonitorStream has no fileno")
 
   def flush(self):
     return self.original_stream.flush()
@@ -43,13 +43,13 @@ class MonitorStream(io.IOBase):
     return self.original_stream.readlines(*args, **kwargs)
 
   def seek(self, *args, **kwargs):
-    raise IOError('MonitorStream is not seekable')
+    raise IOError("MonitorStream is not seekable")
 
   def seekable(self):
     return False
 
   def tell(self, *args, **kwargs):
-    raise IOError('MonitorStream is not seekable')
+    raise IOError("MonitorStream is not seekable")
 
   def writable(self):
     return True
@@ -70,6 +70,7 @@ class MonitorStream(io.IOBase):
       self._replace_buffer_stream()
     return content
 
+
 class BaseStreamMonitor(object):
   def get_stream_data(self):
     raise NotImplementedError()
@@ -79,6 +80,7 @@ class BaseStreamMonitor(object):
 
   def __exit__(self, typ, value, trace):
     raise NotImplementedError()
+
 
 class NullStreamMonitor(BaseStreamMonitor):
   def get_stream_data(self):
@@ -90,6 +92,7 @@ class NullStreamMonitor(BaseStreamMonitor):
   def __exit__(self, typ, value, trace):
     return None
 
+
 class SystemOutputStreamMonitor(BaseStreamMonitor):
   def __init__(self):
     super().__init__()
@@ -98,21 +101,15 @@ class SystemOutputStreamMonitor(BaseStreamMonitor):
   def get_stream_data(self):
     if self.monitor_streams is None:
       return None
-    stdout_content, stderr_content = (
-      monitor_stream.get_buffer_contents()
-      for monitor_stream in self.monitor_streams
-    )
+    stdout_content, stderr_content = (monitor_stream.get_buffer_contents() for monitor_stream in self.monitor_streams)
     return stdout_content, stderr_content
 
   def __enter__(self):
     if self.monitor_streams is not None:
-      raise Exception('Already monitoring')
+      raise Exception("Already monitoring")
     self.monitor_streams = MonitorStream(sys.stdout), MonitorStream(sys.stderr)
     sys.stdout, sys.stderr = self.monitor_streams
     return self
 
   def __exit__(self, typ, value, trace):
-    sys.stdout, sys.stderr = (
-      monitor_stream.original_stream
-      for monitor_stream in self.monitor_streams
-    )
+    sys.stdout, sys.stderr = (monitor_stream.original_stream for monitor_stream in self.monitor_streams)

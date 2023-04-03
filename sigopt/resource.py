@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MIT
 from .endpoint import BoundApiEndpoint
 
+
 _NO_ARG = object()
+
 
 class BoundApiResource(object):
   def __init__(self, resource, id, path):
@@ -28,14 +30,15 @@ class BoundApiResource(object):
     if bound_entity:
       return bound_entity
     raise AttributeError(
-        'Cannot find attribute `{attribute}` on resource `{resource}`, likely no endpoint exists for: '
-        '{path}/{attribute}, or `{resource}` does not support `{attribute}`.'
-      .format(
+      "Cannot find attribute `{attribute}` on resource `{resource}`, likely no"
+      " endpoint exists for: {path}/{attribute}, or `{resource}` does not support"
+      " `{attribute}`.".format(
         attribute=attr,
         resource=self._resource._name,
         path="/".join(self._base_path),
       )
     )
+
 
 class PartiallyBoundApiResource(object):
   def __init__(self, resource, bound_parent_resource):
@@ -46,25 +49,19 @@ class PartiallyBoundApiResource(object):
     path = self._bound_parent_resource._base_path + [self._resource._name]
     return BoundApiResource(self._resource, id, path)
 
+
 class BaseApiResource(object):
   def __init__(self, conn, name, endpoints=None, resources=None):
     self._conn = conn
     self._name = name
 
-    self._endpoints = dict((
-      (endpoint._attribute_name, endpoint)
-      for endpoint
-      in endpoints
-    )) if endpoints else {}
+    self._endpoints = dict(((endpoint._attribute_name, endpoint) for endpoint in endpoints)) if endpoints else {}
 
-    self._sub_resources = dict((
-      (resource._name, resource)
-      for resource
-      in resources
-    )) if resources else {}
+    self._sub_resources = dict(((resource._name, resource) for resource in resources)) if resources else {}
 
   def __call__(self, id=_NO_ARG):
     return BoundApiResource(self, id, [self._name])
+
 
 class ApiResource(BaseApiResource):
   def __init__(self, conn, name, endpoints=None, resources=None):

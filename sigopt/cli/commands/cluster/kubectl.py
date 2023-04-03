@@ -20,5 +20,5 @@ from .base import cluster_command
   type=click.UNPROCESSED,
 )
 def kubectl(ctx, kubectl_arguments):
-  '''Run kubectl with the connected Kubernetes cluster.'''
+  """Run kubectl with the connected Kubernetes cluster."""
   ctx.obj.controller.exec_kubectl(kubectl_arguments)

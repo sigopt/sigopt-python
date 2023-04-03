@@ -1,13 +1,13 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from .compat import Trials, STATUS_OK, STATUS_FAIL
-from ..local_run_context import LocalRunContext
 from .. import SigOptFactory
 from ..defaults import get_default_name
+from ..local_run_context import LocalRunContext
+from .compat import STATUS_FAIL, STATUS_OK, Trials
 
 
-HYPEROPT_SOURCE_NAME = 'Hyperopt'
+HYPEROPT_SOURCE_NAME = "Hyperopt"
 HYPEROPT_SOURCE_PRIORITY = 1
 
 
@@ -19,12 +19,14 @@ class SigOptTrials(object):
     self.uploaded_tids = {}
 
     if online:
-      self.saved_refresh = getattr(self._trials, 'refresh')
+      self.saved_refresh = getattr(self._trials, "refresh")
+
       def new_refresh():
         r = self.saved_refresh()
         self.do_refresh()
         return r
-      setattr(self._trials, 'refresh', new_refresh)
+
+      setattr(self._trials, "refresh", new_refresh)
 
   @property
   def parameters(self):
@@ -37,10 +39,10 @@ class SigOptTrials(object):
       for trial in trials:
         self._trials.assert_valid_trial(trial)
     for trial in trials:
-      result = trial['result']
-      status = result.get('status')
+      result = trial["result"]
+      status = result.get("status")
       if status in [STATUS_OK, STATUS_FAIL]:
-        tid = trial['tid']
+        tid = trial["tid"]
         if tid not in self.uploaded_tids:
           new_trials.append(trial)
     ids = self._upload(new_trials)
@@ -48,37 +50,35 @@ class SigOptTrials(object):
     return ids
 
   def trial_to_run(self, trial):
-    metadata = {'optimizer': 'hyperopt'}
-    result = trial['result']
-    metrics = {k:v for k, v in result.items() if isinstance(v, (int, float))}
+    metadata = {"optimizer": "hyperopt"}
+    result = trial["result"]
+    metrics = {k: v for k, v in result.items() if isinstance(v, (int, float))}
     parameters = self.trial_parameters(trial)
-    status = result.get('status')
+    status = result.get("status")
     run = LocalRunContext(name=get_default_name(self.factory.project), metadata=metadata)
     run.log_parameters(
       parameters,
       source=HYPEROPT_SOURCE_NAME,
-      source_meta={
-        'sort': HYPEROPT_SOURCE_PRIORITY,
-        'default_show': True
-      })
+      source_meta={"sort": HYPEROPT_SOURCE_PRIORITY, "default_show": True},
+    )
     if status == STATUS_OK:
       if not metrics:
-        raise ValueError('No metrics found in trial result')
+        raise ValueError("No metrics found in trial result")
       run.log_metrics(metrics)
-      run.log_state('completed')
+      run.log_state("completed")
     elif status == STATUS_FAIL:
       run.log_failure()
     else:
-      raise ValueError(f'status must be {STATUS_OK} or {STATUS_FAIL}, actually {status}')
+      raise ValueError(f"status must be {STATUS_OK} or {STATUS_FAIL}, actually {status}")
     return run.get()
 
   def _upload(self, trials):
     runs = [self.trial_to_run(trial) for trial in trials]
     runs = self.factory.upload_runs(runs)
-    return {trial['tid']:run.id for trial, run in zip(trials, runs)}
+    return {trial["tid"]: run.id for trial, run in zip(trials, runs)}
 
   def trial_parameters(self, trial):
-    vals = trial.get('misc', {}).get('vals', {})
+    vals = trial.get("misc", {}).get("vals", {})
     rval = {}
     for k, v in vals.items():
       if v:

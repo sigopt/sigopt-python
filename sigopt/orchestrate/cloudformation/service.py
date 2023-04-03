@@ -25,9 +25,10 @@ _call_boto_with_backoff = backoff.on_exception(
   giveup=lambda ce: ce.response["Error"]["Code"] != "Throttling",
 )
 
+
 class FailedEksStackCreationError(OrchestrateException):
   def __init__(self, stack_name, stack_events):
-    super().__init__(f'Failed to create EKS stack: {stack_name}')
+    super().__init__(f"Failed to create EKS stack: {stack_name}")
     self.stack_name = stack_name
     self.stack_events = stack_events
 
@@ -54,11 +55,12 @@ IP_MASK_BITS = 16
 VPC_HOST_IP = "192.168.0.0"
 VPC_BLOCK = f"{VPC_HOST_IP}/{IP_MASK_BITS}"
 
+
 class AwsCloudFormationService(AwsService):
   def __init__(self, services, aws_services, **kwargs):
     super().__init__(services, aws_services)
-    self._client = boto3.client('cloudformation', **kwargs)
-    self._cloudformation = boto3.resource('cloudformation', **kwargs)
+    self._client = boto3.client("cloudformation", **kwargs)
+    self._cloudformation = boto3.resource("cloudformation", **kwargs)
     self.ec2 = boto3.client("ec2", **kwargs)
 
   @property
@@ -86,14 +88,13 @@ class AwsCloudFormationService(AwsService):
           ParameterKey=k,
           ParameterValue=v,
         )
-        for (k, v)
-        in [
+        for (k, v) in [
           ("ClusterName", cluster_name),
           ("ClusterOIDCProviderURL", cluster_oidc_provider_url),
         ]
       ],
       Capabilities=[
-        'CAPABILITY_IAM',
+        "CAPABILITY_IAM",
       ],
     )
 
@@ -112,7 +113,10 @@ class AwsCloudFormationService(AwsService):
     return self.describe_eks_cluster_autoscaler_role_stack(cluster_name)
 
   def ensure_eks_cluster_autoscaler_role_stack_deleted(self, cluster_name, event_handler=None):
-    self._ensure_stack_deleted(self.eks_cluster_autoscaler_role_stack_name(cluster_name), event_handler=event_handler)
+    self._ensure_stack_deleted(
+      self.eks_cluster_autoscaler_role_stack_name(cluster_name),
+      event_handler=event_handler,
+    )
 
   def eks_cluster_stack_name(self, cluster_name):
     return f"{cluster_name}-stack"
@@ -137,24 +141,28 @@ class AwsCloudFormationService(AwsService):
         return
 
   def get_compatible_availability_zones_for_instance_types(self, instance_types, az_count, prev_azs=None):
-    supported_azs = set.intersection(*(
-      set(
-        r["Location"] for r in self._page_boto(
-          self.ec2.describe_instance_type_offerings,
-          {
-            "LocationType": "availability-zone",
-            "Filters": [
-              {"Name": "instance-type", "Values": [it]},
-            ],
-          },
-          "InstanceTypeOfferings",
+    supported_azs = set.intersection(
+      *(
+        set(
+          r["Location"]
+          for r in self._page_boto(
+            self.ec2.describe_instance_type_offerings,
+            {
+              "LocationType": "availability-zone",
+              "Filters": [
+                {"Name": "instance-type", "Values": [it]},
+              ],
+            },
+            "InstanceTypeOfferings",
+          )
         )
+        for it in instance_types
       )
-      for it in instance_types
-    ))
+    )
     assert len(supported_azs) >= az_count, (
-      "Not able to find enough supported availability zones for all of the provided instance types:"
-      f" instance types: {instance_types}, required zone count: {az_count}, supported zones: {supported_azs}"
+      "Not able to find enough supported availability zones for all of the"
+      f" provided instance types: instance types: {instance_types}, required zone"
+      f" count: {az_count}, supported zones: {supported_azs}"
     )
     if prev_azs:
       if not all(az in supported_azs for az in prev_azs):
@@ -227,10 +235,7 @@ class AwsCloudFormationService(AwsService):
     ]
     prev_azs = None
     if stack:
-      prev_parameters = {
-        p["ParameterKey"]: p["ParameterValue"]
-        for p in stack.parameters
-      }
+      prev_parameters = {p["ParameterKey"]: p["ParameterValue"] for p in stack.parameters}
       # NOTE(taylor): Changing availability zones is extremely complicated, maybe even impossible without creating a new
       # cluster. This is because the EKS cluster is created with specific subnets that can't be modified.
       prev_azs = (prev_parameters["AZ01"], prev_parameters["AZ02"])
@@ -239,8 +244,8 @@ class AwsCloudFormationService(AwsService):
       az1, az2 = self.get_compatible_availability_zones_for_instance_types(instance_types, 2, prev_azs)
     except ValueError as ve:
       raise Exception(
-        "The requested update cannot be done in-place."
-        " Please destroy your existing cluster and make a new one if you would like to proceed."
+        "The requested update cannot be done in-place. Please destroy your"
+        " existing cluster and make a new one if you would like to proceed."
       ) from ve
 
     for param, public, az in [
@@ -272,8 +277,7 @@ class AwsCloudFormationService(AwsService):
           ParameterKey=k,
           ParameterValue=v,
         )
-        for (k, v)
-        in parameters.items()
+        for (k, v) in parameters.items()
       ],
       Capabilities=[
         "CAPABILITY_IAM",
@@ -429,7 +433,6 @@ class AwsCloudFormationService(AwsService):
     return failures
 
   def _wait_for_stack_change_complete(self, stack_name, expected_status, event_handler=None, after=None):
-
     def maybe_raise_failures(failures, initial_exc):
       if failures:
         failures_str = "\n".join(
@@ -476,17 +479,13 @@ class AwsCloudFormationService(AwsService):
     after = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
     stack.delete()
     self.watch_stack_events(stack.stack_id, event_handler, after=after)
-    self.client.get_waiter('stack_delete_complete').wait(StackName=stack.stack_id)
+    self.client.get_waiter("stack_delete_complete").wait(StackName=stack.stack_id)
 
   def get_stack_output(self, stack, output_key):
     outputs = stack.outputs
     if outputs is None:
       return None
-    return next(
-      o["OutputValue"]
-      for o in outputs
-      if o["OutputKey"] == output_key
-    )
+    return next(o["OutputValue"] for o in outputs if o["OutputKey"] == output_key)
 
   def get_node_instance_role_arn(self, cluster_name):
     cluster_stack = self.describe_eks_cluster_stack(cluster_name)

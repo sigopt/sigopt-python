@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 import os
-import shutil
 import shlex
+import shutil
 
 from sigopt.config import config as sigopt_config
 
@@ -29,6 +29,7 @@ def create_model_packer_dockerfile(
     lines.append(f"ENV SIGOPT_HOME {shlex.quote(sigopt_home)}")
   return "".join(f"{l}\n" for l in lines)
 
+
 class ModelPackerService(Service):
   def build_image(
     self,
@@ -39,7 +40,7 @@ class ModelPackerService(Service):
     dockerfile=None,
   ):
     if not os.path.isfile(dockerfile):
-      raise Exception('Please specify a path to a Dockerfile')
+      raise Exception("Please specify a path to a Dockerfile")
 
     with open(dockerfile) as dockerfile_fp:
       dockerfile_contents = dockerfile_fp.read()
@@ -54,8 +55,8 @@ class ModelPackerService(Service):
 
     try:
       with TemporaryDirectory() as root_dirname:
-        ssl_dirname = os.path.join(root_dirname, 'etc', 'ssl')
-        sigopt_config_dirname = os.path.join(root_dirname, 'etc', 'sigopt', 'client')
+        ssl_dirname = os.path.join(root_dirname, "etc", "ssl")
+        sigopt_config_dirname = os.path.join(root_dirname, "etc", "sigopt", "client")
         for dirname in (ssl_dirname, sigopt_config_dirname):
           os.makedirs(dirname)
 
@@ -67,16 +68,16 @@ class ModelPackerService(Service):
         if isinstance(local_verify_ssl_certs, bool):
           no_verify_ssl_certs = not local_verify_ssl_certs
         elif local_verify_ssl_certs is not None:
-          build_context_verify_ssl_certs = os.path.join(ssl_dirname, 'sigopt-ca.crt')
+          build_context_verify_ssl_certs = os.path.join(ssl_dirname, "sigopt-ca.crt")
           shutil.copyfile(local_verify_ssl_certs, build_context_verify_ssl_certs)
-          verify_ssl_certs = build_context_verify_ssl_certs.replace(root_dirname, '/')
+          verify_ssl_certs = build_context_verify_ssl_certs.replace(root_dirname, "/")
 
         sigopt_home = None
         local_config_path = sigopt_config.config_json_path
         if local_config_path is not None and os.path.exists(local_config_path):
-          build_context_config_path = os.path.join(sigopt_config_dirname, 'config.json')
+          build_context_config_path = os.path.join(sigopt_config_dirname, "config.json")
           shutil.copyfile(local_config_path, build_context_config_path)
-          sigopt_home = os.path.dirname(os.path.dirname(build_context_config_path.replace(root_dirname, '/')))
+          sigopt_home = os.path.dirname(os.path.dirname(build_context_config_path.replace(root_dirname, "/")))
 
         return docker_service.build(
           tag=docker_service.format_image_name(repository, tag),

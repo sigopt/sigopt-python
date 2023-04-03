@@ -1,16 +1,17 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from sigopt.factory import SigOptFactory
-
 from controller.create_pod import create_run_pod, random_run_name
 from controller.missing_pods import get_missing_experiment_pod_count
 from controller.run_state import RunState
 from controller.thread import ControllerThread
 
+from sigopt.factory import SigOptFactory
+
 
 def count_active_runs(run_states):
   return sum(1 for run_state in run_states.values() if run_state.is_active())
+
 
 class RefillExperimentPodsThread(ControllerThread):
   def __init__(self, *args, stop_threads_event, **kwargs):
@@ -52,7 +53,7 @@ class RefillExperimentPodsThread(ControllerThread):
         run_name = random_run_name()
         logger.debug("creating run %s", run_name)
         run_context = run_factory.create_run(name=run_name)
-        run_context.log_metadata('cluster_name', k8s_settings.cluster_name)
+        run_context.log_metadata("cluster_name", k8s_settings.cluster_name)
         run_states[run_name] = RunState(run_context, sigopt_settings, k8s_settings, run_name)
         pod = create_run_pod(
           k8s_settings=k8s_settings,

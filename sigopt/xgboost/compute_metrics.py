@@ -5,6 +5,7 @@ import numpy
 
 from .compat import Booster
 
+
 def compute_positives_and_negatives(y_true, y_pred, class_label):
   y_true_equals = y_true == class_label
   y_true_notequals = y_true != class_label
@@ -25,10 +26,10 @@ def compute_accuracy(y_true, y_pred):
 def compute_classification_report(y_true, y_pred):
   classes = numpy.unique(y_true)
   classification_report = {}
-  classification_report['weighted avg'] = {
-    'f1-score': 0,
-    'recall': 0,
-    'precision': 0,
+  classification_report["weighted avg"] = {
+    "f1-score": 0,
+    "recall": 0,
+    "precision": 0,
   }
   for class_label in classes:
     tp, _, fp, fn = compute_positives_and_negatives(y_true, y_pred, class_label)
@@ -37,14 +38,14 @@ def compute_classification_report(y_true, y_pred):
     f1 = tp / (tp + 0.5 * (fp + fn)) if (tp + 0.5 * (fp + fn)) != 0 else 0
     support = numpy.count_nonzero(y_true == class_label)
     classification_report[str(class_label)] = {
-      'precision': precision,
-      'recall': recall,
-      'f1-score': f1,
-      'support': support,
+      "precision": precision,
+      "recall": recall,
+      "f1-score": f1,
+      "support": support,
     }
-    classification_report['weighted avg']['precision'] += (support / len(y_pred)) * precision
-    classification_report['weighted avg']['recall'] += (support / len(y_pred)) * recall
-    classification_report['weighted avg']['f1-score'] += (support / len(y_pred)) * f1
+    classification_report["weighted avg"]["precision"] += (support / len(y_pred)) * precision
+    classification_report["weighted avg"]["recall"] += (support / len(y_pred)) * recall
+    classification_report["weighted avg"]["f1-score"] += (support / len(y_pred)) * f1
   return classification_report
 
 
@@ -55,7 +56,7 @@ def compute_mae(y_true, y_pred):
 
 def compute_mse(y_true, y_pred):
   d = y_true - y_pred
-  return numpy.mean(d ** 2)
+  return numpy.mean(d**2)
 
 
 def compute_classification_metrics(model, D_matrix_pair):
@@ -70,12 +71,12 @@ def compute_classification_metrics(model, D_matrix_pair):
   y_test = D_matrix.get_label()
   accuracy = compute_accuracy(y_test, preds)
   rep = compute_classification_report(y_test, preds)
-  other_metrics = rep['weighted avg']
+  other_metrics = rep["weighted avg"]
   return {
-    f"{D_name}-accuracy" : accuracy,
-    f"{D_name}-F1" : other_metrics['f1-score'],
-    f"{D_name}-recall": other_metrics['recall'],
-    f"{D_name}-precision": other_metrics['precision'],
+    f"{D_name}-accuracy": accuracy,
+    f"{D_name}-F1": other_metrics["f1-score"],
+    f"{D_name}-recall": other_metrics["recall"],
+    f"{D_name}-precision": other_metrics["precision"],
   }
 
 

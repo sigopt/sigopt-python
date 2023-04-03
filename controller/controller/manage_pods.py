@@ -1,12 +1,10 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from http import HTTPStatus
-from kubernetes.client.exceptions import ApiException as KubernetesApiException
 import logging
 import signal
 import threading
-from sigopt.run_context import RunContext
+from http import HTTPStatus
 
 from controller.create_pod import create_run_pod
 from controller.event_repeater import EventRepeater
@@ -15,6 +13,9 @@ from controller.refill_pods import RefillExperimentPodsThread
 from controller.run_state import RunState
 from controller.settings import ExperimentSettings, RunSettings
 from controller.watch_pods import WatchPodsThread
+from kubernetes.client.exceptions import ApiException as KubernetesApiException
+
+from sigopt.run_context import RunContext
 
 
 def create_run_state(sigopt_settings, pod, k8s_settings):
@@ -24,14 +25,15 @@ def create_run_state(sigopt_settings, pod, k8s_settings):
   run_context = RunContext(sigopt_conn, run)
   return RunState(run_context, sigopt_settings, k8s_settings, pod.metadata.name)
 
-def set_events_on_sigterm(events):
 
+def set_events_on_sigterm(events):
   def handler(signum, frame):
     logging.error("sigterm received")
     for event in events:
       event.set()
 
   signal.signal(signal.SIGTERM, handler)
+
 
 class RunPodsManager:
   def __init__(self, k8s_settings, run_name, run_id, sigopt_settings):
@@ -97,6 +99,7 @@ class RunPodsManager:
     if sigterm_event.is_set():
       raise Exception("Sigterm received")
 
+
 class ExperimentPodsManager:
   def __init__(self, k8s_settings, sigopt_settings, experiment_id):
     self.k8s_settings = k8s_settings
@@ -135,14 +138,16 @@ class ExperimentPodsManager:
   def start(self):
     sigterm_event = threading.Event()
     set_events_on_sigterm([sigterm_event, self.stop_threads_event])
-    self.run_state.update({
-      pod.metadata.name: create_run_state(self.sigopt_settings, pod, self.k8s_settings)
-      for pod in self.k8s_settings.api.list_namespaced_pod(
-        self.k8s_settings.namespace,
-        label_selector=self.run_label_selector,
-      ).items
-      if is_pod_active(pod)
-    })
+    self.run_state.update(
+      {
+        pod.metadata.name: create_run_state(self.sigopt_settings, pod, self.k8s_settings)
+        for pod in self.k8s_settings.api.list_namespaced_pod(
+          self.k8s_settings.namespace,
+          label_selector=self.run_label_selector,
+        ).items
+        if is_pod_active(pod)
+      }
+    )
     self.manage_pods_event.set()
     threads = [self.refiller_thread, self.watcher_thread]
     for thread in threads:

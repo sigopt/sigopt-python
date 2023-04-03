@@ -2,12 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 import sys
-from logging import getLogger, INFO, StreamHandler
+from logging import INFO, StreamHandler, getLogger
+
 
 print_logger = getLogger("sigopt.print")
 print_logger.setLevel(INFO)
 
 stdout_handler = StreamHandler(stream=sys.stdout)
+
 
 def enable_print_logging():
   global print_logger, stdout_handler

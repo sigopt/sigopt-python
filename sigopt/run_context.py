@@ -9,34 +9,39 @@ from .config import config
 from .exception import RunException
 from .file_utils import create_api_image_payload, get_blob_properties
 from .interface import get_connection
-from .lib import remove_nones, sanitize_number, validate_name, is_mapping, is_string
-from .sigopt_logging import print_logger
+from .lib import is_mapping, is_string, remove_nones, sanitize_number, validate_name
 from .objects import TrainingRun
-from .run_params import RunParameters, GlobalRunParameters
+from .run_params import GlobalRunParameters, RunParameters
+from .sigopt_logging import print_logger
 
 
 _UNSET = object()
+
 
 def maybe_truncate_log(log_content):
   # If log content is extremely long, preserve some useful content instead of failing.
   # TODO(patrick): Support streaming logs to avoid this
   max_size = 1024
   if len(log_content) >= max_size:
-    truncated_disclaimer = '[ WARNING ] The max size has been reached so these logs have been truncated'
+    truncated_disclaimer = "[ WARNING ] The max size has been reached so these logs have been truncated"
     half = max_size // 2
     head = log_content[:half]
     tail = log_content[-half:]
-    log_content = '\n\n'.join([
-      truncated_disclaimer,
-      head,
-      '... truncated ...',
-      tail,
-    ])
+    log_content = "\n\n".join(
+      [
+        truncated_disclaimer,
+        head,
+        "... truncated ...",
+        tail,
+      ]
+    )
   return log_content
+
 
 class NoDefaultParameterError(RunException):
   def __init__(self, parameter_name):
     super().__init__(f'No default provided for parameter "{parameter_name}"')
+
 
 class BaseRunContext(object):
   @property
@@ -91,13 +96,13 @@ class BaseRunContext(object):
     raise NotImplementedError
 
   def set_parameter(self, name, value):
-    '''
-    sigopt.set_parameter(name, value)
-    name: string, required
-      The name of the parameter.
-    value: number/string, required
-      The value of the parameter.
-    '''
+    """
+        sigopt.set_parameter(name, value)
+        name: string, required
+          The name of the parameter.
+        value: number/string, required
+          The value of the parameter.
+        """
     return self._set_parameters({name: value})
 
   def set_parameter_meta(self, name, value):
@@ -116,110 +121,108 @@ class BaseRunContext(object):
     return self._set_parameters_sources({source_name: {"sort": sort, "default_show": default_show}})
 
   def set_parameters(self, parameters):
-    '''
-    sigopt.set_parameter(parameters)
-    name: dict, required
-      A mapping of parameter names to values.
-    '''
+    """
+        sigopt.set_parameter(parameters)
+        name: dict, required
+          A mapping of parameter names to values.
+        """
     return self._set_parameters(parameters)
 
   def log_dataset(self, name):
-    '''
-    sigopt.log_dataset(name)
-      Logs a dataset that will be used for your Run.
-    name: string, required
-      The name of the dataset you would like to track.
-    '''
-    validate_name('dataset name', name)
+    """
+        sigopt.log_dataset(name)
+          Logs a dataset that will be used for your Run.
+        name: string, required
+          The name of the dataset you would like to track.
+        """
+    validate_name("dataset name", name)
     self._log_dataset(name)
 
   def log_failure(self):
-    '''
-    sigopt.log_failure()
-      Indicates that the Run has failed for any reason.
-    '''
+    """
+        sigopt.log_failure()
+          Indicates that the Run has failed for any reason.
+        """
     self._log_failure()
 
   def log_metadata(self, key, value):
-    '''
-    sigopt.log_metadata(key, value)
-      Stores some extra information about your Run.
-    key: string, required
-      The metadata key that your would like to store.
-    value: number/object, required
-      The value of the metadata that you would like to track.
-      If value is not a number then it will be logged as a string.
-    '''
-    validate_name('metadata key', key)
+    """
+        sigopt.log_metadata(key, value)
+          Stores some extra information about your Run.
+        key: string, required
+          The metadata key that your would like to store.
+        value: number/object, required
+          The value of the metadata that you would like to track.
+          If value is not a number then it will be logged as a string.
+        """
+    validate_name("metadata key", key)
     if value is not None and not isinstance(value, str):
       try:
-        value = sanitize_number('metadata', key, value)
+        value = sanitize_number("metadata", key, value)
       except ValueError:
         value = str(value)
     return self._log_metadata({key: value})
 
-
   def log_dev_metadata(self, key, value):
-    validate_name('metadata key', key)
+    validate_name("metadata key", key)
     if value is not None and not isinstance(value, str):
       try:
-        value = sanitize_number('metadata', key, value)
+        value = sanitize_number("metadata", key, value)
       except ValueError:
         value = str(value)
     return self._log_dev_metadata({key: value})
 
-
   def log_sys_metadata(self, key, value, mode=None):
-    validate_name('metadata key', key)
-    if mode == 'metadata':
+    validate_name("metadata key", key)
+    if mode == "metadata":
       return self.log_metadata(key, value)
-    elif mode == 'dev':
+    elif mode == "dev":
       return self.log_dev_metadata(key, value)
     return self._log_sys_metadata({key: value})
 
   def log_metric(self, name, value, stddev=None):
-    '''
-    sigopt.log_metric(name, value, stddev=None)
-      Logs a metric value from your model's evaluation.
-    name: string, required
-      The name of the metric that you would like to track.
-    value: number, required
-      The value of the metric to track.
-    stddev: number
-      The standard deviation of the metric to track.
-    '''
-    validate_name('metric name', name)
+    """
+        sigopt.log_metric(name, value, stddev=None)
+          Logs a metric value from your model's evaluation.
+        name: string, required
+          The name of the metric that you would like to track.
+        value: number, required
+          The value of the metric to track.
+        stddev: number
+          The standard deviation of the metric to track.
+        """
+    validate_name("metric name", name)
     metric_log = {}
-    metric_log['value'] = sanitize_number('metric', name, value)
+    metric_log["value"] = sanitize_number("metric", name, value)
     if stddev is not None:
-      metric_log['value_stddev'] = sanitize_number('metric stddev', name, stddev)
+      metric_log["value_stddev"] = sanitize_number("metric stddev", name, stddev)
     self._log_metrics({name: metric_log})
 
   def log_metrics(self, *args, **metric_kwargs):
-    '''
-    sigopt.log_metrics(metrics_dict)
-    sigopt.log_metrics(**metric_kwargs)
-      Logs multiple metric values for your run. Metrics can be provided as a dictionary or as keyword arguments.
-    metrics_dict: dict
-      A dictionary mapping metric names to their values.
-    '''
+    """
+        sigopt.log_metrics(metrics_dict)
+        sigopt.log_metrics(**metric_kwargs)
+          Logs multiple metric values for your run. Metrics can be provided as a dictionary or as keyword arguments.
+        metrics_dict: dict
+          A dictionary mapping metric names to their values.
+        """
     all_metrics = dict()
     all_metrics.update(*args, **metric_kwargs)
     metric_logs = {}
     for name, value in all_metrics.items():
-      validate_name('metric name', name)
+      validate_name("metric name", name)
       metric_logs[name] = {"value": sanitize_number("metric", name, value)}
     self._log_metrics(metric_logs)
 
   def log_model(self, type=None):
-    '''
-    sigopt.log_model(type=None)
-      Logs information about your model.
-      This will be converted to a string before it is tracked.
-    type: object
-      The model object being tracked, or a string representing the type of model.
-      The str builtin will be used to convert your model to a string.
-    '''
+    """
+        sigopt.log_model(type=None)
+          Logs information about your model.
+          This will be converted to a string before it is tracked.
+        type: object
+          The model object being tracked, or a string representing the type of model.
+          The str builtin will be used to convert your model to a string.
+        """
     if type is not None:
       type = str(type)
     self._log_model(type)
@@ -237,36 +240,38 @@ class BaseRunContext(object):
     self._set_logs(logs)
 
   def log_checkpoint(self, values):
-    '''
-    sigopt.log_checkpoint(values)
-      Logs a checkpoint from your model's evaluation.
-    values: dict
-      A mapping of the metric names to the values they take for the current checkpoint.
-    '''
+    """
+        sigopt.log_checkpoint(values)
+          Logs a checkpoint from your model's evaluation.
+        values: dict
+          A mapping of the metric names to the values they take for the current checkpoint.
+        """
     if not isinstance(values, dict):
-      raise ValueError('values must be a dict')
+      raise ValueError("values must be a dict")
     checkpoint_values = []
     for name, value in values.items():
-      validate_name('metric name', name)
+      validate_name("metric name", name)
       if value is not None:
-        checkpoint_values.append({
-          'name': name,
-          'value': sanitize_number('metric_stddev', name, value),
-        })
+        checkpoint_values.append(
+          {
+            "name": name,
+            "value": sanitize_number("metric_stddev", name, value),
+          }
+        )
     self._log_checkpoint(checkpoint_values)
 
   def log_image(self, image, name=None):
-    '''
-    sigopt.log_image(image, name=None)
-      Logs an image artifact from your model's evaluation. See the documentation for more details:
-      https://docs.sigopt.com/ai-module-api-references/api_reference/python_tracking#sigopt.log_image-image-name-none
-    image: string, PIL.Image.Image, matplotlib.figure.Figure or numpy.ndarray, required
-      The image artifact to upload. This will be converted to an appropriate format and then uploaded.
-    name: string
-      An optional name to give your uploaded image.
-    '''
+    """
+        sigopt.log_image(image, name=None)
+          Logs an image artifact from your model's evaluation. See the documentation for more details:
+          https://docs.sigopt.com/ai-module-api-references/api_reference/python_tracking#sigopt.log_image-image-name-none
+        image: string, PIL.Image.Image, matplotlib.figure.Figure or numpy.ndarray, required
+          The image artifact to upload. This will be converted to an appropriate format and then uploaded.
+        name: string
+          An optional name to give your uploaded image.
+        """
     if name is not None:
-      validate_name('image name', name)
+      validate_name("image name", name)
     payload = create_api_image_payload(image)
     if payload is None:
       return
@@ -275,21 +280,19 @@ class BaseRunContext(object):
       self._log_image(name, payload)
 
   def end(self, exception=None):
-    '''
-    run.end(exception=None)
-      Stops the run. In most cases it should be easier to use your run in a context manager instead, ex.
-      with run:
-        ...
-    exception: instanceof(Exception)
-      The exception that occurred that caused the termination of the run. Not needed if the run ended gracefully.
-    '''
+    """
+        run.end(exception=None)
+          Stops the run. In most cases it should be easier to use your run in a context manager instead, ex.
+          with run:
+            ...
+        exception: instanceof(Exception)
+          The exception that occurred that caused the termination of the run. Not needed if the run ended gracefully.
+        """
     self._end(exception=exception)
 
 
 def updates(update_key):
-
   def function_wrapper(wrapped_function):
-
     def function_impl(self, *args, **kwargs):
       update_value = wrapped_function(self, *args, **kwargs)
       self._update_run({update_key: update_value})
@@ -299,37 +302,33 @@ def updates(update_key):
 
   return function_wrapper
 
+
 def creates_checkpoint():
-
   def function_wrapper(wrapped_function):
-
     @functools.wraps(wrapped_function)
     def function_impl(self, *args, **kwargs):
       checkpoint_values = wrapped_function(self, *args, **kwargs)
-      self._create_checkpoint({'values': checkpoint_values})
+      self._create_checkpoint({"values": checkpoint_values})
 
     return function_impl
 
   return function_wrapper
 
+
 def allow_state_update(new_state, old_state):
   if new_state == old_state:
     return False
   precedence = {
-    'failed': 2,
-    'completed': 1,
+    "failed": 2,
+    "completed": 1,
   }
   new_state_precedence = precedence.get(new_state, 0)
   old_state_precedence = precedence.get(old_state, 0)
   return new_state_precedence >= old_state_precedence
 
+
 class RunContext(BaseRunContext):
-  def __init__(
-    self,
-    connection,
-    run,
-    default_params=None
-  ):
+  def __init__(self, connection, run, default_params=None):
     super().__init__()
     self.connection = connection
     self.run = run
@@ -365,10 +364,13 @@ class RunContext(BaseRunContext):
 
   def _end(self, exception):
     old_run_state = self.connection.training_runs(self.run.id).fetch().state
-    new_run_state = 'failed' if exception else 'completed'
+    new_run_state = "failed" if exception else "completed"
     if allow_state_update(new_run_state, old_run_state):
-      self._update_run({'state': new_run_state})
-    print_logger.info("Run finished, view it on the SigOpt dashboard at https://app.sigopt.com/run/%s", self.id)
+      self._update_run({"state": new_run_state})
+    print_logger.info(
+      "Run finished, view it on the SigOpt dashboard at https://app.sigopt.com/run/%s",
+      self.id,
+    )
 
   def _request(self, method, path, params, headers=None):
     run_id = self.run.id
@@ -381,70 +383,67 @@ class RunContext(BaseRunContext):
 
   def _update_run(self, body):
     self._request(
-      method='MERGE',
+      method="MERGE",
       path=[],
       params=body,
-      headers={'X-Response-Content': 'skip'},
+      headers={"X-Response-Content": "skip"},
     )
 
   def _create_checkpoint(self, body):
     self._request(
-      method='POST',
+      method="POST",
       path=["checkpoints"],
       params=body,
-      headers={'X-Response-Content': 'skip'},
+      headers={"X-Response-Content": "skip"},
     )
 
-  @updates('assignments')
+  @updates("assignments")
   def _set_parameters(self, parameters):
     return parameters
 
-  @updates('assignments_meta')
+  @updates("assignments_meta")
   def _set_parameters_meta(self, parameters_meta):
     return parameters_meta
 
-  @updates('assignments_sources')
+  @updates("assignments_sources")
   def _set_parameters_sources(self, assignments_sources):
     return assignments_sources
 
-  @updates('datasets')
+  @updates("datasets")
   def _log_dataset(self, name):
     return {name: {}}
 
-  @updates('state')
+  @updates("state")
   def _log_failure(self):
-    return 'failed'
+    return "failed"
 
-  @updates('metadata')
+  @updates("metadata")
   def _log_metadata(self, metadata):
     return metadata
 
-  @updates('sys_metadata')
+  @updates("sys_metadata")
   def _log_sys_metadata(self, metadata):
     return metadata
 
-  @updates('dev_metadata')
+  @updates("dev_metadata")
   def _log_dev_metadata(self, metadata):
     return metadata
 
-  @updates('values')
+  @updates("values")
   def _log_metrics(self, metrics):
     return metrics
 
-  @updates('model')
+  @updates("model")
   def _log_model(self, type):
-    return remove_nones({'type': type})
+    return remove_nones({"type": type})
 
-  @updates('source_code')
+  @updates("source_code")
   def _log_source_code(self, source_code):
     return source_code
 
-  @updates('logs')
+  @updates("logs")
   def _set_logs(self, logs):
-    return {
-      name: {"content": maybe_truncate_log(content)}
-      for name, content in logs.items()
-    }
+    return {name: {"content": maybe_truncate_log(content)} for name, content in logs.items()}
 
   @creates_checkpoint()
   def _log_checkpoint(self, values):
@@ -454,7 +453,7 @@ class RunContext(BaseRunContext):
     filename, image_data, content_type = payload
     content_length, content_md5_base64 = get_blob_properties(image_data)
     file_info = self._request(
-      method='POST',
+      method="POST",
       path=["files"],
       params={
         "content_length": content_length,
@@ -474,11 +473,13 @@ class RunContext(BaseRunContext):
     )
     response.raise_for_status()
 
+
 class GlobalRunContext(BaseRunContext):
-  '''
-  If a RunContext is available then methods will call the RunContext.
-  Fallback to noop.
-  '''
+  """
+    If a RunContext is available then methods will call the RunContext.
+    Fallback to noop.
+    """
+
   CONFIG_CONTEXT_KEY = "global_run_context"
 
   def __init__(self, run_context):
@@ -518,8 +519,8 @@ class GlobalRunContext(BaseRunContext):
       run_context = RunContext.from_json(data)
     return cls(run_context)
 
-def delegate_to_run_context(method_name):
 
+def delegate_to_run_context(method_name):
   def func(self, *args, **kwargs):
     run_context = self.run_context
     if run_context is not None:

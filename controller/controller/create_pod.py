@@ -4,6 +4,7 @@
 import os
 import random
 import string
+
 from kubernetes import client as k8s_client
 
 from sigopt.config import Config as SigOptConfig
@@ -12,6 +13,7 @@ from sigopt.run_context import GlobalRunContext
 
 RUN_RANDOM_PART_LENGTH = 8
 RUN_RANDOM_PART_CHARS = string.ascii_lowercase + string.digits
+
 
 def get_run_pod_env_vars(run_context):
   config = SigOptConfig()
@@ -45,13 +47,16 @@ def get_run_pod_env_vars(run_context):
       k8s_client.V1EnvVar(
         name=key,
         value=value.decode("ascii"),
-      ) for key, value in config.get_environment_context().items()
+      )
+      for key, value in config.get_environment_context().items()
     ),
   ]
   return env
 
+
 def random_run_name():
   return "run-" + "".join(random.choice(RUN_RANDOM_PART_CHARS) for _ in range(RUN_RANDOM_PART_LENGTH))
+
 
 def create_run_pod(k8s_settings, run_context):
   run_id = run_context.id
@@ -83,18 +88,20 @@ def create_run_pod(k8s_settings, run_context):
   if experiment_id:
     labels.update({"experiment": experiment_id})
     # NOTE(taylor): highest preference to run on nodes with runs in the same experiment
-    pod_affinities.append(k8s_client.V1WeightedPodAffinityTerm(
-      weight=100,
-      pod_affinity_term=k8s_client.V1PodAffinityTerm(
-        label_selector=k8s_client.V1LabelSelector(
-          match_labels={
-            "type": "run",
-            "experiment": experiment_id,
-          },
+    pod_affinities.append(
+      k8s_client.V1WeightedPodAffinityTerm(
+        weight=100,
+        pod_affinity_term=k8s_client.V1PodAffinityTerm(
+          label_selector=k8s_client.V1LabelSelector(
+            match_labels={
+              "type": "run",
+              "experiment": experiment_id,
+            },
+          ),
+          topology_key=node_topology_key,
         ),
-        topology_key=node_topology_key,
-      ),
-    ))
+      )
+    )
 
   unacceptable_node_group_types = ["system"]
   requests = k8s_settings.resources.get("requests") or {}
@@ -108,21 +115,22 @@ def create_run_pod(k8s_settings, run_context):
   # NOTE(taylor): Applying a NoSchedule taint to GPU nodes is another way to achieve this behavior, but does not work as
   # well out of the box with clusters that orchestrate doesn't provision. Applying a PreferNoSchedule
   # taint to GPU nodes does not resolve the workload migration issue when there are no CPU nodes.
-  if all(
-    float(group.get("nvidia.com/gpu", 0)) == 0
-    for group in (requests, limits)
-  ):
+  if all(float(group.get("nvidia.com/gpu", 0)) == 0 for group in (requests, limits)):
     unacceptable_node_group_types.append("gpu")
 
   node_affinity = k8s_client.V1NodeAffinity(
     required_during_scheduling_ignored_during_execution=k8s_client.V1NodeSelector(
-      node_selector_terms=[k8s_client.V1NodeSelectorTerm(
-        match_expressions=[k8s_client.V1NodeSelectorRequirement(
-          key="orchestrate.sigopt.com/node-group-type",
-          operator="NotIn",
-          values=unacceptable_node_group_types,
-        )],
-      )],
+      node_selector_terms=[
+        k8s_client.V1NodeSelectorTerm(
+          match_expressions=[
+            k8s_client.V1NodeSelectorRequirement(
+              key="orchestrate.sigopt.com/node-group-type",
+              operator="NotIn",
+              values=unacceptable_node_group_types,
+            )
+          ],
+        )
+      ],
     ),
   )
   pod_affinity = k8s_client.V1PodAffinity(

@@ -16,6 +16,7 @@ def main():
   manager = manager_cls.from_env()
   manager.start()
 
+
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO)
   main()

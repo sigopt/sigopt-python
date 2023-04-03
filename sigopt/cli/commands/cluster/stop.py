@@ -7,7 +7,7 @@ from ...arguments import identifiers_argument, identifiers_help
 from .base import cluster_command
 
 
-@cluster_command.command(help=f'''Stop a Run or Experiment. {identifiers_help}''')
+@cluster_command.command(help=f"""Stop a Run or Experiment. {identifiers_help}""")
 @click.pass_context
 @identifiers_argument
 def stop(ctx, identifiers):

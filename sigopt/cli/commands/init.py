@@ -27,9 +27,10 @@ def write_file(path, resource):
   else:
     print(f"Skipping {path}")
 
+
 @sigopt_cli.command()
 def init():
-  '''Initialize a directory for a SigOpt project.'''
+  """Initialize a directory for a SigOpt project."""
   write_file("run.yml", "init_run.txt")
   write_file("experiment.yml", "init_experiment.txt")
   write_file("Dockerfile", "init_dockerfile.txt")

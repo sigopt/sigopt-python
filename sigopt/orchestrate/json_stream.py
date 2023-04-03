@@ -15,7 +15,7 @@ class JsonBuffer:
     return self.emit_data()
 
   def emit_data(self):
-    parts = ''.join(self.buffer).splitlines(True)
+    parts = "".join(self.buffer).splitlines(True)
     if not parts:
       return []
     if parts[-1] and parts[-1][-1] != "\n":
@@ -24,11 +24,8 @@ class JsonBuffer:
       parts = parts[:-1]
     else:
       self.buffer = []
-    return [
-      json.loads(part)
-      for part in parts
-      if part.strip()
-    ]
+    return [json.loads(part) for part in parts if part.strip()]
+
 
 def json_stream(stream):
   json_buffer = JsonBuffer()

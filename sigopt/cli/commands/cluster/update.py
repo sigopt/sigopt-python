@@ -11,5 +11,5 @@ from .base import cluster_command
 @cluster_filename_option
 @click.pass_context
 def update(ctx, filename):
-  '''Update the connected Kuberentes cluster.'''
+  """Update the connected Kuberentes cluster."""
   ctx.obj.controller.update_cluster(filename.data)

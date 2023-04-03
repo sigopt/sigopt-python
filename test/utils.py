@@ -1,8 +1,9 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from contextlib import contextmanager
 import warnings
+from contextlib import contextmanager
+
 
 @contextmanager
 def ObserveWarnings():

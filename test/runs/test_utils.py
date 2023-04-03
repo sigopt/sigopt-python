@@ -1,17 +1,20 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+import matplotlib
 import pytest
 
-import matplotlib
+
 matplotlib.use("Agg")
 
 import io
-import numpy
 import os
-from PIL import Image
-from matplotlib import pyplot as plt
 import xml.etree.ElementTree as ET
+
+import numpy
+from matplotlib import pyplot as plt
+from PIL import Image
+from utils import ObserveWarnings
 
 from sigopt.file_utils import (
   create_api_image_payload,
@@ -20,7 +23,6 @@ from sigopt.file_utils import (
   try_load_numpy_image,
   try_load_pil_image,
 )
-from utils import ObserveWarnings
 
 
 @pytest.fixture
@@ -132,11 +134,14 @@ def test_load_numpy_image_clipping():
   assert content_type == "image/png"
 
 
-@pytest.mark.parametrize("image_path,expected_type", [
-  ("test.png", "image/png"),
-  ("test.svg", "image/svg+xml"),
-  ("test.bmp", "image/bmp"),
-])
+@pytest.mark.parametrize(
+  "image_path,expected_type",
+  [
+    ("test.png", "image/png"),
+    ("test.svg", "image/svg+xml"),
+    ("test.bmp", "image/bmp"),
+  ],
+)
 def test_create_api_image_payload_string_path(image_path, expected_type):
   image_path = os.path.join("./test/runs/test_files", image_path)
   data = create_api_image_payload(image_path)
@@ -163,7 +168,7 @@ def test_create_api_image_payload_string_path_bad_type():
 def test_create_api_image_payload_pil_image(pil_image):
   data = create_api_image_payload(pil_image)
   assert data is not None
-  filepath, image_data, content_type = data
+  filepath, _, content_type = data
   assert filepath is None
   assert content_type == "image/png"
 
@@ -171,7 +176,7 @@ def test_create_api_image_payload_pil_image(pil_image):
 def test_create_api_image_payload_matplotlib_figure(matplotlib_figure):
   data = create_api_image_payload(matplotlib_figure)
   assert data is not None
-  filepath, image_data, content_type = data
+  filepath, _, content_type = data
   assert filepath is None
   assert content_type == "image/svg+xml"
 
@@ -180,7 +185,7 @@ def test_create_api_image_payload_numpy_image():
   numpy_image = numpy.random.randint(0, 255, (16, 16))
   data = create_api_image_payload(numpy_image)
   assert data is not None
-  filepath, image_data, content_type = data
+  filepath, _, content_type = data
   assert filepath is None
   assert content_type == "image/png"
 

@@ -13,8 +13,8 @@ import threading
 import click
 
 from sigopt.factory import SigOptFactory
-from sigopt.sigopt_logging import enable_print_logging, print_logger
 from sigopt.run_context import GlobalRunContext
+from sigopt.sigopt_logging import enable_print_logging, print_logger
 
 from .arguments.load_yaml import ValidatedData
 
@@ -35,11 +35,11 @@ class StreamThread(threading.Thread):
       raise StopIteration() from ve
 
   def run(self):
-    for line in iter(self.read_input_line, ''.encode()):
+    for line in iter(self.read_input_line, "".encode()):
       try:
-        data = line.decode('utf-8', 'strict')
+        data = line.decode("utf-8", "strict")
       except UnicodeDecodeError:
-        data = 'Failed to decode binary data to utf-8'
+        data = "Failed to decode binary data to utf-8"
       finally:
         self.buffer.write(data)
         self.output_stream.write(data)
@@ -49,6 +49,7 @@ class StreamThread(threading.Thread):
       self.input_stream.close()
     self.join()
     return self.buffer.getvalue()
+
 
 def get_git_hexsha():
   try:
@@ -62,6 +63,7 @@ def get_git_hexsha():
   except InvalidGitRepositoryError:
     return None
 
+
 def get_subprocess_environment(config, run_context, env=None):
   config.set_context_entry(GlobalRunContext(run_context))
   ret = os.environ.copy()
@@ -69,8 +71,10 @@ def get_subprocess_environment(config, run_context, env=None):
   ret.update(env or {})
   return ret
 
+
 def run_subprocess(config, run_context, commands, env=None):
   return run_subprocess_command(config, run_context, cmd=commands, env=env)
+
 
 def run_subprocess_command(config, run_context, cmd, env=None):
   env = get_subprocess_environment(config, run_context, env)
@@ -116,33 +120,39 @@ def run_subprocess_command(config, run_context, cmd, env=None):
   finally:
     stdout_content, stderr_content = stdout.stop(), stderr.stop()
     if config.log_collection_enabled:
-      run_context.set_logs({
-        'stdout': stdout_content,
-        'stderr': stderr_content,
-      })
+      run_context.set_logs(
+        {
+          "stdout": stdout_content,
+          "stderr": stderr_content,
+        }
+      )
   return return_code
+
 
 def run_user_program(config, run_context, commands, source_code_content):
   source_code = {}
   git_hash = get_git_hexsha()
   if git_hash:
-    source_code['hash'] = git_hash
+    source_code["hash"] = git_hash
   if source_code_content is not None:
-    source_code['content'] = source_code_content
+    source_code["content"] = source_code_content
   run_context.log_source_code(**source_code)
   exit_code = run_subprocess(config, run_context, commands)
   if exit_code != 0:
     print_logger.error("command exited with non-zero status: %s", exit_code)
   return exit_code
 
+
 def setup_cli(config):
-  config.set_user_agent_info(['CLI'])
+  config.set_user_agent_info(["CLI"])
   enable_print_logging()
+
 
 def create_aiexperiment_from_validated_data(experiment_file, project):
   assert isinstance(experiment_file, ValidatedData)
   factory = SigOptFactory(project)
   return factory.create_prevalidated_aiexperiment(experiment_file.data)
+
 
 def cli_experiment_loop(config, experiment, command, run_options, source_code_content):
   for run_context in experiment.loop(name=run_options.get("name")):

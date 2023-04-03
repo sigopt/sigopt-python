@@ -25,10 +25,9 @@ class UnknownProviderStringError(OrchestrateException):
     else:
       provider_error = f"{provider_string!r} is not a supported provider."
 
-    super().__init__(
-      f"{provider_error} Supported providers are: {', '.join(STRING_TO_PROVIDER)}"
-    )
+    super().__init__(f"{provider_error} Supported providers are: {', '.join(STRING_TO_PROVIDER)}")
     self.provider_string = provider_string
+
 
 def string_to_provider(provider_string):
   try:

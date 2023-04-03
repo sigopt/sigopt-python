@@ -1,15 +1,20 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+from controller.k8s_constants import K8sEvent
+from controller.pod_status import is_pod_finished
+from controller.thread import ControllerThread
 from kubernetes import watch
 
-from controller.thread import ControllerThread
-from controller.pod_status import is_pod_finished
-from controller.k8s_constants import K8sEvent
 
 class WatchPodsThread(ControllerThread):
   def __init__(self, *args, stop_threads_event, **kwargs):
-    super().__init__(target=self.watch_pods, stop_threads_event=stop_threads_event, args=args, kwargs=kwargs)
+    super().__init__(
+      target=self.watch_pods,
+      stop_threads_event=stop_threads_event,
+      args=args,
+      kwargs=kwargs,
+    )
 
   def watch_pods(self, k8s_settings, label_selector, run_states, pods_modified_event):
     logger = self.logger

@@ -1,8 +1,10 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from .run_context import BaseRunContext
 import copy
+
+from .run_context import BaseRunContext
+
 
 class LocalRunContext(BaseRunContext):
   def __init__(self, **kwargs):
@@ -11,30 +13,30 @@ class LocalRunContext(BaseRunContext):
   def get(self, name=None, default_type=dict):
     if name is None:
       return self.run
-    if not name in self.run:
+    if name not in self.run:
       self.run.setdefault(name, default_type())
     return self.run[name]
 
   def log_state(self, state):
-    self.run['state'] = state
+    self.run["state"] = state
 
   def _set_parameters(self, parameters):
-    self.get('assignments').update(parameters)
+    self.get("assignments").update(parameters)
 
   def _log_failure(self):
-    self.run['state'] = 'failed'
+    self.run["state"] = "failed"
 
   def _log_metadata(self, metadata):
-    self.get('metadata').update(metadata)
+    self.get("metadata").update(metadata)
 
   def _log_metrics(self, metrics):
-    self.get('values').update(metrics)
+    self.get("values").update(metrics)
 
   def _set_parameters_meta(self, parameters_meta):
-    self.get('assignments_meta').update(parameters_meta)
+    self.get("assignments_meta").update(parameters_meta)
 
   def _set_parameters_sources(self, assignments_sources):
-    self.get('assignments_sources').update(assignments_sources)
+    self.get("assignments_sources").update(assignments_sources)
 
   def log_parameters(self, params, source=None, source_meta=None):
     self.set_parameters(params)

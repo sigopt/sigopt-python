@@ -12,10 +12,11 @@ def identifiers_callback(ctx, p, value):  # pylint: disable=unused-argument
   except ValueError as ve:
     raise click.BadParameter(str(ve)) from ve
 
+
 identifiers_argument = click.argument(
-  'identifiers',
+  "identifiers",
   nargs=-1,
   callback=identifiers_callback,
 )
 
-identifiers_help = 'IDENTIFIERS can be the name of a run, or one of the following: experiment/[id], run/[id]'
+identifiers_help = "IDENTIFIERS can be the name of a run, or one of the following: experiment/[id], run/[id]"

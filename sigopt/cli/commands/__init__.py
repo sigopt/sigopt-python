@@ -7,7 +7,7 @@ import sigopt.cli.commands.experiment
 import sigopt.cli.commands.init
 import sigopt.cli.commands.local
 import sigopt.cli.commands.project
-import sigopt.cli.commands.version
 import sigopt.cli.commands.training_run
+import sigopt.cli.commands.version
 
 from .base import sigopt_cli

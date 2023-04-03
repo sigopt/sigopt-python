@@ -13,6 +13,7 @@ IDENTIFIER_QUERY_ID = "id"
 IDENTIFIER_QUERY_NAME = "name"
 IDENTIFIER_QUERY_SUGGESTION = "suggestion"
 
+
 def parse_identifier(id_str):
   if "/" not in id_str:
     return {
@@ -37,6 +38,7 @@ def parse_identifier(id_str):
     "controller_label_selector": f"type=controller,{_type}={_id}",
   }
 
+
 def maybe_convert_to_run_identifier(identifier):
   if identifier["type"] == IDENTIFIER_TYPE_SUGGESTION:
     return {
@@ -49,6 +51,7 @@ def maybe_convert_to_run_identifier(identifier):
     }
   return identifier
 
+
 def get_run_and_pod_from_identifier(identifier, services):
   identifier = maybe_convert_to_run_identifier(identifier)
   assert identifier["type"] == IDENTIFIER_TYPE_RUN, f"Can't get a single run or pod from {identifier['raw']}"
@@ -60,9 +63,11 @@ def get_run_and_pod_from_identifier(identifier, services):
   if identifier["query"] in (IDENTIFIER_QUERY_NAME, IDENTIFIER_QUERY_SUGGESTION):
     filter_field = identifier["query"]
     filter_value = identifier["value"]
-    runs = list(services.sigopt_service.iterate_runs_by_filters(
-      [{"operator": "==", "field": filter_field, "value": filter_value}],
-    ))
+    runs = list(
+      services.sigopt_service.iterate_runs_by_filters(
+        [{"operator": "==", "field": filter_field, "value": filter_value}],
+      )
+    )
     if len(runs) > 1:
       raise Exception(f"Multiple runs found with {filter_field}: {filter_value}")
     if len(runs) == 1:

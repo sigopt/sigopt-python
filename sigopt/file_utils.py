@@ -22,6 +22,7 @@ def try_load_pil_image(image):
     return getattr(image, "filename", None), image_data, "image/png"
   return None
 
+
 def try_load_matplotlib_image(image):
   try:
     from matplotlib.figure import Figure as MatplotlibFigure
@@ -34,9 +35,11 @@ def try_load_matplotlib_image(image):
     return None, image_data, "image/svg+xml"
   return None
 
+
 def try_load_numpy_image(image):
   try:
-    from numpy import ndarray, uint8 as numpy_uint8
+    from numpy import ndarray
+    from numpy import uint8 as numpy_uint8
   except ImportError:
     return None
   if isinstance(image, ndarray):
@@ -85,6 +88,7 @@ SUPPORTED_IMAGE_MIME_TYPES = {
   "image/x-icon",
 }
 
+
 def create_api_image_payload(image):
   if isinstance(image, str):
     content_type = mimetypes.guess_type(image)
@@ -99,8 +103,10 @@ def create_api_image_payload(image):
     if content_type not in SUPPORTED_IMAGE_MIME_TYPES:
       friendly_supported_types = ", ".join(sorted(SUPPORTED_IMAGE_MIME_TYPES))
       warnings.warn(
-        f"File type `{content_type}` is not supported, please use one of the supported types:"
-        f" {friendly_supported_types}",
+        (
+          f"File type `{content_type}` is not supported, please use one of"
+          f" the supported types: {friendly_supported_types}"
+        ),
         RuntimeWarning,
       )
       return None
@@ -115,17 +121,20 @@ def create_api_image_payload(image):
   if payload is not None:
     return payload
   warnings.warn(
-    f"Image type not supported: {type(image)}."
-    " Supported types: str, PIL.Image.Image, matplotlib.figure.Figure, numpy.ndarray",
+    (
+      f"Image type not supported: {type(image)}. Supported types: str,"
+      " PIL.Image.Image, matplotlib.figure.Figure, numpy.ndarray"
+    ),
     RuntimeWarning,
   )
   return None
+
 
 def get_blob_properties(image_data):
   md5 = hashlib.md5()  # nosec
   image_data.seek(0)
   while True:
-    chunk = image_data.read(2 ** 20)
+    chunk = image_data.read(2**20)
     if not chunk:
       break
     md5.update(chunk)

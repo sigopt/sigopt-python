@@ -1,10 +1,11 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import backoff
 import os
-import requests
 from http import HTTPStatus
+
+import backoff
+import requests
 from requests.adapters import HTTPAdapter
 
 from .compat import json as simplejson
@@ -15,7 +16,8 @@ from .ratelimit import failed_status_rate_limit
 from .urllib3_patch import ExpiringHTTPConnectionPool, ExpiringHTTPSConnectionPool
 from .version import VERSION
 
-DEFAULT_API_URL = 'https://api.sigopt.com'
+
+DEFAULT_API_URL = "https://api.sigopt.com"
 DEFAULT_HTTP_TIMEOUT = 150
 
 
@@ -29,6 +31,7 @@ def get_expiring_session():
   session.mount("http://", adapter)
   session.mount("https://", adapter)
   return session
+
 
 class RequestDriver(object):
   api_version = "v1"
@@ -61,8 +64,8 @@ class RequestDriver(object):
     self.session = session or get_expiring_session()
     self.api_url = api_url or os.environ.get("SIGOPT_API_URL") or DEFAULT_API_URL
     self.default_headers = {
-      'Content-Type': 'application/json',
-      'X-SigOpt-Python-Version': VERSION,
+      "Content-Type": "application/json",
+      "X-SigOpt-Python-Version": VERSION,
     }
     if headers:
       self.default_headers.update(headers)
@@ -81,15 +84,10 @@ class RequestDriver(object):
         return simplejson.dumps(value, indent=None, separators=(",", ":"))
       return str(value)
 
-    return dict((
-      (key, serialize(ApiObject.as_json(value)))
-      for key, value
-      in req_params.items()
-      if value is not None
-    ))
+    return dict(((key, serialize(ApiObject.as_json(value))) for key, value in req_params.items() if value is not None))
 
   def set_client_token(self, client_token):
-    self._set_auth(client_token, '')
+    self._set_auth(client_token, "")
 
   def set_api_url(self, api_url):
     self.api_url = api_url
@@ -97,7 +95,7 @@ class RequestDriver(object):
   def _request(self, method, url, params, json, headers):
     headers = self._with_default_headers(headers)
     try:
-      caller = (self.session or requests)
+      caller = self.session or requests
       response = caller.request(
         method=method,
         url=url,
@@ -111,19 +109,19 @@ class RequestDriver(object):
         cert=self.client_ssl_certs,
       )
     except requests.exceptions.RequestException as rqe:
-      message = ['An error occurred connecting to SigOpt.']
+      message = ["An error occurred connecting to SigOpt."]
       if not url or not url.startswith(DEFAULT_API_URL):
-        message.append('The host may be misconfigured or unavailable.')
-      message.append('Contact support@sigopt.com for assistance.')
-      message.append('')
+        message.append("The host may be misconfigured or unavailable.")
+      message.append("Contact support@sigopt.com for assistance.")
+      message.append("")
       message.append(str(rqe))
-      raise ConnectionException('\n'.join(message)) from rqe
+      raise ConnectionException("\n".join(message)) from rqe
     return response
 
   def request(self, method, path, data, headers):
     method = method.upper()
     url = "/".join(str(v) for v in (self.api_url, self.api_version, *path))
-    if method in ('GET', 'DELETE'):
+    if method in ("GET", "DELETE"):
       json, params = None, self._request_params(data)
     else:
       json, params = ApiObject.as_json(data), None
@@ -137,17 +135,19 @@ class RequestDriver(object):
     return self._handle_response(response)
 
   def _with_default_headers(self, headers):
-    user_agent_str = f'sigopt-python/{VERSION}'
+    user_agent_str = f"sigopt-python/{VERSION}"
     user_agent_info = config.get_user_agent_info()
     if user_agent_info:
-      user_agent_info_str = ''.join([
-        '(',
-        '; '.join(user_agent_info),
-        ')',
-      ])
-      user_agent_str = ' '.join([user_agent_str, user_agent_info_str])
+      user_agent_info_str = "".join(
+        [
+          "(",
+          "; ".join(user_agent_info),
+          ")",
+        ]
+      )
+      user_agent_str = " ".join([user_agent_str, user_agent_info_str])
 
-    request_headers = {'User-Agent': user_agent_str}
+    request_headers = {"User-Agent": user_agent_str}
 
     if headers:
       request_headers.update(headers)
@@ -165,7 +165,7 @@ class RequestDriver(object):
       try:
         response_json = simplejson.loads(response.text)
       except ValueError:
-        response_json = {'message': response.text}
+        response_json = {"message": response.text}
         status_code = 500 if is_success else status_code
 
     if is_success:

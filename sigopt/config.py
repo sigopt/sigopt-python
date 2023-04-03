@@ -12,7 +12,7 @@ from .paths import get_root_subdir
 
 
 class UserAgentInfoContext(object):
-  CONFIG_CONTEXT_KEY = 'user_agent_info'
+  CONFIG_CONTEXT_KEY = "user_agent_info"
 
   @classmethod
   def from_config(cls, _config):
@@ -24,17 +24,20 @@ class UserAgentInfoContext(object):
   def to_json(self):
     return self.info
 
+
 class Config(object):
-  API_TOKEN_KEY = 'api_token'
-  CELL_TRACKING_ENABLED_KEY = 'code_tracking_enabled'
-  LOG_COLLECTION_ENABLED_KEY = 'log_collection_enabled'
-  CONTEXT_ENVIRONMENT_KEY = 'SIGOPT_CONTEXT'
+  API_TOKEN_KEY = "api_token"
+  CELL_TRACKING_ENABLED_KEY = "code_tracking_enabled"
+  LOG_COLLECTION_ENABLED_KEY = "log_collection_enabled"
+  CONTEXT_ENVIRONMENT_KEY = "SIGOPT_CONTEXT"
 
   def __init__(self):
-    self._config_json_path = os.path.abspath(os.path.join(
-      get_root_subdir('client'),
-      'config.json',
-    ))
+    self._config_json_path = os.path.abspath(
+      os.path.join(
+        get_root_subdir("client"),
+        "config.json",
+      )
+    )
     self._configuration = self._read_config_json()
     self._json_context = {}
     try:
@@ -42,7 +45,7 @@ class Config(object):
     except KeyError:
       pass
     else:
-      decoded = base64.b64decode(encoded_context).decode('utf-8')
+      decoded = base64.b64decode(encoded_context).decode("utf-8")
       self._json_context = json.loads(decoded)
     self._object_context = {}
 
@@ -98,9 +101,9 @@ class Config(object):
 
   def _write_config_json(self, configuration):
     config_path = self._ensure_config_json_path()
-    with open(config_path, 'w') as config_json_fp:
+    with open(config_path, "w") as config_json_fp:
       json.dump(configuration, config_json_fp, indent=2, sort_keys=True)
-      print('', file=config_json_fp)
+      print("", file=config_json_fp)
 
   def persist_configuration_options(self, options):
     self._configuration.update(options)
@@ -111,5 +114,6 @@ class Config(object):
 
   def get_user_agent_info(self):
     return UserAgentInfoContext.from_config(self).info
+
 
 config = Config()

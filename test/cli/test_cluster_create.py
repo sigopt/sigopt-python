@@ -11,9 +11,9 @@ class TestClusterCreateCli(object):
   def test_cluster_create(self):
     services = Mock()
     runner = CliRunner()
-    with \
-      runner.isolated_filesystem(), \
-      patch('sigopt.orchestrate.controller.OrchestrateServiceBag', return_value=services):
+    with runner.isolated_filesystem(), patch(
+      "sigopt.orchestrate.controller.OrchestrateServiceBag", return_value=services
+    ):
       open("cluster.yml", "w").close()
       result = runner.invoke(cli, ["cluster", "create"])
     assert result.exit_code == 0

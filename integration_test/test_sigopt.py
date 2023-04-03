@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 import pytest
+
 import sigopt
 
 
@@ -15,7 +16,7 @@ class TestSigOpt(object):
       },
       "values": {
         "r0": dict(value=n * n + n),
-        "r1": dict(value=n ** 2),
+        "r1": dict(value=n**2),
       },
       "state": "completed" if (n % 2 == 0) else "failed",
     }
