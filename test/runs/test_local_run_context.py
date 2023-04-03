@@ -44,7 +44,7 @@ class TestLocalRunContext(object):
   def test_log_metrics(self, context, metrics):
     context.log_metrics(metrics)
     run = context.get()
-    assert run["values"] == metrics
+    assert run["values"] == {k: {"value": v} for k, v in metrics.items()}
 
   @pytest.mark.parametrize(
     "source, source_sort, source_default_show",
