@@ -6,11 +6,8 @@ test:
 integration_test:
 	@PYTHONPATH=. python -m pytest -rw -v integration_test
 
-lint: vulture
-	@./lint
-
 vulture:
-	@vulture --exclude "build,venv" --ignore-decorators "@click.*,@sigopt_cli.*,@pytest.*" . .vulture_allowlist
+	@./tools/run_vulture.sh . .vulture_allowlist
 
 vulture-allowlist:
 	@./tools/generate_vulture_allowlist > .vulture_allowlist
