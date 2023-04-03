@@ -3,16 +3,16 @@
 # SPDX-License-Identifier: MIT
 import shutil
 import tempfile
-import yaml
 
 import pkg_resources
+import yaml
 
 from ..services.base import Service
 
 
 class ResourceService(Service):
   def get_package_name(self, package):
-    return f'sigopt.orchestrate.{package}'
+    return f"sigopt.orchestrate.{package}"
 
   def stream(self, package, resource):
     return pkg_resources.resource_stream(self.get_package_name(package), resource)

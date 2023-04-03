@@ -11,6 +11,6 @@ class TestClusterConnectCli(object):
   def test_cluster_connect_command(self):
     services = Mock()
     runner = CliRunner()
-    with patch('sigopt.orchestrate.controller.OrchestrateServiceBag', return_value=services):
+    with patch("sigopt.orchestrate.controller.OrchestrateServiceBag", return_value=services):
       result = runner.invoke(cli, ["cluster", "connect", "-n", "foobar", "--provider", "custom"])
     assert result.exit_code == 0

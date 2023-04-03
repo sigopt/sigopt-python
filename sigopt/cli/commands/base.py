@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 import click
+
 from sigopt.config import config
+
 from ..utils import setup_cli
 
 
@@ -13,14 +15,14 @@ def sigopt_cli():
 
 @sigopt_cli.group("create")
 def create_command():
-  '''Commands for creating SigOpt Objects.'''
+  """Commands for creating SigOpt Objects."""
 
 
 @sigopt_cli.group("archive")
 def archive_command():
-  '''Commands for archiving SigOpt Objects.'''
+  """Commands for archiving SigOpt Objects."""
 
 
 @sigopt_cli.group("unarchive")
 def unarchive_command():
-  '''Commands for unarchiving SigOpt Objects.'''
+  """Commands for unarchiving SigOpt Objects."""

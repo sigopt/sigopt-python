@@ -9,7 +9,7 @@ from ..services.aws_base import AwsService
 class AwsEcrService(AwsService):
   def __init__(self, services, aws_services, **kwargs):
     super().__init__(services, aws_services)
-    self._client = boto3.client('ecr', **kwargs)
+    self._client = boto3.client("ecr", **kwargs)
 
   @property
   def client(self):

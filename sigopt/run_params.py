@@ -9,6 +9,7 @@ from .lib import is_string
 _get = object.__getattribute__
 _set = object.__setattr__
 
+
 class RunParameters(MutableMapping):
   def __init__(self, run_context, fixed_items, default_items=None):
     if default_items:

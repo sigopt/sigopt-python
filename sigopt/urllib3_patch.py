@@ -7,12 +7,14 @@ import time
 from urllib3.connection import HTTPConnection, HTTPSConnection
 from urllib3.connectionpool import HTTPConnectionPool, HTTPSConnectionPool
 
+
 logger = logging.getLogger("sigopt.urllib3_patch")
+
 
 class SigOptHTTPConnection(HTTPConnection):
   """
-  Tracks the time since the last activity of the connection.
-  """
+    Tracks the time since the last activity of the connection.
+    """
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
@@ -33,13 +35,15 @@ class SigOptHTTPConnection(HTTPConnection):
     super().close()
     self.reset_activity()
 
+
 class SigOptHTTPSConnection(SigOptHTTPConnection, HTTPSConnection):
   pass
 
+
 class ExpiringHTTPConnectionPool(HTTPConnectionPool):
   """
-  Returns a new connection when the time since the connection was last used is greater than the expiration time.
-  """
+    Returns a new connection when the time since the connection was last used is greater than the expiration time.
+    """
 
   ConnectionCls = SigOptHTTPConnection
 
@@ -53,6 +57,7 @@ class ExpiringHTTPConnectionPool(HTTPConnectionPool):
       logger.debug("Abandoning expired connection")
       return self._new_conn()
     return conn
+
 
 class ExpiringHTTPSConnectionPool(ExpiringHTTPConnectionPool, HTTPSConnectionPool):
   ConnectionCls = SigOptHTTPSConnection

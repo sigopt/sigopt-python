@@ -1,0 +1,4 @@
+title = 'SigOpt Python'
+
+[tool.black]
+line-length = 120

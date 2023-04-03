@@ -18,6 +18,7 @@ import yaml
 from kubernetes import client, config, utils, watch
 from kubernetes.client.models.v1_container_image import V1ContainerImage
 from OpenSSL import crypto
+
 from sigopt.paths import ensure_dir, get_root_subdir
 
 from ..exceptions import FileAlreadyExistsError, NodesNotReadyError, OrchestrateException
@@ -27,9 +28,9 @@ from ..version import CLI_NAME
 from .http_proxy import KubeProxyHTTPAdapter
 
 
-DEFAULT_NAMESPACE = 'default'
-ORCHESTRATE_NAMESPACE = 'orchestrate'
-KUBESYSTEM_NAMESPACE = 'kube-system'
+DEFAULT_NAMESPACE = "default"
+ORCHESTRATE_NAMESPACE = "orchestrate"
+KUBESYSTEM_NAMESPACE = "kube-system"
 NVIDIA_DEVICE_PLUGIN_URL = "https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.9.0/nvidia-device-plugin.yml"
 
 # NOTE(dan): monkeypatch for containerd not naming all images (?)
@@ -37,44 +38,53 @@ NVIDIA_DEVICE_PLUGIN_URL = "https://raw.githubusercontent.com/NVIDIA/k8s-device-
 # pylint: disable=all
 def names(self, names):
   self._names = names
+
+
 V1ContainerImage.names = V1ContainerImage.names.setter(names)
 # pylint: enable=all
+
 
 class NoNodesInClusterError(NodesNotReadyError):
   def __init__(self):
     super().__init__(
-      'Looks like your cluster does not have any nodes.'
-      ' Please check that your cluster configuration file has defined either `cpu` or `gpu` nodes.'
-      ' For AWS clusters, check that you see nodes on the EC2 console.'
+      "Looks like your cluster does not have any nodes. Please check that your"
+      " cluster configuration file has defined either `cpu` or `gpu` nodes. For"
+      " AWS clusters, check that you see nodes on the EC2 console."
     )
+
 
 class NodeStatusNotReadyError(NodesNotReadyError):
   def __init__(self):
     super().__init__(
-      'None of your nodes are ready to go.'
-      f' Run `{CLI_NAME} kubectl get nodes` to see the status of your nodes.'
+      f"None of your nodes are ready to go. Run `{CLI_NAME} kubectl get nodes` to see the status of your nodes."
     )
+
 
 class KubernetesException(OrchestrateException):
   pass
 
+
 class JobNotFoundException(KubernetesException):
   pass
+
 
 class PodNotFoundException(KubernetesException):
   pass
 
+
 class StartJobException(KubernetesException):
   pass
 
+
 class CleanupFailedException(KubernetesException):
   pass
+
 
 class KubernetesService(Service):
   def __init__(self, services):
     super().__init__(services)
     self._kube_config = None
-    self._kube_dir = get_root_subdir('cluster')
+    self._kube_dir = get_root_subdir("cluster")
     self._set_all_clients()
 
   def warmup(self):
@@ -84,18 +94,20 @@ class KubernetesService(Service):
     try:
       configuration = client.Configuration()
       config.load_kube_config(self._kube_config, client_configuration=configuration)
-      if os.environ.get('HTTPS_PROXY'):
-        configuration.proxy = os.environ['HTTPS_PROXY']
+      if os.environ.get("HTTPS_PROXY"):
+        configuration.proxy = os.environ["HTTPS_PROXY"]
       api_client = client.ApiClient(configuration)
       self._set_all_clients(api_client)
     except Exception as e:
-      if 'Invalid kube-config file. No configuration found.' not in str(e):
+      if "Invalid kube-config file. No configuration found." not in str(e):
         self.services.logging_service.warning(
-          'Experienced the following error while attempting to create kubernetes client from cluster configuration:'
-          '\n%s'
-          '\nDisconnecting and reconnecting may resolve the issue.'
-          '\nPlease try running:'
-          f'\n\t{CLI_NAME} cluster disconnect -a',
+          (
+            "Experienced the following error while attempting to create"
+            " kubernetes client from cluster"
+            " configuration:\n%s\nDisconnecting and reconnecting may"
+            " resolve the issue.\nPlease try"
+            f" running:\n\t{CLI_NAME} cluster disconnect -a"
+          ),
           str(e),
         )
       self._set_all_clients(None)
@@ -110,7 +122,7 @@ class KubernetesService(Service):
         return self._v1_batch.read_namespaced_job(job_name, ORCHESTRATE_NAMESPACE)
       except client.rest.ApiException as e:
         if e.status == http_client.NOT_FOUND:
-          raise JobNotFoundException(f'Job with name {job_name} not found') from e
+          raise JobNotFoundException(f"Job with name {job_name} not found") from e
         else:
           raise
     else:
@@ -128,11 +140,11 @@ class KubernetesService(Service):
       self._v1_batch.delete_namespaced_job(
         job_name,
         ORCHESTRATE_NAMESPACE,
-        body=client.V1DeleteOptions(propagation_policy=propogation_policy)
+        body=client.V1DeleteOptions(propagation_policy=propogation_policy),
       )
     except client.rest.ApiException as e:
       if e.status == http_client.NOT_FOUND:
-        raise JobNotFoundException(f'Job with name {job_name} not found') from e
+        raise JobNotFoundException(f"Job with name {job_name} not found") from e
       else:
         raise
 
@@ -143,9 +155,9 @@ class KubernetesService(Service):
       if e.status == http_client.BAD_REQUEST:
         k8s_error_message = json.loads(e.body).get("message")
         error_message = (
-          "\n[ERROR]\t\tKubernetes reported a bad request"
-          " this is most likely from an error in the experiment configuration file."
-          f"\n\t\tFormated Kubernetes Error:\n{k8s_error_message}\n"
+          "\n[ERROR]\t\tKubernetes reported a bad request this is most"
+          " likely from an error in the experiment configuration"
+          f" file.\n\t\tFormated Kubernetes Error:\n{k8s_error_message}\n"
         )
         raise StartJobException(error_message) from e
       else:
@@ -175,7 +187,7 @@ class KubernetesService(Service):
 
   def get_pods(self, job_name=None):
     if job_name:
-      return self.get_pods_by_label_selector(label_selector=f'job-name={job_name}')
+      return self.get_pods_by_label_selector(label_selector=f"job-name={job_name}")
     else:
       return self._v1_core.list_namespaced_pod(ORCHESTRATE_NAMESPACE, watch=False)
 
@@ -224,11 +236,7 @@ class KubernetesService(Service):
     if not nodes:
       raise NoNodesInClusterError()
 
-    any_node_ready = any(
-      c.type == 'Ready' and c.status == 'True'
-      for node in nodes
-      for c in node.status.conditions
-    )
+    any_node_ready = any(c.type == "Ready" and c.status == "True" for node in nodes for c in node.status.conditions)
     if not any_node_ready:
       raise NodeStatusNotReadyError()
 
@@ -245,7 +253,7 @@ class KubernetesService(Service):
     if os.path.isfile(new_file_path):
       raise FileAlreadyExistsError(new_file_path)
 
-    with open(new_file_path, 'w') as f:
+    with open(new_file_path, "w") as f:
       yaml.dump(data, f)
 
     self.warmup()
@@ -253,10 +261,10 @@ class KubernetesService(Service):
   def test_config(self, retries=0, wait_time=5):
     if self._v1_core is None:
       raise OrchestrateException(
-        'We ran into an issue connecting to your cluster.'
-        '\nDisconnecting and then reconnecting may resolve the issue.'
-        '\nDisconnect by running:'
-        f'\n\t{CLI_NAME} cluster disconnect -a'
+        "We ran into an issue connecting to your cluster."
+        "\nDisconnecting and then reconnecting may resolve the issue."
+        "\nDisconnect by running:"
+        f"\n\t{CLI_NAME} cluster disconnect -a"
       )
 
     for try_number in range(retries + 1):
@@ -282,7 +290,7 @@ class KubernetesService(Service):
     with urllib.request.urlopen(NVIDIA_DEVICE_PLUGIN_URL) as nvidia_plugin_fp:
       self._ensure_plugin_fp(nvidia_plugin_fp, namespace=KUBESYSTEM_NAMESPACE)
     self.ensure_orchestrate_namespace()
-    self._ensure_plugin('orchestrate-controller-roles.yml', namespace=ORCHESTRATE_NAMESPACE)
+    self._ensure_plugin("orchestrate-controller-roles.yml", namespace=ORCHESTRATE_NAMESPACE)
     # NOTE(taylor): disabled until remote image builds are working (consistently)
     self.ensure_docker_plugin(
       resources=dict(
@@ -308,11 +316,13 @@ class KubernetesService(Service):
     ca_cert.set_pubkey(ca_key)
     ca_cert.gmtime_adj_notBefore(0)
     ca_cert.gmtime_adj_notAfter(ten_years)
-    ca_cert.add_extensions([
-      crypto.X509Extension(b"basicConstraints", True, b"CA:TRUE, pathlen:0"),
-      crypto.X509Extension(b"keyUsage", True, b"keyCertSign, cRLSign"),
-      crypto.X509Extension(b"subjectKeyIdentifier", False, b"hash", subject=ca_cert),
-    ])
+    ca_cert.add_extensions(
+      [
+        crypto.X509Extension(b"basicConstraints", True, b"CA:TRUE, pathlen:0"),
+        crypto.X509Extension(b"keyUsage", True, b"keyCertSign, cRLSign"),
+        crypto.X509Extension(b"subjectKeyIdentifier", False, b"hash", subject=ca_cert),
+      ]
+    )
     ca_cert.sign(ca_key, "sha256")
     outputs["ca.pem"] = crypto.dump_certificate(crypto.FILETYPE_PEM, ca_cert).decode("ascii")
     server_key = crypto.PKey()
@@ -329,14 +339,16 @@ class KubernetesService(Service):
     server_cert.set_issuer(ca_cert.get_subject())
     server_cert.set_subject(server_req.get_subject())
     server_cert.set_pubkey(server_req.get_pubkey())
-    server_cert.add_extensions([
-      crypto.X509Extension(
-        b"subjectAltName",
-        False,
-        f"DNS:localhost, DNS:docker.{KUBESYSTEM_NAMESPACE}.svc.cluster.local, IP:127.0.0.1".encode(),
-      ),
-      crypto.X509Extension(b"extendedKeyUsage", False, b"serverAuth"),
-    ])
+    server_cert.add_extensions(
+      [
+        crypto.X509Extension(
+          b"subjectAltName",
+          False,
+          f"DNS:localhost, DNS:docker.{KUBESYSTEM_NAMESPACE}.svc.cluster.local, IP:127.0.0.1".encode(),
+        ),
+        crypto.X509Extension(b"extendedKeyUsage", False, b"serverAuth"),
+      ]
+    )
     server_cert.sign(ca_key, "sha256")
     outputs["cert.pem"] = crypto.dump_certificate(crypto.FILETYPE_PEM, server_cert).decode("ascii")
     return outputs
@@ -360,11 +372,15 @@ class KubernetesService(Service):
         if e.status != http_client.NOT_FOUND:
           raise
       time.sleep(sleep_time)
-    raise TimeoutError("\n".join([
-      "Timed out waiting for Docker to start.",
-      "You can find more information by running the following:",
-      "\tsigopt cluster kubectl -nkube-system describe pod/docker-0",
-    ]))
+    raise TimeoutError(
+      "\n".join(
+        [
+          "Timed out waiting for Docker to start.",
+          "You can find more information by running the following:",
+          "\tsigopt cluster kubectl -nkube-system describe pod/docker-0",
+        ]
+      )
+    )
 
   def ensure_docker_plugin(self, resources, storage_capacity):
     docker_certs_secret_name = "docker-certs"
@@ -374,21 +390,24 @@ class KubernetesService(Service):
       if e.status != http_client.NOT_FOUND:
         raise
       docker_certs = self.create_docker_tls_certs()
-      self._v1_core.create_namespaced_secret(KUBESYSTEM_NAMESPACE, {
-        "metadata": {
-          "name": docker_certs_secret_name,
-          "labels": {"app": "docker"},
+      self._v1_core.create_namespaced_secret(
+        KUBESYSTEM_NAMESPACE,
+        {
+          "metadata": {
+            "name": docker_certs_secret_name,
+            "labels": {"app": "docker"},
+          },
+          "data": {key: base64.b64encode(value.encode()).decode("ascii") for key, value in docker_certs.items()},
+          "type": "Opaque",
         },
-        "data": {key: base64.b64encode(value.encode()).decode("ascii") for key, value in docker_certs.items()},
-        "type": "Opaque",
-      })
+      )
 
     with self.services.resource_service.open("plugins", "docker-statefulset.yml") as resource_fp:
       docker_stateful_set_template = yaml.safe_load(resource_fp)
     docker_stateful_set_template["spec"]["template"]["spec"]["containers"][0]["resources"] = resources
-    docker_stateful_set_template["spec"]["volumeClaimTemplates"][0]["spec"]["resources"]["requests"]["storage"] = (
-      storage_capacity
-    )
+    docker_stateful_set_template["spec"]["volumeClaimTemplates"][0]["spec"]["resources"]["requests"][
+      "storage"
+    ] = storage_capacity
     self._apply_object(
       self._v1_apps.create_namespaced_stateful_set,
       self._v1_apps.patch_namespaced_stateful_set,
@@ -405,7 +424,10 @@ class KubernetesService(Service):
     )
 
   def mount_http_proxy_adapter(self, session):
-    session.mount(self._api_client.configuration.host, KubeProxyHTTPAdapter(k8s_api_client=self._api_client))
+    session.mount(
+      self._api_client.configuration.host,
+      KubeProxyHTTPAdapter(k8s_api_client=self._api_client),
+    )
 
   def get_docker_connection_url(self):
     return (
@@ -424,7 +446,9 @@ class KubernetesService(Service):
       label_selector=selector,
     ).items:
       self._v1_core.delete_namespaced_persistent_volume_claim(pvc.metadata.name, pvc.metadata.namespace)
-    remaining_pvs = backoff.on_predicate(backoff.expo, lambda pvs: len(pvs.items) > 0, max_time=120)(self._v1_core.list_persistent_volume)()
+    remaining_pvs = backoff.on_predicate(backoff.expo, lambda pvs: len(pvs.items) > 0, max_time=120)(
+      self._v1_core.list_persistent_volume
+    )()
     if remaining_pvs.items:
       raise CleanupFailedException(
         "Some volumes could not be cleaned up, please remove them before destroying the cluster"
@@ -448,13 +472,13 @@ class KubernetesService(Service):
           raise
 
   def _ensure_plugin(self, file_name, namespace):
-    with self.services.resource_service.open('plugins', file_name) as file_content:
+    with self.services.resource_service.open("plugins", file_name) as file_content:
       self._ensure_plugin_fp(file_content, namespace)
 
   def _cluster_name_from_config(self, config_name):
     basename = os.path.basename(config_name)
-    if basename.startswith('config-'):
-      return basename[len('config-'):]
+    if basename.startswith("config-"):
+      return basename[len("config-") :]
     else:
       return None
 
@@ -467,17 +491,12 @@ class KubernetesService(Service):
     os.remove(self._kube_config_path(cluster_name))
 
   def _kube_config_path(self, cluster_name):
-    filename = f'config-{cluster_name}'
+    filename = f"config-{cluster_name}"
     return os.path.join(self._kube_dir, filename)
 
   def _get_config_files(self):
     if os.path.exists(self._kube_dir):
-      return [
-        config
-        for config
-        in os.listdir(self._kube_dir)
-        if config.startswith('config-')
-      ]
+      return [config for config in os.listdir(self._kube_dir) if config.startswith("config-")]
     return []
 
   def _set_all_clients(self, api_client=None):
@@ -498,12 +517,10 @@ class KubernetesService(Service):
     aws_services = aws_provider.aws_services
     autoscaler_stack = aws_services.cloudformation_service.describe_eks_cluster_autoscaler_role_stack(cluster_name)
     autoscaler_role_arn = [
-      out["OutputValue"]
-      for out in autoscaler_stack.outputs
-      if out["OutputKey"] == 'ClusterAutoscalerRoleArn'
+      out["OutputValue"] for out in autoscaler_stack.outputs if out["OutputKey"] == "ClusterAutoscalerRoleArn"
     ][0]
 
-    kubernetes_version = aws_services.eks_service.describe_cluster(cluster_name)['cluster']['version']
+    kubernetes_version = aws_services.eks_service.describe_cluster(cluster_name)["cluster"]["version"]
     return (autoscaler_role_arn, kubernetes_version)
 
   def _get_autoscaler_image_version(self, kubernetes_version):
@@ -525,17 +542,17 @@ class KubernetesService(Service):
       deployment_dict,
     ) = objs
 
-    service_account_dict['metadata']['annotations'] = {
-      'eks.amazonaws.com/role-arn': autoscaler_role_arn,
+    service_account_dict["metadata"]["annotations"] = {
+      "eks.amazonaws.com/role-arn": autoscaler_role_arn,
     }
 
     autoscaler_version = self._get_autoscaler_image_version(kubernetes_version)
     autoscaler_image = f"k8s.gcr.io/autoscaling/cluster-autoscaler:v{autoscaler_version}"
-    deployment_dict['spec']['template']['spec']['containers'][0]['image'] = autoscaler_image
+    deployment_dict["spec"]["template"]["spec"]["containers"][0]["image"] = autoscaler_image
 
-    auto_discovery_tag = f'tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/{cluster_name}'
-    auto_discovery_arg = f'--node-group-auto-discovery=asg:{auto_discovery_tag}'
-    deployment_dict['spec']['template']['spec']['containers'][0]['command'].append(auto_discovery_arg)
+    auto_discovery_tag = f"tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/{cluster_name}"
+    auto_discovery_arg = f"--node-group-auto-discovery=asg:{auto_discovery_tag}"
+    deployment_dict["spec"]["template"]["spec"]["containers"][0]["command"].append(auto_discovery_arg)
     return (
       service_account_dict,
       cluster_role_dict,
@@ -553,7 +570,7 @@ class KubernetesService(Service):
       create_func(**kwargs)
     except client.rest.ApiException as e:
       if e.status == http_client.CONFLICT:
-        kwargs['name'] = body['metadata']['name']
+        kwargs["name"] = body["metadata"]["name"]
         patch_func(**kwargs)
       else:
         raise
@@ -561,7 +578,14 @@ class KubernetesService(Service):
   def create_autoscaler(self, cluster_name):
     (autoscaler_role_arn, kubernetes_version) = self._get_autoscaler_args(cluster_name)
     autoscaler_dicts = self._parameterize_autoscaler_dicts(cluster_name, autoscaler_role_arn, kubernetes_version)
-    (sa_dict, cluster_role_dict, role_dict, crb_dict, rb_dict, deployment_dict) = autoscaler_dicts
+    (
+      sa_dict,
+      cluster_role_dict,
+      role_dict,
+      crb_dict,
+      rb_dict,
+      deployment_dict,
+    ) = autoscaler_dicts
     self._apply_object(
       self._v1_core.create_namespaced_service_account,
       self._v1_core.patch_namespaced_service_account,
@@ -598,9 +622,9 @@ class KubernetesService(Service):
     )
 
   def _delete_autoscaler_object(self, delete_func, body, namespace=None):
-    kwargs = {'name': body['metadata']['name']}
+    kwargs = {"name": body["metadata"]["name"]}
     if namespace is not None:
-      kwargs['namespace'] = namespace
+      kwargs["namespace"] = namespace
     try:
       delete_func(**kwargs)
     except client.rest.ApiException as e:
@@ -610,7 +634,14 @@ class KubernetesService(Service):
   def delete_autoscaler(self, cluster_name):
     (autoscaler_role_arn, kubernetes_version) = self._get_autoscaler_args(cluster_name)
     autoscaler_dicts = self._parameterize_autoscaler_dicts(cluster_name, autoscaler_role_arn, kubernetes_version)
-    (sa_dict, cluster_role_dict, role_dict, crb_dict, rb_dict, deployment_dict) = autoscaler_dicts
+    (
+      sa_dict,
+      cluster_role_dict,
+      role_dict,
+      crb_dict,
+      rb_dict,
+      deployment_dict,
+    ) = autoscaler_dicts
 
     self._delete_autoscaler_object(
       self._v1_core.delete_namespaced_service_account,

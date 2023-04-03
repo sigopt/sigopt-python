@@ -1,7 +1,7 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from sigopt.lib import validate_name, is_string, is_sequence, is_mapping, is_number, is_integer
+from sigopt.lib import is_integer, is_mapping, is_number, is_sequence, is_string, validate_name
 
 from .common import validate_top_level_dict
 from .exceptions import ValidationError
@@ -19,15 +19,14 @@ def get_validated_name(aiexperiment_input):
     raise ValidationError(str(ve)) from ve
   return name
 
+
 def get_validated_metric(metric_input):
   validated_metric = {}
 
   if is_mapping(metric_input):
     metric = dict(metric_input)
   else:
-    raise ValidationError(
-      "all metrics must be a mapping of keys to values"
-    )
+    raise ValidationError("all metrics must be a mapping of keys to values")
 
   try:
     metric_name = metric["name"]
@@ -66,6 +65,7 @@ def get_validated_metric(metric_input):
       validated_metric[key] = value
   return validated_metric
 
+
 def get_validated_metrics(aiexperiment_input):
   try:
     metrics = aiexperiment_input.pop("metrics")
@@ -76,10 +76,9 @@ def get_validated_metrics(aiexperiment_input):
   metrics = list(metrics)
   if not metrics:
     raise ValidationError("metrics must be a non-empty list")
-  validated_metrics = [
-    get_validated_metric(metric) for metric in metrics
-  ]
+  validated_metrics = [get_validated_metric(metric) for metric in metrics]
   return validated_metrics
+
 
 def get_validated_parameters(aiexperiment_input):
   try:
@@ -122,6 +121,7 @@ def get_validated_parameters(aiexperiment_input):
     validated_parameters.append(validated_param)
   return validated_parameters
 
+
 def get_validated_budget(aiexperiment_input):
   budget = aiexperiment_input["budget"]
   if not (budget is None or is_number(budget) and budget >= 0):
@@ -130,18 +130,20 @@ def get_validated_budget(aiexperiment_input):
     raise ValidationError("budget cannot be infinity")
   return budget
 
+
 def get_validated_parallel_bandwidth(aiexperiment_input):
   parallel_bandwidth = aiexperiment_input.pop("parallel_bandwidth")
   if parallel_bandwidth is None or is_integer(parallel_bandwidth) and parallel_bandwidth > 0:
     return parallel_bandwidth
   raise ValidationError("parallel_bandwidth must be a positive integer")
 
+
 def validate_aiexperiment_input(aiexperiment_input):
   aiexperiment_input = validate_top_level_dict(aiexperiment_input)
   if PROJECT_KEY in aiexperiment_input:
     raise ValidationError(
-      'The project field is not permitted in the AIExperiment.'
-      ' Please set the SIGOPT_PROJECT environment variable instead.'
+      "The project field is not permitted in the AIExperiment."
+      " Please set the SIGOPT_PROJECT environment variable instead."
     )
   aiexperiment_input = dict(aiexperiment_input)
   validated = {}
@@ -162,12 +164,13 @@ def validate_aiexperiment_input(aiexperiment_input):
     validated[key] = value
   return validated
 
+
 def validate_aiexperiment_update_input(aiexperiment_input):
   aiexperiment_input = validate_top_level_dict(aiexperiment_input)
   if PROJECT_KEY in aiexperiment_input:
     raise ValidationError(
-      'The project field is not permitted in the AIExperiment.'
-      ' Please set the SIGOPT_PROJECT environment variable instead.'
+      "The project field is not permitted in the AIExperiment."
+      " Please set the SIGOPT_PROJECT environment variable instead."
     )
   aiexperiment_input = dict(aiexperiment_input)
   validated = {}

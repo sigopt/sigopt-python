@@ -15,9 +15,9 @@ from ..services.aws_base import AwsService
 class AwsIamService(AwsService):
   def __init__(self, services, aws_services, **kwargs):
     super().__init__(services, aws_services)
-    self._client = boto3.client('iam', **kwargs)
-    self._iam = boto3.resource('iam', **kwargs)
-    self._sts = boto3.client('sts', **kwargs)
+    self._client = boto3.client("iam", **kwargs)
+    self._iam = boto3.resource("iam", **kwargs)
+    self._sts = boto3.client("sts", **kwargs)
 
   @property
   def client(self):
@@ -29,8 +29,8 @@ class AwsIamService(AwsService):
 
   def get_user_arn(self):
     response = self.client.get_user()
-    user = response['User']
-    return user['Arn']
+    user = response["User"]
+    return user["Arn"]
 
   def describe_eks_role(self, role_name):
     return self.iam.Role(role_name)
@@ -81,7 +81,7 @@ class AwsIamService(AwsService):
       pass
 
   def _role_name_from_role_arn(self, role_arn):
-    return role_arn.split(':role/')[1]
+    return role_arn.split(":role/")[1]
 
   def attach_policy(self, role_arn, policy_arn):
     role_name = self._role_name_from_role_arn(role_arn)

@@ -25,128 +25,129 @@ from .objects import (
 from .request_driver import RequestDriver
 from .resource import ApiResource
 
+
 class ConnectionImpl(object):
   def __init__(self, driver):
     self.driver = driver
 
     suggestions = ApiResource(
       self,
-      'suggestions',
+      "suggestions",
       endpoints=[
-        ApiEndpoint(None, Suggestion, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(Suggestion), 'GET', 'fetch'),
-        ApiEndpoint(None, Suggestion, 'PUT', 'update'),
-        ApiEndpoint(None, None, 'DELETE', 'delete'),
+        ApiEndpoint(None, Suggestion, "POST", "create"),
+        ApiEndpoint(None, object_or_paginated_objects(Suggestion), "GET", "fetch"),
+        ApiEndpoint(None, Suggestion, "PUT", "update"),
+        ApiEndpoint(None, None, "DELETE", "delete"),
       ],
     )
 
     queued_suggestions = ApiResource(
       self,
-      'queued_suggestions',
+      "queued_suggestions",
       endpoints=[
-        ApiEndpoint(None, QueuedSuggestion, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(QueuedSuggestion), 'GET', 'fetch'),
-        ApiEndpoint(None, None, 'DELETE', 'delete'),
-      ]
+        ApiEndpoint(None, QueuedSuggestion, "POST", "create"),
+        ApiEndpoint(None, object_or_paginated_objects(QueuedSuggestion), "GET", "fetch"),
+        ApiEndpoint(None, None, "DELETE", "delete"),
+      ],
     )
 
     observations = ApiResource(
       self,
-      'observations',
+      "observations",
       endpoints=[
-        ApiEndpoint('batch', paginated_objects(Observation), 'POST', 'create_batch'),
-        ApiEndpoint(None, Observation, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(Observation), 'GET', 'fetch'),
-        ApiEndpoint(None, Observation, 'PUT', 'update'),
-        ApiEndpoint(None, None, 'DELETE', 'delete'),
+        ApiEndpoint("batch", paginated_objects(Observation), "POST", "create_batch"),
+        ApiEndpoint(None, Observation, "POST", "create"),
+        ApiEndpoint(None, object_or_paginated_objects(Observation), "GET", "fetch"),
+        ApiEndpoint(None, Observation, "PUT", "update"),
+        ApiEndpoint(None, None, "DELETE", "delete"),
       ],
     )
 
     best_assignments = ApiResource(
       self,
-      'best_assignments',
+      "best_assignments",
       endpoints=[
-        ApiEndpoint(None, object_or_paginated_objects(BestAssignments), 'GET', 'fetch'),
+        ApiEndpoint(None, object_or_paginated_objects(BestAssignments), "GET", "fetch"),
       ],
     )
 
     best_training_runs = ApiResource(
       self,
-      'best_training_runs',
+      "best_training_runs",
       endpoints=[
-        ApiEndpoint(None, paginated_objects(TrainingRun), 'GET', 'fetch'),
+        ApiEndpoint(None, paginated_objects(TrainingRun), "GET", "fetch"),
       ],
     )
 
     importances = ApiResource(
       self,
-      'importances',
+      "importances",
       endpoints=[
-        ApiEndpoint(None, Importances, 'GET', 'fetch'),
+        ApiEndpoint(None, Importances, "GET", "fetch"),
       ],
     )
 
     metric_importances = ApiResource(
       self,
-      'metric_importances',
+      "metric_importances",
       endpoints=[
-        ApiEndpoint(None, paginated_objects(MetricImportances), 'GET', 'fetch'),
+        ApiEndpoint(None, paginated_objects(MetricImportances), "GET", "fetch"),
       ],
     )
 
     stopping_criteria = ApiResource(
       self,
-      'stopping_criteria',
+      "stopping_criteria",
       endpoints=[
-        ApiEndpoint(None, StoppingCriteria, 'GET', 'fetch'),
+        ApiEndpoint(None, StoppingCriteria, "GET", "fetch"),
       ],
     )
 
     checkpoints = ApiResource(
       self,
-      'checkpoints',
+      "checkpoints",
       endpoints=[
-        ApiEndpoint(None, Checkpoint, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(Checkpoint), 'GET', 'fetch')
-      ]
+        ApiEndpoint(None, Checkpoint, "POST", "create"),
+        ApiEndpoint(None, object_or_paginated_objects(Checkpoint), "GET", "fetch"),
+      ],
     )
 
     experiment_training_runs = ApiResource(
       self,
-      'training_runs',
+      "training_runs",
       endpoints=[
-        ApiEndpoint(None, TrainingRun, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(TrainingRun), 'GET', 'fetch'),
-        ApiEndpoint(None, TrainingRun, 'PUT', 'update'),
-        ApiEndpoint(None, None, 'DELETE', 'delete'),
+        ApiEndpoint(None, TrainingRun, "POST", "create"),
+        ApiEndpoint(None, object_or_paginated_objects(TrainingRun), "GET", "fetch"),
+        ApiEndpoint(None, TrainingRun, "PUT", "update"),
+        ApiEndpoint(None, None, "DELETE", "delete"),
       ],
       resources=[checkpoints],
     )
 
     experiment_tokens = ApiResource(
       self,
-      'tokens',
+      "tokens",
       endpoints=[
-        ApiEndpoint(None, Token, 'POST', 'create'),
+        ApiEndpoint(None, Token, "POST", "create"),
       ],
     )
 
     self.tokens = ApiResource(
       self,
-      'tokens',
+      "tokens",
       endpoints=[
-        ApiEndpoint(None, Token, 'GET', 'fetch'),
+        ApiEndpoint(None, Token, "GET", "fetch"),
       ],
     )
 
     self.experiments = ApiResource(
       self,
-      'experiments',
+      "experiments",
       endpoints=[
-        ApiEndpoint(None, Experiment, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(Experiment), 'GET', 'fetch'),
-        ApiEndpoint(None, Experiment, 'PUT', 'update'),
-        ApiEndpoint(None, None, 'DELETE', 'delete'),
+        ApiEndpoint(None, Experiment, "POST", "create"),
+        ApiEndpoint(None, object_or_paginated_objects(Experiment), "GET", "fetch"),
+        ApiEndpoint(None, Experiment, "PUT", "update"),
+        ApiEndpoint(None, None, "DELETE", "delete"),
       ],
       resources=[
         best_assignments,
@@ -164,20 +165,20 @@ class ConnectionImpl(object):
 
     aiexperiment_training_runs = ApiResource(
       self,
-      'training_runs',
+      "training_runs",
       endpoints=[
-        ApiEndpoint(None, TrainingRun, 'POST', 'create'),
+        ApiEndpoint(None, TrainingRun, "POST", "create"),
       ],
     )
 
     self.aiexperiments = ApiResource(
       self,
-      'aiexperiments',
+      "aiexperiments",
       endpoints=[
-        ApiEndpoint(None, AIExperiment, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(AIExperiment), 'GET', 'fetch'),
-        ApiEndpoint(None, AIExperiment, 'PUT', 'update'),
-        ApiEndpoint(None, None, 'DELETE', 'delete'),
+        ApiEndpoint(None, AIExperiment, "POST", "create"),
+        ApiEndpoint(None, object_or_paginated_objects(AIExperiment), "GET", "fetch"),
+        ApiEndpoint(None, AIExperiment, "PUT", "update"),
+        ApiEndpoint(None, None, "DELETE", "delete"),
       ],
       resources=[
         aiexperiment_training_runs,
@@ -187,48 +188,48 @@ class ConnectionImpl(object):
 
     client_experiments = ApiResource(
       self,
-      'experiments',
+      "experiments",
       endpoints=[
-        ApiEndpoint(None, Experiment, 'POST', 'create'),
-        ApiEndpoint(None, paginated_objects(Experiment), 'GET', 'fetch'),
+        ApiEndpoint(None, Experiment, "POST", "create"),
+        ApiEndpoint(None, paginated_objects(Experiment), "GET", "fetch"),
       ],
     )
 
     client_project_aiexperiments = ApiResource(
       self,
-      'aiexperiments',
+      "aiexperiments",
       endpoints=[
-        ApiEndpoint(None, AIExperiment, 'POST', 'create'),
-        ApiEndpoint(None, paginated_objects(AIExperiment), 'GET', 'fetch'),
+        ApiEndpoint(None, AIExperiment, "POST", "create"),
+        ApiEndpoint(None, paginated_objects(AIExperiment), "GET", "fetch"),
       ],
     )
 
     client_project_experiments = ApiResource(
       self,
-      'experiments',
+      "experiments",
       endpoints=[
-        ApiEndpoint(None, paginated_objects(Experiment), 'GET', 'fetch'),
+        ApiEndpoint(None, paginated_objects(Experiment), "GET", "fetch"),
       ],
     )
 
     client_project_training_runs = ApiResource(
       self,
-      'training_runs',
+      "training_runs",
       endpoints=[
-        ApiEndpoint(None, paginated_objects(TrainingRun), 'GET', 'fetch'),
-        ApiEndpoint(None, TrainingRun, 'POST', 'create'),
-        ApiEndpoint('batch', paginated_objects(TrainingRun), 'POST', 'create_batch'),
+        ApiEndpoint(None, paginated_objects(TrainingRun), "GET", "fetch"),
+        ApiEndpoint(None, TrainingRun, "POST", "create"),
+        ApiEndpoint("batch", paginated_objects(TrainingRun), "POST", "create_batch"),
       ],
       resources=[checkpoints],
     )
 
     client_projects = ApiResource(
       self,
-      'projects',
+      "projects",
       endpoints=[
-        ApiEndpoint(None, Project, 'POST', 'create'),
-        ApiEndpoint(None, object_or_paginated_objects(Project), 'GET', 'fetch'),
-        ApiEndpoint(None, Project, 'PUT', 'update'),
+        ApiEndpoint(None, Project, "POST", "create"),
+        ApiEndpoint(None, object_or_paginated_objects(Project), "GET", "fetch"),
+        ApiEndpoint(None, Project, "PUT", "update"),
       ],
       resources=[
         client_project_aiexperiments,
@@ -239,20 +240,20 @@ class ConnectionImpl(object):
 
     self.training_runs = ApiResource(
       self,
-      'training_runs',
+      "training_runs",
       endpoints=[
-        ApiEndpoint(None, object_or_paginated_objects(TrainingRun), 'GET', 'fetch'),
-        ApiEndpoint(None, TrainingRun, 'PUT', 'update'),
-        ApiEndpoint(None, None, 'DELETE', 'delete'),
+        ApiEndpoint(None, object_or_paginated_objects(TrainingRun), "GET", "fetch"),
+        ApiEndpoint(None, TrainingRun, "PUT", "update"),
+        ApiEndpoint(None, None, "DELETE", "delete"),
       ],
-      resources=[checkpoints]
+      resources=[checkpoints],
     )
 
     self.clients = ApiResource(
       self,
-      'clients',
+      "clients",
       endpoints=[
-        ApiEndpoint(None, Client, 'GET', 'fetch'),
+        ApiEndpoint(None, Client, "GET", "fetch"),
       ],
       resources=[
         client_experiments,
@@ -262,17 +263,17 @@ class ConnectionImpl(object):
 
     self.organizations = ApiResource(
       self,
-      'organizations',
+      "organizations",
       endpoints=[
-        ApiEndpoint(None, object_or_paginated_objects(Organization), 'GET', 'fetch'),
+        ApiEndpoint(None, object_or_paginated_objects(Organization), "GET", "fetch"),
       ],
     )
 
     self.pki_sessions = ApiResource(
       self,
-      'pki_sessions',
+      "pki_sessions",
       endpoints=[
-        ApiEndpoint(None, Session, 'POST', 'create'),
+        ApiEndpoint(None, Session, "POST", "create"),
       ],
     )
 
@@ -307,14 +308,16 @@ class ConnectionImpl(object):
   def set_client_token(self, client_token):
     self.driver.set_client_token(client_token)
 
+
 def instantiate_lite_driver(*args, **kwargs):
   try:
-    from sigoptlite import LocalDriver  # pylint: disable=import-error
+    from sigoptlite import LocalDriver
   except ModuleNotFoundError as mnfe:
     raise ModuleNotFoundError(
       "SigOpt Lite is not installed. It can be installed with the following command: `pip install 'sigopt[lite]'`"
     ) from mnfe
   return LocalDriver(*args, **kwargs)
+
 
 DRIVER_KEY_HTTP = "http"
 DRIVER_KEY_LITE = "lite"
@@ -323,23 +326,24 @@ driver_map = {
   DRIVER_KEY_LITE: instantiate_lite_driver,
 }
 
+
 def create_driver_instance(driver, args, kwargs):
   if isinstance(driver, str):
     try:
       driver = driver_map[driver]
     except KeyError as ke:
       raise ValueError(
-        f"The driver {driver!r} is unknown."
-        f" Only the following options are available: {list(driver_map.keys())}"
+        f"The driver {driver!r} is unknown. Only the following options are available: {list(driver_map.keys())}"
       ) from ke
   return driver(*args, **kwargs)
 
 
 class Connection(object):
   """
-  Client-facing interface for creating Connections.
-  Shouldn't be changed without a major version change.
-  """
+    Client-facing interface for creating Connections.
+    Shouldn't be changed without a major version change.
+    """
+
   def __init__(self, *args, driver="http", **kwargs):
     driver_instance = create_driver_instance(
       driver,
@@ -393,9 +397,11 @@ class Connection(object):
   def pki_sessions(self):
     return self.impl.pki_sessions
 
+
 def paginated_objects(api_object):
   def decorator(body, *args, **kwargs):
     return Pagination(api_object, body, *args, **kwargs)
+
   return decorator
 
 
@@ -403,12 +409,16 @@ def paginated_objects(api_object):
 # response of objects that come from class some_class
 def object_or_paginated_objects(api_object):
   def decorator(body, *args, **kwargs):
-    if body.get('object') == 'pagination':
+    if body.get("object") == "pagination":
       return Pagination(api_object, body, *args, **kwargs)
     return api_object(body, *args, **kwargs)
+
   return decorator
 
+
 _global_connection = None
+
+
 def get_connection():
   global _global_connection
   if _global_connection is None:

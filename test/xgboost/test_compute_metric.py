@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 import numpy
+from sklearn.metrics import accuracy_score, classification_report, mean_absolute_error, mean_squared_error
+
 from sigopt.xgboost.compute_metrics import (
   compute_accuracy,
   compute_classification_report,
@@ -9,26 +11,28 @@ from sigopt.xgboost.compute_metrics import (
   compute_mse,
   compute_positives_and_negatives,
 )
-from sklearn.metrics import (
-  accuracy_score,
-  classification_report,
-  mean_absolute_error,
-  mean_squared_error,
-)
+
 
 def verify_classification_metrics_against_sklearn(y_true, y_pred):
   report_compute = compute_classification_report(y_true, y_pred)
   report_sklearn = classification_report(y_true, y_pred, output_dict=True, zero_division=0)
-  assert numpy.isclose(report_compute['weighted avg']['precision'], report_sklearn['weighted avg']['precision'])
-  assert numpy.isclose(report_compute['weighted avg']['recall'], report_sklearn['weighted avg']['recall'])
-  assert numpy.isclose(report_compute['weighted avg']['f1-score'], report_sklearn['weighted avg']['f1-score'])
+  assert numpy.isclose(
+    report_compute["weighted avg"]["precision"],
+    report_sklearn["weighted avg"]["precision"],
+  )
+  assert numpy.isclose(report_compute["weighted avg"]["recall"], report_sklearn["weighted avg"]["recall"])
+  assert numpy.isclose(
+    report_compute["weighted avg"]["f1-score"],
+    report_sklearn["weighted avg"]["f1-score"],
+  )
   assert numpy.abs(compute_accuracy(y_true, y_pred) - accuracy_score(y_true, y_pred)) < 1e-8
   classes = numpy.unique(y_true)
   for c in classes:
     label = str(c)
-    assert numpy.isclose(report_compute[label]['precision'], report_sklearn[label]['precision'])
-    assert numpy.isclose(report_compute[label]['recall'], report_sklearn[label]['recall'])
-    assert numpy.isclose(report_compute[label]['f1-score'], report_sklearn[label]['f1-score'])
+    assert numpy.isclose(report_compute[label]["precision"], report_sklearn[label]["precision"])
+    assert numpy.isclose(report_compute[label]["recall"], report_sklearn[label]["recall"])
+    assert numpy.isclose(report_compute[label]["f1-score"], report_sklearn[label]["f1-score"])
+
 
 class TestComputeMetrics(object):
   def test_compute_positives_and_negatives(self):
@@ -55,28 +59,28 @@ class TestComputeMetrics(object):
     y_pred = numpy.ones(10, dtype=int)
     assert compute_accuracy(y_true, y_pred) == 0
     report = compute_classification_report(y_true, y_pred)
-    assert '1' not in report.keys()
-    assert report['0']['precision'] == 0
-    assert report['0']['recall'] == 0
-    assert report['0']['f1-score'] == 0
-    assert report['weighted avg']['precision'] == 0
-    assert report['weighted avg']['recall'] == 0
-    assert report['weighted avg']['f1-score'] == 0
+    assert "1" not in report.keys()
+    assert report["0"]["precision"] == 0
+    assert report["0"]["recall"] == 0
+    assert report["0"]["f1-score"] == 0
+    assert report["weighted avg"]["precision"] == 0
+    assert report["weighted avg"]["recall"] == 0
+    assert report["weighted avg"]["f1-score"] == 0
 
   def test_binary_classification_one_pred_label(self):
     y_true = numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0])
     y_pred = numpy.ones(10, dtype=int)
     assert compute_accuracy(y_true, y_pred) == 0.3
     report = compute_classification_report(y_true, y_pred)
-    assert report['0']['precision'] == 0
-    assert report['0']['recall'] == 0
-    assert report['0']['f1-score'] == 0
-    assert report['1']['precision'] == 0.3
-    assert report['1']['recall'] == 1.0
-    assert numpy.isclose(report['1']['f1-score'], 2 * (1.0 * 0.3) / (1.0 + 0.3))
-    assert report['weighted avg']['precision'] == 0.3 * 0.3
-    assert report['weighted avg']['recall'] == 0.3
-    assert numpy.isclose(report['weighted avg']['f1-score'], 2 * (1.0 * 0.3) / (1.0 + 0.3) * 0.3)
+    assert report["0"]["precision"] == 0
+    assert report["0"]["recall"] == 0
+    assert report["0"]["f1-score"] == 0
+    assert report["1"]["precision"] == 0.3
+    assert report["1"]["recall"] == 1.0
+    assert numpy.isclose(report["1"]["f1-score"], 2 * (1.0 * 0.3) / (1.0 + 0.3))
+    assert report["weighted avg"]["precision"] == 0.3 * 0.3
+    assert report["weighted avg"]["recall"] == 0.3
+    assert numpy.isclose(report["weighted avg"]["f1-score"], 2 * (1.0 * 0.3) / (1.0 + 0.3) * 0.3)
 
   def test_binary_classification_against_sklearn(self):
     n_samples = 30
@@ -105,8 +109,10 @@ class TestComputeMetrics(object):
     assert numpy.isclose(compute_mse(y_true, y_true), 0)
 
     y_pred = numpy.random.randn(n_samples)
+    # pylint: disable=arguments-out-of-order
     assert numpy.isclose(compute_mae(y_true, y_pred), compute_mae(y_pred, y_true))
     assert numpy.isclose(compute_mse(y_true, y_pred), compute_mse(y_pred, y_true))
+    # pylint: enable=arguments-out-of-order
     assert numpy.isclose(compute_mae(y_true, y_pred), numpy.sum(numpy.abs(y_true - y_pred)) / n_samples)
     assert numpy.isclose(compute_mse(y_true, y_pred), numpy.sum((y_true - y_pred) ** 2) / n_samples)
 

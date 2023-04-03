@@ -7,7 +7,7 @@ from ..services.base import Service
 
 
 class LoggingService(Service):
-  def __init__(self, services, logger_name='sigopt'):
+  def __init__(self, services, logger_name="sigopt"):
     super().__init__(services)
     self._logger = logging.getLogger(logger_name)
 

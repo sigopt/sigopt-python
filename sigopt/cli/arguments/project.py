@@ -28,13 +28,15 @@ project_option = click.option(
   """,
 )
 
+
 def validate_project_name_callback(ctx, p, value):  # pylint: disable=unused-argument
   if value is None:
     return get_default_project()
   return value
 
+
 project_name_option = click.option(
-  '--project-name',
+  "--project-name",
   callback=validate_project_name_callback,
   help="The name of the project.",
 )

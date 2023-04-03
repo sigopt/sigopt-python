@@ -13,10 +13,8 @@ from ..version import DEFAULT_CONTROLLER_IMAGE
 
 
 def format_k8s_env_vars(env_vars):
-  return [
-    dict(name=key, value=value)
-    for key, value in env_vars.items()
-  ]
+  return [dict(name=key, value=value) for key, value in env_vars.items()]
+
 
 class JobRunnerService(Service):
   DEFAULT_EPHEMERAL_STORAGE_REQUEST = "128Mi"
@@ -28,12 +26,14 @@ class JobRunnerService(Service):
 
   def sigopt_env_vars(self, project_id):
     client, project = self.services.sigopt_service.ensure_project_exists(project_id)
-    return format_k8s_env_vars({
-      'SIGOPT_API_TOKEN': self.services.sigopt_service.api_token,
-      'SIGOPT_API_URL': self.services.sigopt_service.api_url,
-      'SIGOPT_PROJECT': project,
-      'SIGOPT_CLIENT': client,
-    })
+    return format_k8s_env_vars(
+      {
+        "SIGOPT_API_TOKEN": self.services.sigopt_service.api_token,
+        "SIGOPT_API_URL": self.services.sigopt_service.api_url,
+        "SIGOPT_PROJECT": project,
+        "SIGOPT_CLIENT": client,
+      }
+    )
 
   def format_resources(self, resource_options):
     resource_options = resource_options or {}
@@ -41,13 +41,14 @@ class JobRunnerService(Service):
     requests.setdefault("ephemeral-storage", self.DEFAULT_EPHEMERAL_STORAGE_REQUEST)
     limits = resource_options.setdefault("limits", {})
 
-    if resource_options.get('gpus'):
-      if 'nvidia.com/gpu' in limits:
+    if resource_options.get("gpus"):
+      if "nvidia.com/gpu" in limits:
         raise OrchestrateException(
-          'The value in resources.gpus will override the value in resources.limits.nvidia.com/gpu,'
-          'please remove one of these fields.'
+          "The value in resources.gpus will override the value in"
+          " resources.limits.nvidia.com/gpu,please remove one of these"
+          " fields."
         )
-      limits['nvidia.com/gpu'] = resource_options.pop('gpus')
+      limits["nvidia.com/gpu"] = resource_options.pop("gpus")
 
   def random_id_string(self):
     return "".join(random.choice(string.ascii_lowercase) for _ in range(8))  # nosec
@@ -55,10 +56,10 @@ class JobRunnerService(Service):
   def create_sigopt_experiment(self, optimization_options, project_id):
     data = optimization_options.copy()
 
-    metadata = data.pop('metadata', None) or {}
+    metadata = data.pop("metadata", None) or {}
 
     cluster = self.services.cluster_service.get_connected_cluster()
-    metadata['cluster_name'] = cluster.name
+    metadata["cluster_name"] = cluster.name
 
     data["metadata"] = metadata
 
@@ -84,32 +85,32 @@ class JobRunnerService(Service):
     job_info_volume_name = "job-info"
     env_vars = [
       {
-        'name': 'KUBE_CONFIG',
-        'value': "incluster",
+        "name": "KUBE_CONFIG",
+        "value": "incluster",
       },
       {
-        'name': 'USER_IMAGE',
-        'value': image_name,
+        "name": "USER_IMAGE",
+        "value": image_name,
       },
       {
-        'name': 'USER_RESOURCES',
-        'value': json.dumps(resource_options),
+        "name": "USER_RESOURCES",
+        "value": json.dumps(resource_options),
       },
       {
-        'name': 'NAMESPACE',
-        'valueFrom': {
-          'fieldRef': {
-            'fieldPath': 'metadata.namespace',
+        "name": "NAMESPACE",
+        "valueFrom": {
+          "fieldRef": {
+            "fieldPath": "metadata.namespace",
           },
         },
       },
       {
-        'name': "CLUSTER_NAME",
-        'value': cluster.name,
+        "name": "CLUSTER_NAME",
+        "value": cluster.name,
       },
       {
-        'name': 'JOB_INFO_PATH',
-        'value': job_info_path,
+        "name": "JOB_INFO_PATH",
+        "value": job_info_path,
       },
       {
         "name": "CONTROLLER_MODE",
@@ -119,10 +120,12 @@ class JobRunnerService(Service):
       *extra_env_vars,
     ]
     if self.services.sigopt_service.log_collection_enabled:
-      env_vars.append({
-        "name": "SIGOPT_LOG_COLLECTION_ENABLED",
-        "value": "1",
-      })
+      env_vars.append(
+        {
+          "name": "SIGOPT_LOG_COLLECTION_ENABLED",
+          "value": "1",
+        }
+      )
 
     labels = {
       "mode": controller_mode,
@@ -133,71 +136,75 @@ class JobRunnerService(Service):
     if not run_command:
       run_command = []
 
-    self.services.kubernetes_service.start_job({
-      'apiVersion': 'batch/v1',
-      'kind': 'Job',
-      'metadata': {
-        'name': controller_name,
-        'labels': labels,
-      },
-      'spec': {
-        'template': {
-          'metadata': {
-            'labels': labels,
-          },
-          'spec': {
-            'serviceAccount': 'controller',
-            'securityContext': {
-              'allowPrivilegeEscalation': False,
-              'readOnlyRootFilesystem': True,
+    self.services.kubernetes_service.start_job(
+      {
+        "apiVersion": "batch/v1",
+        "kind": "Job",
+        "metadata": {
+          "name": controller_name,
+          "labels": labels,
+        },
+        "spec": {
+          "template": {
+            "metadata": {
+              "labels": labels,
             },
-            'restartPolicy': 'Never',
-            'containers': [
-              {
-                'image': self.controller_image,
-                'imagePullPolicy': 'Always',
-                'name': 'controller',
-                'env': env_vars,
-                'args': run_command,
-                'resources': {
-                  'limits': {
-                    'cpu': '100m',
-                    'memory': '128Mi',
+            "spec": {
+              "serviceAccount": "controller",
+              "securityContext": {
+                "allowPrivilegeEscalation": False,
+                "readOnlyRootFilesystem": True,
+              },
+              "restartPolicy": "Never",
+              "containers": [
+                {
+                  "image": self.controller_image,
+                  "imagePullPolicy": "Always",
+                  "name": "controller",
+                  "env": env_vars,
+                  "args": run_command,
+                  "resources": {
+                    "limits": {
+                      "cpu": "100m",
+                      "memory": "128Mi",
+                    },
+                  },
+                  "volumeMounts": [
+                    {
+                      "name": job_info_volume_name,
+                      "mountPath": job_info_path,
+                    },
+                  ],
+                  "securityContext": {
+                    "allowPrivilegeEscalation": False,
+                    "readOnlyRootFilesystem": True,
                   },
                 },
-                'volumeMounts': [
-                  {
-                    'name': job_info_volume_name,
-                    'mountPath': job_info_path,
+              ],
+              "volumes": [
+                {
+                  # NOTE(taylor): the job-info downwardAPI volume allows the controller to link newly created pods
+                  # to the controller job so that the garbage collector will clean up dangling pods
+                  "name": job_info_volume_name,
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "path": "name",
+                        "fieldRef": {"fieldPath": "metadata.labels['job-name']"},
+                      },
+                      {
+                        "path": "uid",
+                        "fieldRef": {"fieldPath": "metadata.labels['controller-uid']"},
+                      },
+                    ],
                   },
-                ],
-                'securityContext': {
-                  'allowPrivilegeEscalation': False,
-                  'readOnlyRootFilesystem': True,
-                },
-              },
-            ],
-            'volumes': [{
-              # NOTE(taylor): the job-info downwardAPI volume allows the controller to link newly created pods
-              # to the controller job so that the garbage collector will clean up dangling pods
-              'name': job_info_volume_name,
-              'downwardAPI': {
-                'items': [
-                  {
-                    'path': 'name',
-                    'fieldRef': {'fieldPath': "metadata.labels['job-name']"},
-                  },
-                  {
-                    'path': 'uid',
-                    'fieldRef': {'fieldPath': "metadata.labels['controller-uid']"},
-                  },
-                ],
-              },
-            }],
+                }
+              ],
+            },
           },
         },
-      },
-    })
+      }
+    )
 
   def start_cluster_run(
     self,
@@ -261,10 +268,12 @@ class JobRunnerService(Service):
     controller_name = f"experiment-controller-{experiment_id}"
     labels = {"experiment": str(experiment_id)}
     controller_mode = "experiment"
-    env_vars = [{
-      "name": self.EXPERIMENT_ENV_KEY,
-      "value": str(experiment_id),
-    }]
+    env_vars = [
+      {
+        "name": self.EXPERIMENT_ENV_KEY,
+        "value": str(experiment_id),
+      }
+    ]
 
     self.create_controller(
       repository,

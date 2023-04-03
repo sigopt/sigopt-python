@@ -15,7 +15,7 @@ class TestClusterDestroyCli(object):
     cluster.provider_string = "aws"
     services.cluster_service.get_connected_cluster.return_value = cluster
     runner = CliRunner()
-    with patch('sigopt.orchestrate.controller.OrchestrateServiceBag', return_value=services):
+    with patch("sigopt.orchestrate.controller.OrchestrateServiceBag", return_value=services):
       result = runner.invoke(cli, ["cluster", "destroy"])
     services.kubernetes_service.cleanup_for_destroy.assert_called_once()
     services.cluster_service.destroy.assert_called_once_with(

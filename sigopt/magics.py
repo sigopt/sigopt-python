@@ -1,28 +1,24 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import click
 import http
 import io
 import sys
-import yaml
-import IPython
-from IPython.core.magic import (
-  Magics,
-  cell_magic,
-  line_magic,
-  magics_class,
-)
 
+import click
+import IPython
+import yaml
+from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
+
+from .cli.commands.config import API_TOKEN_PROMPT, CELL_TRACKING_PROMPT, LOG_COLLECTION_PROMPT
 from .config import config
-from .cli.commands.config import API_TOKEN_PROMPT, LOG_COLLECTION_PROMPT, CELL_TRACKING_PROMPT
+from .defaults import get_default_project
+from .exception import ApiException
+from .factory import SigOptFactory
 from .log_capture import NullStreamMonitor, SystemOutputStreamMonitor
 from .run_context import global_run_context
-from .factory import SigOptFactory
-from .defaults import get_default_project
-from .validate import validate_aiexperiment_input, ValidationError
 from .sigopt_logging import print_logger
-from .exception import ApiException
+from .validate import ValidationError, validate_aiexperiment_input
 
 
 def get_ns():
@@ -34,11 +30,12 @@ def get_ns():
     frame = sys._getframe(stack_depth)
     f_locals = frame.f_locals
     try:
-      if isinstance(f_locals['exit'], IPython.core.autocall.ExitAutocall):
+      if isinstance(f_locals["exit"], IPython.core.autocall.ExitAutocall):
         return f_locals
     except KeyError:
       pass
     stack_depth += 1
+
 
 @magics_class
 class SigOptMagics(Magics):
@@ -48,10 +45,12 @@ class SigOptMagics(Magics):
     self._factory = SigOptFactory(get_default_project())
 
   def setup(self):
-    config.set_user_agent_info([
-      'Notebook',
-      '/'.join(['IPython', IPython.__version__]),
-    ])
+    config.set_user_agent_info(
+      [
+        "Notebook",
+        "/".join(["IPython", IPython.__version__]),
+      ]
+    )
 
   @cell_magic
   def experiment(self, _, cell):
@@ -89,7 +88,7 @@ class SigOptMagics(Magics):
       stream_data = stream_monitor.get_stream_data()
       if stream_data:
         stdout, stderr = stream_data
-        run_context.set_logs({'stdout': stdout, 'stderr': stderr})
+        run_context.set_logs({"stdout": stdout, "stderr": stderr})
     finally:
       global_run_context.clear_run_context()
 
@@ -111,7 +110,7 @@ class SigOptMagics(Magics):
     ns = get_ns()
 
     if self._experiment is None:
-      raise Exception('Please create an experiment first with the %%experiment magic command')
+      raise Exception("Please create an experiment first with the %%experiment magic command")
 
     name = None
     if line:
@@ -130,11 +129,13 @@ class SigOptMagics(Magics):
       api_token = click.prompt(API_TOKEN_PROMPT, hide_input=True)
       enable_log_collection = click.confirm(LOG_COLLECTION_PROMPT, default=False)
       enable_code_tracking = click.confirm(CELL_TRACKING_PROMPT, default=False)
-      config.persist_configuration_options({
-        config.API_TOKEN_KEY: api_token,
-        config.CELL_TRACKING_ENABLED_KEY: enable_code_tracking,
-        config.LOG_COLLECTION_ENABLED_KEY: enable_log_collection,
-      })
+      config.persist_configuration_options(
+        {
+          config.API_TOKEN_KEY: api_token,
+          config.CELL_TRACKING_ENABLED_KEY: enable_code_tracking,
+          config.LOG_COLLECTION_ENABLED_KEY: enable_log_collection,
+        }
+      )
       self._factory.connection.set_client_token(api_token)
     else:
       raise ValueError(f"Unknown sigopt command: {command}")

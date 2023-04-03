@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from .compat import json as simplejson
 
+
 class BoundApiEndpoint(object):
   def __init__(self, bound_resource, endpoint):
     self._bound_resource = bound_resource

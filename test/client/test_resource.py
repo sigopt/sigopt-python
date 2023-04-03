@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 import pytest
+
 from sigopt.endpoint import BoundApiEndpoint
 from sigopt.interface import ConnectionImpl
 from sigopt.resource import BoundApiResource, PartiallyBoundApiResource
@@ -32,5 +33,8 @@ class TestResource(object):
     assert isinstance(connection.experiments(1).fetch, BoundApiEndpoint)
 
   def test_get_bound_entity(self, connection):
-    assert isinstance(connection.experiments().get_bound_entity('fetch'), BoundApiEndpoint)
-    assert isinstance(connection.experiments().get_bound_entity('observations'), PartiallyBoundApiResource)
+    assert isinstance(connection.experiments().get_bound_entity("fetch"), BoundApiEndpoint)
+    assert isinstance(
+      connection.experiments().get_bound_entity("observations"),
+      PartiallyBoundApiResource,
+    )

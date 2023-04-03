@@ -42,6 +42,7 @@ class Cluster(object):
   def generate_image_tag(self, repository):
     raise NotImplementedError()
 
+
 class AWSCluster(Cluster):
   @property
   def provider(self):
@@ -49,12 +50,12 @@ class AWSCluster(Cluster):
 
   def get_registry_login_credentials(self, repository):
     ecr_service = self.provider_service.aws_services.ecr_service
-    registry_id = ecr_service.ensure_repositories([repository])['repositories'][0]['registryId']
-    authorization_data = ecr_service.get_authorization_token([registry_id])['authorizationData'][0]
-    authorization_token = authorization_data['authorizationToken']
+    registry_id = ecr_service.ensure_repositories([repository])["repositories"][0]["registryId"]
+    authorization_data = ecr_service.get_authorization_token([registry_id])["authorizationData"][0]
+    authorization_token = authorization_data["authorizationToken"]
     decoded_bytes = base64.b64decode(authorization_token)
-    (username, password) = decoded_bytes.decode('utf-8').split(':')
-    proxy_endpoint = authorization_data['proxyEndpoint']
+    (username, password) = decoded_bytes.decode("utf-8").split(":")
+    proxy_endpoint = authorization_data["proxyEndpoint"]
     return DockerLoginCredentials(
       registry=proxy_endpoint,
       username=username,
@@ -67,7 +68,8 @@ class AWSCluster(Cluster):
 
     ecr_service = self.provider_service.aws_services.ecr_service
     descriptions = ecr_service.ensure_repositories([repository])
-    return descriptions['repositories'][0]['repositoryUri']
+    return descriptions["repositories"][0]["repositoryUri"]
+
 
 class CustomCluster(Cluster):
   @property

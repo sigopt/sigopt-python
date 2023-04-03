@@ -1,25 +1,27 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from inspect import signature
 import itertools
 import json
+import math
 import os
 import platform
-import pytest
 import random
-import math
+from inspect import signature
 
-os.environ['SIGOPT_PROJECT'] = "dev-sigopt-xgb-integration-test"
+import pytest
+
+
+os.environ["SIGOPT_PROJECT"] = "dev-sigopt-xgb-integration-test"
 
 import numpy
+import xgboost as xgb
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+
 import sigopt.xgboost
 from sigopt.xgboost.checkpoint_callback import SigOptCheckpointCallback
-from sigopt.xgboost.constants import (
-  CLASSIFICATION_METRIC_CHOICES,
-  DEFAULT_EVALS_NAME,
-  REGRESSION_METRIC_CHOICES,
-)
+from sigopt.xgboost.constants import CLASSIFICATION_METRIC_CHOICES, DEFAULT_EVALS_NAME, REGRESSION_METRIC_CHOICES
 from sigopt.xgboost.run import (
   DEFAULT_CHECKPOINT_PERIOD,
   MAX_NUM_CHECKPOINTS,
@@ -27,24 +29,21 @@ from sigopt.xgboost.run import (
   XGB_INTEGRATION_KEYWORD,
   XGBRunHandler,
 )
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-import xgboost as xgb
 
 
 POSSIBLE_PARAMETERS = {
-  'eta': 10 ** random.uniform(-4, 1),
-  'gamma': random.uniform(0, 4),
-  'max_depth': random.randint(1, 5),
-  'min_child_weight': random.uniform(0, 3),
-  'lambda': random.uniform(1, 3),
-  'alpha': 10 ** random.uniform(-4, 0),
-  'tree_method': random.choice(['hist', 'exact', 'approx', 'auto']),
+  "eta": 10 ** random.uniform(-4, 1),
+  "gamma": random.uniform(0, 4),
+  "max_depth": random.randint(1, 5),
+  "min_child_weight": random.uniform(0, 3),
+  "lambda": random.uniform(1, 3),
+  "alpha": 10 ** random.uniform(-4, 0),
+  "tree_method": random.choice(["hist", "exact", "approx", "auto"]),
 }
 
 
-def _create_random_dataset(task='binary'):
-  if task == 'binary':
+def _create_random_dataset(task="binary"):
+  if task == "binary":
     n_samples = random.randint(180, 300)
     n_features = random.randint(5, 25)
     n_classes = 2
@@ -54,7 +53,7 @@ def _create_random_dataset(task='binary'):
       n_features=n_features,
       n_classes=n_classes,
     )
-  elif task == 'multiclass':
+  elif task == "multiclass":
     n_samples = random.randint(180, 300)
     n_classes = random.randint(3, 8)
     n_informative = random.randint(2 * n_classes, 20)
@@ -78,21 +77,22 @@ def _create_random_dataset(task='binary'):
       noise=0.2,
     )
 
-def _create_random_metric_objective(task='binary'):
-  if task == 'binary':
+
+def _create_random_metric_objective(task="binary"):
+  if task == "binary":
     return {
-      'objective': random.choice(['binary:logistic', 'binary:hinge', 'binary:logitraw']),
-      'eval_metric': ['logloss', 'aucpr', 'error'],
+      "objective": random.choice(["binary:logistic", "binary:hinge", "binary:logitraw"]),
+      "eval_metric": ["logloss", "aucpr", "error"],
     }
-  elif task == 'multiclass':
+  elif task == "multiclass":
     return {
-      'objective': random.choice(['multi:softmax', 'multi:softprob']),
-      'eval_metric': ['mlogloss', 'merror'],
+      "objective": random.choice(["multi:softmax", "multi:softprob"]),
+      "eval_metric": ["mlogloss", "merror"],
     }
   else:
     return {
-      'objective': random.choice(['reg:squarederror', 'reg:pseudohubererror']),
-      'eval_metric': ['rmse', 'mae', 'mape'],
+      "objective": random.choice(["reg:squarederror", "reg:pseudohubererror"]),
+      "eval_metric": ["rmse", "mae", "mape"],
     }
 
 
@@ -107,15 +107,15 @@ def _form_random_run_params(task):
   subset_keys = random.sample(possible_params.keys(), random_subset_size)
   subset_params = {k: possible_params[k] for k in subset_keys}
   subset_params.update(_create_random_metric_objective(task))
-  if task == 'multiclass':
-    subset_params.update({'num_class': len(numpy.unique(y))})
+  if task == "multiclass":
+    subset_params.update({"num_class": len(numpy.unique(y))})
 
-  run_options = {'name': f'dev-integration-test-{task}'}
+  run_options = {"name": f"dev-integration-test-{task}"}
 
   return dict(
     params=subset_params,
     dtrain=D_train,
-    evals=[(D_test, f'test{n}') for n in range(random.randint(1, 3))],
+    evals=[(D_test, f"test{n}") for n in range(random.randint(1, 3))],
     num_boost_round=random.randint(3, 15),
     verbose_eval=random.choice([True, False]),
     run_options=run_options,
@@ -127,7 +127,7 @@ class TestXGBoostRun(object):
   run_params = None
 
   def _verify_parameter_logging(self, run):
-    params = self.run_params['params']
+    params = self.run_params["params"]
     for p in params.keys():
       if p not in PARAMS_LOGGED_AS_METADATA:
         assert params[p] == run.assignments[p]
@@ -136,45 +136,49 @@ class TestXGBoostRun(object):
           assert params[p] == run.metadata[p]
         else:
           assert str(params[p]) == run.metadata[p]
-    assert run.assignments['num_boost_round'] == self.run_params['num_boost_round']
+    assert run.assignments["num_boost_round"] == self.run_params["num_boost_round"]
 
   def _verify_metric_logging(self, run):
     data_names = []
-    if self.run_params['evals']:
-      data_names.extend([e[-1] for e in self.run_params['evals']])
+    if self.run_params["evals"]:
+      data_names.extend([e[-1] for e in self.run_params["evals"]])
     if self.is_classification:
       for d_name, m_name in itertools.product(data_names, CLASSIFICATION_METRIC_CHOICES):
-        assert 0 <= run.values['-'.join((d_name, m_name))].value <= 1
+        assert 0 <= run.values["-".join((d_name, m_name))].value <= 1
     else:
       for d_name, m_name in itertools.product(data_names, REGRESSION_METRIC_CHOICES):
-        assert run.values['-'.join((d_name, m_name))].value >= 0
+        assert run.values["-".join((d_name, m_name))].value >= 0
 
-    if self.run_params['params']['eval_metric']:
-      for d_name, m_name in itertools.product(data_names[1:], self.run_params['params']['eval_metric']):
-        assert run.values['-'.join((d_name, m_name))]
+    if self.run_params["params"]["eval_metric"]:
+      for d_name, m_name in itertools.product(data_names[1:], self.run_params["params"]["eval_metric"]):
+        assert run.values["-".join((d_name, m_name))]
 
-    assert run.values['Training time'].value > 0
-    assert run.values['best_iteration'].value >= 0
+    assert run.values["Training time"].value > 0
+    assert run.values["best_iteration"].value >= 0
 
   def _verify_metadata_logging(self, run):
-    assert run.metadata['Dataset columns'] == self.run_params['dtrain'].num_col()
-    assert run.metadata['Dataset rows'] == self.run_params['dtrain'].num_row()
-    if 'evals' in self.run_params and self.run_params['evals'] is not None:
-      if isinstance(self.run_params['evals'], list):
-        assert run.metadata['Number of Test Sets'] == len(self.run_params['evals'])
+    assert run.metadata["Dataset columns"] == self.run_params["dtrain"].num_col()
+    assert run.metadata["Dataset rows"] == self.run_params["dtrain"].num_row()
+    if "evals" in self.run_params and self.run_params["evals"] is not None:
+      if isinstance(self.run_params["evals"], list):
+        assert run.metadata["Number of Test Sets"] == len(self.run_params["evals"])
       else:
-        assert run.metadata['Number of Test Sets'] == 1
-    assert run.metadata['Python Version'] == platform.python_version()
-    assert run.metadata['XGBoost Version'] == xgb.__version__
+        assert run.metadata["Number of Test Sets"] == 1
+    assert run.metadata["Python Version"] == platform.python_version()
+    assert run.metadata["XGBoost Version"] == xgb.__version__
 
   def _verify_feature_importances_logging(self, run, model):
-    real_scores = sorted(model.get_score(importance_type='weight').items(), key=lambda x: (x[1], x[0]), reverse=True)
+    real_scores = sorted(
+      model.get_score(importance_type="weight").items(),
+      key=lambda x: (x[1], x[0]),
+      reverse=True,
+    )
     if real_scores:
-      feature_importances = run.sys_metadata['feature_importances']
-      saved_scores = sorted(feature_importances['scores'].items(), key=lambda x: (x[1], x[0]), reverse=True)
-      assert feature_importances['type'] == 'weight'
+      feature_importances = run.sys_metadata["feature_importances"]
+      saved_scores = sorted(feature_importances["scores"].items(), key=lambda x: (x[1], x[0]), reverse=True)
+      assert feature_importances["type"] == "weight"
       assert saved_scores and len(saved_scores) <= len(real_scores)
-      real_scores = real_scores[:len(saved_scores)]
+      real_scores = real_scores[: len(saved_scores)]
       assert [feature_name for feature_name, _ in real_scores] == [feature_name for feature_name, _ in saved_scores]
       assert numpy.allclose(
         numpy.array([feature_importance for _, feature_importance in real_scores]),
@@ -182,12 +186,12 @@ class TestXGBoostRun(object):
       )
 
   def _verify_miscs_data_logging(self, run):
-    if 'name' in self.run_params['run_options']:
-      assert run.name == self.run_params['run_options']['name']
+    if "name" in self.run_params["run_options"]:
+      assert run.name == self.run_params["run_options"]["name"]
 
-    if 'evals' in self.run_params:
-      if isinstance(self.run_params['evals'], list):
-        assert set(run.datasets) == {e[1] for e in self.run_params['evals']}
+    if "evals" in self.run_params:
+      if isinstance(self.run_params["evals"], list):
+        assert set(run.datasets) == {e[1] for e in self.run_params["evals"]}
       else:
         assert len(run.datasets) == 1
         assert run.datasets[0] == DEFAULT_EVALS_NAME
@@ -196,18 +200,18 @@ class TestXGBoostRun(object):
     assert run.dev_metadata[XGB_INTEGRATION_KEYWORD]
 
   def _verify_checkpoint_logging(self, run):
-    period = self.run_params.get('verbose_eval')
+    period = self.run_params.get("verbose_eval")
     if not period:
       period = DEFAULT_CHECKPOINT_PERIOD
     elif period is True:
       period = 1
-    num_boost_round = self.run_params['num_boost_round']
+    num_boost_round = self.run_params["num_boost_round"]
     period = max(period, math.ceil((num_boost_round + 1) / MAX_NUM_CHECKPOINTS))
     assert run.checkpoint_count == 1 + math.ceil((num_boost_round - 1) / period)
 
-  @pytest.mark.parametrize("task", ['binary', 'multiclass', 'regression'])
+  @pytest.mark.parametrize("task", ["binary", "multiclass", "regression"])
   def test_run(self, task):
-    self.is_classification = bool(task in ('binary', 'multiclass'))
+    self.is_classification = bool(task in ("binary", "multiclass"))
     self.run_params = _form_random_run_params(task)
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
@@ -221,78 +225,83 @@ class TestXGBoostRun(object):
     ctx.run.end()
 
   def test_run_options_no_logging(self):
-    self.run_params = _form_random_run_params(task='binary')
-    self.run_params['run_options'].update({
-      'autolog_checkpoints': False,
-      'autolog_feature_importances': False,
-      'autolog_metrics': False,
-      'autolog_stderr': False,
-      'autolog_stdout': False,
-      'autolog_xgboost_defaults': False,
-    })
+    self.run_params = _form_random_run_params(task="binary")
+    self.run_params["run_options"].update(
+      {
+        "autolog_checkpoints": False,
+        "autolog_feature_importances": False,
+        "autolog_metrics": False,
+        "autolog_stderr": False,
+        "autolog_stdout": False,
+        "autolog_xgboost_defaults": False,
+      }
+    )
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
 
     assert run.checkpoint_count == 0
-    assert 'feature_importances' not in run.sys_metadata
-    if self.run_params['evals']:
+    assert "feature_importances" not in run.sys_metadata
+    if self.run_params["evals"]:
       assert set(run.values.keys()) == {
-        '-'.join((data_name[1], metric_name)) for data_name, metric_name in itertools.product(
-          self.run_params['evals'], self.run_params['params']['eval_metric']
+        "-".join((data_name[1], metric_name))
+        for data_name, metric_name in itertools.product(
+          self.run_params["evals"], self.run_params["params"]["eval_metric"]
         )
       }
-    assert len(run.assignments) <= len(self.run_params['params']) + 1
+    assert len(run.assignments) <= len(self.run_params["params"]) + 1
     self._verify_miscs_data_logging(run)
     assert not run.logs
     ctx.run.end()
 
   def test_wrong_dtrain_type(self):
-    self.run_params = _form_random_run_params(task='regression')
-    self.run_params['evals'] = numpy.random.random((5, 3))
+    self.run_params = _form_random_run_params(task="regression")
+    self.run_params["evals"] = numpy.random.random((5, 3))
     with pytest.raises(TypeError):
       sigopt.xgboost.run(**self.run_params)
 
   def test_log_default_params(self):
     self.run_params = _form_random_run_params(task="multiclass")
-    self.run_params['params'] = POSSIBLE_PARAMETERS.copy()
-    del self.run_params['params']['eta']
-    del self.run_params['params']['gamma']
-    del self.run_params['params']['lambda']
-    del self.run_params['num_boost_round']
+    self.run_params["params"] = POSSIBLE_PARAMETERS.copy()
+    del self.run_params["params"]["eta"]
+    del self.run_params["params"]["gamma"]
+    del self.run_params["params"]["lambda"]
+    del self.run_params["num_boost_round"]
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
-    assert numpy.isclose(run.assignments['eta'], 0.3)
-    assert run.assignments['gamma'] == 0
-    assert run.assignments['lambda'] == 1
-    assert run.assignments['num_boost_round'] == 10
+    assert numpy.isclose(run.assignments["eta"], 0.3)
+    assert run.assignments["gamma"] == 0
+    assert run.assignments["lambda"] == 1
+    assert run.assignments["num_boost_round"] == 10
 
   def test_provided_run(self):
     self.run_params = _form_random_run_params(task="binary")
     run = sigopt.create_run(name="placeholder-run-with-max-depth-already-logged")
-    run.params.update({'max_depth': 3})
-    run.params.update({'num_boost_round': 7})
+    run.params.update({"max_depth": 3})
+    run.params.update({"num_boost_round": 7})
 
-    self.run_params['run_options'].update({
-      'autolog_checkpoints': False,
-      'autolog_feature_importances': False,
-      'autolog_metrics': False,
-      'autolog_stderr': False,
-      'autolog_stdout': False,
-      'run': run,
-      'name': None,
-    })
-    self.run_params['params'] = {'max_depth': 9}
-    del self.run_params['num_boost_round']
+    self.run_params["run_options"].update(
+      {
+        "autolog_checkpoints": False,
+        "autolog_feature_importances": False,
+        "autolog_metrics": False,
+        "autolog_stderr": False,
+        "autolog_stdout": False,
+        "run": run,
+        "name": None,
+      }
+    )
+    self.run_params["params"] = {"max_depth": 9}
+    del self.run_params["num_boost_round"]
     ctx = sigopt.xgboost.run(**self.run_params)
     booster = ctx.model
     params = json.loads(booster.save_config())
-    trained_max_depth = params['learner']['gradient_booster']['updater']['grow_colmaker']['train_param']['max_depth']
+    trained_max_depth = params["learner"]["gradient_booster"]["updater"]["grow_colmaker"]["train_param"]["max_depth"]
     assert int(trained_max_depth) == 3
-    bst_jsons = booster.get_dump(dump_format='json')
+    bst_jsons = booster.get_dump(dump_format="json")
     assert len(bst_jsons) == 7
     run = sigopt.get_run(ctx.run.id)
-    assert run.assignments['max_depth'] == 3
-    assert run.assignments['num_boost_round'] == 7
+    assert run.assignments["max_depth"] == 3
+    assert run.assignments["num_boost_round"] == 7
     ctx.run.end()
 
 
@@ -309,9 +318,9 @@ class TestFormCallbacks(object):
   @pytest.mark.parametrize("verbose_eval", [True, False, 1, 3, 23])
   def test_xgbrun_form_callbacks(self, verbose_eval):
     self.run_params = _form_random_run_params(task="multiclass")
-    self.run_params['verbose_eval'] = verbose_eval
-    self.run_params['num_boost_round'] = 35
-    self.run_params['callbacks'] = None
+    self.run_params["verbose_eval"] = verbose_eval
+    self.run_params["num_boost_round"] = 35
+    self.run_params["callbacks"] = None
     self._append_xgbrun_param_none_values()
     xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
@@ -325,9 +334,9 @@ class TestFormCallbacks(object):
 
   def test_xgbrun_checkpoint_period_high_num_boost_round(self):
     self.run_params = _form_random_run_params(task="multiclass")
-    self.run_params['verbose_eval'] = False
-    self.run_params['num_boost_round'] = 200
-    self.run_params['callbacks'] = None
+    self.run_params["verbose_eval"] = False
+    self.run_params["num_boost_round"] = 200
+    self.run_params["callbacks"] = None
     self._append_xgbrun_param_none_values()
     xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
@@ -335,20 +344,20 @@ class TestFormCallbacks(object):
     callback = xgbrun.callbacks[0]
     assert callback.period == DEFAULT_CHECKPOINT_PERIOD
 
-    self.run_params['verbose_eval'] = True
-    self.run_params['num_boost_round'] = 999
+    self.run_params["verbose_eval"] = True
+    self.run_params["num_boost_round"] = 999
     xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     callback = xgbrun.callbacks[0]
     assert callback.period == DEFAULT_CHECKPOINT_PERIOD
 
-    self.run_params['num_boost_round'] = 1000
+    self.run_params["num_boost_round"] = 1000
     xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     callback = xgbrun.callbacks[0]
     assert callback.period == 6
 
-    self.run_params['num_boost_round'] = 3000
+    self.run_params["num_boost_round"] = 3000
     xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
     callback = xgbrun.callbacks[0]
@@ -356,8 +365,8 @@ class TestFormCallbacks(object):
 
   def test_xgbrun_callbacks_appending(self):
     self.run_params = _form_random_run_params(task="multiclass")
-    self.run_params['verbose_eval'] = False
-    self.run_params['callbacks'] = [xgb.callback.EvaluationMonitor(period=3)]
+    self.run_params["verbose_eval"] = False
+    self.run_params["callbacks"] = [xgb.callback.EvaluationMonitor(period=3)]
     self._append_xgbrun_param_none_values()
     xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
@@ -366,8 +375,8 @@ class TestFormCallbacks(object):
 
   def test_xgbrun_callbacks_no_appending(self):
     self.run_params = _form_random_run_params(task="multiclass")
-    self.run_params['callbacks'] = [xgb.callback.EarlyStopping(rounds=3)]
-    self.run_params['evals'] = None
+    self.run_params["callbacks"] = [xgb.callback.EarlyStopping(rounds=3)]
+    self.run_params["evals"] = None
     self._append_xgbrun_param_none_values()
     xgbrun = XGBRunHandler(**self.run_params)
     xgbrun.form_callbacks()
@@ -376,9 +385,9 @@ class TestFormCallbacks(object):
 
   def test_xgbrun_early_stopping(self):
     """
-    This test is slightly more involved, and uses a dataset and params for which we know XGB will early stop, and
-    then verifies that early stopping occurs
-    """
+        This test is slightly more involved, and uses a dataset and params for which we know XGB will early stop, and
+        then verifies that early stopping occurs
+        """
     n = 100
     X = numpy.linspace(0, 1, n)[:, None]
     y = numpy.zeros(n)
@@ -386,12 +395,12 @@ class TestFormCallbacks(object):
     X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2, random_state=1234)
     D_train = xgb.DMatrix(X_train, label=Y_train)
     D_test = xgb.DMatrix(X_test, label=Y_test)
-    self.run_params =_form_random_run_params(task="binary")
-    self.run_params['dtrain'] = D_train
-    self.run_params['evals'] = D_test
-    self.run_params['num_boost_round'] = 100
-    self.run_params['early_stopping_rounds'] = 2
+    self.run_params = _form_random_run_params(task="binary")
+    self.run_params["dtrain"] = D_train
+    self.run_params["evals"] = D_test
+    self.run_params["num_boost_round"] = 100
+    self.run_params["early_stopping_rounds"] = 2
     ctx = sigopt.xgboost.run(**self.run_params)
     run = sigopt.get_run(ctx.run.id)
-    assert run.assignments['early_stopping_rounds'] == self.run_params['early_stopping_rounds']
-    assert run.values['num_boost_round_before_stopping'].value < self.run_params['num_boost_round']
+    assert run.assignments["early_stopping_rounds"] == self.run_params["early_stopping_rounds"]
+    assert run.values["num_boost_round_before_stopping"].value < self.run_params["num_boost_round"]

@@ -6,6 +6,7 @@ import os
 
 import boto3
 from botocore.exceptions import ClientError
+
 from sigopt.paths import ensure_dir, get_root_subdir
 
 from ..services.aws_base import AwsService
@@ -14,7 +15,7 @@ from ..services.aws_base import AwsService
 class AwsEc2Service(AwsService):
   def __init__(self, services, aws_services, **kwargs):
     super().__init__(services, aws_services)
-    self._ec2 = boto3.resource('ec2', **kwargs)
+    self._ec2 = boto3.resource("ec2", **kwargs)
 
   @property
   def ec2(self):
@@ -25,7 +26,7 @@ class AwsEc2Service(AwsService):
     return list(subnet for subnet in subnets if subnet.id in subnet_ids)
 
   def key_pair_for_cluster_name(self, cluster_name):
-    return f'key-pair-for-cluster-{cluster_name}'
+    return f"key-pair-for-cluster-{cluster_name}"
 
   def describe_key_pair_for_cluster(self, cluster_name):
     return self.ec2.KeyPair(self.key_pair_for_cluster_name(cluster_name))
@@ -38,7 +39,7 @@ class AwsEc2Service(AwsService):
     try:
       with os.fdopen(
         os.open(self.key_pair_location(cluster_name), os.O_CREAT | os.O_WRONLY, 0o600),
-        'w',
+        "w",
       ) as f:
         f.write(key_pair.key_material)
     except Exception:
@@ -52,7 +53,7 @@ class AwsEc2Service(AwsService):
     try:
       self.create_key_pair_for_cluster(cluster_name)
     except ClientError as e:
-      if not e.response['Error']['Code'] == 'InvalidKeyPair.Duplicate':
+      if not e.response["Error"]["Code"] == "InvalidKeyPair.Duplicate":
         raise e
 
     return self.describe_key_pair_for_cluster(cluster_name)
@@ -68,14 +69,14 @@ class AwsEc2Service(AwsService):
 
   @property
   def key_pair_directory(self):
-    return get_root_subdir('ssh')
+    return get_root_subdir("ssh")
 
   def ensure_key_pair_directory(self):
     ensure_dir(self.key_pair_directory)
 
   def key_pair_location(self, cluster_name):
     key_name = self.key_pair_for_cluster_name(cluster_name)
-    filename = f'{key_name}.pem'
+    filename = f"{key_name}.pem"
     return os.path.join(self.key_pair_directory, filename)
 
   def ensure_key_pair_for_cluster_deleted(self, cluster_name):

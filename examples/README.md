@@ -21,6 +21,3 @@ The above command will run the following sub process to evaluate your metric, au
 ```
 
 Feel free to use, or modify for your own needs!
-
-
-

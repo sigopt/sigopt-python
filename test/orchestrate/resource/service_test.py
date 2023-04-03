@@ -8,9 +8,10 @@ import pytest
 from sigopt.orchestrate.resource.service import ResourceService
 
 
-TEST_MODULE = 'test'
-TEST_FILE = 'test_file.txt'
+TEST_MODULE = "test"
+TEST_FILE = "test_file.txt"
 ACTUAL_TEXT = "This is a test file for testing the resource service.\n".encode()
+
 
 class TestResourceService(object):
   @pytest.fixture
@@ -24,7 +25,7 @@ class TestResourceService(object):
   def test_resource_open(self, resource_service):
     with resource_service.open(TEST_MODULE, TEST_FILE) as test_fp:
       assert ACTUAL_TEXT == test_fp.read()
-      with open(test_fp.name, mode='rb') as second_open:
+      with open(test_fp.name, mode="rb") as second_open:
         assert ACTUAL_TEXT == second_open.read()
 
   def test_tempfile_removed(self, resource_service):

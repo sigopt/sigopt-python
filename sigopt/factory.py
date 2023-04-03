@@ -7,19 +7,18 @@ import click
 
 from sigopt.validate import validate_aiexperiment_input
 
-from .defaults import check_valid_project_id, ensure_project_exists, get_default_project, get_client_id
-from .interface import get_connection
-from .sigopt_logging import print_logger
-from .run_factory import BaseRunFactory
-from .exception import ProjectNotFoundException
 from .aiexperiment_context import AIExperimentContext
+from .defaults import check_valid_project_id, ensure_project_exists, get_client_id, get_default_project
+from .exception import ApiException, ConflictingProjectException, ProjectNotFoundException
+from .interface import get_connection
 from .run_context import global_run_context
+from .run_factory import BaseRunFactory
+from .sigopt_logging import print_logger
 from .utils import batcher
-from .exception import ApiException, ConflictingProjectException
 
 
 class SigOptFactory(BaseRunFactory):
-  '''A SigOptFactory creates Runs and AIExperiments that belong to a specified Project.'''
+  """A SigOptFactory creates Runs and AIExperiments that belong to a specified Project."""
 
   _project_id = None
   _assume_project_exists = False
@@ -98,15 +97,20 @@ class SigOptFactory(BaseRunFactory):
     result = []
     for batch in batcher(runs, max_batch_size):
       result.extend(
-        connection.clients(client_id).projects(project_id).training_runs().create_batch(runs=batch, fields='id').data
+        connection.clients(client_id).projects(project_id).training_runs().create_batch(runs=batch, fields="id").data
       )
     return result
 
   def create_prevalidated_aiexperiment(self, validated_body):
     connection = self.connection
     client_id, project_id = self.ensure_project_exists()
-    aiexperiment = connection.clients(client_id).projects(project_id).aiexperiments().create(
-      **validated_body,
+    aiexperiment = (
+      connection.clients(client_id)
+      .projects(project_id)
+      .aiexperiments()
+      .create(
+        **validated_body,
+      )
     )
     self._on_aiexperiment_created(aiexperiment)
     return AIExperimentContext(aiexperiment, connection=connection)

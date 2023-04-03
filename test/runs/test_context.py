@@ -2,13 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 from __future__ import print_function
+
 import io
 
 import mock
 import pytest
 
 from sigopt.interface import Connection
-from sigopt.run_context import allow_state_update, RunContext
+from sigopt.run_context import RunContext, allow_state_update
 
 
 @pytest.mark.parametrize(
@@ -58,9 +59,7 @@ class TestLiveRunContext(object):
     run_context.params[test_key] = test_value
     assert run_context.params[test_key] == test_value
     assert getattr(run_context.params, test_key) == test_value
-    self.assert_run_update_request_called(
-      run_context, {"assignments": {test_key: test_value}}
-    )
+    self.assert_run_update_request_called(run_context, {"assignments": {test_key: test_value}})
 
   @pytest.mark.parametrize(
     "test_value",
@@ -75,9 +74,7 @@ class TestLiveRunContext(object):
     setattr(run_context.params, test_key, test_value)
     assert run_context.params[test_key] == test_value
     assert getattr(run_context.params, test_key) == test_value
-    self.assert_run_update_request_called(
-      run_context, {"assignments": {test_key: test_value}}
-    )
+    self.assert_run_update_request_called(run_context, {"assignments": {test_key: test_value}})
 
   def test_log_failure_method(self, run_context):
     return_value = run_context.log_failure()
@@ -95,9 +92,7 @@ class TestLiveRunContext(object):
     test_key = "test_metadata_key"
     return_value = run_context.log_metadata(test_key, test_value)
     assert return_value is None
-    self.assert_run_update_request_called(
-      run_context, {"metadata": {test_key: test_value}}
-    )
+    self.assert_run_update_request_called(run_context, {"metadata": {test_key: test_value}})
 
   def test_log_metadata_method_with_null(self, run_context):
     test_key = "test_metadata_key"
@@ -118,9 +113,7 @@ class TestLiveRunContext(object):
     test_key = "test_metadata_key"
     return_value = run_context.log_metadata(test_key, test_value)
     assert return_value is None
-    self.assert_run_update_request_called(
-      run_context, {"metadata": {test_key: str(test_value)}}
-    )
+    self.assert_run_update_request_called(run_context, {"metadata": {test_key: str(test_value)}})
 
   @pytest.mark.parametrize(
     "test_value",

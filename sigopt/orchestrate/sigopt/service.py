@@ -43,7 +43,7 @@ class SigOptService(Service):
     try:
       self.conn.experiments().fetch(limit=1)
     except ApiException as e:
-      raise CheckConnectionError(f'An error occured while checking your SigOpt connection: {e}') from e
+      raise CheckConnectionError(f"An error occured while checking your SigOpt connection: {e}") from e
 
   def create_aiexperiment(self, experiment_body, project_id):
     factory = SigOptFactory(project_id)
@@ -57,7 +57,7 @@ class SigOptService(Service):
     factory = SigOptFactory(project_id)
     return factory.create_run(
       name=run_name,
-      metadata={'cluster_name': cluster.name},
+      metadata={"cluster_name": cluster.name},
     )
 
   def fetch_run(self, run_id):
@@ -71,17 +71,13 @@ class SigOptService(Service):
     if project is None:
       client, project = SigOptFactory.from_default_project().ensure_project_exists()
     return (
-      self.conn.clients(client)
-        .projects(project)
-        .training_runs()
-        .fetch(filters=json.dumps(filters))
-        .iterate_pages()
+      self.conn.clients(client).projects(project).training_runs().fetch(filters=json.dumps(filters)).iterate_pages()
     )
 
   def iterate_runs(self, experiment):
     if experiment.project:
       return self.iterate_runs_by_filters(
-        [{'operator': '==', 'field': 'experiment', 'value': experiment.id}],
+        [{"operator": "==", "field": "experiment", "value": experiment.id}],
         project=experiment.project,
         client=experiment.client,
       )

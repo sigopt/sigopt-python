@@ -5,7 +5,7 @@ import copy
 import warnings
 
 from .compat import json
-from .lib import is_sequence, is_mapping, is_integer, is_number, is_numpy_array, is_string
+from .lib import is_integer, is_mapping, is_number, is_numpy_array, is_sequence, is_string
 
 
 class ListOf(object):
@@ -22,7 +22,7 @@ class MapOf(object):
     self.key_type = key_type
 
   def __call__(self, value):
-    d = {self.key_type(k):self.value_type(v) for k, v in value.items()}
+    d = {self.key_type(k): self.value_type(v) for k, v in value.items()}
     return d
 
 
@@ -46,11 +46,11 @@ class Field(object):
 class DeprecatedField(Field):
   def __init__(self, typ, recommendation=None):
     super().__init__(typ)
-    self.recommendation = (' ' + recommendation) if recommendation else ''
+    self.recommendation = (" " + recommendation) if recommendation else ""
 
   def __call__(self, value):
     warnings.warn(
-      'This field has been deprecated and may be removed in a future version.{0}'.format(self.recommendation),
+      "This field has been deprecated and may be removed in a future version.{0}".format(self.recommendation),
       DeprecationWarning,
     )
     return super().__call__(value)
@@ -88,7 +88,7 @@ class BaseApiObject(object):
 
   def _repr_keys(self):
     attributes = dir(self)
-    attributes = [a for a in attributes if not a.startswith('_')]
+    attributes = [a for a in attributes if not a.startswith("_")]
     attributes = [a for a in attributes if not isinstance(getattr(self.__class__, a), DeprecatedField)]
     attributes = [a for a in attributes if not callable(getattr(self, a))]
     keys_in_json = set(ApiObject.as_json(self._body).keys())
@@ -97,15 +97,16 @@ class BaseApiObject(object):
   @staticmethod
   def _emit_repr(object_name, values_mapping):
     if values_mapping:
-      return '{0}(\n{1}\n)'.format(
+      return "{0}(\n{1}\n)".format(
         object_name,
-        '\n'.join([
-          '  {}={},'.format(key, ApiObject.dumps(value, indent_level=2).lstrip())
-          for key, value
-          in values_mapping.items()
-        ]),
+        "\n".join(
+          [
+            "  {}={},".format(key, ApiObject.dumps(value, indent_level=2).lstrip())
+            for key, value in values_mapping.items()
+          ]
+        ),
       )
-    return '{0}()'.format(object_name)
+    return "{0}()".format(object_name)
 
   def __repr__(self):
     keys = self._repr_keys()
@@ -119,15 +120,12 @@ class BaseApiObject(object):
 class ApiObject(BaseApiObject):
   def __init__(self, body, bound_endpoint=None, retrieve_params=None):
     super().__init__()
-    object.__setattr__(self, '_body', body)
-    object.__setattr__(self, '_bound_endpoint', bound_endpoint)
-    object.__setattr__(self, '_retrieve_params', retrieve_params)
+    object.__setattr__(self, "_body", body)
+    object.__setattr__(self, "_bound_endpoint", bound_endpoint)
+    object.__setattr__(self, "_retrieve_params", retrieve_params)
 
   def __eq__(self, other):
-    return (
-      isinstance(other, self.__class__) and
-      self._body == other._body
-    )
+    return isinstance(other, self.__class__) and self._body == other._body
 
   @staticmethod
   def as_json(obj):
@@ -150,45 +148,43 @@ class ApiObject(BaseApiObject):
 
   @staticmethod
   def dumps(obj, indent_level=0):
-    indent = ' ' * indent_level
+    indent = " " * indent_level
 
     if isinstance(obj, BaseApiObject):
-      return '{0}{1}'.format(indent, str(obj).replace('\n', '\n{0}'.format(indent)))
+      return "{0}{1}".format(indent, str(obj).replace("\n", "\n{0}".format(indent)))
     if is_mapping(obj):
       if obj:
-        return '{0}{{\n{1},\n{0}}}'.format(
+        return "{0}{{\n{1},\n{0}}}".format(
           indent,
-          ',\n'.join([
-            '  {0}"{1}"={2}'.format(
-              indent,
-              key,
-              ApiObject.dumps(obj[key], indent_level=indent_level + 2).lstrip()
-            )
-            for key
-            in obj
-          ])
+          ",\n".join(
+            [
+              '  {0}"{1}"={2}'.format(
+                indent,
+                key,
+                ApiObject.dumps(obj[key], indent_level=indent_level + 2).lstrip(),
+              )
+              for key in obj
+            ]
+          ),
         )
-      return '{0}{1}'.format(indent, str(obj))
+      return "{0}{1}".format(indent, str(obj))
     if is_numpy_array(obj):
       return ApiObject.dumps(obj.tolist(), indent_level=indent_level)
     if is_sequence(obj):
       if obj:
-        return '{0}[\n{1},\n{0}]'.format(
+        return "{0}[\n{1},\n{0}]".format(
           indent,
-          ',\n'.join([
-            ApiObject.dumps(c, indent_level=indent_level + 2)
-            for c
-            in obj
-          ])
+          ",\n".join([ApiObject.dumps(c, indent_level=indent_level + 2) for c in obj]),
         )
-      return '{0}{1}'.format(indent, str(obj))
+      return "{0}{1}".format(indent, str(obj))
     if is_integer(obj):
-      return '{0}{1}'.format(indent, str(int(obj)))
+      return "{0}{1}".format(indent, str(int(obj)))
     if is_number(obj):
-      return '{0}{1}'.format(indent, str(float(obj)))
+      return "{0}{1}".format(indent, str(float(obj)))
     if is_string(obj):
       return '{0}"{1}"'.format(indent, obj)
-    return '{0}{1}'.format(indent, obj)
+    return "{0}{1}".format(indent, obj)
+
 
 class _DictWrapper(BaseApiObject, dict):
   def __init__(self, body, bound_endpoint=None, retrieve_params=None):
@@ -208,21 +204,19 @@ class _DictWrapper(BaseApiObject, dict):
     return self.__class__(dict.copy(self))
 
   def __eq__(self, other):
-    return (
-      isinstance(other, self.__class__) and
-      dict.__eq__(self, other)
-    )
+    return isinstance(other, self.__class__) and dict.__eq__(self, other)
 
   def __repr__(self):
-    return '{0}({1})'.format(
+    return "{0}({1})".format(
       self.__class__.__name__,
       json.dumps(
         ApiObject.as_json(self._body),
         indent=2,
         sort_keys=True,
-        separators=(',', ': '),
+        separators=(",", ": "),
       ),
     )
+
 
 class Assignments(_DictWrapper):
   pass
@@ -275,8 +269,10 @@ class MetricImportances(ApiObject):
 class Metadata(_DictWrapper):
   pass
 
+
 class SysMetadata(_DictWrapper):
   pass
+
 
 class MetricEvaluation(ApiObject):
   name = Field(str)
@@ -326,49 +322,52 @@ class Pagination(ApiObject):
     self.data_cls = data_cls
 
   def _repr_keys(self):
-    return ['data', 'count', 'paging']
+    return ["data", "count", "paging"]
 
   def __repr__(self):
     values = {
-      'data': self._unsafe_data,
-      'count': self.count,
-      'paging': self.paging,
+      "data": self._unsafe_data,
+      "count": self.count,
+      "paging": self.paging,
     }
     values = {k: v for k, v in values.items() if v is not None}
-    return BaseApiObject._emit_repr('Pagination<{0}>'.format(self.data_cls.__name__), values)
+    return BaseApiObject._emit_repr("Pagination<{0}>".format(self.data_cls.__name__), values)
 
   @property
   def data(self):
     warnings.warn(
-      'The .data field only contains a single page of results, which may be incomplete for large responses.'
-      ' Prefer to use the `.iterate_pages() to ensure that you iterate through all elements in the response.',
+      (
+        "The .data field only contains a single page of results, which may be"
+        " incomplete for large responses. Prefer to use the `.iterate_pages()"
+        " to ensure that you iterate through all elements in the response."
+      ),
       RuntimeWarning,
     )
     return self._unsafe_data
 
   @property
   def _unsafe_data(self):
-    return Field(ListOf(self.data_cls))(self._body.get('data'))
+    return Field(ListOf(self.data_cls))(self._body.get("data"))
 
   def iterate_pages(self):
     # pylint: disable=no-member
     data = self._unsafe_data
     paging = self.paging or Paging({})
 
-    use_before = 'before' in self._retrieve_params or 'after' not in self._retrieve_params
+    use_before = "before" in self._retrieve_params or "after" not in self._retrieve_params
 
     while data:
       for d in data:
         yield d
       next_paging = dict(before=paging.before) if use_before else dict(after=paging.after)
-      if next_paging.get('before') is not None or next_paging.get('after') is not None:
+      if next_paging.get("before") is not None or next_paging.get("after") is not None:
         params = self._retrieve_params.copy()
         if use_before:
-          params['before'] = paging.before
-          params.pop('after', None)
+          params["before"] = paging.before
+          params.pop("after", None)
         else:
-          params.pop('before', None)
-          params['after'] = paging.after
+          params.pop("before", None)
+          params["after"] = paging.after
         response = self._bound_endpoint(**params)
         data = response._unsafe_data
         paging = response.paging
@@ -402,7 +401,7 @@ class Parameter(ApiObject):
 
 class Progress(ApiObject):
   # observation progress fields
-  best_observation = DeprecatedField(Observation, recommendation='Prefer the `best_assignments` endpoint')
+  best_observation = DeprecatedField(Observation, recommendation="Prefer the `best_assignments` endpoint")
   first_observation = Field(Observation)
   last_observation = Field(Observation)
   observation_count = Field(int)
@@ -462,6 +461,7 @@ class TrainingMonitor(ApiObject):
   max_checkpoints = Field(int)
   early_stopping_criteria = Field(ListOf(TrainingEarlyStoppingCriteria))
 
+
 class Experiment(ApiObject):
   budget = Field(float)
   can_be_deleted = DeprecatedField(bool)
@@ -475,9 +475,8 @@ class Experiment(ApiObject):
   metric = DeprecatedField(
     Metric,
     recommendation=(
-      'Prefer the `metrics` field'
-      '(see https://docs.sigopt.com/core-module-api-references/api-objects/object_experiment)'
-    )
+      "Prefer the `metrics` field(see https://docs.sigopt.com/core-module-api-references/api-objects/object_experiment)"
+    ),
   )
   metrics = Field(ListOf(Metric))
   name = Field(str)
@@ -572,7 +571,7 @@ class TrainingRun(ApiObject):
   files = Field(ListOf(str))
   finished = Field(bool)
   id = Field(str)
-  logs = Field(MapOf(DictField('content')))
+  logs = Field(MapOf(DictField("content")))
   metadata = Field(Metadata)
   model = Field(Model)
   name = Field(str)

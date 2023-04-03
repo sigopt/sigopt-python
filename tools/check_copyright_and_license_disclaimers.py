@@ -58,19 +58,13 @@ def file_has_disclaimer(filename, filetype, verbose=False):
   return generate_disclaimer(filetype) in header
 
 
-def check_all(directory, verbose=False):
+def check_all(files, verbose=False):
   missing = []
-  if os.path.isfile(directory):
-    gen = [("", "", [directory])]
-  else:
-    gen = os.walk(directory)
-  for dirpath, _, filenames in gen:
-    for filename in filenames:
-      absolute_filename = os.path.join(dirpath, filename)
-      filetype = guess_filetype(absolute_filename)
-      if filetype and os.stat(absolute_filename).st_size > 0:
-        if not file_has_disclaimer(absolute_filename, filetype, verbose=verbose):
-          missing.append(absolute_filename)
+  for filename in files:
+    filetype = guess_filetype(filename)
+    if filetype and os.stat(filename).st_size > 0:
+      if not file_has_disclaimer(filename, filetype, verbose=verbose):
+        missing.append(filename)
   return missing
 
 
@@ -108,12 +102,12 @@ def fix_all(filenames, verbose=False):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("directory")
+  parser.add_argument("files", nargs="+")
   parser.add_argument("--fix-in-place", "-f", action="store_true")
   parser.add_argument("--verbose", "-v", action="store_true")
 
   args = parser.parse_args()
-  missing = check_all(args.directory, verbose=args.verbose)
+  missing = check_all(args.files, verbose=args.verbose)
   if args.fix_in_place:
     missing = fix_all(missing, verbose=args.verbose)
   if missing:

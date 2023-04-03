@@ -1,18 +1,21 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from codecs import open
 import os
 import sys
 import warnings
+from codecs import open
 
 from setuptools import find_packages, setup
 
+
 if sys.version_info < (3, 6):
   warnings.warn(
-    'Python versions lower than 3.6 are no longer supported.'
-    ' Please upgrade to Python 3.6 or newer or use an older version of the sigopt-python client.',
-    DeprecationWarning
+    (
+      "Python versions lower than 3.6 are no longer supported. Please upgrade to"
+      " Python 3.6 or newer or use an older version of the sigopt-python client."
+    ),
+    DeprecationWarning,
   )
 
 # NOTE(patrick): We can't `import sigopt.version` directly, because that
@@ -22,14 +25,14 @@ if sys.version_info < (3, 6):
 # Learned from https://github.com/stripe/stripe-python (MIT licensed)
 version_contents = {}
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'sigopt', 'version.py'), encoding='utf-8') as f:
-  exec(f.read(), version_contents)
-VERSION = version_contents['VERSION']
+with open(os.path.join(here, "sigopt", "version.py"), encoding="utf-8") as f:
+  exec(f.read(), version_contents)  # pylint: disable=exec-used
+VERSION = version_contents["VERSION"]
 
-with open(os.path.join(here, 'requirements.txt')) as requirements_fp:
-  install_requires = requirements_fp.read().split('\n')
-with open(os.path.join(here, 'requirements-dev.txt')) as requirements_dev_fp:
-  dev_install_requires = requirements_dev_fp.read().split('\n')
+with open(os.path.join(here, "requirements.txt")) as requirements_fp:
+  install_requires = requirements_fp.read().split("\n")
+with open(os.path.join(here, "requirements-dev.txt")) as requirements_dev_fp:
+  dev_install_requires = requirements_dev_fp.read().split("\n")
 
 orchestrate_install_requires = [
   "Pint>=0.16.0,<0.17.0",
@@ -38,32 +41,36 @@ orchestrate_install_requires = [
   "kubernetes>=12.0.1,<13.0.0",
   "pyOpenSSL>=20.0.0",
 ]
-xgboost_install_requires = ['xgboost>=1.3.1', 'numpy>=1.15.0']
-hyperopt_install_requires = ['hyperopt>=0.2.7']
-lite_install_requires = ['sigoptlite>=0.1.1']
+xgboost_install_requires = ["xgboost>=1.3.1", "numpy>=1.15.0"]
+hyperopt_install_requires = ["hyperopt>=0.2.7"]
+lite_install_requires = ["sigoptlite>=0.1.1"]
 
 setup(
-  name='sigopt',
+  name="sigopt",
   version=VERSION,
-  description='SigOpt Python API Client',
-  author='SigOpt',
-  author_email='support@sigopt.com',
-  url='https://sigopt.com/',
-  packages=find_packages(exclude=['tests*']),
+  description="SigOpt Python API Client",
+  author="SigOpt",
+  author_email="support@sigopt.com",
+  url="https://sigopt.com/",
+  packages=find_packages(exclude=["tests*"]),
   package_data={
-    '': ['*.ms', '*.txt', '*.yml', '*.yaml'],
+    "": ["*.ms", "*.txt", "*.yml", "*.yaml"],
   },
   install_requires=install_requires,
   extras_require={
-    'dev': dev_install_requires + xgboost_install_requires + hyperopt_install_requires,
-    'hyperopt': hyperopt_install_requires,
-    'orchestrate': orchestrate_install_requires,
-    'xgboost': xgboost_install_requires,
-    'lite': lite_install_requires,
+    "dev": dev_install_requires
+    + orchestrate_install_requires
+    + xgboost_install_requires
+    + hyperopt_install_requires
+    + lite_install_requires,
+    "hyperopt": hyperopt_install_requires,
+    "orchestrate": orchestrate_install_requires,
+    "xgboost": xgboost_install_requires,
+    "lite": lite_install_requires,
   },
   entry_points={
-    'console_scripts': [
-      'sigopt=sigopt.cli.__main__:sigopt_cli',
+    "console_scripts": [
+      "sigopt=sigopt.cli.__main__:sigopt_cli",
     ],
   },
   classifiers=[

@@ -1,7 +1,7 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from sigopt.lib import validate_name, is_string, is_mapping, is_sequence
+from sigopt.lib import is_mapping, is_sequence, is_string, validate_name
 
 from .common import validate_top_level_dict
 from .exceptions import ValidationError

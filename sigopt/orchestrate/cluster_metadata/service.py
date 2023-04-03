@@ -5,6 +5,7 @@ import errno
 import os
 
 import yaml
+
 from sigopt.paths import ensure_dir, get_root_subdir
 
 from ..provider.constants import string_to_provider
@@ -15,7 +16,7 @@ from .errors import MetadataAlreadyExistsError, MetadataNotFoundError
 class ClusterMetadataService(Service):
   def __init__(self, services):
     super().__init__(services)
-    self._metadata_dir = get_root_subdir('cluster')
+    self._metadata_dir = get_root_subdir("cluster")
 
   def read_metadata(self, cluster_name):
     metadata_path = self._cluster_metadata_path(cluster_name)
@@ -23,15 +24,15 @@ class ClusterMetadataService(Service):
     if not os.path.isfile(metadata_path):
       raise MetadataNotFoundError(cluster_name)
 
-    with open(metadata_path, 'r') as f:
+    with open(metadata_path, "r") as f:
       data = yaml.safe_load(stream=f)
 
-    provider = string_to_provider(data['provider'])
+    provider = string_to_provider(data["provider"])
     provider_service = self.services.provider_broker.get_provider_service(provider)
     cluster = provider_service.create_cluster_object(
       services=self.services,
-      name=data['name'],
-      registry=data['registry'],
+      name=data["name"],
+      registry=data["registry"],
     )
     return cluster
 
@@ -48,7 +49,7 @@ class ClusterMetadataService(Service):
     if os.path.isfile(metadata_path):
       raise MetadataAlreadyExistsError(cluster.name)
 
-    with open(metadata_path, 'w') as f:
+    with open(metadata_path, "w") as f:
       yaml.safe_dump(data, stream=f)
 
   def _delete_metadata(self, cluster_name):
@@ -66,5 +67,5 @@ class ClusterMetadataService(Service):
       pass
 
   def _cluster_metadata_path(self, cluster_name):
-    filename = f'metadata-{cluster_name}'
+    filename = f"metadata-{cluster_name}"
     return os.path.join(self._metadata_dir, filename)

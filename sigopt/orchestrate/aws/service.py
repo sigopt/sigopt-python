@@ -20,8 +20,8 @@ from ..provider.interface import ProviderInterface
 
 
 def is_cuda_gpu_instance_type(instance_type):
-  prefix, _ = instance_type.split('.', 1)
-  return prefix in ('p4d', 'p3', 'p3dn', 'p2', 'g4dn', 'g3')
+  prefix, _ = instance_type.split(".", 1)
+  return prefix in ("p4d", "p3", "p3dn", "p2", "g4dn", "g3")
 
 
 def catch_aws_permissions_errors(func):
@@ -29,12 +29,17 @@ def catch_aws_permissions_errors(func):
     try:
       return func(*args, **kwargs)
     except ClientError as e:
-      code = e.response['Error']['Code']
-      http_status_code = e.response['ResponseMetadata']['HTTPStatusCode']
-      if http_status_code == 403 or code in ('AccessDeniedException', 'UnauthorizedOperation'):
+      code = e.response["Error"]["Code"]
+      http_status_code = e.response["ResponseMetadata"]["HTTPStatusCode"]
+      if http_status_code == 403 or code in (
+        "AccessDeniedException",
+        "UnauthorizedOperation",
+      ):
         raise AwsPermissionsError(e) from e
       raise
+
   return wrapper
+
 
 def make_role_config_map(node_instance_role_arn, cluster_access_role_arn, cluster_access_role_name):
   map_roles = [
@@ -61,6 +66,7 @@ def make_role_config_map(node_instance_role_arn, cluster_access_role_arn, cluste
     },
   }
 
+
 class AwsService(ProviderInterface):
   def __init__(self, services, aws_services):
     super().__init__(services)
@@ -74,11 +80,11 @@ class AwsService(ProviderInterface):
 
   def describe_kubernetes_cluster(self, cluster_name):
     try:
-      return self.aws_services.eks_service.describe_cluster(cluster_name=cluster_name)['cluster']
+      return self.aws_services.eks_service.describe_cluster(cluster_name=cluster_name)["cluster"]
     except self.aws_services.eks_service.client.exceptions.ResourceNotFoundException as e:
       raise OrchestrateException(
-        f"We cannot find an EKS cluster named '{cluster_name}' using your current AWS credentials."
-        " Did someone delete this cluster?"
+        f"We cannot find an EKS cluster named '{cluster_name}' using your"
+        " current AWS credentials. Did someone delete this cluster?"
       ) from e
 
   def validate_cluster_options(self, cluster_name, node_groups_config, kubernetes_version):
@@ -86,47 +92,48 @@ class AwsService(ProviderInterface):
       kubernetes_version = DEFAULT_KUBERNETES_VERSION
     if kubernetes_version:
       assert kubernetes_version in SUPPORTED_KUBERNETES_VERSIONS, (
-        'Unsupported kubernetes version for EKS:'
-        f' {kubernetes_version}. Must be one of: {SUPPORTED_KUBERNETES_VERSIONS}'
+        f"Unsupported kubernetes version for EKS: {kubernetes_version}. Must be one of: {SUPPORTED_KUBERNETES_VERSIONS}"
       )
 
     cpu_nodes_config = node_groups_config.get(NODE_GROUP_TYPE_CPU)
     gpu_nodes_config = node_groups_config.get(NODE_GROUP_TYPE_GPU)
 
-    assert cpu_nodes_config or gpu_nodes_config, "Looks like your cluster config file is not" \
-      " asking us to spin up any CPU or GPU machines."
-    name_regex = '^[a-zA-Z][-a-zA-Z0-9]*$'
-    assert cluster_name and re.match(name_regex, cluster_name), \
-      'Cluster names for AWS must match the regex: /' + name_regex + '/'
+    assert (
+      cpu_nodes_config or gpu_nodes_config
+    ), "Looks like your cluster config file is not asking us to spin up any CPU or GPU machines."
+    name_regex = "^[a-zA-Z][-a-zA-Z0-9]*$"
+    assert cluster_name and re.match(name_regex, cluster_name), (
+      "Cluster names for AWS must match the regex: /" + name_regex + "/"
+    )
 
     if gpu_nodes_config:
-      gpu_instance_type = gpu_nodes_config['instance_type']
-      assert is_cuda_gpu_instance_type(gpu_instance_type), (
-        f"GPUs are not supported on the instance type ({gpu_instance_type})"
-      )
+      gpu_instance_type = gpu_nodes_config["instance_type"]
+      assert is_cuda_gpu_instance_type(
+        gpu_instance_type
+      ), f"GPUs are not supported on the instance type ({gpu_instance_type})"
 
   def _handle_stack_event(self, _, event):
     resource_status = event["ResourceStatus"]
     logical_id = event["LogicalResourceId"]
     print(f"{resource_status} {event['ResourceType']} {logical_id} {event['PhysicalResourceId']}")
     if resource_status.endswith("_FAILED"):
-      print(f"Error {resource_status}: {logical_id}: {event['ResourceStatusReason']}", file=sys.stderr)
+      print(
+        f"Error {resource_status}: {logical_id}: {event['ResourceStatusReason']}",
+        file=sys.stderr,
+      )
 
   def get_node_groups(self, options):
-    return {
-      node_group_type: options.get(node_group_type) or {}
-      for node_group_type in ALL_NODE_GROUP_TYPES
-    }
+    return {node_group_type: options.get(node_group_type) or {} for node_group_type in ALL_NODE_GROUP_TYPES}
 
   def _create_or_update_kubernetes_cluster(self, options, update):
     start_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-    cluster_name = options['cluster_name']
-    kubernetes_version = options.get('kubernetes_version') or DEFAULT_KUBERNETES_VERSION
+    cluster_name = options["cluster_name"]
+    kubernetes_version = options.get("kubernetes_version") or DEFAULT_KUBERNETES_VERSION
     node_groups = self.get_node_groups(options)
     self.validate_cluster_options(cluster_name, node_groups, kubernetes_version)
 
-    aws_options = options.get('aws') or {}
-    additional_policies = aws_options.get('additional_policies') or []
+    aws_options = options.get("aws") or {}
+    additional_policies = aws_options.get("additional_policies") or []
 
     common_kwargs = dict(
       cluster_name=cluster_name,
@@ -145,7 +152,7 @@ class AwsService(ProviderInterface):
     else:
       try:
         eks_cluster_stack = self.aws_services.cloudformation_service.ensure_eks_cluster_stack(
-            **common_kwargs,
+          **common_kwargs,
         )
         self.aws_services.cloudformation_service.wait_for_stack_create_complete(
           eks_cluster_stack.name,
@@ -164,10 +171,7 @@ class AwsService(ProviderInterface):
         )
         raise e
     eks_cluster_stack.reload()
-    eks_cluster_stack_outputs = {
-      o['OutputKey']: o['OutputValue']
-      for o in eks_cluster_stack.outputs
-    }
+    eks_cluster_stack_outputs = {o["OutputKey"]: o["OutputValue"] for o in eks_cluster_stack.outputs}
     node_instance_role_arn = eks_cluster_stack_outputs["NodeInstanceRoleArn"]
 
     for policy_arn in additional_policies:
@@ -204,9 +208,9 @@ class AwsService(ProviderInterface):
 
     self._disconnect_kubernetes_cluster(cluster_name=cluster_name)
 
-    print('Testing your kubernetes configuration, you may see an error below but we should be able to resolve it...')
+    print("Testing your kubernetes configuration, you may see an error below but we should be able to resolve it...")
     self._connect_kubernetes_cluster(cluster_name=cluster_name)
-    print('Successfully tested your kubernetes configuration, if you saw any errors above you may ignore them...')
+    print("Successfully tested your kubernetes configuration, if you saw any errors above you may ignore them...")
     self._test_cluster_access_role(cluster_name=cluster_name, retries=3)
     # Note(Nakul): We disconnect and reconnect to solve an intermittent issue where the kubernetes python client
     # ends up with an empty api key. This is a temporary fix while we resolve the bug. This solves the issue by
@@ -240,7 +244,8 @@ class AwsService(ProviderInterface):
       except ClientError as ce:
         if try_number >= retries:
           raise AwsClusterSharePermissionError(
-            f"You do not have permission to use the role '{cluster_access_role_arn}' for accessing this cluster.\n"
+            "You do not have permission to use the role"
+            f" '{cluster_access_role_arn}' for accessing this cluster.\n"
             "Please read the SigOpt documentation for sharing clusters: "
             "https://docs.sigopt.com/ai-module-api-references/orchestrate/aws_cluster#share-your-kubernetes-cluster"
           ) from ce
@@ -324,13 +329,15 @@ class AwsService(ProviderInterface):
   def _node_access_instructions(self, cluster_name):
     filename = self.aws_services.ec2_service.key_pair_location(cluster_name)
     return (
-      '*Optional:'
-      '\n\tTo ssh into any ec2 node in your cluster, use the username `ec2-user` with the key pair located at:'
-      f'\n\t\t{filename}'
-      '\n\tExample:'
-      f'\n\t\tssh -i {filename} ec2-user@<node_dns_name>'
-      '\n\tYou may be required to change security groups on your ec2 instances'
-      '\n\tInstructions: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html'
+      "*Optional:"
+      "\n\tTo ssh into any ec2 node in your cluster, use the username `ec2-user`"
+      " with the key pair located at:"
+      f"\n\t\t{filename}"
+      "\n\tExample:"
+      f"\n\t\tssh -i {filename} ec2-user@<node_dns_name>"
+      "\n\tYou may be required to change security groups on your ec2 instances"
+      "\n\tInstructions:"
+      " https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html"
     )
 
   def create_cluster_object(self, services, name, registry):

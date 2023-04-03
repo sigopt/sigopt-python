@@ -9,7 +9,7 @@ from .base import cluster_command
 
 @cluster_command.command(
   context_settings=dict(ignore_unknown_options=True),
-  help=f'''Get the status of the connected Kubernetes cluster. {identifiers_help}''',
+  help=f"""Get the status of the connected Kubernetes cluster. {identifiers_help}""",
 )
 @click.pass_context
 @identifiers_argument

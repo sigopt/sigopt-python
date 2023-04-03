@@ -8,47 +8,39 @@ class TestLists(object):
   def test_remove_nones(self):
     assert remove_nones([]) == []
     assert remove_nones([False, None, [], 0, {}]) == [False, [], 0, {}]
-    assert remove_nones([False, None, [], 0, {}, 1, 2, 3, True, [1]]) == [False, [], 0, {}, 1, 2, 3, True, [1]]
+    assert remove_nones([False, None, [], 0, {}, 1, 2, 3, True, [1]]) == [
+      False,
+      [],
+      0,
+      {},
+      1,
+      2,
+      3,
+      True,
+      [1],
+    ]
     assert remove_nones({}) == {}
-    assert remove_nones({
-      'a': False,
-      'b': None,
-      'c': [],
-      'd': 0,
-      'e': {},
-    }) == {
-      'a': False,
-      'c': [],
-      'd': 0,
-      'e': {},
+    assert remove_nones({"a": False, "b": None, "c": [], "d": 0, "e": {},}) == {
+      "a": False,
+      "c": [],
+      "d": 0,
+      "e": {},
     }
-    assert remove_nones({
-      'a': False,
-      'b': None,
-      'c': [],
-      'd': 0,
-      'e': {},
-      'f': 1,
-      'g': True,
-    }) == {
-      'a': False,
-      'c': [],
-      'd': 0,
-      'e': {},
-      'f': 1,
-      'g': True,
+    assert remove_nones({"a": False, "b": None, "c": [], "d": 0, "e": {}, "f": 1, "g": True,}) == {
+      "a": False,
+      "c": [],
+      "d": 0,
+      "e": {},
+      "f": 1,
+      "g": True,
     }
-    assert remove_nones({
-      'a': {
-        'b': None,
-      },
-    }) == {
-      'a': {
-        'b': None,
+    assert remove_nones({"a": {"b": None,},}) == {
+      "a": {
+        "b": None,
       },
     }
-    assert remove_nones(set((1, 'a', None))) == set((1, 'a'))
-    assert remove_nones(set((1, 'a'))) == set((1, 'a'))
+    assert remove_nones(set((1, "a", None))) == set((1, "a"))
+    assert remove_nones(set((1, "a"))) == set((1, "a"))
     assert remove_nones(set()) == set()
 
   def test_coalesce(self):
