@@ -28,7 +28,7 @@ repos:
     rev: "v0.0.2"
     hooks:
       - id: copyright-license-disclaimer
-        args: ["--license=Apache License 2.0", "--owner=Intel Corporation"]
+        args: ["--license=MIT", "--owner=Intel Corporation"]
       - id: sigoptlint-python
       - id: sigoptlint-shell
   - repo: https://github.com/sigopt/black.git
