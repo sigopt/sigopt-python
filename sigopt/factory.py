@@ -8,7 +8,9 @@ import click
 from sigopt.validate import validate_aiexperiment_input
 
 from .aiexperiment_context import AIExperimentContext
-from .defaults import check_valid_project_id, ensure_project_exists, get_client_id, get_default_project
+from .defaults import check_valid_project_id
+from .defaults import ensure_project_exists as _ensure_project_exists
+from .defaults import get_client_id, get_default_project
 from .exception import ApiException, ConflictingProjectException, ProjectNotFoundException
 from .interface import get_connection
 from .run_context import global_run_context
@@ -80,7 +82,7 @@ class SigOptFactory(BaseRunFactory):
   def ensure_project_exists(self):
     # if we have already ensured that the project exists then we can skip this step in the future
     if not self._assume_project_exists:
-      self._client_id = ensure_project_exists(self.connection, self.project)
+      self._client_id = _ensure_project_exists(self.connection, self.project)
       self._assume_project_exists = True
     return self._client_id, self.project
 
