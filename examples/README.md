@@ -1,3 +1,9 @@
+<!--
+Copyright © 2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
 # SigOpt API Examples
 For the complete API documentation, visit [https://docs.sigopt.com](https://docs.sigopt.com).
 ## Python

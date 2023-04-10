@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 
 
 PYTHON_VERSION=$(python --version 2>&1)
