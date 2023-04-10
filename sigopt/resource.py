@@ -13,8 +13,8 @@ class BoundApiResource(object):
     self._id = id_
 
     self._base_path = list(path)
-    if id is not _NO_ARG:
-      self._base_path.append(id)
+    if id_ is not _NO_ARG:
+      self._base_path.append(id_)
 
   def get_bound_entity(self, name):
     endpoint = self._resource._endpoints.get(name)
