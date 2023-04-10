@@ -1,3 +1,9 @@
+<!--
+Copyright © 2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
 [![Build Status](https://circleci.com/gh/sigopt/sigopt-python.svg?style=svg)](https://circleci.com/gh/sigopt/sigopt-python)
 
 # SigOpt Python API
