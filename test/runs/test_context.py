@@ -206,7 +206,7 @@ class TestLiveRunContext(object):
 
   def test_log_model(self, run_context):
     model_type = "test type"
-    return_value = run_context.log_model(type=model_type)
+    return_value = run_context.log_model(type_=model_type)
     assert return_value is None
     self.assert_run_update_request_called(run_context, {"model": {"type": model_type}})
 
