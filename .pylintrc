@@ -6,7 +6,6 @@ max-line-length=120
 disable=
   abstract-method,
   broad-except,
-  cell-var-from-loop,
   consider-using-ternary,
   consider-using-with,
   duplicate-code,
