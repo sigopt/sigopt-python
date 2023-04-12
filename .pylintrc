@@ -4,7 +4,6 @@ max-line-length=120
 
 [MESSAGES CONTROL]
 disable=
-  abstract-class-not-used,
   abstract-method,
   anomalous-unicode-escape-in-string,
   arguments-differ,
