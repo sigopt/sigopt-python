@@ -5,7 +5,6 @@ max-line-length=120
 [MESSAGES CONTROL]
 disable=
   abstract-method,
-  bad-continuation,
   bad-whitespace,
   broad-except,
   cell-var-from-loop,
