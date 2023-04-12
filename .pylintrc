@@ -4,7 +4,6 @@ max-line-length=120
 
 [MESSAGES CONTROL]
 disable=
-  abstract-class-instantiated,
   abstract-class-little-used,
   abstract-class-not-used,
   abstract-method,
