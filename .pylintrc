@@ -5,7 +5,6 @@ max-line-length=120
 [MESSAGES CONTROL]
 disable=
   abstract-method,
-  anomalous-unicode-escape-in-string,
   arguments-differ,
   assignment-from-no-return,
   bad-continuation,
