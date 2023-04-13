@@ -22,6 +22,6 @@ class KubeProxyHTTPAdapter(HTTPAdapter):
     self.poolmanager = rest_client.pool_manager
 
   def cert_verify(self, conn, url, verify, cert):
-    # NOTE(taylor): Session.request tries to reset the certificate (why???) so just make sure certs are required and
+    # NOTE: Session.request tries to reset the certificate (why???) so just make sure certs are required and
     # carry on
     assert conn.cert_reqs == ssl.CERT_REQUIRED

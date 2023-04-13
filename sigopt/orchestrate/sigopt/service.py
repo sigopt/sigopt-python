@@ -81,7 +81,7 @@ class SigOptService(Service):
         project=experiment.project,
         client=experiment.client,
       )
-    # TODO(patrick): api.sigopt.com returns extended JSON for the new endpoint fetch, which we need for the state
+    # TODO: api.sigopt.com returns extended JSON for the new endpoint fetch, which we need for the state
     # field. But we can only do that for experiments in projects.
     # So we fall back safely here, but this can be removed in the future
     return self.conn.experiments(experiment.id).training_runs().fetch().iterate_pages()

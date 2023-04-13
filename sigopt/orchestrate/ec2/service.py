@@ -80,6 +80,6 @@ class AwsEc2Service(AwsService):
     return os.path.join(self.key_pair_directory, filename)
 
   def ensure_key_pair_for_cluster_deleted(self, cluster_name):
-    # Note(alexandra): under our current structure, no error occurs if we attempt to
+    # Note: under our current structure, no error occurs if we attempt to
     # delete a non-existent keypair
     self.delete_key_pair_for_cluster(cluster_name)

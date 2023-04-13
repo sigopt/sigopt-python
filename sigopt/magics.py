@@ -22,7 +22,7 @@ from .validate import ValidationError, validate_aiexperiment_input
 
 
 def get_ns():
-  # NOTE(taylor): inspired by
+  # NOTE: inspired by
   # https://github.com/ipython/ipython/blob/5577a476295146641fbd6f8c992d374b905dc1bc/IPython/core/interactiveshell.py
   # Walk up the stack trace until we find the 'exit' command
   stack_depth = 1

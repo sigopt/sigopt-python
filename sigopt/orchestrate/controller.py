@@ -275,7 +275,7 @@ class OrchestrateController:
   def create_cluster(self, options):
     print("Creating your cluster, this process may take 20-30 minutes or longer...")
 
-    # NOTE(dan): checks again now that we know provider, in case aws iam authenticator is needed
+    # NOTE: checks again now that we know provider, in case aws iam authenticator is needed
     check_authenticator_binary(provider=options.get("provider"))
     try:
       cluster_name = self.services.cluster_service.create(options=options)
@@ -287,7 +287,7 @@ class OrchestrateController:
   def update_cluster(self, options):
     print("Updating your cluster, this process may take 5-10 minutes or longer...")
 
-    # NOTE(dan): checks again now that we know provider, in case aws iam authenticator is needed
+    # NOTE: checks again now that we know provider, in case aws iam authenticator is needed
     check_authenticator_binary(provider=options.get("provider"))
     cluster_name = self.services.cluster_service.update(options=options)
 
@@ -419,7 +419,7 @@ class OrchestrateController:
     GPU = "nvidia.com/gpu"
     RESOURCE_META = ((CPU, "CPU"), (MEMORY, "B"), (GPU, "GPU"))
     unit_registry = pint.UnitRegistry()
-    # NOTE(taylor): creates a new unit "CPU". "mCPU = milli CPU = 0.001 * CPU"
+    # NOTE: creates a new unit "CPU". "mCPU = milli CPU = 0.001 * CPU"
     unit_registry.define("CPU = [cpu]")
     unit_registry.define("GPU = [gpu]")
     for node in nodes.items:
@@ -429,7 +429,7 @@ class OrchestrateController:
         for p in running_pods_by_node[node.metadata.name]
         for c in p.spec.containers
       ]
-      # NOTE(taylor): create an inital value for each resource type for requests and limits
+      # NOTE: create an inital value for each resource type for requests and limits
       all_totals = tuple(
         {resource_type: 0 * unit_registry(ext) for resource_type, ext in RESOURCE_META} for _ in range(2)
       )
@@ -438,7 +438,7 @@ class OrchestrateController:
           if not resource_allocation:
             continue
           for resource_type, ext in RESOURCE_META:
-            # NOTE(taylor): this parses the resource quantity with a magnitude and unit.
+            # NOTE: this parses the resource quantity with a magnitude and unit.
             # ex. "12Mi" + "B" == "12*2^20 bytes", "100m" + "CPU" == "0.1 CPU"
             totals[resource_type] += unit_registry.Quantity(resource_allocation.get(resource_type, "0") + ext)
       requests_totals, limits_totals = all_totals

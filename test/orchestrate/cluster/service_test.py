@@ -82,7 +82,7 @@ class TestClusterService(object):
 
     cluster_service.disconnect(cluster_name=None, disconnect_all=True)
 
-    # TODO(alexandra): decide which permissions to validate for cluster destroy
+    # TODO: decide which permissions to validate for cluster destroy
     cluster_service.destroy(None, "aws")
 
   def test_no_clusters(self, cluster_service):
@@ -108,7 +108,7 @@ class TestClusterService(object):
     assert cluster_service.test.call_count == 1
     cluster_service.create(dict(provider="aws"))
 
-    # TODO(alexandra): decide which permissions to validate for cluster destroy
+    # TODO: decide which permissions to validate for cluster destroy
     cluster_service.destroy(None, "aws")
 
   def test_one_clusters(self, cluster_service):
@@ -152,7 +152,7 @@ class TestClusterService(object):
     cluster_service.destroy("foo", "aws")
     cluster_service.test()
 
-    # TODO(alexandra): decide which permissions to validate for cluster destroy
+    # TODO: decide which permissions to validate for cluster destroy
     cluster_service.destroy("bar", "aws")
 
   def test_create_cluster(self, cluster_service):

@@ -63,7 +63,7 @@ class ModelPackerService(Service):
         verify_ssl_certs = None
         no_verify_ssl_certs = None
         local_verify_ssl_certs = self.services.sigopt_service.verify_ssl_certs
-        # NOTE(dan): we intentionally leave verify_ssl_certs as None in the bool/True case because
+        # NOTE: we intentionally leave verify_ssl_certs as None in the bool/True case because
         # verify_ssl_certs must refer to a file when being passed as an environment variable
         if isinstance(local_verify_ssl_certs, bool):
           no_verify_ssl_certs = not local_verify_ssl_certs

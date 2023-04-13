@@ -163,8 +163,8 @@ class AwsService(ProviderInterface):
         print("*" * 50)
         print("ERROR: encountered an error creating EKS cluster; tearing down resources")
         print("*" * 50)
-        # TODO(dan): can we catch something more fine-grained here?
-        # NOTE(dan): since we're just raising here anyway, we don't need to try-except?
+        # TODO: can we catch something more fine-grained here?
+        # NOTE: since we're just raising here anyway, we don't need to try-except?
         self.aws_services.cloudformation_service.ensure_eks_cluster_stack_deleted(
           cluster_name,
           self._handle_stack_event,
@@ -177,7 +177,7 @@ class AwsService(ProviderInterface):
     for policy_arn in additional_policies:
       self.aws_services.iam_service.attach_policy(node_instance_role_arn, policy_arn)
 
-    # NOTE(taylor): no reason to update the autoscaler role stack yet, just create it if it doesn't already exist
+    # NOTE: no reason to update the autoscaler role stack yet, just create it if it doesn't already exist
     eks_cluster = self.aws_services.eks_service.describe_cluster(cluster_name)
     self.aws_services.iam_service.ensure_eks_oidc_provider(eks_cluster)
     eks_cluster_autoscaler_role_stack = (
@@ -196,7 +196,7 @@ class AwsService(ProviderInterface):
       self._connect_kubernetes_cluster(cluster_name=cluster_name, ignore_role=True)
       self.test_kubernetes_cluster(cluster_name=cluster_name, ignore_role=True)
 
-      # NOTE(taylor): no reason to update the aws-auth config map yet
+      # NOTE: no reason to update the aws-auth config map yet
       role_arn = eks_cluster_stack_outputs["ClusterAccessRoleArn"]
       role_name = eks_cluster_stack_outputs["ClusterAccessRoleName"]
       role_config_map = make_role_config_map(
@@ -212,7 +212,7 @@ class AwsService(ProviderInterface):
     self._connect_kubernetes_cluster(cluster_name=cluster_name)
     print("Successfully tested your kubernetes configuration, if you saw any errors above you may ignore them...")
     self._test_cluster_access_role(cluster_name=cluster_name, retries=3)
-    # Note(Nakul): We disconnect and reconnect to solve an intermittent issue where the kubernetes python client
+    # Note: We disconnect and reconnect to solve an intermittent issue where the kubernetes python client
     # ends up with an empty api key. This is a temporary fix while we resolve the bug. This solves the issue by
     # reloading the key from the config file a second time which I found out works simply by some trial and error.
     self._disconnect_kubernetes_cluster(cluster_name=cluster_name)
@@ -274,7 +274,7 @@ class AwsService(ProviderInterface):
     else:
       cluster_access_role_arn = self.aws_services.iam_service.get_cluster_access_role_arn(cluster_name)
 
-    # TODO(alexandra): optional role_arn is NOT the role ARN used to create the cluster
+    # TODO: optional role_arn is NOT the role ARN used to create the cluster
     # See Step 2 of https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html
 
     kubeconfig = self.services.resource_service.load_yaml("eks", "kubeconfig.yml")
