@@ -34,7 +34,7 @@ KUBESYSTEM_NAMESPACE = "kube-system"
 NVIDIA_DEVICE_PLUGIN_URL = "https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.9.0/nvidia-device-plugin.yml"
 
 
-# NOTE(dan): monkeypatch for containerd not naming all images (?)
+# NOTE: monkeypatch for containerd not naming all images (?)
 # https://github.com/kubernetes-client/python/issues/895#issuecomment-515025300
 # pylint: disable=all
 def names(self, names):
@@ -164,7 +164,7 @@ class KubernetesService(Service):
       else:
         raise
 
-  # TODO(alexandra): control how logs are displayed, should this be sent to stdout by subprocess or by the CLI?
+  # TODO: control how logs are displayed, should this be sent to stdout by subprocess or by the CLI?
   def logs(self, pod_name, follow=False):
     if follow:
       watcher = watch.Watch()
@@ -292,7 +292,7 @@ class KubernetesService(Service):
       self._ensure_plugin_fp(nvidia_plugin_fp, namespace=KUBESYSTEM_NAMESPACE)
     self.ensure_orchestrate_namespace()
     self._ensure_plugin("orchestrate-controller-roles.yml", namespace=ORCHESTRATE_NAMESPACE)
-    # NOTE(taylor): disabled until remote image builds are working (consistently)
+    # NOTE: disabled until remote image builds are working (consistently)
     self.ensure_docker_plugin(
       resources=dict(
         requests=dict(

@@ -19,7 +19,7 @@ class JsonBuffer:
     if not parts:
       return []
     if parts[-1] and parts[-1][-1] != "\n":
-      # NOTE(taylor): the last line is not a whole line and should be buffered
+      # NOTE: the last line is not a whole line and should be buffered
       self.buffer = [parts[-1]]
       parts = parts[:-1]
     else:

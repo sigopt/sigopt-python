@@ -65,7 +65,7 @@ class DockerService(Service):
     except TimeoutError as e:
       raise DockerPodTimeoutError(str(e)) from e
     client = docker.DockerClient(
-      # HACK(taylor): DockerClient can't accept the kubernetes proxy url if it doesn't have a port specified, so give it
+      # HACK: DockerClient can't accept the kubernetes proxy url if it doesn't have a port specified, so give it
       # a fake url to initialize
       base_url="tcp://a:1",
       version=DOCKER_TARGET_VERSION,

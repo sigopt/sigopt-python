@@ -41,7 +41,7 @@ class JobStatusService(Service):
       if pod_name not in runs_by_pod:
         runs_by_pod[pod_name] = dict(success=0, failed=0)
 
-      # TODO(patrick): Include active state in output as well
+      # TODO: Include active state in output as well
       if run.state == "failed":
         runs_by_pod[pod_name]["failed"] += 1
       elif run.state != "active":

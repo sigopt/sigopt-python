@@ -68,7 +68,7 @@ def create_run_pod(k8s_settings, run_context):
   }
   env = get_run_pod_env_vars(run_context)
   node_topology_key = "kubernetes.io/hostname"
-  # NOTE(taylor): preference to run on nodes with other runs
+  # NOTE: preference to run on nodes with other runs
   pod_affinities = [
     k8s_client.V1WeightedPodAffinityTerm(
       weight=50,
@@ -87,7 +87,7 @@ def create_run_pod(k8s_settings, run_context):
   experiment_id = run_context.experiment
   if experiment_id:
     labels.update({"experiment": experiment_id})
-    # NOTE(taylor): highest preference to run on nodes with runs in the same experiment
+    # NOTE: highest preference to run on nodes with runs in the same experiment
     pod_affinities.append(
       k8s_client.V1WeightedPodAffinityTerm(
         weight=100,
@@ -106,13 +106,13 @@ def create_run_pod(k8s_settings, run_context):
   unacceptable_node_group_types = ["system"]
   requests = k8s_settings.resources.get("requests") or {}
   limits = k8s_settings.resources.get("limits") or {}
-  # NOTE(taylor): Preventing GPU-less jobs from running on GPU nodes forces the cluster autoscaler to scale up
+  # NOTE: Preventing GPU-less jobs from running on GPU nodes forces the cluster autoscaler to scale up
   # CPU nodes. This prevents a situation where the GPU nodes are not scaled down because they are occupied by
   # CPU workloads. The cluster autoscaler does not know that it should create CPU nodes when the GPUs are unused.
-  # TODO(taylor): This could cause unexpected behavior if the cluster has no CPU nodes. Running CPU jobs on GPU
+  # TODO: This could cause unexpected behavior if the cluster has no CPU nodes. Running CPU jobs on GPU
   # nodes could also be an opportunity for more efficient resource utilization, but is avoided for now because the
   # workloads cannot be migrated onto CPU nodes by the cluster autoscaler as mentioned above.
-  # NOTE(taylor): Applying a NoSchedule taint to GPU nodes is another way to achieve this behavior, but does not work as
+  # NOTE: Applying a NoSchedule taint to GPU nodes is another way to achieve this behavior, but does not work as
   # well out of the box with clusters that orchestrate doesn't provision. Applying a PreferNoSchedule
   # taint to GPU nodes does not resolve the workload migration issue when there are no CPU nodes.
   if all(float(group.get("nvidia.com/gpu", 0)) == 0 for group in (requests, limits)):

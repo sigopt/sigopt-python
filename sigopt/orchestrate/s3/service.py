@@ -33,7 +33,7 @@ class AwsS3Service(AwsService):
       ACL="private",
       Bucket=self.orchestrate_bucket_name,
     )
-    # NOTE(taylor): LocationConstraint is required for all regions but us-east-1.
+    # NOTE: LocationConstraint is required for all regions but us-east-1.
     # In us-east-1 create_bucket will fail when LocationConstraint is provided.
     # https://github.com/boto/boto3/issues/125
     if self.region != "us-east-1":

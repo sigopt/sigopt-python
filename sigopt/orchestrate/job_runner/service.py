@@ -183,7 +183,7 @@ class JobRunnerService(Service):
               ],
               "volumes": [
                 {
-                  # NOTE(taylor): the job-info downwardAPI volume allows the controller to link newly created pods
+                  # NOTE: the job-info downwardAPI volume allows the controller to link newly created pods
                   # to the controller job so that the garbage collector will clean up dangling pods
                   "name": job_info_volume_name,
                   "downwardAPI": {

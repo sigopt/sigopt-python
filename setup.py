@@ -18,7 +18,7 @@ if sys.version_info < (3, 6):
     DeprecationWarning,
   )
 
-# NOTE(patrick): We can't `import sigopt.version` directly, because that
+# NOTE: We can't `import sigopt.version` directly, because that
 # will cause us to execute `sigopt/__init__.py`, which may transitively import
 # packages that may not have been installed yet. So jump straight to sigopt/version.py
 # and execute that directly, which should be simple enough that it doesn't import anything

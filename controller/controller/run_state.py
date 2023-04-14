@@ -35,7 +35,7 @@ def get_relevant_state_from_pod_event(event):
   )
 
 
-# NOTE(taylor): this class maintains a local state of the run pod
+# NOTE: this class maintains a local state of the run pod
 # and updates the SigOpt API when there are changes
 class RunState:
   @classmethod

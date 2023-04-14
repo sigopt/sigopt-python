@@ -37,7 +37,7 @@ class StackDeletedException(OrchestrateException):
   pass
 
 
-# NOTE(taylor): Anatomy of VPC addresses
+# NOTE: Anatomy of VPC addresses
 # AWS doesn't support masks smaller than /16
 # ipv4: 192     .168     .0       .0
 # bits: 11000000.10101000.00000000.000000000
@@ -171,7 +171,7 @@ class AwsCloudFormationService(AwsService):
     return sorted(supported_azs)[:az_count]
 
   def get_cidr_block(self, public, az):
-    # NOTE(taylor): ">" = big endian (most significant bit first), "I" = unsigned integer
+    # NOTE: ">" = big endian (most significant bit first), "I" = unsigned integer
     network_i = struct.unpack(">I", socket.inet_aton(VPC_HOST_IP))[0]
     if not public:
       network_i |= 1 << (IP_REMAINING_BITS + IP_AZ_ALLOCATED_BITS)
@@ -236,7 +236,7 @@ class AwsCloudFormationService(AwsService):
     prev_azs = None
     if stack:
       prev_parameters = {p["ParameterKey"]: p["ParameterValue"] for p in stack.parameters}
-      # NOTE(taylor): Changing availability zones is extremely complicated, maybe even impossible without creating a new
+      # NOTE: Changing availability zones is extremely complicated, maybe even impossible without creating a new
       # cluster. This is because the EKS cluster is created with specific subnets that can't be modified.
       prev_azs = (prev_parameters["AZ01"], prev_parameters["AZ02"])
 
@@ -368,7 +368,7 @@ class AwsCloudFormationService(AwsService):
     stack = self.cloudformation.Stack(stack_name_or_id)
     return _call_boto_with_backoff(lambda: stack.stack_status)()
 
-  # NOTE(taylor): if the stack was deleted then describe_stack_events raises a Throttling error.
+  # NOTE: if the stack was deleted then describe_stack_events raises a Throttling error.
   # We need to make sure a new error gets raised to indicate that the resource does not exist anymore.
   def _describe_stack_events_page(self, StackName, **kwargs):
     try:
@@ -450,7 +450,7 @@ class AwsCloudFormationService(AwsService):
     try:
       self.watch_stack_events(stack_name, event_handler, after=after, failures=failures)
     except KeyboardInterrupt as ke:
-      # NOTE(taylor): surface any creation errors with a keyboard interrupt,
+      # NOTE: surface any creation errors with a keyboard interrupt,
       # since the user might have interrupted the command after observing resources being deleted
       maybe_raise_failures(failures, ke)
     maybe_raise_failures(failures, None)
