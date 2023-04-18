@@ -8,13 +8,13 @@ _NO_ARG = object()
 
 
 class BoundApiResource(object):
-  def __init__(self, resource, id, path):
+  def __init__(self, resource, id_, path):
     self._resource = resource
-    self._id = id
+    self._id = id_
 
     self._base_path = list(path)
-    if id is not _NO_ARG:
-      self._base_path.append(id)
+    if id_ is not _NO_ARG:
+      self._base_path.append(id_)
 
   def get_bound_entity(self, name):
     endpoint = self._resource._endpoints.get(name)
@@ -45,9 +45,9 @@ class PartiallyBoundApiResource(object):
     self._resource = resource
     self._bound_parent_resource = bound_parent_resource
 
-  def __call__(self, id=_NO_ARG):
+  def __call__(self, id_=_NO_ARG):
     path = self._bound_parent_resource._base_path + [self._resource._name]
-    return BoundApiResource(self._resource, id, path)
+    return BoundApiResource(self._resource, id_, path)
 
 
 class BaseApiResource(object):
@@ -59,8 +59,8 @@ class BaseApiResource(object):
 
     self._sub_resources = dict(((resource._name, resource) for resource in resources)) if resources else {}
 
-  def __call__(self, id=_NO_ARG):
-    return BoundApiResource(self, id, [self._name])
+  def __call__(self, id_=_NO_ARG):
+    return BoundApiResource(self, id_, [self._name])
 
 
 class ApiResource(BaseApiResource):

@@ -26,8 +26,8 @@ class MapOf(object):
     return d
 
 
-def DictField(name, type=str):
-  return lambda value: type(value[name])
+def DictField(name, type_=str):
+  return lambda value: type_(value[name])
 
 
 Any = lambda x: x

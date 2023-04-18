@@ -18,7 +18,6 @@ disable=
   no-self-use,
   no-value-for-parameter,
   protected-access,
-  redefined-builtin,
   redefined-outer-name,
   superfluous-parens,
   too-few-public-methods,

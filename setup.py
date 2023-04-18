@@ -4,7 +4,6 @@
 import os
 import sys
 import warnings
-from codecs import open
 
 from setuptools import find_packages, setup
 

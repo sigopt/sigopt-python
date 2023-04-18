@@ -77,7 +77,7 @@ class BaseRunContext(object):
   def _log_metrics(self, metrics):
     raise NotImplementedError
 
-  def _log_model(self, type):
+  def _log_model(self, type_):
     raise NotImplementedError
 
   def _log_source_code(self, source_code):
@@ -214,18 +214,18 @@ class BaseRunContext(object):
       metric_logs[name] = {"value": sanitize_number("metric", name, value)}
     self._log_metrics(metric_logs)
 
-  def log_model(self, type=None):
+  def log_model(self, type_=None):
     """
-        sigopt.log_model(type=None)
+        sigopt.log_model(type_=None)
           Logs information about your model.
           This will be converted to a string before it is tracked.
-        type: object
-          The model object being tracked, or a string representing the type of model.
+        type_: object
+          The model object being tracked, or a string representing the type_ of model.
           The str builtin will be used to convert your model to a string.
         """
-    if type is not None:
-      type = str(type)
-    self._log_model(type)
+    if type_ is not None:
+      type_ = str(type_)
+    self._log_model(type_)
 
   def log_source_code(self, **source_code):
     self._log_source_code(source_code)
@@ -359,7 +359,7 @@ class RunContext(BaseRunContext):
   def __enter__(self):
     return self
 
-  def __exit__(self, type, value, tb):
+  def __exit__(self, type_, value, tb):
     self._end(exception=value)
 
   def _end(self, exception):
@@ -434,8 +434,8 @@ class RunContext(BaseRunContext):
     return metrics
 
   @updates("model")
-  def _log_model(self, type):
-    return remove_nones({"type": type})
+  def _log_model(self, type_):
+    return remove_nones({"type": type_})
 
   @updates("source_code")
   def _log_source_code(self, source_code):
