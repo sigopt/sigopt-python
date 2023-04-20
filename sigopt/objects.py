@@ -461,11 +461,13 @@ class TrainingMonitor(ApiObject):
   max_checkpoints = Field(int)
   early_stopping_criteria = Field(ListOf(TrainingEarlyStoppingCriteria))
 
+
 class ExperimentTag(ApiObject):
   name = Field(str)
   created_by = Field(int)
   last_used = Field(int)
-  
+
+
 class Experiment(ApiObject):
   budget = Field(float)
   can_be_deleted = DeprecatedField(bool)
