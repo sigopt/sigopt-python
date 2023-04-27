@@ -1,8 +1,9 @@
 name: SigOpt Python tests
 run-name: ${{ github.actor }} is testing ${{ github.repository }}@${{ github.ref }}
 on:
-  - cron: "0 8,16 * * *"
-  - push
+  push: {}
+  schedule:
+    - cron: "0 8,16 * * *"
 jobs:
   pytest:
     runs-on: ubuntu-latest
