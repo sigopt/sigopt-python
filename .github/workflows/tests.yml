@@ -5,6 +5,8 @@ on:
 jobs:
   test-cli:
     runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -19,6 +21,8 @@ jobs:
       - run: pytest -rw -v test/client
   test-orchestrate:
     runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
