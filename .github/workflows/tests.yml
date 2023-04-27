@@ -47,5 +47,5 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: pip install -r requirements-dev.txt
+      - run: pip install '.[dev]'
       - run: pre-commit run pylint --all-files
