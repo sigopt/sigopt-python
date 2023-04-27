@@ -13,6 +13,13 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+        test-suite:
+          - cli
+          - client
+          - orchestrate
+          - runs
+          - validate
+          - xgboost
     env:
       AWS_DEFAULT_REGION: us-east-1
     steps:
@@ -23,7 +30,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install '.[dev]' -r requirements-dev.txt
-      - run: pytest -rw -v test
+      - run: pytest -rw -v test/${{ matrix.test-suite }}
   pylint:
     runs-on: ubuntu-latest
     steps:
