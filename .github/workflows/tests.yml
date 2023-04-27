@@ -3,10 +3,10 @@ run-name: ${{ github.actor }} is testing ${{ github.repository }}@${{ github.ref
 on:
   - push
 jobs:
-  test-cli:
+  pytest:
     runs-on: ubuntu-latest
     strategy:
-      matrix: &python-version-matrix
+      matrix:
         python-version:
           - "3.7"
           - "3.8"
@@ -16,58 +16,14 @@ jobs:
     env:
       AWS_DEFAULT_REGION: us-east-1
     steps:
-      - &checkout-code
-        name: Check out repository code
+      - name: Check out repository code
         uses: actions/checkout@v3
-      - &set-up-python
-        name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/set-up-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install '.[orchestrate]' -r requirements-dev.txt
-      - run: pytest -rw -v test/cli
-  test-client:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        <<: *python-version-matrix
-    steps:
-      - <<: *checkout-code
-      - <<: *set-up-python
-      - run: pip install . -r requirements-dev.txt
-      - run: pytest -rw -v test/client
-  test-orchestrate:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        <<: *python-version-matrix
-    env:
-      AWS_DEFAULT_REGION: us-east-1
-    steps:
-      - <<: *checkout-code
-      - <<: *set-up-python
-      - run: pip install '.[orchestrate]' -r requirements-dev.txt
-      - run: pytest -rw -v test/orchestrate
-  test-runs:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        <<: *python-version-matrix
-    steps:
-      - <<: *checkout-code
-      - <<: *set-up-python
-      - run: pip install . -r requirements-dev.txt
-      - run: pytest -rw -v test/runs test/validate
-  test-xgboost:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        <<: *python-version-matrix
-    steps:
-      - <<: *checkout-code
-      - <<: *set-up-python
-      - run: pip install '.[xgboost]' -r requirements-dev.txt
-      - run: pytest -rw -v test/xgboost
+      - run: pip install '.[dev]' -r requirements-dev.txt
+      - run: pytest -rw -v test
   pylint:
     runs-on: ubuntu-latest
     steps:
