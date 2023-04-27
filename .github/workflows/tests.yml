@@ -5,41 +5,67 @@ on:
 jobs:
   test-cli:
     runs-on: ubuntu-latest
+    strategy:
+      matrix: &python-version-matrix
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
     env:
       AWS_DEFAULT_REGION: us-east-1
     steps:
-      - name: Check out repository code
+      - &checkout-code
+        name: Check out repository code
         uses: actions/checkout@v3
+      - &set-up-python
+        name: Set up Python ${{ matrix.python-version }}
+        uses: actions/set-up-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
       - run: pip install '.[orchestrate]' -r requirements-dev.txt
       - run: pytest -rw -v test/cli
   test-client:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        <<: *python-version-matrix
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
+      - <<: *checkout-code
+      - <<: *set-up-python
       - run: pip install . -r requirements-dev.txt
       - run: pytest -rw -v test/client
   test-orchestrate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        <<: *python-version-matrix
     env:
       AWS_DEFAULT_REGION: us-east-1
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
+      - <<: *checkout-code
+      - <<: *set-up-python
       - run: pip install '.[orchestrate]' -r requirements-dev.txt
       - run: pytest -rw -v test/orchestrate
   test-runs:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        <<: *python-version-matrix
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
+      - <<: *checkout-code
+      - <<: *set-up-python
       - run: pip install . -r requirements-dev.txt
       - run: pytest -rw -v test/runs test/validate
   test-xgboost:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        <<: *python-version-matrix
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
+      - <<: *checkout-code
+      - <<: *set-up-python
       - run: pip install '.[xgboost]' -r requirements-dev.txt
       - run: pytest -rw -v test/xgboost
   pylint:
