@@ -1,0 +1,58 @@
+name: SigOpt Python tests
+run-name: ${{ github.actor }} is testing ${{ github.repository }}@${{ github.ref }}
+on:
+  - push
+jobs:
+  test-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: pip install '.[orchestrate]' -r requirements-dev.txt
+      - run: pytest -rw -v test/cli
+  test-client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: pip install . -r requirements-dev.txt
+      - run: pytest -rw -v test/client
+  test-orchestrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: pip install '.[orchestrate]' -r requirements-dev.txt
+      - run: pytest -rw -v test/orchestrate
+  test-runs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: pip install . -r requirements-dev.txt
+      - run: pytest -rw -v test/runs test/validate
+  test-xgboost:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: pip install '.[xgboost]' -r requirements-dev.txt
+      - run: pytest -rw -v test/xgboost
+  pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: pip install -r requirements-dev.txt
+      - run: pre-commit run pylint --all-files
+  tutorial:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: sudo apt-get update -y
+      - run: sudo apt-get install -y expect
+      - run: echo 'export TEST_ACCOUNT_API_TOKEN=$TEST_ACCOUNT_API_TOKEN' >> $BASH_ENV
+      - run: pip install sigopt xgboost scikit-learn
+      - run: ./ci/tutorial/sigopt_config.exp
+      - run: env SIGOPT_PROJECT=my_first_project sigopt run python ./ci/tutorial/model.py
