@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install --upgrade pip
-      - run: pip install '.[dev]'
+      - run: pip install -e '.[dev]'
       - run: pytest -rw -v test/${{ matrix.test-suite }}
   pylint:
     runs-on: ubuntu-latest
