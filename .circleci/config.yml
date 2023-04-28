@@ -1,53 +1,6 @@
 version: 2.1
 
-variables:
-  python-versions: &python-versions ["3.10", "3.9", "3.8", "3.7"]
-
-orbs:
-  slack: circleci/slack@4.4.4
-
-slack-fail-post-step: &slack-fail-post-step
-  - slack/notify:
-      branch_pattern: main
-      channel: sigopt-platform-ci
-      event: fail
-      template: basic_fail_1
-
 commands:
-  setup:
-    steps:
-      - checkout
-      - run: sudo pip install --upgrade pip setuptools
-  test-cli:
-    steps:
-      - setup
-      - run: pip install -e '.[orchestrate]' -r requirements-dev.txt
-      - run: pytest -rw -v test/cli
-  test-client:
-    steps:
-      - setup
-      - run: pip install -e . -r requirements-dev.txt
-      - run: pytest -rw -v test/client
-  test-orchestrate:
-    steps:
-      - setup
-      - run: pip install -e '.[orchestrate]' -r requirements-dev.txt
-      - run: pytest -rw -v test/orchestrate
-  test-runs:
-    steps:
-      - setup
-      - run: pip install -e '.' -r requirements-dev.txt
-      - run: pytest -rw -v test/runs test/validate
-  test-xgboost:
-    steps:
-      - setup
-      - run: pip install -e '.[xgboost]' -r requirements-dev.txt
-      - run: pytest -rw -v test/xgboost
-  pylint:
-    steps:
-      - setup
-      - run: pip install -e '.[dev]'
-      - run: pre-commit run pylint --all-files
   tutorial:
     steps:
       - checkout
@@ -61,52 +14,6 @@ commands:
       - run: sigopt run python ./ci/tutorial/model.py
 
 jobs:
-  pylint:
-    docker:
-      - image: circleci/python:3.10
-    steps:
-      - pylint
-  test-cli:
-    parameters:
-      python-version: &python-version-param
-        type: enum
-        enum: *python-versions
-    docker:
-      - image: circleci/python:<< parameters.python-version >>
-    steps:
-      - test-cli
-  test-client:
-    parameters:
-      python-version:
-        <<: *python-version-param
-    docker:
-      - image: circleci/python:<< parameters.python-version >>
-    steps:
-      - test-client
-  test-orchestrate:
-    parameters:
-      python-version:
-        <<: *python-version-param
-    docker:
-      - image: circleci/python:<< parameters.python-version >>
-    steps:
-      - test-orchestrate
-  test-runs:
-    parameters:
-      python-version:
-        <<: *python-version-param
-    docker:
-      - image: circleci/python:<< parameters.python-version >>
-    steps:
-      - test-runs
-  test-xgboost:
-    parameters:
-      python-version:
-        <<: *python-version-param
-    docker:
-      - image: circleci/python:<< parameters.python-version >>
-    steps:
-      - test-xgboost
   tutorial:
      parameters:
        TEST_ACCOUNT_API_TOKEN:
@@ -117,57 +24,7 @@ jobs:
      steps:
        - tutorial
 
-  final-catch-all:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: Success
-          command: exit 0
-
 workflows:
   main:
     jobs: &jobs
-      - test-cli:
-          matrix:
-            parameters:
-              python-version: *python-versions
-      - test-client:
-          matrix:
-            parameters:
-              python-version: *python-versions
-      - test-orchestrate:
-          matrix:
-            parameters:
-              python-version: *python-versions
-      - test-runs:
-          matrix:
-            parameters:
-              python-version: *python-versions
-      - test-xgboost:
-          matrix:
-            parameters:
-              python-version: *python-versions
-      - pylint
       - tutorial
-      - final-catch-all:
-          context: slack-secret
-          requires:
-            - test-cli
-            - test-client
-            - test-orchestrate
-            - test-runs
-            - test-xgboost
-            - pylint
-            - tutorial
-          post-steps: *slack-fail-post-step
-
-  rot-check:
-    jobs: *jobs
-    triggers:
-      - schedule:
-          cron: "0 8,16 * * *"
-          filters:
-            branches:
-              only:
-                - main

@@ -1,0 +1,41 @@
+name: SigOpt Python tests
+run-name: ${{ github.actor }} is testing ${{ github.repository }}@${{ github.ref }}
+on:
+  push: {}
+  schedule:
+    - cron: "0 8,16 * * *"
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+        test-suite:
+          - cli
+          - client
+          - orchestrate
+          - runs
+          - validate
+          - xgboost
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install '.[orchestrate,xgboost]' -r requirements-dev.txt
+      - run: pytest -rw -v test/${{ matrix.test-suite }}
+  pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: pip install '.[dev]'
+      - run: pre-commit run pylint --all-files
