@@ -23,6 +23,7 @@ jobs:
           sudo apt-get update -yqq && sudo apt-get install -yqq \
             docker-ce-cli=5:20.10.23~3-0~ubuntu-focal \
             docker-compose-plugin=2.16.0-1~ubuntu.20.04~focal
+      - run: echo '127.0.0.1 sigopt.ninja' | sudo tee -a /etc/hosts
       - run: git clone https://github.com/sigopt/sigopt-server ../sigopt-server
       - run: |
           cd ../sigopt-server
@@ -32,7 +33,7 @@ jobs:
       - run: |
           EMAIL="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  email:' | awk -F': ' '{ print $2 }')"
           PASSWORD="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  password:' | awk -F': ' '{ print $2 }')"
-          curl -fk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}'
+          curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}'
       - run: pip install '.[dev]'
       - run: apt-get update && apt-get -y install default-jre
       - run: hyperopt-mongo-worker --mongo=mongodb:27017/foo_db --poll-interval=0.1 --max-consecutive-failures=100000 &>/dev/null &
@@ -57,6 +58,7 @@ jobs:
           sudo apt-get update -yqq && sudo apt-get install -yqq \
             docker-ce-cli=5:20.10.23~3-0~ubuntu-focal \
             docker-compose-plugin=2.16.0-1~ubuntu.20.04~focal
+      - run: echo '127.0.0.1 sigopt.ninja' | sudo tee -a /etc/hosts
       - run: git clone https://github.com/sigopt/sigopt-server ../sigopt-server
       - run: |
           cd ../sigopt-server
@@ -66,7 +68,7 @@ jobs:
       - run: |
           EMAIL="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  email:' | awk -F': ' '{ print $2 }')"
           PASSWORD="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  password:' | awk -F': ' '{ print $2 }')"
-          curl -fk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}'
+          curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}'
       - run: pip install '.[xgboost]' scikit-learn
       - run: ./ci/tutorial/sigopt_config.exp
       - run: sigopt run python ./ci/tutorial/model.py
