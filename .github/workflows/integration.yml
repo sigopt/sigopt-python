@@ -23,9 +23,10 @@ jobs:
           sudo apt-get update -yqq && sudo apt-get install -yqq \
             docker-ce-cli=5:20.10.23~3-0~ubuntu-focal \
             docker-compose-plugin=2.16.0-1~ubuntu.20.04~focal
-      - run: git clone https://github.com/sigopt/sigopt-server@main ../sigopt-server
+      - run: git clone https://github.com/sigopt/sigopt-server ../sigopt-server
       - run: |
           cd ../sigopt-server
+          git checkout main
           EDITOR=true ./setup.sh | tee setup_output.log
           ./start.sh &
       - run: |
@@ -56,9 +57,10 @@ jobs:
           sudo apt-get update -yqq && sudo apt-get install -yqq \
             docker-ce-cli=5:20.10.23~3-0~ubuntu-focal \
             docker-compose-plugin=2.16.0-1~ubuntu.20.04~focal
-      - run: git clone https://github.com/sigopt/sigopt-server@main ../sigopt-server
+      - run: git clone https://github.com/sigopt/sigopt-server ../sigopt-server
       - run: |
           cd ../sigopt-server
+          git checkout main
           EDITOR=true ./setup.sh | tee setup_output.log
           ./start.sh &
       - run: |
