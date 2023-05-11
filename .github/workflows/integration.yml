@@ -68,6 +68,8 @@ jobs:
       - run: |
           EMAIL="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  email:' | awk -F': ' '{ print $2 }')"
           PASSWORD="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  password:' | awk -F': ' '{ print $2 }')"
+          echo email "$EMAIL"
+          echo password "$PASSWORD"
           curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}'
       - run: pip install '.[xgboost]' scikit-learn
       - run: ./ci/tutorial/sigopt_config.exp
