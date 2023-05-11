@@ -35,7 +35,7 @@ jobs:
           PASSWORD="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  password:' | awk -F': ' '{ print $2 }')"
           curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}'
       - run: pip install '.[dev]'
-      - run: apt-get update && apt-get -y install default-jre
+      - run: sudo apt-get update && sudo apt-get -y install default-jre
       - run: hyperopt-mongo-worker --mongo=mongodb:27017/foo_db --poll-interval=0.1 --max-consecutive-failures=100000 &>/dev/null &
       - run: sigopt create project
       - name: Integration tests
