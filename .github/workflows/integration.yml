@@ -77,5 +77,6 @@ jobs:
           curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}' | \
             jq -r .api_token.token >sigopt_api_token.txt
       - run: pip install '.[xgboost]' scikit-learn
+      - run: env SIGOPT_API_TOKEN="$(cat sigopt_api_token.txt)" sigopt create project
       - run: env TEST_ACCOUNT_API_TOKEN="$(cat sigopt_api_token.txt)" ./ci/tutorial/sigopt_config.exp
       - run: sigopt run python ./ci/tutorial/model.py
