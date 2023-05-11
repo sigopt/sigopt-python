@@ -58,6 +58,7 @@ jobs:
           sudo apt-get update -yqq && sudo apt-get install -yqq \
             docker-ce-cli=5:20.10.23~3-0~ubuntu-focal \
             docker-compose-plugin=2.16.0-1~ubuntu.20.04~focal
+      - run: sudo apt-get install -yqq expect
       - run: echo '127.0.0.1 sigopt.ninja' | sudo tee -a /etc/hosts
       - run: git clone https://github.com/sigopt/sigopt-server ../sigopt-server
       - run: |
@@ -68,8 +69,6 @@ jobs:
       - run: |
           EMAIL="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  email:' | awk -F': ' '{ print $2 }')"
           PASSWORD="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  password:' | awk -F': ' '{ print $2 }')"
-          echo email "$EMAIL"
-          echo password "$PASSWORD"
           curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}'
       - run: pip install '.[xgboost]' scikit-learn
       - run: ./ci/tutorial/sigopt_config.exp
