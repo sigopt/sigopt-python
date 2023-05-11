@@ -10,6 +10,7 @@ jobs:
     env:
       SIGOPT_PROJECT: integration-test
       SIGOPT_API_URL: https://sigopt.ninja:4443/api
+      SIGOPT_API_VERIFY_SSL_CERTS: /home/runner/work/sigopt-python/sigopt-server/artifacts/tls/root-ca.crt
     steps:
       - run: pwd
       - name: Check out repository code
@@ -48,6 +49,7 @@ jobs:
     env:
       SIGOPT_PROJECT: tutorial
       SIGOPT_API_URL: https://sigopt.ninja:4443/api
+      SIGOPT_API_VERIFY_SSL_CERTS: /home/runner/work/sigopt-python/sigopt-server/artifacts/tls/root-ca.crt
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
