@@ -11,6 +11,7 @@ jobs:
       SIGOPT_PROJECT: integration-test
       SIGOPT_API_URL: https://sigopt.ninja:4443/api
     steps:
+      - run: pwd
       - name: Check out repository code
         uses: actions/checkout@v3
       - run: sudo mkdir -p /etc/apt/keyrings
