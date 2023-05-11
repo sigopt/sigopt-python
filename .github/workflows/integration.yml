@@ -35,13 +35,13 @@ jobs:
           EMAIL="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  email:' | awk -F': ' '{ print $2 }')"
           PASSWORD="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  password:' | awk -F': ' '{ print $2 }')"
           curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}' | \
-            jq -r .api_token.token
+            jq -r .api_token.token >sigopt_api_token.txt
       - run: pip install '.[dev]'
       - run: sudo apt-get update && sudo apt-get -y install default-jre
       - run: hyperopt-mongo-worker --mongo=mongodb:27017/foo_db --poll-interval=0.1 --max-consecutive-failures=100000 &>/dev/null &
-      - run: sigopt create project
+      - run: env SIGOPT_API_TOKEN="$(cat sigopt_api_token.txt)" sigopt create project
       - name: Integration tests
-        run: pytest -rw -v integration_test/
+        run: env SIGOPT_API_TOKEN="$(cat sigopt_api_token.txt)" pytest -rw -v integration_test/
   tutorial:
     runs-on: ubuntu-latest
     env:
@@ -72,7 +72,8 @@ jobs:
       - run: |
           EMAIL="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  email:' | awk -F': ' '{ print $2 }')"
           PASSWORD="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  password:' | awk -F': ' '{ print $2 }')"
-          curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}'
+          curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}' | \
+            jq -r .api_token.token >sigopt_api_token.txt
       - run: pip install '.[xgboost]' scikit-learn
-      - run: ./ci/tutorial/sigopt_config.exp
+      - run: env TEST_ACCOUNT_API_TOKEN="$(cat sigopt_api_token.txt)" ./ci/tutorial/sigopt_config.exp
       - run: sigopt run python ./ci/tutorial/model.py
