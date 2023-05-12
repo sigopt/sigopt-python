@@ -35,6 +35,7 @@ jobs:
       - run: |
           EMAIL="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  email:' | awk -F': ' '{ print $2 }')"
           PASSWORD="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  password:' | awk -F': ' '{ print $2 }')"
+          curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}'
           curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}' | \
             jq -r .api_token.token >sigopt_api_token.txt
       - run: pip install '.[dev]'
