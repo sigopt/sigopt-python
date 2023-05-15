@@ -41,7 +41,7 @@ class TestHyperopt(object):
   def run_fmin(self, online=True, upload=True, objective=objective_success, max_evals=3, wrap=None, **kwargs):
     project = "hyperopt-integration-test"
     if wrap == "mongo":
-      trials = MongoTrials("mongo://mongodb:27017/foo_db/jobs", exp_key=str(uuid.uuid4()))
+      trials = MongoTrials("mongo://localhost:27017/foo_db/jobs", exp_key=str(uuid.uuid4()))
     elif wrap == "spark":
       trials = SparkTrials()
     else:
