@@ -33,7 +33,6 @@ jobs:
           EDITOR=true ./setup.sh | tee setup_output.log
           docker compose up -d mongodb
           ./start.sh &
-          ./ci/wait_for url "$SIGOPT_API_URL/health"
       - run: |
           cd ../sigopt-server
           ./ci/wait_for.sh url "$SIGOPT_API_URL/health"
