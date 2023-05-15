@@ -31,6 +31,7 @@ jobs:
           cd ../sigopt-server
           git checkout main
           EDITOR=true ./setup.sh | tee setup_output.log
+          docker compose up -d mongodb
           ./start.sh &
       - run: |
           EMAIL="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  email:' | awk -F': ' '{ print $2 }')"
