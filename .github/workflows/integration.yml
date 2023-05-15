@@ -38,7 +38,7 @@ jobs:
           curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}' | \
             jq -r .api_token.token >sigopt_user_token.txt
           curl -fsk --user "$(cat sigopt_user_token.txt):" https://sigopt.ninja:4443/api/v1/clients/1/tokens | \
-            jq -r '.data | select(.token_type = "client-api") | .token' >sigopt_api_token.txt
+            jq -r '.data[] | select(.token_type == "client-api") | .token' >sigopt_api_token.txt
           curl -fk --user "$(cat sigopt_api_token.txt):" https://sigopt.ninja:4443/api/v1/tokens/self
       - run: pip install '.[dev]'
       - run: sudo apt-get update && sudo apt-get -y install default-jre
