@@ -8,7 +8,7 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
     env:
-      SIGOPT_PROJECT: integration-test
+      SIGOPT_PROJECT: hyperopt-integration-test
       SIGOPT_API_URL: https://sigopt.ninja:4443/api
       SIGOPT_API_VERIFY_SSL_CERTS: /home/runner/work/sigopt-python/sigopt-server/artifacts/tls/root-ca.crt
     steps:
