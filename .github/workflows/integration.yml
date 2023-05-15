@@ -37,9 +37,10 @@ jobs:
           PASSWORD="$(tail -n 2 ../sigopt-server/setup_output.log | grep -E '^  password:' | awk -F': ' '{ print $2 }')"
           curl -fsk -XPOST https://sigopt.ninja:4443/api/v1/sessions -d '{"email": "'"$EMAIL"'", "password": "'"$PASSWORD"'"}' | \
             jq -r .api_token.token >sigopt_user_token.txt
+          curl -fsk --user "$(cat sigopt_user_token.txt):" https://sigopt.ninja:4443/api/v1/clients/1/tokens
           curl -fsk -XPOST --user "$(cat sigopt_user_token.txt):" https://sigopt.ninja:4443/api/v1/clients/1/tokens | \
             jq -r .token >sigopt_api_token.txt
-          curl -fk -XPOST --user "$(cat sigopt_api_token.txt):" https://sigopt.ninja:4443/api/v1/tokens/self
+          curl -fk --user "$(cat sigopt_api_token.txt):" https://sigopt.ninja:4443/api/v1/tokens/self
       - run: pip install '.[dev]'
       - run: sudo apt-get update && sudo apt-get -y install default-jre
       - run: hyperopt-mongo-worker --mongo=mongodb:27017/foo_db --poll-interval=0.1 --max-consecutive-failures=100000 &>/dev/null &
