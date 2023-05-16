@@ -44,7 +44,7 @@ jobs:
             jq -r '.data[] | select(.token_type == "client-api") | .token' >sigopt_api_token.txt
       - run: pip install '.[dev]'
       - run: sudo apt-get update && sudo apt-get -y install default-jre
-      - run: docker run -p 27017:27017 -d mongodb:5.0.6
+      - run: docker run -p 27017:27017 -d mongo:5.0.6
       - run: hyperopt-mongo-worker --mongo=localhost:27017/foo_db --poll-interval=0.1 --max-consecutive-failures=100000 &>/dev/null &
       - run: env SIGOPT_API_TOKEN="$(cat sigopt_api_token.txt)" sigopt create project
       - name: Integration tests
