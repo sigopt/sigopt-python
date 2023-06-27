@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 
 ![pre-commit.ci status](https://results.pre-commit.ci/badge/github/sigopt/sigopt-python/main.svg)
 ![integration](https://github.com/sigopt/sigopt-python/actions/workflows/integration.yml/badge.svg)
-![tests](https://github.com/sigopt/sigopt-server/actions/workflows/tests.yml/badge.svg)
+![tests](https://github.com/sigopt/sigopt-python/actions/workflows/tests.yml/badge.svg)
 
 # SigOpt Python API
 
