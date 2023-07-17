@@ -36,6 +36,7 @@ with open(os.path.join(here, "requirements-dev.txt")) as requirements_dev_fp:
 orchestrate_install_requires = [
   "Pint>=0.16.0,<0.17.0",
   "boto3>=1.16.34,<2.0.0",
+  "certifi>=2022.12.7",
   "docker>=4.4.0,<5.0.0",
   "kubernetes>=12.0.1,<13.0.0",
   "pyOpenSSL>=20.0.0",
