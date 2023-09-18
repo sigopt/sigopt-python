@@ -9,6 +9,7 @@ from .objects import (
   Checkpoint,
   Client,
   Experiment,
+  ExperimentTag,
   Importances,
   MetricImportances,
   Observation,
@@ -163,6 +164,20 @@ class ConnectionImpl(object):
       ],
     )
 
+    client_experiment_tags = ApiResource(
+      self,
+      "experiment_tags",
+      endpoints=[
+        ApiEndpoint(
+          None,
+          object_or_paginated_objects(ExperimentTag),
+          "GET",
+          "fetch",
+        ),
+        ApiEndpoint(None, ExperimentTag, "DELETE", "delete"),
+      ],
+    )
+
     aiexperiment_training_runs = ApiResource(
       self,
       "training_runs",
@@ -258,6 +273,7 @@ class ConnectionImpl(object):
       resources=[
         client_experiments,
         client_projects,
+        client_experiment_tags,
       ],
     )
 

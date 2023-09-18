@@ -462,6 +462,12 @@ class TrainingMonitor(ApiObject):
   early_stopping_criteria = Field(ListOf(TrainingEarlyStoppingCriteria))
 
 
+class ExperimentTag(ApiObject):
+  name = Field(str)
+  created_by = Field(int)
+  last_used = Field(int)
+
+
 class Experiment(ApiObject):
   budget = Field(float)
   can_be_deleted = DeprecatedField(bool)
@@ -487,6 +493,7 @@ class Experiment(ApiObject):
   progress = Field(Progress)
   project = Field(str)
   state = Field(str)
+  tags = Field(ListOf(str))
   tasks = Field(ListOf(Task))
   training_monitor = Field(TrainingMonitor)
   type = Field(str)
