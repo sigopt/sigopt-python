@@ -1,4 +1,5 @@
 name: integration tests
+permissions: read-all
 run-name: Integration tests for ${{ github.repository }}@${{ github.ref }}
 on:
   push: {}

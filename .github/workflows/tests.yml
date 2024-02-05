@@ -1,4 +1,5 @@
 name: SigOpt Python tests
+permissions: read-all
 run-name: ${{ github.actor }} is testing ${{ github.repository }}@${{ github.ref }}
 on:
   push: {}
