@@ -7,11 +7,11 @@ notebook
 numpy>=1.15.0,<2.0.0
 Pillow
 pre-commit>=2.5.2,<3
-pylint==2.9.6
-pymongo==3.12.3
+pylint==3.0.3
+pymongo==3.13
 pyspark
-pytest==7.2.1
+pytest==7.4.4
 scikit-learn>=0.23.2
 setuptools>=47.3.1
 twine>=3.2.0,<4.0.0
-vulture==2.7
+vulture==2.11
