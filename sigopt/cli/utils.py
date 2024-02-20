@@ -17,6 +17,7 @@ from sigopt.run_context import GlobalRunContext
 from sigopt.sigopt_logging import enable_print_logging, print_logger
 
 from .arguments.load_yaml import ValidatedData
+from security import safe_command
 
 
 class StreamThread(threading.Thread):
@@ -80,8 +81,7 @@ def run_subprocess_command(config, run_context, cmd, env=None):
   env = get_subprocess_environment(config, run_context, env)
   proc_stdout, proc_stderr = subprocess.PIPE, subprocess.PIPE
   try:
-    proc = subprocess.Popen(
-      cmd,
+    proc = safe_command.run(subprocess.Popen, cmd,
       env=env,
       stdout=proc_stdout,
       stderr=proc_stderr,
