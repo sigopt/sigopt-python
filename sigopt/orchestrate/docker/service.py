@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 import re
+import secrets
 import string
 import sys
 from collections import namedtuple
@@ -14,7 +15,6 @@ import urllib3
 from ..exceptions import ModelPackingError, OrchestrateException
 from ..json_stream import json_stream
 from ..services.base import Service
-import secrets
 
 
 DOCKER_TARGET_VERSION = "1.41"
@@ -124,7 +124,8 @@ class DockerService(Service):
       dockerfile = dockerfile_name
     try:
       tag = tag or (
-        "sigopt-temp:" + "".join(secrets.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(8))  # nosec
+        "sigopt-temp:"
+        + "".join(secrets.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(8))  # nosec
       )
       if quiet:
         self.client.images.build(

@@ -1,12 +1,12 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+import secrets
 import sys
 import time
 from enum import Enum
 from shutil import rmtree
 from tempfile import mkdtemp
-import secrets
 
 
 class TemporaryDirectory(object):

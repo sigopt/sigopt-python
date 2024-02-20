@@ -5,6 +5,7 @@ import base64
 import errno
 import json
 import os
+import secrets
 import shutil
 import tempfile
 import time
@@ -25,7 +26,6 @@ from ..provider.constants import Provider
 from ..services.base import Service
 from ..version import CLI_NAME
 from .http_proxy import KubeProxyHTTPAdapter
-import secrets
 
 
 DEFAULT_NAMESPACE = "default"

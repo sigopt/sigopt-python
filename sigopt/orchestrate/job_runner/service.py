@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: MIT
 import json
 import os
+import secrets
 import string
 
 from ..docker.service import DockerService
 from ..exceptions import OrchestrateException
 from ..services.base import Service
 from ..version import DEFAULT_CONTROLLER_IMAGE
-import secrets
 
 
 def format_k8s_env_vars(env_vars):

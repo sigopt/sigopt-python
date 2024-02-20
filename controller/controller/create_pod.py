@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 import os
+import secrets
 import string
 
 from kubernetes import client as k8s_client
 
 from sigopt.config import Config as SigOptConfig
 from sigopt.run_context import GlobalRunContext
-import secrets
 
 
 RUN_RANDOM_PART_LENGTH = 8
