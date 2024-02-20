@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 import os
-import random
 import string
 
 from kubernetes import client as k8s_client
 
 from sigopt.config import Config as SigOptConfig
 from sigopt.run_context import GlobalRunContext
+import secrets
 
 
 RUN_RANDOM_PART_LENGTH = 8
@@ -55,7 +55,7 @@ def get_run_pod_env_vars(run_context):
 
 
 def random_run_name():
-  return "run-" + "".join(random.choice(RUN_RANDOM_PART_CHARS) for _ in range(RUN_RANDOM_PART_LENGTH))
+  return "run-" + "".join(secrets.SystemRandom().choice(RUN_RANDOM_PART_CHARS) for _ in range(RUN_RANDOM_PART_LENGTH))
 
 
 def create_run_pod(k8s_settings, run_context):

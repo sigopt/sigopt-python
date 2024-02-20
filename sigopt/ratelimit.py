@@ -1,9 +1,9 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import random
 import threading
 import time
+import secrets
 
 
 class _FailedStatusRateLimit(object):
@@ -18,7 +18,7 @@ class _FailedStatusRateLimit(object):
       multiples_over = self.count // self.limit
     if multiples_over:
       quadratic_backoff = multiples_over**2
-      jitter = random.random() * 2
+      jitter = secrets.SystemRandom().random() * 2
       time.sleep(quadratic_backoff + jitter)
 
   def clear(self):

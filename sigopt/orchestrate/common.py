@@ -1,12 +1,12 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-import random
 import sys
 import time
 from enum import Enum
 from shutil import rmtree
 from tempfile import mkdtemp
+import secrets
 
 
 class TemporaryDirectory(object):
@@ -44,7 +44,7 @@ def retry_with_backoff(func):
       try:
         return func(*args, **kwargs)
       except Exception as e:
-        time.sleep(2**i + random.random())  # nosec
+        time.sleep(2**i + secrets.SystemRandom().random())  # nosec
         if i == NUM_RETRIES:
           raise e
 

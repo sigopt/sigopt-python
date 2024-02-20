@@ -5,7 +5,6 @@ import base64
 import errno
 import json
 import os
-import random
 import shutil
 import tempfile
 import time
@@ -26,6 +25,7 @@ from ..provider.constants import Provider
 from ..services.base import Service
 from ..version import CLI_NAME
 from .http_proxy import KubeProxyHTTPAdapter
+import secrets
 
 
 DEFAULT_NAMESPACE = "default"
@@ -230,7 +230,7 @@ class KubernetesService(Service):
         if try_number >= retries:
           raise
         else:
-          time.sleep(random.uniform(20, 40))  # nosec
+          time.sleep(secrets.SystemRandom().uniform(20, 40))  # nosec
 
   def check_nodes_are_ready(self):
     nodes = self.get_nodes().items
@@ -312,7 +312,7 @@ class KubernetesService(Service):
     ca_key.generate_key(crypto.TYPE_RSA, 4096)
     ca_cert = crypto.X509()
     ca_cert.get_subject().CN = "sigopt:docker ca"
-    ca_cert.set_serial_number(random.getrandbits(64))
+    ca_cert.set_serial_number(secrets.SystemRandom().getrandbits(64))
     ca_cert.set_issuer(ca_cert.get_subject())
     ca_cert.set_pubkey(ca_key)
     ca_cert.gmtime_adj_notBefore(0)
@@ -334,7 +334,7 @@ class KubernetesService(Service):
     server_req.set_pubkey(server_key)
     server_req.sign(ca_key, "sha256")
     server_cert = crypto.X509()
-    server_cert.set_serial_number(random.getrandbits(64))
+    server_cert.set_serial_number(secrets.SystemRandom().getrandbits(64))
     server_cert.gmtime_adj_notBefore(0)
     server_cert.gmtime_adj_notAfter(ten_years)
     server_cert.set_issuer(ca_cert.get_subject())

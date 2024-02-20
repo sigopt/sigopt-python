@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: MIT
 import json
 import os
-import random
 import string
 
 from ..docker.service import DockerService
 from ..exceptions import OrchestrateException
 from ..services.base import Service
 from ..version import DEFAULT_CONTROLLER_IMAGE
+import secrets
 
 
 def format_k8s_env_vars(env_vars):
@@ -51,7 +51,7 @@ class JobRunnerService(Service):
       limits["nvidia.com/gpu"] = resource_options.pop("gpus")
 
   def random_id_string(self):
-    return "".join(random.choice(string.ascii_lowercase) for _ in range(8))  # nosec
+    return "".join(secrets.SystemRandom().choice(string.ascii_lowercase) for _ in range(8))  # nosec
 
   def create_sigopt_experiment(self, optimization_options, project_id):
     data = optimization_options.copy()

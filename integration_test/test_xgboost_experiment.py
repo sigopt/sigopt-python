@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MIT
 import copy
 import os
-import random
 
 import pytest
+import secrets
 
 
 os.environ["SIGOPT_PROJECT"] = "dev-sigopt-xgb-integration-test"
@@ -33,14 +33,14 @@ class TestXGBoostExperiment:
 
   def _generate_randomized_search_space(self):
     search_space = copy.deepcopy(SEARCH_SPACES)
-    if random.randint(0, 1) == 1:  # add bounds and type to eta randomly
+    if secrets.SystemRandom().randint(0, 1) == 1:  # add bounds and type to eta randomly
       search_space[0]["type"] = "double"
       search_space[0]["bounds"] = {"min": 0.1, "max": 0.5}
-    if random.randint(0, 1) == 1:  # add bounds and type to min_child_weight randomly
+    if secrets.SystemRandom().randint(0, 1) == 1:  # add bounds and type to min_child_weight randomly
       search_space[1]["type"] = "double"
       search_space[1]["bounds"] = {"min": 0.0, "max": 0.3}
-    random_subset_size = random.randint(1, len(search_space))
-    search_space = random.sample(search_space, random_subset_size)
+    random_subset_size = secrets.SystemRandom().randint(1, len(search_space))
+    search_space = secrets.SystemRandom().sample(search_space, random_subset_size)
     if not any(p["name"] in ["eta", "min_child_weight"] for p in search_space):
       search_space.append(SEARCH_SPACES[0])
     return search_space
@@ -49,9 +49,9 @@ class TestXGBoostExperiment:
     experiment_params = _form_random_run_params(task)
     is_classification = bool(task in ("binary", "multiclass"))
     if is_classification:
-      metric_to_optimize = random.choice(CLASSIFICATION_METRIC_CHOICES)
+      metric_to_optimize = secrets.SystemRandom().choice(CLASSIFICATION_METRIC_CHOICES)
     else:
-      metric_to_optimize = random.choice(REGRESSION_METRIC_CHOICES)
+      metric_to_optimize = secrets.SystemRandom().choice(REGRESSION_METRIC_CHOICES)
     search_space = self._generate_randomized_search_space()
 
     for param in search_space:
@@ -65,9 +65,9 @@ class TestXGBoostExperiment:
       "parameters": search_space,
       "metrics": [{"name": metric_to_optimize, "strategy": "optimize", "objective": "maximize"}],
       "parallel_bandwidth": 1,
-      "budget": random.randint(1, 3),
+      "budget": secrets.SystemRandom().randint(1, 3),
     }
-    if random.randint(0, 1) == 0:
+    if secrets.SystemRandom().randint(0, 1) == 0:
       del experiment_config["metrics"]
 
     experiment_params["experiment_config"] = experiment_config
