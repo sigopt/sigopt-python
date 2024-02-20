@@ -36,7 +36,7 @@ class AwsIamService(AwsService):
     return self.iam.Role(role_name)
 
   def get_thumbprint_from_oidc_issuer(self, oidc_url):
-    response = requests.get(f"{oidc_url}/.well-known/openid-configuration")
+    response = requests.get(f"{oidc_url}/.well-known/openid-configuration", timeout=60)
     response.raise_for_status()
     keys_url = response.json()["jwks_uri"]
     parsed_url = urlparse(keys_url)

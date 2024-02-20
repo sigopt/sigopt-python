@@ -470,7 +470,7 @@ class RunContext(BaseRunContext):
       upload_info["url"],
       headers=upload_info["headers"],
       data=image_data,
-    )
+    timeout=60)
     response.raise_for_status()
 
 
