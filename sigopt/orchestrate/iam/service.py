@@ -6,10 +6,10 @@ from urllib.parse import urlparse
 
 import boto3
 import certifi
-import requests
 from OpenSSL import SSL
 
 from ..services.aws_base import AwsService
+from security import safe_requests
 
 
 class AwsIamService(AwsService):
@@ -36,7 +36,7 @@ class AwsIamService(AwsService):
     return self.iam.Role(role_name)
 
   def get_thumbprint_from_oidc_issuer(self, oidc_url):
-    response = requests.get(f"{oidc_url}/.well-known/openid-configuration")
+    response = safe_requests.get(f"{oidc_url}/.well-known/openid-configuration")
     response.raise_for_status()
     keys_url = response.json()["jwks_uri"]
     parsed_url = urlparse(keys_url)
