@@ -7,9 +7,9 @@ from urllib.parse import urlparse
 import boto3
 import certifi
 from OpenSSL import SSL
+from security import safe_requests
 
 from ..services.aws_base import AwsService
-from security import safe_requests
 
 
 class AwsIamService(AwsService):
