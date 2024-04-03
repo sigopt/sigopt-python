@@ -13,7 +13,7 @@ jobs:
       SIGOPT_API_VERIFY_SSL_CERTS: /home/runner/work/sigopt-python/sigopt-server/artifacts/tls/root-ca.crt
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: echo '127.0.0.1 sigopt.ninja' | sudo tee -a /etc/hosts
       - run: git clone https://github.com/sigopt/sigopt-server ../sigopt-server
       - run: |
@@ -46,7 +46,7 @@ jobs:
       SIGOPT_API_VERIFY_SSL_CERTS: /home/runner/work/sigopt-python/sigopt-server/artifacts/tls/root-ca.crt
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: sudo apt-get install -yqq expect
       - run: echo '127.0.0.1 sigopt.ninja' | sudo tee -a /etc/hosts
       - run: git clone https://github.com/sigopt/sigopt-server ../sigopt-server
