@@ -154,7 +154,6 @@ class TestXGBoostRun(object):
         assert run.values["-".join((d_name, m_name))]
 
     assert run.values["Training time"].value > 0
-    assert run.values["best_iteration"].value >= 0
 
   def _verify_metadata_logging(self, run):
     assert run.metadata["Dataset columns"] == self.run_params["dtrain"].num_col()

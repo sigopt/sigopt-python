@@ -281,7 +281,6 @@ class XGBRunHandler:
       t_train = time.time() - t_start
       if self.run_options_parsed["autolog_metrics"]:
         self.run.log_metric("Training time", t_train)
-        self.run.log_metric("best_iteration", bst.best_iteration)
 
     stream_data = stream_monitor.get_stream_data()
     if stream_data:
