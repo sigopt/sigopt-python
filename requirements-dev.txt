@@ -7,7 +7,7 @@ notebook
 numpy>=1.15.0,<2.0.0
 Pillow
 pre-commit>=2.5.2,<3
-pylint==3.1.0
+pylint==2.9.6
 pymongo==3.12.3
 pyspark
 pytest==7.2.1
