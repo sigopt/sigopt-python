@@ -6,10 +6,10 @@ import json
 import math
 import os
 import platform
+import secrets
 from inspect import signature
 
 import pytest
-import secrets
 
 
 os.environ["SIGOPT_PROJECT"] = "dev-sigopt-xgb-integration-test"
