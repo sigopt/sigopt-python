@@ -294,16 +294,7 @@ class TestXGBoostRun(object):
     ctx = sigopt.xgboost.run(**self.run_params)
     booster = ctx.model
     params = json.loads(booster.save_config())
-    print(json.dumps(params, indent=4, sort_keys=True))
-    print(type(params))
-    print(type(params["learner"]))
-    print(type(params["learner"]["gradient_booster"]))
-    print(type(params["learner"]["gradient_booster"]["updater"]))
-
-    print(type(params["learner"]["gradient_booster"]["updater"]["grow_colmaker"]))
-    print(type(params["learner"]["gradient_booster"]["updater"]["grow_colmaker"]["train_param"]))
-    print(type(params["learner"]["gradient_booster"]["updater"]["grow_colmaker"]["train_param"]["max_depth"]))
-    trained_max_depth = params["learner"]["gradient_booster"]["updater"]["grow_colmaker"]["train_param"]["max_depth"]
+    trained_max_depth = params["learner"]["gradient_booster"]["tree_train_param"]["max_depth"]
     assert int(trained_max_depth) == 3
     bst_jsons = booster.get_dump(dump_format="json")
     assert len(bst_jsons) == 7
