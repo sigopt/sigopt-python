@@ -14,6 +14,10 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
       - run: echo '127.0.0.1 sigopt.ninja' | sudo tee -a /etc/hosts
       - run: git clone https://github.com/sigopt/sigopt-server ../sigopt-server
       - run: |
@@ -47,6 +51,10 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
       - run: sudo apt-get install -yqq expect
       - run: echo '127.0.0.1 sigopt.ninja' | sudo tee -a /etc/hosts
       - run: git clone https://github.com/sigopt/sigopt-server ../sigopt-server
