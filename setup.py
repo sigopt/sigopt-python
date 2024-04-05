@@ -8,11 +8,11 @@ import warnings
 from setuptools import find_packages, setup
 
 
-if sys.version_info < (3, 6):
+if sys.version_info[0] == 3 and sys.version_info[1] < 7:
   warnings.warn(
     (
-      "Python versions lower than 3.6 are no longer supported. Please upgrade to"
-      " Python 3.6 or newer or use an older version of the sigopt-python client."
+      "Python versions lower than 3.7 are no longer supported. Please upgrade to"
+      " Python 3.7 or newer or use an older version of the sigopt-python client."
     ),
     DeprecationWarning,
   )
@@ -45,6 +45,11 @@ xgboost_install_requires = ["xgboost>=1.3.1", "numpy>=1.15.0"]
 hyperopt_install_requires = ["hyperopt>=0.2.7"]
 lite_install_requires = ["sigoptlite>=0.1.1"]
 
+if sys.version_info[0] == 3 and sys.version_info[1] < 12:
+  pytest_requires = ["pytest==7.2.1"]
+else:
+  pytest_requires = ["pytest>=7.2.1"]
+
 setup(
   name="sigopt",
   version=VERSION,
@@ -59,6 +64,7 @@ setup(
   install_requires=install_requires,
   extras_require={
     "dev": dev_install_requires
+    + pytest_requires
     + orchestrate_install_requires
     + xgboost_install_requires
     + hyperopt_install_requires
@@ -67,6 +73,7 @@ setup(
     "orchestrate": orchestrate_install_requires,
     "xgboost": xgboost_install_requires,
     "lite": lite_install_requires,
+    "pytest": pytest_requires,
   },
   entry_points={
     "console_scripts": [
