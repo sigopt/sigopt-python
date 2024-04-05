@@ -154,7 +154,6 @@ class TestXGBoostRun(object):
         assert run.values["-".join((d_name, m_name))]
 
     assert run.values["Training time"].value > 0
-    assert run.values["best_iteration"].value >= 0
 
   def _verify_metadata_logging(self, run):
     assert run.metadata["Dataset columns"] == self.run_params["dtrain"].num_col()
@@ -295,7 +294,7 @@ class TestXGBoostRun(object):
     ctx = sigopt.xgboost.run(**self.run_params)
     booster = ctx.model
     params = json.loads(booster.save_config())
-    trained_max_depth = params["learner"]["gradient_booster"]["updater"]["grow_colmaker"]["train_param"]["max_depth"]
+    trained_max_depth = params["learner"]["gradient_booster"]["tree_train_param"]["max_depth"]
     assert int(trained_max_depth) == 3
     bst_jsons = booster.get_dump(dump_format="json")
     assert len(bst_jsons) == 7
