@@ -8,11 +8,11 @@ import warnings
 from setuptools import find_packages, setup
 
 
-if sys.version_info < (3, 6):
+if sys.version_info[0] == 3 and sys.version_info[1] < 7:
   warnings.warn(
     (
-      "Python versions lower than 3.6 are no longer supported. Please upgrade to"
-      " Python 3.6 or newer or use an older version of the sigopt-python client."
+      "Python versions lower than 3.7 are no longer supported. Please upgrade to"
+      " Python 3.7 or newer or use an older version of the sigopt-python client."
     ),
     DeprecationWarning,
   )
