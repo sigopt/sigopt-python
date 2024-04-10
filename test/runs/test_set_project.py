@@ -1,9 +1,10 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+import warnings
+
 import mock
 import pytest
-import warnings
 
 from sigopt import _global_factory, set_project
 
