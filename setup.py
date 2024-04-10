@@ -46,9 +46,9 @@ hyperopt_install_requires = ["hyperopt>=0.2.7"]
 lite_install_requires = ["sigoptlite>=0.1.1"]
 
 if sys.version_info[0] == 3 and sys.version_info[1] < 12:
-  pytest_requires = ["pytest==7.2.1"]
+  pytest_requires = ["pytest>=7.2.1"]
 else:
-  pytest_requires = ["pytest==7.2.1"]
+  pytest_requires = ["pytest>=7.2.1"]
 
 setup(
   name="sigopt",
