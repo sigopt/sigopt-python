@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install '.[orchestrate,xgboost,pytest]' -r requirements-dev.txt
+      - run: pip install '.[orchestrate,xgboost]' -r requirements-dev.txt
       - run: pytest -rw -v test/${{ matrix.test-suite }}
   pylint:
     runs-on: ubuntu-latest
