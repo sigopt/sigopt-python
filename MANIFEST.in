@@ -1,5 +1,6 @@
 include README.md
 include LICENSE
 include setup.py
+include requirements.txt
 recursive-include sigopt *.py
 recursive-include test *.py
