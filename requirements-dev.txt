@@ -8,7 +8,7 @@ numpy>=1.15.0,<2.0.0
 Pillow
 pre-commit>=2.5.2,<3
 pylint==2.9.6
-pymongo==3.12.3
+pymongo>=3.12.3,<4
 pyspark
 pytest>=7.2.1
 scikit-learn>=0.23.2
