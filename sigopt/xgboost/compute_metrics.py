@@ -1,6 +1,8 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+import math
+
 import numpy
 
 from .compat import Booster
@@ -35,7 +37,7 @@ def compute_classification_report(y_true, y_pred):
     tp, _, fp, fn = compute_positives_and_negatives(y_true, y_pred, class_label)
     precision = tp / (tp + fp) if (tp + fp) != 0 else 0
     recall = tp / (tp + fn) if (tp + fn) != 0 else 0
-    f1 = tp / (tp + 0.5 * (fp + fn)) if (tp + 0.5 * (fp + fn)) != 0 else 0
+    f1 = tp / (tp + 0.5 * (fp + fn)) if not math.isclose((tp + 0.5 * (fp + fn)), 0, rel_tol=1e-09, abs_tol=0.0) else 0
     support = numpy.count_nonzero(y_true == class_label)
     classification_report[str(class_label)] = {
       "precision": precision,
