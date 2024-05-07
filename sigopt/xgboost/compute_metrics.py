@@ -1,10 +1,11 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+import math
+
 import numpy
 
 from .compat import Booster
-import math
 
 
 def compute_positives_and_negatives(y_true, y_pred, class_label):
