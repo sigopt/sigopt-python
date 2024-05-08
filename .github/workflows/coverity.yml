@@ -1,8 +1,8 @@
 name: Coverity Scan
 
 on:
-  push: {}
-  # branches: [main]
+  push:
+    branches: [main]
 jobs:
   coverity:
     runs-on: ubuntu-latest
