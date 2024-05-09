@@ -5,6 +5,8 @@ import io
 import sys
 import threading
 
+from .decorators import public
+
 
 class MonitorStream(io.IOBase):
   def __init__(self, original_stream):
@@ -17,49 +19,63 @@ class MonitorStream(io.IOBase):
   def _replace_buffer_stream(self):
     self.buffer_stream = io.StringIO()
 
+  @public
   def close(self):
     raise IOError("MonitorStream cannot be closed")
 
+  @public
   @property
   def closed(self):
     return self.original_stream.closed
 
+  @public
   def fileno(self):
     raise IOError("MonitorStream has no fileno")
 
+  @public
   def flush(self):
     return self.original_stream.flush()
 
+  @public
   def isatty(self):
     return False
 
+  @public
   def readable(self):
     return False
 
+  @public
   def readline(self, *args, **kwargs):
     return self.original_stream.readline(*args, **kwargs)
 
+  @public
   def readlines(self, *args, **kwargs):
     return self.original_stream.readlines(*args, **kwargs)
 
+  @public
   def seek(self, *args, **kwargs):
     raise IOError("MonitorStream is not seekable")
 
+  @public
   def seekable(self):
     return False
 
+  @public
   def tell(self, *args, **kwargs):
     raise IOError("MonitorStream is not seekable")
 
+  @public
   def writable(self):
     return True
 
+  @public
   def write(self, content):
     rval = self.original_stream.write(content)
     with self.buffer_lock:
       self.buffer_stream.write(content)
     return rval
 
+  @public
   def writelines(self, lines):
     for line in lines:
       self.write(line)
@@ -79,6 +95,7 @@ class BaseStreamMonitor(object):
     raise NotImplementedError()
 
   def __exit__(self, typ, value, trace):
+    del trace
     raise NotImplementedError()
 
 
@@ -90,7 +107,7 @@ class NullStreamMonitor(BaseStreamMonitor):
     return self
 
   def __exit__(self, typ, value, trace):
-    return None
+    del trace
 
 
 class SystemOutputStreamMonitor(BaseStreamMonitor):
@@ -112,4 +129,5 @@ class SystemOutputStreamMonitor(BaseStreamMonitor):
     return self
 
   def __exit__(self, typ, value, trace):
+    del trace
     sys.stdout, sys.stderr = (monitor_stream.original_stream for monitor_stream in self.monitor_streams)

@@ -1,6 +1,7 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+from ..decorators import public
 from .compat import xgboost
 
 
@@ -11,6 +12,7 @@ class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
     self._latest = None
     super().__init__()
 
+  @public
   def after_iteration(self, model, epoch, evals_log):
     if not evals_log:
       return False
@@ -31,6 +33,7 @@ class SigOptCheckpointCallback(xgboost.callback.TrainingCallback):
 
     return False
 
+  @public
   def after_training(self, model):
     if self._latest is not None:
       self.run.log_checkpoint(self._latest)

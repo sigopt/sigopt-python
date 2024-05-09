@@ -50,10 +50,6 @@ class ApiException(SigOptException):
     return copy.deepcopy(self._body)
 
 
-class RunException(SigOptException):
-  pass
-
-
 class ConflictingProjectException(SigOptException):
   def __init__(self, project_id):
     super().__init__(f"The project with id '{project_id}' already exists.")

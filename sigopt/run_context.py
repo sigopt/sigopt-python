@@ -6,7 +6,6 @@ import functools
 import requests
 
 from .config import config
-from .exception import RunException
 from .file_utils import create_api_image_payload, get_blob_properties
 from .interface import get_connection
 from .lib import is_mapping, is_string, remove_nones, sanitize_number, validate_name
@@ -36,11 +35,6 @@ def maybe_truncate_log(log_content):
       ]
     )
   return log_content
-
-
-class NoDefaultParameterError(RunException):
-  def __init__(self, parameter_name):
-    super().__init__(f'No default provided for parameter "{parameter_name}"')
 
 
 class BaseRunContext(object):
@@ -104,12 +98,6 @@ class BaseRunContext(object):
           The value of the parameter.
         """
     return self._set_parameters({name: value})
-
-  def set_parameter_meta(self, name, value):
-    return self._set_parameters_meta({name: value})
-
-  def set_parameters_meta(self, parameters_meta):
-    return self._set_parameters_meta(parameters_meta)
 
   def set_parameter_source(self, name, source):
     return self._set_parameters_meta({name: {"source": source}})
@@ -360,6 +348,7 @@ class RunContext(BaseRunContext):
     return self
 
   def __exit__(self, type_, value, tb):
+    del tb
     self._end(exception=value)
 
   def _end(self, exception):

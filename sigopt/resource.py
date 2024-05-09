@@ -10,7 +10,6 @@ _NO_ARG = object()
 class BoundApiResource(object):
   def __init__(self, resource, id_, path):
     self._resource = resource
-    self._id = id_
 
     self._base_path = list(path)
     if id_ is not _NO_ARG:

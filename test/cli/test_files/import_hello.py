@@ -2,3 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 import print_hello  # pylint: disable=unused-import
+
+
+del print_hello

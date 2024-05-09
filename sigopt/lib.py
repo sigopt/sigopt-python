@@ -52,19 +52,8 @@ def is_string(s):
   return isinstance(s, str)
 
 
-def find(lis, predicate):
-  """
-    Finds the first element in lis satisfying predicate, or else None
-    """
-  return next((item for item in lis if predicate(item)), None)
-
-
 def remove_nones(mapping):
   return {key: value for key, value in mapping.items() if value is not None}
-
-
-def safe_format(string, *args, **kwargs):
-  return string.format(*args, **kwargs)
 
 
 def validate_name(warn, name):

@@ -1,7 +1,0 @@
-cargo=1.60.0-r2
-git=2.36.3-r0
-gcc=11.2.1_git20220219-r2
-libffi-dev=3.4.2-r1
-musl-dev=1.2.3-r1
-openssl-dev=1.1.1s-r0
-rust=1.60.0-r2
