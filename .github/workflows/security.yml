@@ -1,0 +1,19 @@
+name: security checks
+permissions: read-all
+run-name: Security checks for ${{ github.repository }}@${{ github.ref }}
+on:
+  push: {}
+  schedule:
+    - cron: "0 8,16 * * *"
+jobs:
+  trivy-scan-fs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          trivy-config: trivy.yaml
