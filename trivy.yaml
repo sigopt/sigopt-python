@@ -1,0 +1,35 @@
+db:
+  download-only: false
+  light: false
+  no-progress: true
+  repository: ghcr.io/aquasecurity/trivy-db
+  skip-update: false
+debug: false
+exit-code: 1
+format: table
+image:
+  removed-pkgs: false
+insecure: false
+license:
+  forbidden: []
+  full: false
+  ignored: []
+  notice: []
+  permissive: []
+  reciprocal: []
+  restricted: []
+  unencumbered: []
+list-all-pkgs: false
+quiet: false
+scan:
+  file-patterns: []
+  scanners:
+    - vuln
+    - secret
+  skip-dirs: []
+  skip-files: []
+severity: LOW,MEDIUM,HIGH,CRITICAL
+timeout: 10m0s
+vulnerability:
+  ignore-unfixed: false
+  type: os,library
