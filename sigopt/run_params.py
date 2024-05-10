@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from collections.abc import MutableMapping
 
+from .decorators import public
 from .lib import is_string
 
 
@@ -21,6 +22,7 @@ class RunParameters(MutableMapping):
     _set(self, "__run_context", run_context)
     _set(self, "__fixed_keys", set(fixed_items.keys()))
 
+  @public
   def update(self, *args, **kwds):  # pylint: disable=arguments-differ
     # this update is atomic, which reduces the number of calls to set_parameter(s)
     # the default implementation of update would result in a partial update if any of the setters failed
@@ -31,6 +33,7 @@ class RunParameters(MutableMapping):
     _get(self, "__items").update(tmp)
     _get(self, "__run_context").set_parameters(tmp)
 
+  @public
   def setdefaults(self, *args, **kwds):
     tmp = dict()
     tmp.update(*args, **kwds)

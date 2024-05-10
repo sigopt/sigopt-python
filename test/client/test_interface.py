@@ -15,6 +15,7 @@ from sigopt.resource import ApiResource
 class TestInterface(object):
   @pytest.yield_fixture
   def config_dict(self, autouse=True):
+    del autouse
     with mock.patch.dict(config._configuration, {}):
       yield config._configuration
 

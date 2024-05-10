@@ -49,10 +49,6 @@ class Config(object):
       self._json_context = json.loads(decoded)
     self._object_context = {}
 
-  @property
-  def config_json_path(self):
-    return self._config_json_path
-
   def get_context_data(self, entry_cls):
     key = entry_cls.CONFIG_CONTEXT_KEY
     instance = self._object_context.get(key)

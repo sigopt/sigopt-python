@@ -16,7 +16,6 @@ repos:
       - id: check-shebang-scripts-are-executable
       - id: check-toml
       - id: check-yaml
-        exclude: "^sigopt/orchestrate/.*$"
       - id: check-ast
       - id: debug-statements
       - id: end-of-file-fixer

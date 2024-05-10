@@ -5,4 +5,4 @@
 set -e
 set -o pipefail
 
-exec vulture --exclude="build,venv" --ignore-decorators="@click.*,@sigopt_cli.*,@pytest.*" "$@"
+exec vulture --exclude="build,venv" --ignore-decorators="@click.*,@sigopt_cli.*,@public,@pytest.*" --ignore-names="side_effect" "$@"
