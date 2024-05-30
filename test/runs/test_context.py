@@ -243,4 +243,5 @@ class TestLiveRunContext(object):
         "https://test.sigopt.ninja/upload_file",
         headers={"X-Testing": "value"},
         data=image_data,
+        timeout=mock.ANY,
       )
