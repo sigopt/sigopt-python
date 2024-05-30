@@ -455,7 +455,11 @@ class RunContext(BaseRunContext):
     upload_info = file_info["upload"]
     image_data.seek(0)
     response = requests.request(
-      upload_info["method"], upload_info["url"], headers=upload_info["headers"], data=image_data, timeout=60
+      upload_info["method"],
+      upload_info["url"],
+      headers=upload_info["headers"],
+      data=image_data,
+      timeout=60,
     )
     response.raise_for_status()
 
