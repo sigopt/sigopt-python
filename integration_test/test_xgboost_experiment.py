@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MIT
 import copy
 import os
+import secrets
 
 import pytest
-import secrets
 
 
 os.environ["SIGOPT_PROJECT"] = "dev-sigopt-xgb-integration-test"

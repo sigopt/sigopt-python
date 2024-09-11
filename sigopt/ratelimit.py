@@ -1,9 +1,9 @@
 # Copyright © 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+import secrets
 import threading
 import time
-import secrets
 
 
 class _FailedStatusRateLimit(object):
