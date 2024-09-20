@@ -6,7 +6,7 @@ import json
 import math
 import os
 import platform
-import random
+import secrets
 from inspect import signature
 
 import pytest
@@ -32,20 +32,20 @@ from sigopt.xgboost.run import (
 
 
 POSSIBLE_PARAMETERS = {
-  "eta": 10 ** random.uniform(-4, 1),
-  "gamma": random.uniform(0, 4),
-  "max_depth": random.randint(1, 5),
-  "min_child_weight": random.uniform(0, 3),
-  "lambda": random.uniform(1, 3),
-  "alpha": 10 ** random.uniform(-4, 0),
-  "tree_method": random.choice(["hist", "exact", "approx", "auto"]),
+  "eta": 10 ** secrets.SystemRandom().uniform(-4, 1),
+  "gamma": secrets.SystemRandom().uniform(0, 4),
+  "max_depth": secrets.SystemRandom().randint(1, 5),
+  "min_child_weight": secrets.SystemRandom().uniform(0, 3),
+  "lambda": secrets.SystemRandom().uniform(1, 3),
+  "alpha": 10 ** secrets.SystemRandom().uniform(-4, 0),
+  "tree_method": secrets.choice(["hist", "exact", "approx", "auto"]),
 }
 
 
 def _create_random_dataset(task="binary"):
   if task == "binary":
-    n_samples = random.randint(180, 300)
-    n_features = random.randint(5, 25)
+    n_samples = secrets.SystemRandom().randint(180, 300)
+    n_features = secrets.SystemRandom().randint(5, 25)
     n_classes = 2
 
     return datasets.make_classification(
@@ -54,10 +54,10 @@ def _create_random_dataset(task="binary"):
       n_classes=n_classes,
     )
   elif task == "multiclass":
-    n_samples = random.randint(180, 300)
-    n_classes = random.randint(3, 8)
-    n_informative = random.randint(2 * n_classes, 20)
-    n_features = random.randint(n_informative + 2, 40)
+    n_samples = secrets.SystemRandom().randint(180, 300)
+    n_classes = secrets.SystemRandom().randint(3, 8)
+    n_informative = secrets.SystemRandom().randint(2 * n_classes, 20)
+    n_features = secrets.SystemRandom().randint(n_informative + 2, 40)
 
     return datasets.make_classification(
       n_samples=n_samples,
@@ -66,9 +66,9 @@ def _create_random_dataset(task="binary"):
       n_classes=n_classes,
     )
   else:
-    n_samples = random.randint(200, 500)
-    n_features = random.randint(50, 100)
-    n_informative = random.randint(10, n_features - 2)
+    n_samples = secrets.SystemRandom().randint(200, 500)
+    n_features = secrets.SystemRandom().randint(50, 100)
+    n_informative = secrets.SystemRandom().randint(10, n_features - 2)
 
     return datasets.make_regression(
       n_samples=n_samples,
@@ -81,17 +81,17 @@ def _create_random_dataset(task="binary"):
 def _create_random_metric_objective(task="binary"):
   if task == "binary":
     return {
-      "objective": random.choice(["binary:logistic", "binary:hinge", "binary:logitraw"]),
+      "objective": secrets.choice(["binary:logistic", "binary:hinge", "binary:logitraw"]),
       "eval_metric": ["logloss", "aucpr", "error"],
     }
   elif task == "multiclass":
     return {
-      "objective": random.choice(["multi:softmax", "multi:softprob"]),
+      "objective": secrets.choice(["multi:softmax", "multi:softprob"]),
       "eval_metric": ["mlogloss", "merror"],
     }
   else:
     return {
-      "objective": random.choice(["reg:squarederror", "reg:pseudohubererror"]),
+      "objective": secrets.choice(["reg:squarederror", "reg:pseudohubererror"]),
       "eval_metric": ["rmse", "mae", "mape"],
     }
 
@@ -103,8 +103,8 @@ def _form_random_run_params(task):
   D_test = xgb.DMatrix(X_test, label=Y_test)
 
   possible_params = POSSIBLE_PARAMETERS
-  random_subset_size = random.randint(1, len(possible_params))
-  subset_keys = random.sample(possible_params.keys(), random_subset_size)
+  random_subset_size = secrets.SystemRandom().randint(1, len(possible_params))
+  subset_keys = secrets.SystemRandom().sample(possible_params.keys(), random_subset_size)
   subset_params = {k: possible_params[k] for k in subset_keys}
   subset_params.update(_create_random_metric_objective(task))
   if task == "multiclass":
@@ -115,9 +115,9 @@ def _form_random_run_params(task):
   return dict(
     params=subset_params,
     dtrain=D_train,
-    evals=[(D_test, f"test{n}") for n in range(random.randint(1, 3))],
-    num_boost_round=random.randint(3, 15),
-    verbose_eval=random.choice([True, False]),
+    evals=[(D_test, f"test{n}") for n in range(secrets.SystemRandom().randint(1, 3))],
+    num_boost_round=secrets.SystemRandom().randint(3, 15),
+    verbose_eval=secrets.choice([True, False]),
     run_options=run_options,
   )
 
