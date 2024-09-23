@@ -52,7 +52,7 @@ repos:
         types: [python]
         args: ["-rn", "-sn"]
   - repo: https://github.com/jendrikseipp/vulture.git
-    rev: "v2.11"
+    rev: "v2.12"
     hooks:
       - id: vulture
         entry: tools/run_vulture.sh
