@@ -122,6 +122,9 @@ make vulture-allowlist
 
 The `vulture`  allowlist file `.vulture_allowlist` can be edit to add/remove allowed no use code/parameters.
 
+## Earlier versions
+Earlier versions supported a hyperopt integration. Since hyperopt now seems to be a retired project, we are removing this integration. If you need that integration please select version 8.8.3
+
 ## Acknowledgments
 
 We would like to thank the following people for their contributions:
