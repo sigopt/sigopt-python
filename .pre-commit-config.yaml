@@ -2,7 +2,7 @@ ci:
   skip: [detect-aws-credentials, pylint]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks.git
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: no-commit-to-branch
         args: [--branch=main]
@@ -52,7 +52,7 @@ repos:
         types: [python]
         args: ["-rn", "-sn"]
   - repo: https://github.com/jendrikseipp/vulture.git
-    rev: "v2.12"
+    rev: "v2.13"
     hooks:
       - id: vulture
         entry: tools/run_vulture.sh
