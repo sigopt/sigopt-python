@@ -1,5 +1,6 @@
 *.pyc
 .pytest_cache/
+.python-version
 build/
 dist/
 *.egg-info/
