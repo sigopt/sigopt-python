@@ -5,8 +5,9 @@ import argparse
 import sys
 from subprocess import PIPE, Popen
 
-from sigopt import Connection
 from security import safe_command
+
+from sigopt import Connection
 
 
 class SubProcessEvaluator(object):
