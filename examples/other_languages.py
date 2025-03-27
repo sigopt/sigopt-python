@@ -6,6 +6,7 @@ import sys
 from subprocess import PIPE, Popen
 
 from sigopt import Connection
+from security import safe_command
 
 
 class SubProcessEvaluator(object):
@@ -23,7 +24,7 @@ class SubProcessEvaluator(object):
     arguments = [
       "--{}={}".format(param_name, assignment) for param_name, assignment in assignments.to_json().iteritems()
     ]
-    process = Popen(self.command.split() + arguments, stdout=PIPE, stderr=PIPE)
+    process = safe_command.run(Popen, self.command.split() + arguments, stdout=PIPE, stderr=PIPE)
     (stdoutdata, stderrdata) = process.communicate()
     sys.stderr.write(stderrdata)
     return float(stdoutdata.strip())
