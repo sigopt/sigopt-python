@@ -2,7 +2,7 @@ ci:
   skip: [detect-aws-credentials, pylint]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks.git
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: no-commit-to-branch
         args: [--branch=main]
@@ -36,11 +36,11 @@ repos:
       - id: black
         args: [--preview]
   - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
+    rev: 7.3.0
     hooks:
       - id: flake8
   - repo: https://github.com/PyCQA/isort.git
-    rev: "5.13.2"
+    rev: "6.0.1"
     hooks:
       - id: isort
   - repo: local
@@ -52,7 +52,7 @@ repos:
         types: [python]
         args: ["-rn", "-sn"]
   - repo: https://github.com/jendrikseipp/vulture.git
-    rev: "v2.12"
+    rev: "v2.14"
     hooks:
       - id: vulture
         entry: tools/run_vulture.sh
